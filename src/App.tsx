@@ -6,6 +6,7 @@ import { Shell } from '@/components/layout/Shell'
 import { SplashScreen } from '@/components/layout/SplashScreen'
 import { lazy, Suspense, useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+import { checkHabitReminders, checkAgendaReminders } from '@/lib/notifications'
 
 const Dashboard = lazy(() => import('@/pages/Dashboard'))
 const Agenda = lazy(() => import('@/pages/Agenda'))
@@ -34,6 +35,7 @@ export default function App() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) setShowLogin(true)
+      else { checkHabitReminders(); checkAgendaReminders() }
       setChecking(false)
     })
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {

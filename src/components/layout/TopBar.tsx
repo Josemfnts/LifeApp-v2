@@ -6,6 +6,7 @@ import { useTheme, THEME_LABELS, type Theme } from '@/contexts/ThemeContext'
 import { useToast } from '@/stores/toast'
 import { getGlobalLevel, calcCombinedStreak } from '@/lib/xp-engine'
 import { supabase, signOut } from '@/lib/supabase'
+import { requestPermission } from '@/lib/notifications'
 
 const ALL_KEYS = [
   'josema_rpg_time_v4','josema_rpg_rec_v4',
@@ -204,6 +205,41 @@ export function TopBar() {
                       style={{ width: '100%', background: 'rgba(91,138,240,0.12)', color: 'var(--color-acc-blue)', border: '1px solid rgba(91,138,240,0.2)', fontFamily: 'DM Sans,sans-serif', fontSize: 14, fontWeight: 600, padding: 11, borderRadius: 10, cursor: 'pointer' }}>🔐 Iniciar sesión</button>
                   </div>
                 )}
+              </div>
+            </div>
+
+            <div style={{ margin: '16px 20px 0' }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', letterSpacing: '0.8px', textTransform: 'uppercase', marginBottom: 10 }}>Notificaciones</div>
+              <div style={{ background: 'var(--color-s2)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)', marginBottom: 4 }}>Recordatorios diarios</div>
+                <div style={{ fontSize: 12, color: 'var(--color-sub)', marginBottom: 12 }}>Recibe avisos de hábitos y tareas pendientes</div>
+                {[
+                  { key: 'lifeos_notif_habits', label: 'Hábitos pendientes' },
+                  { key: 'lifeos_notif_agenda', label: 'Tareas del día' },
+                ].map(n => {
+                  const enabled = localStorage.getItem(n.key) === 'true'
+                  return (
+                    <div key={n.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                      <span style={{ fontSize: 13, color: 'var(--color-sub)' }}>{n.label}</span>
+                      <button
+                        onClick={async () => {
+                          if (!enabled) {
+                            const ok = await requestPermission()
+                            if (!ok) { toast.show('Permiso denegado'); return }
+                          }
+                          localStorage.setItem(n.key, String(!enabled))
+                          toast.show(enabled ? 'Notificación desactivada' : '✓ Notificación activada')
+                        }}
+                        style={{
+                          width: 48, height: 26, borderRadius: 99, position: 'relative',
+                          background: enabled ? 'var(--color-acc-blue)' : 'var(--color-border2)',
+                          border: 'none', cursor: 'pointer', transition: 'background 0.2s',
+                        }}>
+                        <div style={{ position: 'absolute', top: 2, width: 22, height: 22, borderRadius: '50%', background: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', transition: 'transform 0.2s', transform: enabled ? 'translateX(24px)' : 'translateX(2px)' }} />
+                      </button>
+                    </div>
+                  )
+                })}
               </div>
             </div>
 
