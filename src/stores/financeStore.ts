@@ -43,6 +43,21 @@ export interface Cuenta {
   updatedAt: string
 }
 
+export interface Presupuesto {
+  category: string
+  limit: number
+}
+
+export interface Recurrente {
+  id: number
+  concept: string
+  amount: number
+  type: 'income' | 'expense'
+  category: string
+  day: number
+  active: boolean
+}
+
 export const CAT_META: Record<string, { icon: string; color: string; type: string }> = {
   'Nómina':          { icon:'💼', color:'#52b788', type:'income' },
   'Freelance':       { icon:'💻', color:'#52b788', type:'income' },
@@ -88,8 +103,11 @@ interface FinanceStore {
   huchas: Hucha[]
   pufos: Pufo[]
   cuentas: Cuenta[]
+  presupuestos: Presupuesto[]
+  recurrentes: Recurrente[]
   addTx: (tx: Tx) => void
   removeTx: (idx: number) => void
+  updateTx: (idx: number, tx: Partial<Tx>) => void
   addHucha: (h: Hucha) => void
   aportarHucha: (i: number, amount: number) => void
   removeHucha: (i: number) => void
@@ -98,6 +116,11 @@ interface FinanceStore {
   removePufo: (idx: number) => void
   saveCuenta: (c: Cuenta, editIdx?: number | null) => void
   removeCuenta: (idx: number) => void
+  setPresupuesto: (cat: string, limit: number) => void
+  removePresupuesto: (cat: string) => void
+  addRecurrente: (r: Recurrente) => void
+  removeRecurrente: (id: number) => void
+  processRecurrentes: () => Tx[]
 }
 
 export const useFinanceStore = create<FinanceStore>((set, get) => ({
@@ -105,6 +128,8 @@ export const useFinanceStore = create<FinanceStore>((set, get) => ({
   huchas: load('finances_huchas', []),
   pufos: load('finances_pufos', []),
   cuentas: load('finances_cuentas', []),
+  presupuestos: load('finances_budgets', []),
+  recurrentes: load('finances_recurring', []),
 
   addTx: (tx) => {
     const txs = [{ ...tx, id: Date.now() }, ...get().txs]
@@ -113,6 +138,12 @@ export const useFinanceStore = create<FinanceStore>((set, get) => ({
   },
   removeTx: (idx) => {
     const txs = get().txs.filter((_, i) => i !== idx)
+    save('finances_tx', txs)
+    set({ txs })
+  },
+  updateTx: (idx, partial) => {
+    const txs = [...get().txs]
+    txs[idx] = { ...txs[idx], ...partial }
     save('finances_tx', txs)
     set({ txs })
   },
@@ -159,5 +190,61 @@ export const useFinanceStore = create<FinanceStore>((set, get) => ({
     const cuentas = get().cuentas.filter((_, i) => i !== idx)
     save('finances_cuentas', cuentas)
     set({ cuentas })
+  },
+  setPresupuesto: (cat, limit) => {
+    const presupuestos = [...get().presupuestos.filter(p => p.category !== cat), { category: cat, limit }]
+    save('finances_budgets', presupuestos)
+    set({ presupuestos })
+  },
+  removePresupuesto: (cat) => {
+    const presupuestos = get().presupuestos.filter(p => p.category !== cat)
+    save('finances_budgets', presupuestos)
+    set({ presupuestos })
+  },
+  addRecurrente: (r) => {
+    const recurrentes = [...get().recurrentes, r]
+    save('finances_recurring', recurrentes)
+    set({ recurrentes })
+  },
+  removeRecurrente: (id) => {
+    const recurrentes = get().recurrentes.filter(r => r.id !== id)
+    save('finances_recurring', recurrentes)
+    set({ recurrentes })
+  },
+  processRecurrentes: () => {
+    const { recurrentes, txs } = get()
+    const today = new Date()
+    const todayD = today.getDate()
+    const todayStr = new Date().toISOString().slice(0, 10)
+    const newTxs: Tx[] = []
+
+    recurrentes.filter(r => r.active).forEach(r => {
+      // Check if this recurring tx was already added this month
+      const keyM = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`
+      const alreadyAdded = txs.some(t =>
+        t.date.startsWith(keyM) &&
+        t.concept === r.concept &&
+        t.category === r.category &&
+        t.type === r.type
+      )
+      if (r.day <= todayD && !alreadyAdded) {
+        newTxs.push({
+          id: Date.now() + Math.random(),
+          concept: r.concept,
+          amount: r.amount,
+          type: r.type,
+          category: r.category,
+          date: todayStr,
+          note: '(recurrente)'
+        })
+      }
+    })
+
+    if (newTxs.length > 0) {
+      const updated = [...newTxs, ...txs]
+      save('finances_tx', updated)
+      set({ txs: updated })
+    }
+    return newTxs
   },
 }))

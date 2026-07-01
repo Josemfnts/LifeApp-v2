@@ -10,22 +10,43 @@ const MONTHS_SH = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','
 function todayISO() { return new Date().toISOString().slice(0, 10) }
 function monthKey(y: number, m: number) { return `${y}-${String(m + 1).padStart(2, '0')}` }
 
+function exportCSV(txs: { date: string; concept: string; category: string; type: string; amount: number; note?: string }[], toast: { show: (m: string) => void }) {
+  const headers = 'Fecha,Concepto,Categoría,Tipo,Importe,Nota'
+  const rows = txs.map(t => `${t.date},"${t.concept}","${t.category}",${t.type},${t.amount},"${t.note || ''}"`)
+  const csv = [headers, ...rows].join('\n')
+  const blob = new Blob([csv], { type: 'text/csv' })
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(blob)
+  a.download = `lifeos-finanzas-${todayISO()}.csv`
+  a.click()
+  URL.revokeObjectURL(a.href)
+  toast.show('✓ CSV exportado')
+}
+
 export default function Finanzas() {
-  const [tab, setTab] = useState<'summary' | 'moves' | 'analysis' | 'patrimonio'>('summary')
+  const [tab, setTab] = useState<'summary' | 'moves' | 'analysis' | 'patrimonio' | 'budgets'>('summary')
   const store = useFinanceStore()
   const toast = useToast()
+
+  useEffect(() => {
+    const newTxs = store.processRecurrentes()
+    if (newTxs.length > 0) toast.show(`✓ ${newTxs.length} transacciones recurrentes añadidas`)
+  }, [])
 
   return (
     <div>
       <div className="page-header">
         <div className="page-module" style={{ color: 'var(--color-acc-gold)' }}>Finanzas</div>
         <div className="page-title">Dinero</div>
-        <div className="tab-bar">
-          {(['summary','moves','analysis','patrimonio'] as const).map(t => (
-            <button key={t} onClick={() => setTab(t)} className={`tab-btn tab-gold${tab === t ? ' active' : ''}`}>
-              {{summary:'Resumen',moves:'Movimientos',analysis:'Análisis',patrimonio:'Patrimonio'}[t]}
-            </button>
-          ))}
+        <div className="tab-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', overflow: 'hidden' }}>
+            {(['summary','moves','analysis','patrimonio','budgets'] as const).map(t => (
+              <button key={t} onClick={() => setTab(t)} className={`tab-btn tab-gold${tab === t ? ' active' : ''}`}>
+                {{summary:'Resumen',moves:'Movs',analysis:'Análisis',patrimonio:'Patrimonio',budgets:'Presupuesto'}[t]}
+              </button>
+            ))}
+          </div>
+          <button onClick={() => exportCSV(store.txs, toast)} style={{ background: 'transparent', border: '1px solid var(--color-border)', color: 'var(--color-dim)', borderRadius: 8, padding: '4px 8px', fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'DM Sans,sans-serif', flexShrink: 0, marginRight: 8 }}>CSV</button>
         </div>
       </div>
       <div style={{ padding: 16 }}>
@@ -33,6 +54,7 @@ export default function Finanzas() {
         {tab === 'moves' && <MovesTab />}
         {tab === 'analysis' && <AnalysisTab />}
         {tab === 'patrimonio' && <PatrimonioTab />}
+        {tab === 'budgets' && <BudgetsTab />}
       </div>
     </div>
   )
@@ -195,6 +217,7 @@ function MovesTab() {
   const [date, setDate] = useState(todayISO())
   const [note, setNote] = useState('')
   const [filter, setFilter] = useState('Todos')
+  const [search, setSearch] = useState('')
 
   const incCats = ['Nómina','Freelance','Otros ingresos']
   const expCats = ['Vivienda','Alimentación','Transporte','Salud','Ocio','Ropa','Suscripciones','Deporte','Restaurantes','Viajes','Educación','Ahorro','Otros gastos']
@@ -211,6 +234,11 @@ function MovesTab() {
   const allCats = ['Todos', ...new Set(txs.map(t => t.category))]
   let filtered = txs.slice()
   if (filter !== 'Todos') filtered = filtered.filter(t => t.category === filter)
+  if (search.trim()) filtered = filtered.filter(t =>
+    t.concept.toLowerCase().includes(search.toLowerCase()) ||
+    t.note.toLowerCase().includes(search.toLowerCase()) ||
+    t.category.toLowerCase().includes(search.toLowerCase())
+  )
   filtered.sort((a, b) => b.date.localeCompare(a.date))
 
   const byDate: Record<string, typeof filtered> = {}
@@ -245,6 +273,10 @@ function MovesTab() {
         </button>
       </div>
 
+      <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+        <input className="inp" value={search} onChange={e => setSearch(e.target.value)} type="text" placeholder="🔍 Buscar movimientos..." style={{ marginBottom: 0 }} />
+        <button onClick={() => exportCSV(txs, toast)} style={{ background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-sub)', borderRadius: 10, padding: '6px 12px', fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>📥 CSV</button>
+      </div>
       <div style={{ display: 'flex', gap: 6, overflowX: 'auto', marginBottom: 12, paddingBottom: 2 }}>
         {allCats.map(c => (
           <button key={c} onClick={() => setFilter(c)}
@@ -429,6 +461,10 @@ function PatrimonioTab() {
   const [cBal, setCBal] = useState('')
   const [cColor, setCColor] = useState('#5b8af0')
   const [cNote, setCNote] = useState('')
+
+  const [settleModal, setSettleModal] = useState(false)
+  const [settleIdx, setSettleIdx] = useState(-1)
+  const [settleTarget, setSettleTarget] = useState('none')
 
   const assets = cuentas.reduce((s, cu) => CUENTA_TYPE[cu.type]?.asset ? s + cu.balance : s, 0)
   const liabilities = cuentas.reduce((s, cu) => !CUENTA_TYPE[cu.type]?.asset ? s + Math.abs(cu.balance) : s, 0)
@@ -671,7 +707,7 @@ function PatrimonioTab() {
                     <div style={{ fontSize: 11, color: 'var(--color-dim)' }}>{p.reason || ''}</div>
                   </div>
                   <div style={{ fontSize: 16, fontWeight: 700, color: p.dir === 'me_debe' ? '#52b788' : '#e05f5f' }}>{fmt(p.amount)}</div>
-                  <button onClick={() => { settlePufo(realIdx); toast.show('✓ Pufo saldado') }}
+                  <button onClick={() => { setSettleIdx(realIdx); setSettleTarget('none'); setSettleModal(true) }}
                     style={{ padding: '5px 10px', borderRadius: 8, background: 'rgba(82,183,136,0.1)', color: '#52b788', border: '1px solid rgba(82,183,136,0.2)', fontSize: 11, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>Saldar</button>
                   <button onClick={() => { removePufo(realIdx); toast.show('Pufo eliminado') }}
                     style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(224,95,95,0.06)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.12)', cursor: 'pointer', fontSize: 11 }}>✕</button>
@@ -708,6 +744,168 @@ function PatrimonioTab() {
           </div>
         </>
       )}
+
+      {/* Settle modal */}
+      {settleModal && settleIdx >= 0 && (
+        <div onClick={e => { if (e.target === e.currentTarget) setSettleModal(false) }} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 9000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+          <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 480, padding: '20px 20px 40px', maxHeight: '90dvh', overflowY: 'auto' }}>
+            <div style={{ width: 36, height: 4, background: 'var(--color-border2)', borderRadius: 99, margin: '0 auto 16px' }} />
+            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 20, marginBottom: 12 }}>Saldar pufo</div>
+            <p style={{ fontSize: 13, color: 'var(--color-sub)', marginBottom: 16 }}>
+              {(() => {
+                const p = pufos[settleIdx]
+                if (!p) return ''
+                return `${p.dir === 'me_debe' ? p.person + ' te debe' : 'Debes a ' + p.person} ${fmt(p.amount)}${p.concept ? ' · ' + p.concept : ''}`
+              })()}
+            </p>
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 6 }}>Mover dinero a hucha</div>
+              <select className="inp" value={settleTarget} onChange={e => setSettleTarget(e.target.value)}>
+                <option value="none">No mover — solo marcar como saldado</option>
+                {huchas.map((h, i) => {
+                  const dirLabel = pufos[settleIdx]?.dir === 'me_debe' ? 'Añadir a' : 'Restar de'
+                  return <option key={i} value={i}>{dirLabel} "{h.name}" ({fmt(h.current)})</option>
+                })}
+              </select>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              <button onClick={() => setSettleModal(false)} className="btn-ghost" style={{ width: '100%' }}>Cancelar</button>
+              <button onClick={() => {
+                const p = pufos[settleIdx]
+                if (!p) return
+                if (settleTarget !== 'none') {
+                  const hIdx = parseInt(settleTarget)
+                  if (!isNaN(hIdx) && huchas[hIdx]) {
+                    if (p.dir === 'me_debe') {
+                      aportarHucha(hIdx, p.amount)
+                    } else {
+                      aportarHucha(hIdx, -p.amount)
+                    }
+                  }
+                }
+                settlePufo(settleIdx)
+                setSettleModal(false)
+                toast.show('✓ Pufo saldado' + (settleTarget !== 'none' ? ' y dinero movido' : ''))
+              }}
+                className="btn-primary" style={{ background: 'var(--color-acc-green)', width: 'auto' }}>Confirmar</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ── BUDGETS TAB ── */
+function BudgetsTab() {
+  const { txs, presupuestos, setPresupuesto, removePresupuesto, recurrentes, addRecurrente, removeRecurrente } = useFinanceStore()
+  const toast = useToast()
+  const [cat, setCat] = useState('Alimentación')
+  const [limit, setLimit] = useState('')
+  const [rConcept, setRConcept] = useState('')
+  const [rAmount, setRAmount] = useState('')
+  const [rType, setRType] = useState<'income' | 'expense'>('expense')
+  const [rCategory, setRCategory] = useState('Alimentación')
+  const [rDay, setRDay] = useState('1')
+
+  const now = new Date()
+  const keyM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+
+  return (
+    <div>
+      <div className="sec-label">Presupuestos mensuales</div>
+      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, marginBottom: 14 }}>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+          <select className="inp" value={cat} onChange={e => setCat(e.target.value)} style={{ flex: 1, marginBottom: 0 }}>
+            {['Vivienda','Alimentación','Transporte','Salud','Ocio','Ropa','Suscripciones','Deporte','Restaurantes','Viajes','Educación','Otros gastos'].map(c => (
+              <option key={c} value={c}>{CAT_META[c]?.icon || '•'} {c}</option>
+            ))}
+          </select>
+          <input className="inp" value={limit} onChange={e => setLimit(e.target.value)} type="number" placeholder="Límite €" style={{ flex: 1, marginBottom: 0 }} />
+          <button onClick={() => { const l = parseFloat(limit); if (l > 0) { setPresupuesto(cat, l); setLimit(''); toast.show(`✓ Presupuesto para ${cat}: ${fmt(l)}`) } }}
+            style={{ padding: '10px 16px', borderRadius: 10, background: 'var(--color-acc-gold)', color: '#111', border: 'none', fontSize: 13, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', whiteSpace: 'nowrap' }}>Añadir</button>
+        </div>
+      </div>
+
+      {presupuestos.length === 0 ? (
+        <div className="empty-state">Sin presupuestos. Define límites por categoría.</div>
+      ) : presupuestos.map(p => {
+        const gastado = txs.filter(t => t.type === 'expense' && t.category === p.category && t.date.startsWith(keyM)).reduce((s, t) => s + t.amount, 0)
+        const pct = Math.min(100, Math.round(gastado / p.limit * 100))
+        const over = gastado > p.limit
+        return (
+          <div key={p.category} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, marginBottom: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <div>
+                <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>{CAT_META[p.category]?.icon || '•'} {p.category}</span>
+                <span style={{ fontSize: 11, color: 'var(--color-dim)', marginLeft: 8 }}>Límite: {fmt(p.limit)}</span>
+              </div>
+              <button onClick={() => { removePresupuesto(p.category); toast.show('Presupuesto eliminado') }}
+                style={{ background: 'rgba(224,95,95,0.08)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.15)', borderRadius: 6, padding: '3px 8px', fontSize: 11, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>✕</button>
+            </div>
+            <div style={{ height: 6, background: 'rgba(255,255,255,0.06)', borderRadius: 99, overflow: 'hidden', marginBottom: 6 }}>
+              <div style={{ height: '100%', borderRadius: 99, transition: 'width 0.5s ease', width: `${pct}%`, background: over ? 'var(--color-red)' : 'var(--color-acc-green)' }} />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
+              <span style={{ color: over ? 'var(--color-red)' : 'var(--color-sub)' }}>{fmt(gastado)} gastado</span>
+              <span style={{ color: over ? 'var(--color-red)' : 'var(--color-dim)', fontWeight: 700 }}>{pct}%</span>
+            </div>
+            {over && <div style={{ marginTop: 6, fontSize: 11, color: 'var(--color-red)', fontWeight: 600 }}>⚠️ Has superado el presupuesto en {fmt(gastado - p.limit)}</div>}
+          </div>
+        )
+      })}
+
+      <div className="sec-label" style={{ marginTop: 24 }}>Transacciones recurrentes</div>
+      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, marginBottom: 14 }}>
+        <input className="inp" value={rConcept} onChange={e => setRConcept(e.target.value)} type="text" placeholder="Concepto (ej: Suscripción Netflix)" />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
+          <input className="inp" value={rAmount} onChange={e => setRAmount(e.target.value)} type="number" step="0.01" placeholder="Importe €" style={{ marginBottom: 0 }} />
+          <select className="inp" value={rDay} onChange={e => setRDay(e.target.value)} style={{ marginBottom: 0 }}>
+            {Array.from({ length: 28 }, (_, i) => <option key={i + 1} value={i + 1}>Día {i + 1}</option>)}
+          </select>
+        </div>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+          <button onClick={() => setRType('income')}
+            style={{ flex: 1, padding: 9, borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid',
+              background: rType === 'income' ? 'rgba(82,183,136,0.12)' : 'var(--color-s2)',
+              color: rType === 'income' ? 'var(--color-acc-green)' : 'var(--color-dim)',
+              borderColor: rType === 'income' ? 'rgba(82,183,136,0.3)' : 'var(--color-border)' }}>Ingreso</button>
+          <button onClick={() => setRType('expense')}
+            style={{ flex: 1, padding: 9, borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid',
+              background: rType === 'expense' ? 'rgba(224,95,95,0.1)' : 'var(--color-s2)',
+              color: rType === 'expense' ? 'var(--color-red)' : 'var(--color-dim)',
+              borderColor: rType === 'expense' ? 'rgba(224,95,95,0.25)' : 'var(--color-border)' }}>Gasto</button>
+        </div>
+        <select className="inp" value={rCategory} onChange={e => setRCategory(e.target.value)}>
+          {['Vivienda','Alimentación','Transporte','Salud','Ocio','Ropa','Suscripciones','Deporte','Restaurantes','Viajes','Educación','Otros gastos'].map(c => <option key={c} value={c}>{CAT_META[c]?.icon || '•'} {c}</option>)}
+          <option value="Nómina">💼 Nómina</option>
+        </select>
+        <button onClick={() => {
+          const a = parseFloat(rAmount)
+          if (!rConcept.trim() || !a || a <= 0) { toast.show('Introduce concepto e importe'); return }
+          addRecurrente({ id: Date.now(), concept: rConcept.trim(), amount: a, type: rType, category: rCategory, day: parseInt(rDay), active: true })
+          toast.show('✓ Transacción recurrente añadida')
+          setRConcept(''); setRAmount('')
+        }}
+          style={{ width: '100%', padding: 12, borderRadius: 12, background: '#5b8af0', color: '#fff', border: 'none', fontSize: 14, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>Añadir recurrente</button>
+      </div>
+
+      {recurrentes.length === 0 ? (
+        <div className="empty-state">Sin transacciones recurrentes.</div>
+      ) : recurrentes.map(r => (
+        <div key={r.id} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 12, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ fontSize: 18 }}>{r.type === 'income' ? '💼' : '📅'}</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>{r.concept}</div>
+            <div style={{ fontSize: 11, color: 'var(--color-dim)' }}>{r.category} · Día {r.day} · {fmt(r.amount)}</div>
+          </div>
+          <div style={{ fontSize: 16, fontWeight: 700, color: r.type === 'income' ? 'var(--color-acc-green)' : 'var(--color-red)' }}>
+            {r.type === 'income' ? '+' : '−'}{fmt(r.amount)}
+          </div>
+          <button onClick={() => { removeRecurrente(r.id); toast.show('Recurrente eliminado') }}
+            style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(224,95,95,0.06)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.12)', cursor: 'pointer', fontSize: 11 }}>✕</button>
+        </div>
+      ))}
     </div>
   )
 }
