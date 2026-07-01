@@ -369,8 +369,6 @@ function StrengthTab() {
       return d.getDate() + '/' + (d.getMonth() + 1)
     })
 
-    const ctx = document.createElement('canvas')
-    // Instead of using react-chartjs-2 which has issues with ESM, we'll draw a simple SVG chart
     const maxKg = Math.max(...last12.map(s => s.totalKg), 1)
     const maxDur = Math.max(...last12.map(s => s.duration), 1)
 
@@ -430,12 +428,17 @@ function StrengthTab() {
 
   return (
     <div>
-      <div className="flex gap-1.5 mb-3.5 overflow-x-auto">
+      <div style={{ display: 'flex', gap: 6, marginBottom: 14, overflowX: 'auto' }}>
         {(['today','history','routines','library','progress'] as const).map(k => (
           <button key={k} onClick={() => setSub(k)}
-            className={`flex-1 py-2 rounded-xl text-xs font-bold font-sans cursor-pointer border transition-all whitespace-nowrap ${
-              sub === k ? 'bg-[#e07a5f]/15 text-[#e07a5f] border-[#e07a5f]/30' : 'bg-transparent text-[var(--color-dim)] border-[var(--color-border)]'
-            }`}
+            style={{
+              flex: 1, padding: '9px 4px', borderRadius: 10, fontSize: 12, fontWeight: 700,
+              fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid', whiteSpace: 'nowrap',
+              background: sub === k ? '#e07a5f26' : 'transparent',
+              color: sub === k ? '#e07a5f' : 'var(--color-dim)',
+              borderColor: sub === k ? '#e07a5f4d' : 'var(--color-border)',
+              transition: 'all 0.15s',
+            }}
           >{{today:'Hoy',history:'Historial',routines:'Rutinas',library:'Ejercicios',progress:'Progreso'}[k]}</button>
         ))}
       </div>
@@ -702,18 +705,20 @@ function MobilityTab() {
 
   return (
     <div>
-      <div className="flex gap-1.5 mb-3">
+      <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
         {(['session','routines','history'] as const).map(k => (
           <button key={k} onClick={() => setMobSub(k)}
-            className={`flex-1 py-2 rounded-xl text-[11px] font-bold font-sans cursor-pointer border transition-all ${
-              mobSub === k ? 'bg-[#9b7fe0]/15 text-[#9b7fe0] border-[#9b7fe0]/30' : 'bg-[var(--color-s2)] text-[var(--color-dim)] border-[var(--color-border)]'
-            }`}
+            style={{
+              flex: 1, padding: '8px 4px', borderRadius: 10, fontSize: 11, fontWeight: 700,
+              fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid',
+              background: mobSub === k ? '#9b7fe026' : 'var(--color-s2)',
+              color: mobSub === k ? '#9b7fe0' : 'var(--color-dim)',
+              borderColor: mobSub === k ? '#9b7fe04d' : 'var(--color-border)',
+              transition: 'all 0.15s',
+            }}
           >{{session:'🧘 Sesión',routines:'📋 Rutinas',history:'📊 Historial'}[k]}</button>
         ))}
       </div>
-      {mobSub === 'session' && <></>}
-      {mobSub === 'routines' && <></>}
-      {mobSub === 'history' && <></>}
     </div>
   )
 }
@@ -727,17 +732,21 @@ export default function Fisico() {
       <div className="page-header">
         <div className="page-module" style={{ color: 'var(--color-acc-orange)' }}>Físico</div>
         <div className="page-title">Fuerza</div>
-        <div className="flex gap-2 mb-0 pb-0 mt-1">
+        <div style={{ display: 'flex', gap: 8, marginTop: 2 }}>
           {([
-            { k: 'strength', l: '💪 Fuerza' },
-            { k: 'running', l: '🏃 Running' },
-            { k: 'mobility', l: '🧘 Movilidad' },
-          ] as const).map(s => (
+            { k: 'strength' as const, l: '💪 Fuerza', c: '#e07a5f' },
+            { k: 'running' as const, l: '🏃 Running', c: '#5b8af0' },
+            { k: 'mobility' as const, l: '🧘 Movilidad', c: '#9b7fe0' },
+          ]).map(s => (
             <button key={s.k} onClick={() => setSection(s.k)}
-              className={`flex-1 py-2 rounded-xl text-[13px] font-bold font-sans cursor-pointer border transition-all ${
-                section === s.k ? s.k === 'strength' ? 'bg-[#e07a5f]/15 text-[#e07a5f] border-[#e07a5f]/30' : s.k === 'running' ? 'bg-[#5b8af0]/15 text-[#5b8af0] border-[#5b8af0]/30' : 'bg-[#9b7fe0]/15 text-[#9b7fe0] border-[#9b7fe0]/30'
-                : 'bg-transparent text-[var(--color-dim)] border-[var(--color-border)]'
-              }`}
+              style={{
+                flex: 1, padding: '9px 4px', borderRadius: 12, fontSize: 13, fontWeight: 700,
+                fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid',
+                background: section === s.k ? s.c + '26' : 'transparent',
+                color: section === s.k ? s.c : 'var(--color-dim)',
+                borderColor: section === s.k ? s.c + '4d' : 'var(--color-border)',
+                transition: 'all 0.15s',
+              }}
             >{s.l}</button>
           ))}
         </div>

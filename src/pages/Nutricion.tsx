@@ -272,12 +272,11 @@ export default function Nutricion() {
       <div className="page-header">
         <div className="page-module" style={{ color: 'var(--color-acc-green)' }}>Nutrición</div>
         <div className="page-title">Nutrición</div>
-        <div className="flex mt-0.5">
+        <div className="tab-bar">
           {(['diario','peso','recetas'] as const).map(t => (
-            <button key={t} onClick={() => setTab(t)}
-              className={`flex-1 py-2.5 text-[13px] font-medium text-center cursor-pointer border-b-2 transition-all bg-transparent font-sans ${
-                tab === t ? 'text-[#52b788] border-[#52b788]' : 'text-[var(--color-dim)] border-transparent'
-              }`}>{t === 'diario' ? 'Diario' : t === 'peso' ? 'Peso' : 'Recetas'}</button>
+            <button key={t} onClick={() => setTab(t)} className={`tab-btn tab-green${tab === t ? ' active' : ''}`}>
+              {t === 'diario' ? 'Diario' : t === 'peso' ? 'Peso' : 'Recetas'}
+            </button>
           ))}
         </div>
       </div>

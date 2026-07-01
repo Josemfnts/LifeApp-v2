@@ -382,6 +382,10 @@ select.inp option { background: #1f2229; color: #e8e9ee; }
   white-space: nowrap; outline: none;
 }
 .tab-btn.active { color: var(--color-acc-blue); border-bottom: 3px solid var(--color-acc-blue); padding-bottom: 9px; }
+.tab-btn.tab-green.active { color: var(--color-acc-green); border-color: var(--color-acc-green); }
+.tab-btn.tab-gold.active { color: var(--color-acc-gold); border-color: var(--color-acc-gold); }
+.tab-btn.tab-purple.active { color: var(--color-acc-purple); border-color: var(--color-acc-purple); }
+.tab-btn.tab-orange.active { color: var(--color-acc-orange); border-color: var(--color-acc-orange); }
 
 /* ── LOG ── */
 .log-card { background: var(--color-s1); border: 1px solid var(--color-border); border-radius: 16px; overflow: hidden; }

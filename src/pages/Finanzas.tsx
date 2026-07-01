@@ -254,12 +254,11 @@ export default function Finanzas() {
       <div className="page-header">
         <div className="page-module" style={{ color: 'var(--color-acc-gold)' }}>Finanzas</div>
         <div className="page-title">Finanzas</div>
-        <div className="flex mt-0.5">
+        <div className="tab-bar">
           {(['balance','huchas','pufos'] as const).map(t => (
-            <button key={t} onClick={() => setTab(t)}
-              className={`flex-1 py-2.5 text-[13px] font-medium text-center cursor-pointer border-b-2 transition-all bg-transparent font-sans ${
-                tab === t ? 'text-[#c9a84c] border-[#c9a84c]' : 'text-[var(--color-dim)] border-transparent'
-              }`}>{t === 'balance' ? 'Balance' : t === 'huchas' ? 'Huchas' : 'Deudas'}</button>
+            <button key={t} onClick={() => setTab(t)} className={`tab-btn tab-gold${tab === t ? ' active' : ''}`}>
+              {t === 'balance' ? 'Balance' : t === 'huchas' ? 'Huchas' : 'Deudas'}
+            </button>
           ))}
         </div>
       </div>
