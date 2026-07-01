@@ -1,18 +1,22 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { TopBar } from '@/components/layout/TopBar'
-import { Card, Badge, ProgressBar, EmptyState, Input, Button } from '@/components/ui'
 import { useXP } from '@/contexts/XPContext'
 import { useToast } from '@/stores/toast'
 import { calcLevel } from '@/lib/xp-engine'
 import { getDisplayName } from '@/lib/storage'
 import { AREA_COLORS, AREA_ICONS, AREA_NAMES, type AreaStat, type Goal } from '@/types'
 
+const acCls: Record<AreaStat, string> = { disc: 'ac-a', fuerza: 'ac-b', intel: 'ac-c', riqueza: 'ac-d' }
+const trCls: Record<number, string> = { 0: 'tr-a', 1: 'tr-b', 2: 'tr-c', 3: 'tr-d' }
+const icCls: Record<number, string> = { 0: 'ic-a', 1: 'ic-b', 2: 'ic-c', 3: 'ic-d' }
+
 export default function Dashboard() {
   const { xp, awardXP: award } = useXP()
+  const toast = useToast()
   const todayStr = new Date().toISOString().slice(0, 10)
-
   const areas: AreaStat[] = ['disc', 'fuerza', 'intel', 'riqueza']
+
   const [goals, setGoals] = useState<Goal[]>(() => {
     try { return JSON.parse(localStorage.getItem('josema_rpg_missions_v1') || '[]') } catch { return [] }
   })
@@ -20,71 +24,38 @@ export default function Dashboard() {
   const [goalCur, setGoalCur] = useState('')
   const [goalTarget, setGoalTarget] = useState('')
   const [goalStat, setGoalStat] = useState<AreaStat>('disc')
-  const toast = useToast()
-  const acClass: Record<AreaStat, string> = {
-    disc: 'ac-a',
-    fuerza: 'ac-b',
-    intel: 'ac-c',
-    riqueza: 'ac-d',
-  }
 
   useEffect(() => {
-    const runEngine = () => {
-      const dbTime = JSON.parse(localStorage.getItem('josema_rpg_time_v4') || '{}')
-      const dbNutri = JSON.parse(localStorage.getItem('josema_rpg_nutri_log') || '{}')
-      const dbSessions = JSON.parse(localStorage.getItem('lifeos_sessions_v1') || '[]')
-      const dbTx = JSON.parse(localStorage.getItem('lifeos_finances_tx_v1') || '[]')
+    const dbTime = JSON.parse(localStorage.getItem('josema_rpg_time_v4') || '{}')
+    const dbNutri = JSON.parse(localStorage.getItem('josema_rpg_nutri_log') || '{}')
+    const dbSessions = JSON.parse(localStorage.getItem('lifeos_sessions_v1') || '[]')
+    const dbTx = JSON.parse(localStorage.getItem('lifeos_finances_tx_v1') || '[]')
 
-      // Check and award XP for completed tasks
-      const tasks = dbTime[todayStr] || []
-      const done = tasks.filter((t: { done: boolean }) => t.done).length
-      const total = tasks.length
-      if (total > 0 && done === total) {
-        // Award agenda XP only once per day
-        const todayLog = xp.disc.log.filter(e => e.date === todayStr && e.concept === 'Agenda completada')
-        if (todayLog.length === 0) {
-          award('disc', 50, 'Agenda completada', todayStr)
-        }
-      }
-
-      // Nutrition
-      const todayMeals = dbNutri[todayStr] || {}
-      const allFoods: unknown[] = Object.values(todayMeals).flat()
-      if (allFoods.length > 0) {
-        const todayLog2 = xp.fuerza.log.filter(e => e.date === todayStr && e.concept === 'Nutrición registrada')
-        if (todayLog2.length === 0) {
-          award('fuerza', 50, 'Nutrición registrada', todayStr)
-        }
-      }
-
-      // Training
-      const todaySess = dbSessions.find((s: { date: string }) => s.date === todayStr)
-      if (todaySess) {
-        const todayLog3 = xp.intel.log.filter(e => e.date === todayStr && e.concept === 'Entrenamiento completado')
-        if (todayLog3.length === 0) {
-          award('intel', 50, 'Entrenamiento completado', todayStr)
-        }
-      }
-
-      // Finances
-      const todayTx = dbTx.filter((t: { date: string }) => t.date === todayStr)
-      if (todayTx.length > 0) {
-        const todayLog4 = xp.riqueza.log.filter(e => e.date === todayStr && e.concept === 'Finanzas registradas')
-        if (todayLog4.length === 0) {
-          award('riqueza', 50, 'Finanzas registradas', todayStr)
-        }
-      }
+    const tasks = dbTime[todayStr] || []
+    if (tasks.filter((t: { done: boolean }) => t.done).length === tasks.length && tasks.length > 0) {
+      if (!xp.disc.log.some(e => e.date === todayStr && e.concept === 'Agenda completada'))
+        award('disc', 50, 'Agenda completada', todayStr)
     }
-
-    runEngine()
-  }, [todayStr, xp])
+    const todayMeals = dbNutri[todayStr] || {}
+    if ((Object.values(todayMeals).flat() as unknown[]).length > 0) {
+      if (!xp.fuerza.log.some(e => e.date === todayStr && e.concept === 'Nutrición registrada'))
+        award('fuerza', 50, 'Nutrición registrada', todayStr)
+    }
+    if (dbSessions.some((s: { date: string }) => s.date === todayStr)) {
+      if (!xp.intel.log.some(e => e.date === todayStr && e.concept === 'Entrenamiento completado'))
+        award('intel', 50, 'Entrenamiento completado', todayStr)
+    }
+    if (dbTx.filter((t: { date: string }) => t.date === todayStr).length > 0) {
+      if (!xp.riqueza.log.some(e => e.date === todayStr && e.concept === 'Finanzas registradas'))
+        award('riqueza', 50, 'Finanzas registradas', todayStr)
+    }
+  }, [todayStr])
 
   const recentLog = Object.entries(xp)
     .flatMap(([stat, area]) => (area.log || []).map(e => ({ ...e, stat })))
     .sort((a, b) => b.date.localeCompare(a.date))
     .slice(0, 10)
 
-  // Habits preview
   const dbHabits = JSON.parse(localStorage.getItem('lifeos_habits_v1') || '[]')
   const dbLog = JSON.parse(localStorage.getItem('lifeos_habits_log_v1') || '{}')
   const dow = new Date().getDay()
@@ -105,76 +76,70 @@ export default function Dashboard() {
     <div>
       <TopBar />
 
-      {/* Habits Dashboard */}
-      <div className="px-4 pt-4">
-        <div className="flex items-center justify-between mb-2.5">
-          <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-[0.8px]">Hábitos de hoy</div>
-          <Link to="/habitos" className="text-[11px] font-semibold text-[var(--color-sub)] bg-[var(--color-s1)] border border-[var(--color-border)] rounded-lg px-3 py-1.5 font-sans">
+      {/* Habits */}
+      <div className="section" style={{ padding: '16px 16px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+          <div className="sec-label" style={{ marginBottom: 0 }}>Hábitos de hoy</div>
+          <Link to="/habitos" style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-sub)', background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 8, padding: '5px 12px', fontFamily: 'DM Sans,sans-serif', textDecoration: 'none' }}>
             Gestionar
           </Link>
         </div>
 
         {activeHabits.length === 0 ? (
-          <Card padded className="text-center mb-2.5">
-            <div className="text-[13px] text-[var(--color-sub)] mb-2.5">Sin hábitos creados todavía</div>
-            <Link to="/habitos" className="inline-block bg-[#9b7fe0]/[0.1] text-[#9b7fe0] border border-[#9b7fe0]/[0.2] rounded-lg px-4 py-2 text-xs font-semibold font-sans">
-              + Crear primer hábito
-            </Link>
-          </Card>
+          <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 20, textAlign: 'center' }}>
+            <div style={{ fontSize: 13, color: 'var(--color-sub)', marginBottom: 10 }}>Sin hábitos creados todavía</div>
+            <Link to="/habitos" style={{ background: 'rgba(155,127,224,0.1)', color: '#9b7fe0', border: '1px solid rgba(155,127,224,0.2)', borderRadius: 8, padding: '8px 16px', fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', textDecoration: 'none' }}>+ Crear primer hábito</Link>
+          </div>
         ) : (
-          <>
-            <div className="flex items-center justify-between mb-1.5">
-              <div className="text-xs text-[var(--color-sub)]">
-                <span className="font-bold text-[var(--color-text)]">{habitsDone}</span> / {activeHabits.length} completados
+          <div style={{ marginBottom: 10 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+              <div style={{ fontSize: 12, color: 'var(--color-sub)' }}>
+                <span style={{ fontWeight: 700, color: 'var(--color-text)' }}>{habitsDone}</span> / {activeHabits.length} completados
               </div>
-              <div className="font-serif text-lg text-[#9b7fe0]">{habitsPct}%</div>
+              <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 18, color: '#9b7fe0' }}>{habitsPct}%</div>
             </div>
-            <ProgressBar value={habitsPct} color="gradient" height={5} className="mb-2.5" animated />
-          </>
+            <div className="pbar-track">
+              <div className="pbar-fill" style={{ width: `${habitsPct}%`, background: 'linear-gradient(90deg,#9b7fe0,#c9a84c)' }} />
+            </div>
+          </div>
         )}
       </div>
 
       {/* Today Summary */}
-      <div className="px-4">
-        <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-[0.8px] mb-3">Resumen de hoy</div>
-        <Card>
+      <div className="section" style={{ padding: '16px 16px 0' }}>
+        <div className="sec-label">Resumen de hoy</div>
+        <div className="today-card">
           {[
-            { icon: '📋', title: 'Agenda', color: '#5b8af0', link: '/agenda' },
-            { icon: '🥗', title: 'Nutrición', color: '#52b788', link: '/nutricion' },
-            { icon: '🏋️', title: 'Físico', color: '#e07a5f', link: '/fisico' },
-            { icon: '💶', title: 'Finanzas', color: '#c9a84c', link: '/finanzas' },
+            { icon: '📋', title: getTasksSummary(), sub: getTasksSub(), badge: getTasksBadge(), done: getTasksDone() },
+            { icon: '🥗', title: getNutriSummary(), sub: getNutriSub(), badge: getNutriBadge(), done: getNutriDone() },
+            { icon: '🏋️', title: 'Entrenamiento', sub: getTrainSub(), badge: getTrainBadge(), done: getTrainDone() },
+            { icon: '💶', title: 'Finanzas', sub: 'Toca para añadir movimiento', badge: getFinBadge(), done: getFinDone() },
           ].map((item, i) => (
             <Link
-              key={item.link}
-              to={item.link}
-              className="flex items-center gap-3.5 px-4 py-3.5 border-b border-[var(--color-border)] last:border-b-0 cursor-pointer transition-colors duration-150 active:bg-white/[0.03] relative"
-              style={{
-                borderLeftColor: item.color,
-                borderLeftWidth: 3,
-                borderLeftStyle: 'solid',
-                borderTopLeftRadius: i === 0 ? 0 : undefined,
-              }}
+              key={i}
+              to={['/agenda', '/nutricion', '/fisico', '/finanzas'][i]}
+              className={`today-row ${trCls[i]}`}
+              style={{ textDecoration: 'none' }}
             >
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
-                style={{ background: `${item.color}1e` }}
-              >
-                {item.icon}
+              <div className={`today-icon ${icCls[i]}`}>{item.icon}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: item.done ? 'var(--color-dim)' : 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {item.title}
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--color-sub)', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {item.sub}
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold text-[var(--color-text)] truncate">{item.title}</div>
-                <div className="text-xs text-[var(--color-sub)] mt-0.5 truncate">Toca para abrir</div>
-              </div>
-              <Badge variant="pending">+50 XP</Badge>
+              <span className={item.done ? 'sb-done' : 'sb-pending'}>{item.badge}</span>
             </Link>
           ))}
-        </Card>
+        </div>
       </div>
 
-      {/* Areas Grid */}
-      <div className="px-4 pt-4">
-        <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-[0.8px] mb-3">Progreso por área</div>
-        <div className="grid grid-cols-2 gap-2.5">
+      {/* Areas */}
+      <div className="section" style={{ padding: '16px 16px 0' }}>
+        <div className="sec-label">Progreso por área</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           {areas.map(stat => {
             const area = xp[stat]
             const lv = calcLevel(area?.total || 0)
@@ -182,144 +147,197 @@ export default function Dashboard() {
               <Link
                 key={stat}
                 to={stat === 'disc' ? '/agenda' : stat === 'fuerza' ? '/nutricion' : stat === 'intel' ? '/fisico' : '/finanzas'}
-                className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-4 relative overflow-hidden cursor-pointer transition-all duration-250 hover:border-white/[0.2] hover:-translate-y-0.5 hover:shadow-lg active:scale-95"
+                className={`area-card ${acCls[stat]}`}
+                style={{ textDecoration: 'none' }}
               >
-                <div
-                  className="absolute top-0 left-4 right-[40%] h-0.5 rounded-b-sm"
-                  style={{ background: AREA_COLORS[stat] }}
-                />
-                <span className="text-[22px] mb-3 block">{AREA_ICONS[stat]}</span>
-                <div className="text-[11px] font-semibold text-[var(--color-sub)] uppercase tracking-wide mb-1">
-                  {AREA_NAMES[stat]}
+                <span className="area-icon">{AREA_ICONS[stat]}</span>
+                <div className="area-name">{AREA_NAMES[stat]}</div>
+                <div className="area-level">{lv.level}</div>
+                <div className="area-bar-track">
+                  <div className="area-bar-fill" style={{ width: `${lv.pct}%` }} />
                 </div>
-                <div className="font-serif text-[38px] leading-none mb-2.5" style={{ color: AREA_COLORS[stat] }}>
-                  {lv.level}
-                </div>
-                <div className="h-1 bg-white/[0.05] rounded-full overflow-hidden mb-2">
-                  <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${lv.pct}%`, background: AREA_COLORS[stat] }} />
-                </div>
-                <div className="text-[11px] text-[var(--color-dim)] font-medium">
-                  {area?.total || 0} XP · −{lv.needed - lv.current}
-                </div>
+                <div className="area-xp">{area?.total || 0} XP · −{lv.needed - lv.current}</div>
               </Link>
             )
           })}
         </div>
       </div>
 
-      {/* Goals / Objetivos */}
-      <div className="px-4 pt-4">
-        <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-[0.8px] mb-3">Objetivos a largo plazo</div>
+      {/* Goals */}
+      <div className="section" style={{ padding: '16px 16px 0' }}>
+        <div className="sec-label">Objetivos a largo plazo</div>
+
         {goals.map((g, i) => {
           const pct = g.goal > 0 ? Math.min(100, Math.round(g.current / g.goal * 100)) : 0
           const done = g.current >= g.goal
           const col = AREA_COLORS[g.stat]
           return (
-            <div key={i} className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-4 mb-2.5 relative">
-              {done && <div className="inline-block text-[11px] font-semibold text-[#52b788] bg-[#52b788]/10 border border-[#52b788]/20 rounded-md px-2.5 py-0.5 mb-1.5">✓ Completado</div>}
-              <button
-                onClick={() => {
-                  const next = goals.filter((_, ii) => ii !== i)
-                  setGoals(next)
-                  localStorage.setItem('josema_rpg_missions_v1', JSON.stringify(next))
-                }}
-                className="absolute top-3.5 right-4 text-[11px] font-semibold text-[var(--color-dim)] bg-transparent border-none cursor-pointer px-1.5 py-0.5"
-              >✕</button>
-              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[var(--color-sub)] uppercase tracking-wide mb-1.5">
-                <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: col }} />
+            <div key={i} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 10, position: 'relative' }}>
+              {done && <div style={{ display: 'inline-block', fontSize: 11, fontWeight: 600, color: '#52b788', background: 'rgba(82,183,136,0.1)', border: '1px solid rgba(82,183,136,0.2)', borderRadius: 6, padding: '2px 10px', marginBottom: 6 }}>✓ Completado</div>}
+              <button onClick={() => { const next = goals.filter((_, ii) => ii !== i); setGoals(next); localStorage.setItem('josema_rpg_missions_v1', JSON.stringify(next)) }}
+                style={{ position: 'absolute', top: 14, right: 16, fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '2px 6px' }}>✕</button>
+              <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-sub)', letterSpacing: '0.3px', textTransform: 'uppercase', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', display: 'inline-block', background: col }} />
                 {AREA_NAMES[g.stat]}
               </div>
-              <div className="font-serif text-lg text-[var(--color-text)] mb-2.5 leading-tight">{g.name}</div>
-              <div className="flex justify-between text-xs text-[var(--color-sub)] mb-1.5">
+              <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 18, color: 'var(--color-text)', marginBottom: 10, lineHeight: 1.3 }}>{g.name}</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--color-sub)', marginBottom: 7 }}>
                 <span>{g.current}</span><span>{g.goal}</span>
               </div>
-              <div className="h-1 bg-white/[0.06] rounded-full overflow-hidden mb-3">
-                <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${pct}%`, background: col }} />
+              <div style={{ height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 99, overflow: 'hidden', marginBottom: 12 }}>
+                <div style={{ height: '100%', borderRadius: 99, transition: 'width 1s ease', width: `${pct}%`, background: col }} />
               </div>
               {!done && (
-                <div className="flex gap-2">
-                  <input
-                    type="number"
-                    placeholder="Nuevo valor"
-                    className="flex-1 bg-[var(--color-s2)] border border-[var(--color-border)] text-[var(--color-text)] rounded-xl px-3 py-2 text-[13px] font-sans outline-none"
-                    id={`gv-${i}`}
-                  />
-                  <button
-                    onClick={() => {
-                      const inp = document.getElementById(`gv-${i}`) as HTMLInputElement
-                      const val = parseFloat(inp?.value || '0')
-                      if (isNaN(val)) return
-                      const next = [...goals]
-                      const wasDone = next[i].current >= next[i].goal
-                      next[i] = { ...next[i], current: val }
-                      setGoals(next)
-                      localStorage.setItem('josema_rpg_missions_v1', JSON.stringify(next))
-                      if (!wasDone && val >= next[i].goal) {
-                        award(next[i].stat, 200, 'Objetivo: ' + next[i].name, todayStr)
-                        toast.show('+200 XP — ¡Objetivo completado!')
-                      }
-                    }}
-                    className="px-4 py-2 rounded-xl text-[13px] font-semibold font-sans cursor-pointer border"
-                    style={{ background: col + '18', color: col, borderColor: col + '33' }}
-                  >Actualizar</button>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input type="number" placeholder="Nuevo valor" id={`gv-${i}`}
+                    style={{ flex: 1, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-text)', borderRadius: 10, padding: '9px 12px', fontSize: 13, fontFamily: 'DM Sans,sans-serif', outline: 'none' }} />
+                  <button onClick={() => {
+                    const inp = document.getElementById(`gv-${i}`) as HTMLInputElement
+                    const val = parseFloat(inp?.value || '0')
+                    if (isNaN(val)) return
+                    const next = [...goals]; const wasDone = next[i].current >= next[i].goal
+                    next[i] = { ...next[i], current: val }; setGoals(next)
+                    localStorage.setItem('josema_rpg_missions_v1', JSON.stringify(next))
+                    if (!wasDone && val >= next[i].goal) { award(next[i].stat, 200, 'Objetivo: ' + next[i].name, todayStr); toast.show('+200 XP — ¡Objetivo completado!') }
+                  }}
+                    style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', background: col + '18', color: col, border: `1px solid ${col}33` }}>Actualizar</button>
                 </div>
               )}
             </div>
           )
         })}
 
-        <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-4 mb-2.5">
-          <div className="text-[13px] font-semibold text-[var(--color-sub)] mb-3.5">Añadir objetivo</div>
-          <Input value={goalName} onChange={setGoalName} placeholder="¿Qué quieres conseguir?" className="mb-2" />
-          <div className="flex gap-2 mb-2">
-            <Input value={goalCur} onChange={setGoalCur} type="number" placeholder="Valor actual" className="flex-1" />
-            <Input value={goalTarget} onChange={setGoalTarget} type="number" placeholder="Meta" className="flex-1" />
+        <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 18, marginBottom: 10 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-sub)', marginBottom: 14 }}>Añadir objetivo</div>
+          <input className="inp" value={goalName} onChange={e => setGoalName(e.target.value)} placeholder="¿Qué quieres conseguir?" style={{ marginBottom: 8 }} />
+          <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+            <input className="inp" type="number" value={goalCur} onChange={e => setGoalCur(e.target.value)} placeholder="Valor actual" style={{ flex: 1 }} />
+            <input className="inp" type="number" value={goalTarget} onChange={e => setGoalTarget(e.target.value)} placeholder="Meta" style={{ flex: 1 }} />
           </div>
-          <select
-            value={goalStat}
-            onChange={e => setGoalStat(e.target.value as AreaStat)}
-            className="w-full bg-[var(--color-s2)] border border-[var(--color-border)] text-[var(--color-sub)] rounded-xl px-3.5 py-2.5 text-[13px] font-sans mb-2.5 outline-none cursor-pointer"
-          >
+          <select className="inp" value={goalStat} onChange={e => setGoalStat(e.target.value as AreaStat)} style={{ marginBottom: 10 }}>
             {areas.map(a => <option key={a} value={a}>{AREA_ICONS[a]} {AREA_NAMES[a]}</option>)}
           </select>
-          <button
-            onClick={() => {
-              if (!goalName.trim()) return
-              const next = [...goals, { name: goalName.trim(), current: parseFloat(goalCur) || 0, goal: parseFloat(goalTarget) || 100, stat: goalStat }]
-              setGoals(next)
-              localStorage.setItem('josema_rpg_missions_v1', JSON.stringify(next))
-              setGoalName(''); setGoalCur(''); setGoalTarget('')
-              toast.show('✓ Objetivo añadido')
-            }}
-            className="w-full py-3 rounded-xl bg-[#5b8af0]/[0.12] text-[var(--color-acc-blue)] border border-[#5b8af0]/[0.2] text-sm font-semibold font-sans cursor-pointer"
-          >Añadir objetivo</button>
+          <button onClick={() => {
+            if (!goalName.trim()) return
+            const next = [...goals, { name: goalName.trim(), current: parseFloat(goalCur) || 0, goal: parseFloat(goalTarget) || 100, stat: goalStat }]
+            setGoals(next); localStorage.setItem('josema_rpg_missions_v1', JSON.stringify(next))
+            setGoalName(''); setGoalCur(''); setGoalTarget(''); toast.show('✓ Objetivo añadido')
+          }}
+            style={{ width: '100%', background: 'rgba(91,138,240,0.12)', border: '1px solid rgba(91,138,240,0.2)', color: 'var(--color-acc-blue)', fontFamily: 'DM Sans,sans-serif', fontSize: 14, fontWeight: 600, padding: 12, borderRadius: 10, cursor: 'pointer' }}>Añadir objetivo</button>
         </div>
       </div>
 
-      {/* Recent Activity */}
-      <div className="px-4 pt-4 pb-4">
-        <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-[0.8px] mb-3">Actividad reciente</div>
-        <Card>
+      {/* Activity Log */}
+      <div className="section" style={{ padding: '16px 16px 0' }}>
+        <div className="sec-label">Actividad reciente</div>
+        <div className="log-card">
           {recentLog.length === 0 ? (
-            <EmptyState message="Sin actividad registrada aún." />
+            <div className="empty-state">Sin actividad registrada aún.</div>
           ) : (
             recentLog.map((e, i) => (
-              <div key={i} className="flex items-center gap-3 px-4 py-3 border-b border-[var(--color-border)] last:border-b-0">
-                <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: AREA_COLORS[e.stat as AreaStat] }} />
-                <div className="flex-1">
-                  <div className="text-[13px] font-medium text-[var(--color-text)]">
-                    {AREA_ICONS[e.stat as AreaStat]} {e.concept}
-                  </div>
-                  <div className="text-[11px] text-[var(--color-dim)] mt-0.5">{e.date}</div>
+              <div key={i} className="log-row">
+                <div className="log-dot" style={{ background: AREA_COLORS[e.stat as AreaStat] }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text)' }}>{AREA_ICONS[e.stat as AreaStat]} {e.concept}</div>
+                  <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 1 }}>{e.date}</div>
                 </div>
-                <div className="font-serif text-base italic" style={{ color: AREA_COLORS[e.stat as AreaStat] }}>
-                  +{e.amount} XP
-                </div>
+                <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 16, fontStyle: 'italic', color: AREA_COLORS[e.stat as AreaStat] }}>+{e.amount} XP</div>
               </div>
             ))
           )}
-        </Card>
+        </div>
       </div>
     </div>
   )
+}
+
+/* Helper functions for today summary data */
+function getTasksSummary() {
+  const db = JSON.parse(localStorage.getItem('josema_rpg_time_v4') || '{}')
+  const today = new Date().toISOString().slice(0, 10)
+  const tasks = db[today] || []
+  if (!tasks.length) return 'Sin tareas planificadas'
+  const done = tasks.filter((t: { done: boolean }) => t.done).length
+  return `${done}/${tasks.length} completadas`
+}
+function getTasksSub() {
+  const db = JSON.parse(localStorage.getItem('josema_rpg_time_v4') || '{}')
+  const today = new Date().toISOString().slice(0, 10)
+  const tasks = db[today] || []
+  if (!tasks.length) return 'Ve a Agenda para añadir tareas'
+  const done = tasks.filter((t: { done: boolean }) => t.done).length
+  return done === tasks.length ? '¡Día completado!' : `${tasks.length - done} pendientes`
+}
+function getTasksBadge() {
+  const db = JSON.parse(localStorage.getItem('josema_rpg_time_v4') || '{}')
+  const today = new Date().toISOString().slice(0, 10)
+  const tasks = db[today] || []
+  if (!tasks.length) return '+50 XP'
+  const done = tasks.filter((t: { done: boolean }) => t.done).length
+  return done === tasks.length ? '✓ Hecho' : '+50 XP'
+}
+function getTasksDone() {
+  const db = JSON.parse(localStorage.getItem('josema_rpg_time_v4') || '{}')
+  const today = new Date().toISOString().slice(0, 10)
+  const tasks = db[today] || []
+  if (!tasks.length) return false
+  return tasks.filter((t: { done: boolean }) => t.done).length === tasks.length && tasks.length > 0
+}
+
+function getNutriSummary() {
+  const db = JSON.parse(localStorage.getItem('josema_rpg_nutri_log') || '{}')
+  const today = new Date().toISOString().slice(0, 10)
+  const meals = db[today] || {}
+  const all: { kcal?: number }[] = Object.values(meals).flat() as { kcal?: number }[]
+  if (!all.length) return 'Sin registros de comida'
+  const kcal = all.reduce((s, f) => s + (f.kcal || 0), 0)
+  return `${Math.round(kcal)} kcal registradas`
+}
+function getNutriSub() {
+  const db = JSON.parse(localStorage.getItem('josema_rpg_nutri_log') || '{}')
+  const today = new Date().toISOString().slice(0, 10)
+  const meals = db[today] || {}
+  const all: { kcal?: number }[] = Object.values(meals).flat() as { kcal?: number }[]
+  if (!all.length) return 'Registra tus comidas en Nutrición'
+  return `${all.length} alimentos · ${Object.keys(meals).length} comidas`
+}
+function getNutriBadge() {
+  const db = JSON.parse(localStorage.getItem('josema_rpg_nutri_log') || '{}')
+  const today = new Date().toISOString().slice(0, 10)
+  const meals = db[today] || {}
+  const all = Object.values(meals).flat()
+  return all.length ? '✓ Activo' : '+50 XP'
+}
+function getNutriDone() {
+  const db = JSON.parse(localStorage.getItem('josema_rpg_nutri_log') || '{}')
+  const today = new Date().toISOString().slice(0, 10)
+  return Object.values(db[today] || {}).flat().length > 0
+}
+
+function getTrainSub() {
+  const db = JSON.parse(localStorage.getItem('lifeos_sessions_v1') || '[]')
+  const today = new Date().toISOString().slice(0, 10)
+  const s = db.find((s: { date: string }) => s.date === today)
+  return s ? `${s.duration} min · ${Math.round(s.totalKg)} kg` : 'Toca para registrar sesión'
+}
+function getTrainBadge() {
+  const db = JSON.parse(localStorage.getItem('lifeos_sessions_v1') || '[]')
+  const today = new Date().toISOString().slice(0, 10)
+  return db.some((s: { date: string }) => s.date === today) ? '✓ Hecho' : '+50 XP'
+}
+function getTrainDone() {
+  const db = JSON.parse(localStorage.getItem('lifeos_sessions_v1') || '[]')
+  const today = new Date().toISOString().slice(0, 10)
+  return db.some((s: { date: string }) => s.date === today)
+}
+
+function getFinBadge() {
+  const db = JSON.parse(localStorage.getItem('lifeos_finances_tx_v1') || '[]')
+  const today = new Date().toISOString().slice(0, 10)
+  return db.filter((t: { date: string }) => t.date === today).length ? '✓ Activo' : '+50 XP'
+}
+function getFinDone() {
+  const db = JSON.parse(localStorage.getItem('lifeos_finances_tx_v1') || '[]')
+  const today = new Date().toISOString().slice(0, 10)
+  return db.filter((t: { date: string }) => t.date === today).length > 0
 }
