@@ -464,6 +464,8 @@ function PatrimonioTab() {
 
   const [settleModal, setSettleModal] = useState(false)
   const [settleIdx, setSettleIdx] = useState(-1)
+  const patRef = useRef<HTMLCanvasElement>(null)
+  const patChartRef = useRef<Chart | null>(null)
   const [settleTarget, setSettleTarget] = useState('none')
 
   const assets = cuentas.reduce((s, cu) => CUENTA_TYPE[cu.type]?.asset ? s + cu.balance : s, 0)
@@ -606,6 +608,19 @@ function PatrimonioTab() {
         </>
       )}
 
+      {/* Huchas totales */}
+      {sub === 'huchas' && huchas.length > 0 && (
+        <div style={{ background: 'linear-gradient(145deg,#191c22,#191f1e)', border: '1px solid rgba(82,183,136,0.2)', borderRadius: 16, padding: 16, marginBottom: 12, textAlign: 'center' }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 6 }}>Ahorro total en huchas</div>
+          <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 36, lineHeight: 1, color: '#52b788' }}>
+            {fmt(huchas.reduce((s, h) => s + h.current, 0))}
+          </div>
+          <div style={{ fontSize: 11, color: 'var(--color-sub)', marginTop: 4 }}>
+            de {fmt(huchas.reduce((s, h) => s + h.goal, 0))} objetivo total · {huchas.length} hucha{huchas.length !== 1 ? 's' : ''}
+          </div>
+        </div>
+      )}
+
       {sub === 'huchas' && (
         <>
           {huchas.map((h, i) => {
@@ -623,6 +638,13 @@ function PatrimonioTab() {
                     <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 19, color: 'var(--color-text)', lineHeight: 1.2, marginBottom: 3 }}>{h.name}</div>
                     <div style={{ fontSize: 11, color: 'var(--color-dim)' }}>
                       {h.deadline ? `Límite: ${new Date(h.deadline + 'T12:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}` : 'Sin fecha límite'}
+                      {(() => {
+                        if (!h.deadline || done) return ''
+                        const daysLeft = Math.ceil((new Date(h.deadline).getTime() - Date.now()) / 86400000)
+                        if (daysLeft <= 0) return ' · ¡Vencido!'
+                        const perMonth = left / (daysLeft / 30)
+                        return ` · ${fmt(perMonth)}/mes para llegar`
+                      })()}
                     </div>
                   </div>
                 </div>
@@ -906,6 +928,77 @@ function BudgetsTab() {
             style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(224,95,95,0.06)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.12)', cursor: 'pointer', fontSize: 11 }}>✕</button>
         </div>
       ))}
+    </div>
+  )
+}
+
+/* ── PATRIMONIO CHART ── */
+function PatrimonioChart({ net }: { net: number }) {
+  const chartRef = useRef<Chart | null>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    if (!canvasRef.current) return
+    const K_HIST = 'lifeos_patrimonio_hist_v1'
+    let hist: { date: string; net: number }[] = []
+    try { hist = JSON.parse(localStorage.getItem(K_HIST) || '[]') } catch {}
+
+    const today = todayISO()
+    const todayEntry = hist.find(h => h.date === today)
+    if (todayEntry) { todayEntry.net = net }
+    else { hist.push({ date: today, net }) }
+    if (hist.length > 90) hist = hist.slice(-90)
+    localStorage.setItem(K_HIST, JSON.stringify(hist))
+
+    if (chartRef.current) chartRef.current.destroy()
+    const labels = hist.map(h => { const d = new Date(h.date + 'T12:00:00'); return d.getDate() + '/' + (d.getMonth() + 1) })
+    const data = hist.map(h => h.net)
+    const color = net >= 0 ? '#5b8af0' : '#e05f5f'
+
+    chartRef.current = new Chart(canvasRef.current.getContext('2d')!, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          data,
+          borderColor: color, borderWidth: 2,
+          backgroundColor: (ctx2: { chart: { ctx: CanvasRenderingContext2D; chartArea?: { top: number; bottom: number } } }) => {
+            const { ctx: cv, chartArea } = ctx2.chart
+            if (!chartArea) return color + '18'
+            const grad = cv.createLinearGradient(0, chartArea.top, 0, chartArea.bottom)
+            grad.addColorStop(0, color + '44')
+            grad.addColorStop(1, color + '05')
+            return grad
+          },
+          fill: true, tension: 0.4,
+          pointRadius: hist.length <= 10 ? 4 : 0,
+          pointBackgroundColor: color,
+          pointBorderColor: '#111318', pointBorderWidth: 2,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: { label: (ctx: { raw: unknown }) => fmt(ctx.raw as number) },
+            backgroundColor: '#191c22', borderColor: 'rgba(255,255,255,0.07)',
+            borderWidth: 1, titleColor: '#e8e9ee', bodyColor: '#8a8d96',
+            padding: 10, cornerRadius: 8,
+          }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: '#4a4d56', font: { size: 9 }, maxTicksLimit: 6 } },
+          y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#4a4d56', font: { size: 9 }, callback: (v: unknown) => fmtShort(v as number) } }
+        }
+      }
+    })
+  }, [net])
+
+  return (
+    <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginTop: 12, marginBottom: 12 }}>
+      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-sub)', letterSpacing: '0.3px', marginBottom: 12 }}>Evolución del patrimonio</div>
+      <div style={{ position: 'relative', height: 130 }}><canvas ref={canvasRef} /></div>
     </div>
   )
 }
