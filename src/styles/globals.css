@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #111318;
+  --color-s1: #191c22;
+  --color-s2: #1f2229;
+  --color-s3: #252830;
+  --color-border: rgba(255, 255, 255, 0.07);
+  --color-border2: rgba(255, 255, 255, 0.12);
+  --color-text: #e8e9ee;
+  --color-sub: #8a8d96;
+  --color-dim: #4a4d56;
+  --color-acc-blue: #5b8af0;
+  --color-acc-green: #52b788;
+  --color-acc-orange: #e07a5f;
+  --color-acc-gold: #c9a84c;
+  --color-acc-purple: #9b7fe0;
+  --color-red: #e05f5f;
+  --color-yellow: #c9a84c;
+  --color-blue: #5b8af0;
+  --font-sans: 'DM Sans', sans-serif;
+  --font-serif: 'DM Serif Display', serif;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-user-select: none;
+  user-select: none;
+  font-size: 15px;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes tabIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  from { left: -60%; }
+  to   { left: 160%; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.animate-up {
+  animation: up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-tab {
+  animation: tabIn 0.22s ease both;
+}
