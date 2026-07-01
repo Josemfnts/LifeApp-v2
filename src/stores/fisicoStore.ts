@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { saveToCloud } from '@/lib/sync'
 
 export interface SessionSet { setNumber: number; weight: number; reps: number; done: boolean }
 export interface SessionExercise { name: string; group: string; color: string; sets: SessionSet[] }
@@ -15,7 +16,7 @@ export interface SetTemplate { name: string; sets: number; reps: number; restSec
 function load<T>(key: string, fallback: T): T {
   try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback } catch { return fallback }
 }
-function save(key: string, val: unknown) { localStorage.setItem(key, JSON.stringify(val)) }
+function save(key: string, val: unknown) { localStorage.setItem(key, JSON.stringify(val)); saveToCloud(key, val) }
 
 interface FisicoStore {
   sessions: TrainingSession[]

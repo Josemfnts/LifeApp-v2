@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { saveToCloud, loadFromCloud } from '@/lib/sync'
 
 function getStr(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
@@ -20,7 +21,10 @@ export interface PendingTask { text: string; color: string; priority?: string }
 function load<T>(key: string, fallback: T): T {
   try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback } catch { return fallback }
 }
-function save(key: string, val: unknown) { localStorage.setItem(key, JSON.stringify(val)) }
+function save(key: string, val: unknown) {
+  localStorage.setItem(key, JSON.stringify(val))
+  saveToCloud(key, val)
+}
 
 interface AgendaStore {
   tasks: Record<string, Task[]>

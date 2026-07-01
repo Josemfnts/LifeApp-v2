@@ -1,3 +1,5 @@
+import { saveToCloud } from './sync'
+
 const STORAGE_PREFIX = 'lifeos_'
 
 export function getItem<T>(key: string, fallback: T): T {
@@ -11,7 +13,9 @@ export function getItem<T>(key: string, fallback: T): T {
 }
 
 export function setItem<T>(key: string, value: T): void {
-  localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(value))
+  const fullKey = STORAGE_PREFIX + key
+  localStorage.setItem(fullKey, JSON.stringify(value))
+  saveToCloud(fullKey, value)
 }
 
 export function removeItem(key: string): void {

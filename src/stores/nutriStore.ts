@@ -1,9 +1,10 @@
 import { create } from 'zustand'
+import { saveToCloud } from '@/lib/sync'
 
 function load<T>(key: string, fallback: T): T {
   try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback } catch { return fallback }
 }
-function save(key: string, val: unknown) { localStorage.setItem(key, JSON.stringify(val)) }
+function save(key: string, val: unknown) { localStorage.setItem(key, JSON.stringify(val)); saveToCloud(key, val) }
 
 export interface FoodEntry { name: string; kcal: number; p: number; c: number; f: number; grams: number; meal: string }
 export interface Dish { id: number; name: string; ingredients: { name: string; kcal: number; p: number; c: number; f: number; grams: number }[]; totalKcal: number; totalP: number; totalC: number; totalF: number }

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { signIn, signUp } from '@/lib/supabase'
+import { syncAllToCloud, downloadFromCloud } from '@/lib/sync'
 import { useToast } from '@/stores/toast'
 
 interface LoginProps { onDone: () => void }
@@ -18,9 +19,11 @@ export default function Login({ onDone }: LoginProps) {
     try {
       if (mode === 'login') {
         await signIn(email, password)
-        toast.show('✓ Sesión iniciada')
+        await downloadFromCloud()
+        toast.show('✓ Sesión iniciada y datos sincronizados')
       } else {
         await signUp(email, password)
+        await syncAllToCloud()
         toast.show('✓ Cuenta creada. Revisa tu email.')
       }
       onDone()
