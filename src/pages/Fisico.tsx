@@ -193,6 +193,31 @@ function StrengthTab() {
               + Añadir ejercicio
             </button>
 
+            {/* Set templates */}
+            {(() => {
+              const { setTemplates } = useFisicoStore.getState()
+              if (setTemplates.length === 0) return null
+              return (
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
+                  <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', width: '100%', marginBottom: 2 }}>Plantillas:</span>
+                  {setTemplates.map((t, i) => (
+                    <button key={i} onClick={() => {
+                      if (activeSession) {
+                        const ex = activeSession.exercises[activeSession.exercises.length - 1]
+                        if (ex) {
+                          const newSets = Array.from({ length: t.sets }, (_, j) => ({ setNumber: j + 1, weight: 0, reps: t.reps, done: false }))
+                          useFisicoStore.setState({ activeSession: { ...activeSession, exercises: activeSession.exercises.map((e, ei) => ei === activeSession.exercises.length - 1 ? { ...e, sets: [...e.sets, ...newSets] } : e) } })
+                        }
+                      }
+                    }}
+                      style={{ padding: '4px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid rgba(224,122,95,0.2)', background: 'rgba(224,122,95,0.08)', color: '#e07a5f' }}>
+                      {t.name}: {t.sets}x{t.reps}
+                    </button>
+                  ))}
+                </div>
+              )
+            })()}
+
             <textarea
               value={notes}
               onChange={e => setNotes(e.target.value)}
@@ -210,11 +235,23 @@ function StrengthTab() {
             <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-t-3xl w-full max-w-lg max-h-[70dvh] overflow-y-auto pb-8 animate-slideUp">
               <div className="flex justify-center pt-3 pb-1"><div className="w-9 h-1 bg-[var(--color-border2)] rounded-full" /></div>
               <div className="px-4 pt-2 pb-3 font-serif text-xl text-[var(--color-text)]">Añadir ejercicio</div>
+              <div style={{ padding: '0 16px 8px' }}>
+                <input className="inp" placeholder="🔍 Buscar ejercicio..." onChange={(e) => {
+                  // Simple client-side filter
+                  const val = e.target.value.toLowerCase()
+                  const items = document.querySelectorAll('[data-ex-name]')
+                  items.forEach(el => {
+                    const name = (el as HTMLElement).dataset.exName?.toLowerCase() || ''
+                    ;(el as HTMLElement).style.display = val ? (name.includes(val) ? '' : 'none') : ''
+                  })
+                }} />
+              </div>
               {EXERCISE_GROUPS.map(group => (
                 <div key={group}>
                   <div className="px-4 py-2 text-[10px] font-bold text-[var(--color-dim)] uppercase tracking-[0.8px] bg-[var(--color-s1)] sticky top-0 z-10">{group}</div>
                   {allExercises.filter(e => e.group === group).map(ex => (
                     <div key={ex.name} onClick={() => { addExerciseToSession({ name: ex.name, group: ex.group, color: EXERCISE_COLORS[ex.group] || '#e07a5f', sets: 3 }); setShowExPicker(false) }}
+                      data-ex-name={ex.name}
                       className="flex items-center gap-3 px-4 py-3 border-b border-white/[0.03] cursor-pointer active:bg-[var(--color-s2)]">
                       <div className="w-2 h-2 rounded-full" style={{ background: EXERCISE_COLORS[ex.group] || '#e07a5f' }} />
                       <span className="flex-1 text-sm font-medium text-[var(--color-text)]">{ex.name}</span>

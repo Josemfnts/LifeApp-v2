@@ -380,6 +380,7 @@ function DayView({ date }: { date: Date }) {
           {hasSubtasks && <button onClick={e => { e.stopPropagation(); setExpanded(!expanded) }} style={{ background: 'none', border: 'none', color: 'var(--color-dim)', fontSize: 11, cursor: 'pointer' }}>{expanded ? '▲' : '▼'}</button>}
           {t.notes && <span style={{ fontSize: 10, color: 'var(--color-dim)' }}>📝</span>}
           <button onClick={e => { e.stopPropagation(); setEditingNotes(idx); setNoteText(t.notes || '') }} style={{ background: 'none', border: 'none', color: 'var(--color-dim)', fontSize: 10, cursor: 'pointer' }}>✎</button>
+          <button onClick={e => { e.stopPropagation(); const nd = prompt('Mover a fecha (YYYY-MM-DD):', new Date().toISOString().slice(0,10)); if (nd) { moveTask(d, idx, nd); toast.show('✓ Tarea movida') } }} style={{ background: 'none', border: 'none', color: 'var(--color-dim)', fontSize: 10, cursor: 'pointer' }}>↗</button>
           <button onClick={e => { e.stopPropagation(); removeTask(d, idx); toast.show('Eliminada') }} style={{ background: 'none', border: 'none', color: 'var(--color-dim)', fontSize: 12, cursor: 'pointer' }}>✕</button>
         </div>
         {expanded && hasSubtasks && (
