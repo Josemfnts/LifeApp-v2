@@ -478,6 +478,7 @@ function StrengthTab() {
 
         {/* PRs */}
         {prs.length > 0 && (
+          <>
           <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
             <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-sub)', letterSpacing: '0.3px', marginBottom: 10 }}>🏆 Records personales</div>
             {prs.map((pr, i) => (
@@ -494,6 +495,23 @@ function StrengthTab() {
               </div>
             ))}
           </div>
+          <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-sub)', letterSpacing: '0.3px', marginBottom: 10 }}>🧮 Calculadora 1RM</div>
+            <div style={{ fontSize: 11, color: 'var(--color-sub)', marginBottom: 8 }}>Estima tu repetición máxima basada en un set</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
+              <input className="inp" id="1rm-weight" type="number" placeholder="Peso (kg)" style={{ marginBottom: 0 }} />
+              <input className="inp" id="1rm-reps" type="number" placeholder="Reps" style={{ marginBottom: 0 }} />
+            </div>
+            <button onClick={() => {
+              const w = parseFloat((document.getElementById('1rm-weight') as HTMLInputElement)?.value || '0')
+              const r = parseInt((document.getElementById('1rm-reps') as HTMLInputElement)?.value || '0')
+              if (!w || !r) { toast.show('Introduce peso y reps'); return }
+              const rm = Math.round(w * (1 + r / 30))
+              toast.show(`🏋️ 1RM estimado: ${rm} kg`)
+            }}
+              className="btn-ghost" style={{ border: '1px solid rgba(224,122,95,0.2)', color: '#e07a5f', background: 'rgba(224,122,95,0.08)' }}>Calcular 1RM</button>
+          </div>
+          </>
         )}
       </div>
     )

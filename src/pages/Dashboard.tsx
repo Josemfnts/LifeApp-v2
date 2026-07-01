@@ -228,7 +228,7 @@ export default function Dashboard() {
       </div>
 
       {/* Activity Log */}
-      <div className="section" style={{ padding: '16px 16px 0' }}>
+      <div className="section s5">
         <div className="sec-label">Actividad reciente</div>
         <div className="log-card">
           {recentLog.length === 0 ? (
@@ -247,6 +247,58 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+
+      {/* Logros */}
+      {(() => {
+        const achievements: { icon: string; title: string; desc: string; unlocked: boolean }[] = []
+        const dbH = JSON.parse(localStorage.getItem('lifeos_habits_v1') || '[]')
+        const dbHL = JSON.parse(localStorage.getItem('lifeos_habits_log_v1') || '{}')
+        const allDates2 = Object.keys(dbHL)
+        const totalCheckins = allDates2.reduce((s: number, d: string) => s + Object.values(dbHL[d] as Record<string, number>).reduce((ss: number, v: number) => ss + (v > 0 ? 1 : 0), 0), 0)
+        const combinedStreak = (() => {
+          const allD = new Set<string>()
+          Object.values(xp).forEach(a => (a.log || []).forEach((e: { date: string }) => { if (e.date) allD.add(e.date) }))
+          let s = 0; const d2 = new Date()
+          for (let i = 0; i < 365; i++) {
+            const ds2 = `${d2.getFullYear()}-${String(d2.getMonth()+1).padStart(2,'0')}-${String(d2.getDate()).padStart(2,'0')}`
+            if (allD.has(ds2)) s++; else if (i > 0) break
+            d2.setDate(d2.getDate() - 1)
+          }
+          return s
+        })()
+        const allTasks2 = Object.values(JSON.parse(localStorage.getItem('agenda_tasks') || '{}')).flat() as { done: boolean }[]
+        const totalDone2 = allTasks2.filter((t: { done: boolean }) => t.done).length
+        const sessCount = JSON.parse(localStorage.getItem('lifeos_sessions_v1') || '[]').length
+        const txCount2 = JSON.parse(localStorage.getItem('lifeos_finances_tx_v1') || '[]').length
+
+        achievements.push({ icon: '🔥', title: 'Principiante', desc: '7 días de racha', unlocked: combinedStreak >= 7 })
+        achievements.push({ icon: '🔥', title: 'Constante', desc: '30 días de racha', unlocked: combinedStreak >= 30 })
+        achievements.push({ icon: '✅', title: 'Productivo', desc: '100 tareas completadas', unlocked: totalDone2 >= 100 })
+        achievements.push({ icon: '⭐', title: 'Hábito maestro', desc: '1000 check-ins', unlocked: totalCheckins >= 1000 })
+        achievements.push({ icon: '🏋️', title: 'Fuerza', desc: '50 sesiones de entreno', unlocked: sessCount >= 50 })
+        achievements.push({ icon: '💰', title: 'Ahorrador', desc: '100 transacciones', unlocked: txCount2 >= 100 })
+        const unlocked = achievements.filter(a => a.unlocked)
+        if (unlocked.length === 0) return null
+        return (
+          <div className="section" style={{ padding: '16px 16px 0' }}>
+            <div className="sec-label">🏆 Logros ({unlocked.length}/{achievements.length})</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6 }}>
+              {achievements.map(a => (
+                <div key={a.title} style={{
+                  background: a.unlocked ? 'var(--color-s1)' : 'var(--color-s2)',
+                  border: `1px solid ${a.unlocked ? 'rgba(201,168,76,0.3)' : 'var(--color-border)'}`,
+                  borderRadius: 12, padding: 10, textAlign: 'center',
+                  opacity: a.unlocked ? 1 : 0.4,
+                }}>
+                  <div style={{ fontSize: 20, marginBottom: 4 }}>{a.icon}</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: a.unlocked ? '#c9a84c' : 'var(--color-dim)', marginBottom: 2 }}>{a.title}</div>
+                  <div style={{ fontSize: 9, color: 'var(--color-dim)' }}>{a.desc}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      })()}
     </div>
   )
 }

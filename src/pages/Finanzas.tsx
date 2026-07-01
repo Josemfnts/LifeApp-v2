@@ -829,6 +829,11 @@ function BudgetsTab() {
   const [rType, setRType] = useState<'income' | 'expense'>('expense')
   const [rCategory, setRCategory] = useState('Alimentación')
   const [rDay, setRDay] = useState('1')
+  const [icInit, setIcInit] = useState('1000')
+  const [icRate, setIcRate] = useState('7')
+  const [icYears, setIcYears] = useState('10')
+  const [icMonthly, setIcMonthly] = useState('100')
+  const [icResult, setIcResult] = useState<number | null>(null)
 
   const now = new Date()
   const keyM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
@@ -928,6 +933,35 @@ function BudgetsTab() {
             style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(224,95,95,0.06)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.12)', cursor: 'pointer', fontSize: 11 }}>✕</button>
         </div>
       ))}
+
+      <div className="sec-label" style={{ marginTop: 24 }}>📈 Interés compuesto</div>
+      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, marginBottom: 14 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
+          <input className="inp" value={icInit} onChange={e => setIcInit(e.target.value)} type="number" placeholder="Inicial €" style={{ marginBottom: 0 }} />
+          <input className="inp" value={icRate} onChange={e => setIcRate(e.target.value)} type="number" placeholder="Interés anual %" style={{ marginBottom: 0 }} />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
+          <input className="inp" value={icYears} onChange={e => setIcYears(e.target.value)} type="number" placeholder="Años" style={{ marginBottom: 0 }} />
+          <input className="inp" value={icMonthly} onChange={e => setIcMonthly(e.target.value)} type="number" placeholder="Aporte mensual €" style={{ marginBottom: 0 }} />
+        </div>
+        <button onClick={() => {
+          const init = parseFloat(icInit) || 0
+          const rate = (parseFloat(icRate) || 7) / 100 / 12
+          const months = (parseInt(icYears) || 10) * 12
+          const monthly = parseFloat(icMonthly) || 0
+          let total = init
+          for (let i = 0; i < months; i++) total = total * (1 + rate) + monthly
+          setIcResult(Math.round(total))
+          toast.show(`💰 Total estimado: ${fmt(Math.round(total))}`)
+        }}
+          style={{ width: '100%', padding: 12, borderRadius: 12, background: 'rgba(201,168,76,0.1)', color: 'var(--color-acc-gold)', border: '1px solid rgba(201,168,76,0.2)', fontSize: 14, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>Calcular</button>
+        {icResult !== null && (
+          <div style={{ marginTop: 10, textAlign: 'center' }}>
+            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 28, color: 'var(--color-acc-gold)' }}>{fmt(icResult)}</div>
+            <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 2 }}>en {icYears} años al {icRate}% anual</div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

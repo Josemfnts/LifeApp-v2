@@ -266,6 +266,31 @@ function DayView({ date }: { date: Date }) {
 
   function handleAdd() { if (!newText.trim()) return; const task = { text: newText.trim(), time: newTime, color: newColor, done: false, priority: newPriority || undefined, subtasks: newSubtasks.length > 0 ? newSubtasks.map(s => ({ text: s, done: false })) : undefined }; addTask(dStr, task); setNewText(''); setNewTime(''); setNewSubtasks([]); setShowForm(false); toast.show('✓ Tarea añadida') }
 
+  function saveTemplate() {
+    const dayTasks = getTasksForDate(dStr)
+    if (!dayTasks.length) { toast.show('No hay tareas para guardar'); return }
+    const name = prompt('Nombre de la plantilla:', `Día ${date.getDate()}/${date.getMonth()+1}`)
+    if (!name) return
+    const templates = JSON.parse(localStorage.getItem('agenda_templates') || '[]')
+    templates.push({ name, date: dStr, tasks: dayTasks })
+    localStorage.setItem('agenda_templates', JSON.stringify(templates))
+    toast.show('✓ Plantilla guardada')
+  }
+
+  function loadTemplate() {
+    const templates = JSON.parse(localStorage.getItem('agenda_templates') || '[]')
+    if (!templates.length) { toast.show('No hay plantillas guardadas'); return }
+    const names = templates.map((t: { name: string }, i: number) => `${i+1}. ${t.name}`).join('\n')
+    const idx = prompt(`Elige plantilla:\n${names}\n\nNúmero:`)
+    if (!idx) return
+    const t = templates[parseInt(idx) - 1]
+    if (!t) return
+    t.tasks.forEach((task: { text: string; time: string; color: string; priority?: string; subtasks?: { text: string; done: boolean }[] }) => {
+      addTask(dStr, { ...task, done: false })
+    })
+    toast.show(`✓ Plantilla "${t.name}" cargada`)
+  }
+
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
@@ -289,7 +314,11 @@ function DayView({ date }: { date: Date }) {
       </div>
 
       {!showForm ? (
-        <button onClick={() => setShowForm(true)} style={{ width: '100%', padding: 11, borderRadius: 12, background: 'rgba(91,138,240,0.1)', color: 'var(--color-acc-blue)', border: '1px solid rgba(91,138,240,0.2)', fontSize: 14, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', marginBottom: 12 }}>+ Añadir tarea</button>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+          <button onClick={() => setShowForm(true)} style={{ flex: 1, padding: 11, borderRadius: 12, background: 'rgba(91,138,240,0.1)', color: 'var(--color-acc-blue)', border: '1px solid rgba(91,138,240,0.2)', fontSize: 14, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>+ Añadir tarea</button>
+          <button onClick={saveTemplate} style={{ padding: '11px 14px', borderRadius: 12, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-dim)', fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>💾</button>
+          <button onClick={loadTemplate} style={{ padding: '11px 14px', borderRadius: 12, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-dim)', fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>📂</button>
+        </div>
       ) : (
         <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 14, marginBottom: 12 }}>
           <Input value={newText} onChange={setNewText} placeholder="¿Qué tienes que hacer?" className="mb-2" />

@@ -13,6 +13,8 @@ const Habitos = lazy(() => import('@/pages/Habitos'))
 const Fisico = lazy(() => import('@/pages/Fisico'))
 const Nutricion = lazy(() => import('@/pages/Nutricion'))
 const Finanzas = lazy(() => import('@/pages/Finanzas'))
+const Pomodoro = lazy(() => import('@/pages/Pomodoro'))
+const Diario = lazy(() => import('@/pages/Diario'))
 const Login = lazy(() => import('@/pages/Login'))
 
 const queryClient = new QueryClient()
@@ -72,6 +74,8 @@ export default function App() {
                   <Route path="/fisico" element={<Fisico />} />
                   <Route path="/nutricion" element={<Nutricion />} />
                   <Route path="/finanzas" element={<Finanzas />} />
+                  <Route path="/pomodoro" element={<Pomodoro />} />
+                  <Route path="/diario" element={<Diario />} />
                 </Route>
               </Routes>
             </Suspense>

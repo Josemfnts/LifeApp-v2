@@ -137,6 +137,47 @@ export function HabitStats({ habits, log }: HabitStatsProps) {
         </div>
       </Card>
 
+      {/* Year in pixels */}
+      {(() => {
+        const days = 365
+        const cells2: { pct: number; bg: string }[] = []
+        const baseColor = selId !== 'all' && relevantHabits[0] ? relevantHabits[0].color : '#9b7fe0'
+        for (let i = days - 1; i >= 0; i--) {
+          const d = new Date(Date.now() - i * 86400000)
+          const dStr = d.toISOString().slice(0, 10)
+          let filled = 0; let total = 0
+          relevantHabits.forEach(h => {
+            const dow2 = d.getDay(); let active2 = false
+            if (h.freq === 'daily') active2 = true
+            else if (h.freq === 'weekdays') active2 = dow2 >= 1 && dow2 <= 5
+            else if (h.freq === 'weekend') active2 = dow2 === 0 || dow2 === 6
+            else if (h.freq === 'custom') active2 = (h.days || []).includes(dow2)
+            if (!active2) return; total++
+            const v = getLogValue(log, dStr, h.id)
+            if (isHabitDone(h, v)) filled++
+          })
+          const pct2 = total > 0 ? filled / total : 0
+          let bg2 = 'rgba(255,255,255,0.03)'
+          if (pct2 > 0 && pct2 < 0.5) bg2 = baseColor + '55'
+          else if (pct2 >= 0.5 && pct2 < 1) bg2 = baseColor + '99'
+          else if (pct2 === 1) bg2 = baseColor
+          cells2.push({ pct: pct2, bg: bg2 })
+        }
+        const startY = new Date(Date.now() - 364 * 86400000)
+        return (
+          <Card padded className="mb-2.5">
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-sub)', letterSpacing: '0.3px', marginBottom: 10 }}>🗓 Año en píxeles</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(53,1fr)', gap: 2 }}>
+              {cells2.map((c, i) => <div key={i} style={{ aspectRatio: '1', borderRadius: 2, background: c.bg }} />)}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontSize: 9, color: 'var(--color-dim)' }}>
+              <span>{startY.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })}</span>
+              <span>Hoy</span>
+            </div>
+          </Card>
+        )
+      })()}
+
       <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-[0.8px] mb-2.5">Por hábito</div>
       {habits.length === 0 ? (
         <div className="text-center py-8 text-[13px] text-[var(--color-dim)]">Sin hábitos.</div>
