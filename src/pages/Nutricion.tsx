@@ -351,6 +351,9 @@ function SearchTab() {
   const [loading, setLoading] = useState(false)
   const [showBarcode, setShowBarcode] = useState(false)
   const [barcode, setBarcode] = useState('')
+  const [scanning, setScanning] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const streamRef = useRef<MediaStream | null>(null)
 
   const localResults = query.trim()
     ? FOODS_DB.filter(f => f.name.toLowerCase().includes(query.toLowerCase())).slice(0, 20)
@@ -360,6 +363,63 @@ function SearchTab() {
   function addFound(f: { name: string; kcal: number; p: number; c: number; f: number }) {
     addFood(todayISO(), { name: f.name, kcal: f.kcal, p: f.p, c: f.c, f: f.f, grams: 100, meal })
     toast.show(`✓ ${f.name} añadido (${f.kcal} kcal)`)
+  }
+
+  // Real barcode scanner with camera
+  async function startCameraScan() {
+    setScanning(true)
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+      streamRef.current = stream
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream
+        videoRef.current.play()
+      }
+      // Use BarcodeDetector API if available
+      if ('BarcodeDetector' in window) {
+        const detector = new (window as unknown as { BarcodeDetector: new (opts: { formats: string[] }) => { detect: (el: HTMLVideoElement) => Promise<{ rawValue: string }[]> } }).BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39'] })
+        const scan = async () => {
+          if (!videoRef.current || !streamRef.current) return
+          try {
+            const barcodes = await detector.detect(videoRef.current)
+            if (barcodes.length > 0) {
+              stopCamera()
+              fetchProduct(barcodes[0].rawValue)
+              return
+            }
+          } catch {}
+          if (streamRef.current) requestAnimationFrame(scan)
+        }
+        requestAnimationFrame(scan)
+      } else {
+        toast.show('BarcodeDetector no soportado. Introduce el código manualmente.')
+      }
+    } catch { toast.show('No se pudo acceder a la cámara'); setScanning(false) }
+  }
+
+  function stopCamera() {
+    if (streamRef.current) { streamRef.current.getTracks().forEach(t => t.stop()); streamRef.current = null }
+    setScanning(false)
+  }
+
+  async function fetchProduct(code: string) {
+    setLoading(true)
+    try {
+      const r = await fetch(`https://world.openfoodfacts.org/api/v0/product/${code}.json`)
+      const d = await r.json()
+      if (d.status === 1 && d.product) {
+        const p = d.product; const n = p.nutriments || {}
+        addFound({ name: p.product_name || code, kcal: Math.round(n['energy-kcal_100g'] || 0), p: Math.round(n.proteins_100g || 0), c: Math.round(n.carbohydrates_100g || 0), f: Math.round(n.fat_100g || 0) })
+      } else { toast.show('Producto no encontrado') }
+    } catch { toast.show('Error al buscar') }
+    finally { setLoading(false) }
+  }
+
+  async function scanBarcode() {
+    const bc = barcode.trim()
+    if (!bc) return
+    await fetchProduct(bc)
+    setBarcode('')
   }
 
   async function searchOnline() {
@@ -379,22 +439,6 @@ function SearchTab() {
     finally { setLoading(false) }
   }
 
-  async function scanBarcode() {
-    const bc = barcode.trim()
-    if (!bc) return
-    setLoading(true)
-    try {
-      const r = await fetch(`https://world.openfoodfacts.org/api/v0/product/${bc}.json`)
-      const d = await r.json()
-      if (d.status === 1 && d.product) {
-        const p = d.product; const n = p.nutriments || {}
-        addFound({ name: p.product_name || bc, kcal: Math.round(n['energy-kcal_100g'] || 0), p: Math.round(n.proteins_100g || 0), c: Math.round(n.carbohydrates_100g || 0), f: Math.round(n.fat_100g || 0) })
-        setShowBarcode(false); setBarcode('')
-      } else { toast.show('Producto no encontrado') }
-    } catch { toast.show('Error al escanear') }
-    finally { setLoading(false) }
-  }
-
   return (
     <div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
@@ -407,12 +451,26 @@ function SearchTab() {
         <button onClick={searchOnline} disabled={loading} className="btn-ghost" style={{ flex: 1, padding: '8px 12px', fontSize: 13, color: 'var(--color-blue)', borderColor: 'rgba(91,138,240,0.3)' }}>
           {loading ? '🔍 Buscando...' : '🌐 Buscar en OpenFoodFacts'}
         </button>
-        <button onClick={() => setShowBarcode(!showBarcode)} style={{ padding: '8px 12px', borderRadius: 12, fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid rgba(82,183,136,0.2)', background: 'rgba(82,183,136,0.08)', color: 'var(--color-acc-green)' }}>📷 Código</button>
+        <button onClick={() => setShowBarcode(!showBarcode)} style={{ padding: '8px 12px', borderRadius: 12, fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid rgba(82,183,136,0.2)', background: 'rgba(82,183,136,0.08)', color: 'var(--color-acc-green)' }}>📷 Escanear</button>
       </div>
       {showBarcode && (
-        <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-          <input className="inp" value={barcode} onChange={e => setBarcode(e.target.value)} placeholder="Código de barras" style={{ marginBottom: 0 }} />
-          <button onClick={scanBarcode} disabled={loading} className="btn-ghost" style={{ width: 'auto', padding: '8px 18px', color: 'var(--color-acc-green)' }}>{loading ? '...' : 'Escanear'}</button>
+        <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
+          <div className="sec-label" style={{ marginBottom: 10 }}>Escanear código de barras</div>
+          {scanning ? (
+            <div style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', marginBottom: 10 }}>
+              <video ref={videoRef} style={{ width: '100%', borderRadius: 12, display: 'block' }} playsInline muted />
+              <div style={{ position: 'absolute', inset: 0, border: '2px solid rgba(82,183,136,0.5)', borderRadius: 12, pointerEvents: 'none' }} />
+              <button onClick={stopCamera} style={{ position: 'absolute', bottom: 10, left: '50%', transform: 'translateX(-50%)', padding: '8px 20px', borderRadius: 99, background: 'rgba(0,0,0,0.7)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>✕ Cancelar</button>
+            </div>
+          ) : (
+            <button onClick={startCameraScan} style={{ width: '100%', padding: 16, borderRadius: 12, background: 'var(--color-s2)', border: '1px dashed var(--color-border)', color: 'var(--color-sub)', fontSize: 14, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', marginBottom: 10 }}>
+              📷 Abrir cámara
+            </button>
+          )}
+          <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+            <input className="inp" value={barcode} onChange={e => setBarcode(e.target.value)} placeholder="O introduce el código manualmente..." style={{ marginBottom: 0 }} />
+            <button onClick={scanBarcode} disabled={loading} className="btn-ghost" style={{ width: 'auto', padding: '8px 18px', color: 'var(--color-acc-green)' }}>{loading ? '...' : 'Buscar'}</button>
+          </div>
         </div>
       )}
 
