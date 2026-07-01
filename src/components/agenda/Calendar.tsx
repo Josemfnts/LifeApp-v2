@@ -56,7 +56,7 @@ export function Calendar() {
 
       <div className="grid grid-cols-7 gap-[2px]">
         {Array.from({ length: start }, (_, i) => (
-          <div key={`e${i}`} className="aspect-square bg-[var(--color-s1)] border border-[var(--color-border)] rounded-xl opacity-18 pointer-events-none" />
+          <div key={`e${i}`} className="aspect-square bg-[var(--color-s1)] border border-[var(--color-border)] rounded-xl opacity-20 pointer-events-none" />
         ))}
         {days.map(({ d, dStr, isToday, dotClass, shift }) => (
           <div

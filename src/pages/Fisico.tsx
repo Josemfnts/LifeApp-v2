@@ -173,7 +173,7 @@ function StrengthTab() {
                     />
                     <button
                       onClick={() => { updateSet(ei, si, { done: !set.done }); if (!set.done) startTimer(restPreset) }}
-                      className={`w-7 h-7 rounded-lg mx-auto flex items-center justify-center text-xs cursor-pointer border-1.5 ${
+                      className={`w-7 h-7 rounded-lg mx-auto flex items-center justify-center text-xs cursor-pointer border-[1.5px] ${
                         set.done ? 'bg-[#166534] border-[#52b788] text-[#4ade80]' : 'border-[var(--color-border2)]'
                       }`}
                     >{set.done ? '✓' : ''}</button>

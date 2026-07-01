@@ -19,6 +19,10 @@
   --color-blue: #5b8af0;
   --font-sans: 'DM Sans', sans-serif;
   --font-serif: 'DM Serif Display', serif;
+  --animate-up: up 0.45s cubic-bezier(0.22,1,0.36,1) both;
+  --animate-tab: tabIn 0.22s ease both;
+  --animate-fade-in: fadeIn 0.2s ease;
+  --animate-slide-up: slideUp 0.25s cubic-bezier(0.23,1,0.32,1);
 }
 
 /* ── RESET ── */
@@ -34,16 +38,17 @@ body {
 }
 ::-webkit-scrollbar { display: none; }
 
-/* ── ANIMATIONS ── */
+/* ── KEYFRAMES ── */
 @keyframes up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes tabIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes shimmer { from { left: -60%; } to { left: 160%; } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes shimmer { from { left: -60%; } to { left: 160%; } }
 @keyframes pop { from { opacity: 0; transform: scale(0.7); } to { opacity: 1; transform: scale(1); } }
 @keyframes splashFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes splashLoad { from { width: 0%; } to { width: 100%; } }
 
+/* ── STAGGERED ENTRANCE ── */
 .s0 { animation: up 0.45s 0.00s cubic-bezier(0.22,1,0.36,1) both; }
 .s1 { animation: up 0.45s 0.06s cubic-bezier(0.22,1,0.36,1) both; }
 .s2 { animation: up 0.45s 0.12s cubic-bezier(0.22,1,0.36,1) both; }
@@ -72,7 +77,7 @@ body {
 }
 .splash-name {
   font-family: var(--font-serif);
-  font-size: 28px; color: #e8e9ee;
+  font-size: 28px; color: #e8e9ee; letter-spacing: -0.5px;
   animation: splashFade 0.5s 0.15s ease both;
 }
 .splash-sub {
@@ -104,6 +109,43 @@ body {
   font-family: var(--font-serif);
   font-size: 26px; font-weight: 400; color: var(--color-text);
   line-height: 1.15; margin-bottom: 14px;
+}
+
+/* ── TOP BAR SPECIFICS ── */
+.greeting { font-size: 12px; font-weight: 500; color: var(--color-sub); letter-spacing: 0.3px; margin-bottom: 3px; }
+.greeting-name { font-family: 'DM Serif Display', serif; font-size: 30px; color: var(--color-text); line-height: 1.1; }
+.greeting-name em {
+  font-style: italic;
+  background: linear-gradient(135deg, #6b9af5, #52b788);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.streak-row { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+.top-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; margin-bottom: 14px; }
+.date-chip { font-size: 12px; font-weight: 500; color: var(--color-sub); }
+.level-pill {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(91,138,240,0.08); border: 1px solid rgba(91,138,240,0.2);
+  border-radius: 99px; padding: 5px 12px 5px 8px;
+}
+.level-dot {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-acc-blue), #3a6bd4);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; color: white;
+}
+.level-text { font-size: 12px; font-weight: 600; color: var(--color-text); }
+.level-xp { font-size: 11px; color: var(--color-sub); }
+.gear-btn {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: var(--color-s1); border: 1px solid var(--color-border);
+  color: var(--color-dim); display: flex; align-items: center;
+  justify-content: center; cursor: pointer; flex-shrink: 0;
+}
+.xp-strip { height: 3px; position: relative; }
+.xp-strip-fill {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  background: linear-gradient(90deg, #5b8af0, #52b788, #c9a84c);
+  transition: width 1s ease;
 }
 
 /* ── NAV BAR ── */
@@ -145,11 +187,12 @@ body {
 .card {
   background: var(--color-s1);
   border: 1px solid var(--color-border);
-  border-radius: 16px;
-  overflow: hidden;
+  border-radius: 16px; overflow: hidden;
   transition: border-color 0.2s;
 }
 .card-padded { padding: 16px; }
+.card-clickable { cursor: pointer; }
+.card-clickable:active { background: rgba(255,255,255,0.03); }
 
 /* ── TODAY ROWS ── */
 .today-card { background: var(--color-s1); border: 1px solid var(--color-border); border-radius: 16px; overflow: hidden; }
@@ -157,8 +200,7 @@ body {
   display: flex; align-items: center; gap: 14px;
   padding: 14px 16px; border-bottom: 1px solid var(--color-border);
   cursor: pointer; transition: background 0.15s;
-  text-decoration: none;
-  position: relative;
+  text-decoration: none; position: relative;
 }
 .today-row:last-child { border-bottom: none; }
 .today-row:active { background: rgba(255,255,255,0.03); }
@@ -216,7 +258,10 @@ body {
 .ac-d .area-level { color: #c9a84c; }
 
 .area-bar-track { height: 4px; background: rgba(255,255,255,0.05); border-radius: 99px; overflow: hidden; margin-bottom: 8px; }
-.area-bar-fill { height: 100%; border-radius: 99px; transition: width 1s ease; position: relative; overflow: hidden; }
+.area-bar-fill {
+  height: 100%; border-radius: 99px; transition: width 1s ease;
+  position: relative; overflow: hidden;
+}
 .ac-a .area-bar-fill { background: #5b8af0; }
 .ac-b .area-bar-fill { background: #52b788; }
 .ac-c .area-bar-fill { background: #e07a5f; }
@@ -230,17 +275,20 @@ body {
 
 /* ── BADGES ── */
 .sb-done {
-  font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; letter-spacing: 0.2px;
-  background: rgba(82,183,136,0.12) !important; color: #52b788 !important;
-  border: 1px solid rgba(82,183,136,0.2) !important;
+  flex-shrink: 0; font-size: 11px; font-weight: 600;
+  padding: 4px 10px; border-radius: 6px; letter-spacing: 0.2px;
+  background: rgba(82,183,136,0.12); color: #52b788;
+  border: 1px solid rgba(82,183,136,0.2);
 }
 .sb-pending {
-  font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; letter-spacing: 0.2px;
-  background: rgba(91,138,240,0.08) !important; color: #5b8af0 !important;
-  border: 1px solid rgba(91,138,240,0.15) !important;
+  flex-shrink: 0; font-size: 11px; font-weight: 600;
+  padding: 4px 10px; border-radius: 6px; letter-spacing: 0.2px;
+  background: rgba(91,138,240,0.08); color: #5b8af0;
+  border: 1px solid rgba(91,138,240,0.15);
 }
 .sb-locked {
-  font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; letter-spacing: 0.2px;
+  flex-shrink: 0; font-size: 11px; font-weight: 600;
+  padding: 4px 10px; border-radius: 6px; letter-spacing: 0.2px;
   background: transparent; color: var(--color-dim); border: 1px solid var(--color-border);
 }
 
@@ -249,19 +297,14 @@ body {
 
 /* ── PROGRESS BAR ── */
 .pbar-track { height: 5px; background: rgba(255,255,255,0.05); border-radius: 99px; overflow: hidden; }
-.pbar-fill { height: 100%; border-radius: 99px; transition: width 0.6s cubic-bezier(0.22,1,0.36,1); position: relative; overflow: hidden; }
+.pbar-fill {
+  height: 100%; border-radius: 99px; transition: width 0.6s cubic-bezier(0.22,1,0.36,1);
+  position: relative; overflow: hidden;
+}
 .pbar-fill::after {
   content: ''; position: absolute; top: 0; left: -100%; bottom: 0;
   width: 60%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
   animation: shimmer 2s 0.8s ease infinite;
-}
-
-/* ── XP STRIP ── */
-.xp-strip { height: 3px; position: relative; }
-.xp-strip-fill {
-  position: absolute; left: 0; top: 0; bottom: 0;
-  background: linear-gradient(90deg, #5b8af0, #52b788, #c9a84c);
-  transition: width 1s ease;
 }
 
 /* ── INPUTS ── */
@@ -271,7 +314,7 @@ body {
   color: var(--color-text); border-radius: 10px;
   padding: 10px 13px; font-size: 14px;
   font-family: var(--font-sans); outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s;
 }
 .inp:focus { border-color: var(--color-border2); box-shadow: 0 0 0 3px rgba(255,255,255,0.04); }
 .inp::placeholder { color: var(--color-dim); }
@@ -324,19 +367,10 @@ select.inp option { background: #1f2229; color: #e8e9ee; }
 #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 /* ── EMPTY STATE ── */
-.empty-state {
-  text-align: center;
-  padding: 40px 20px;
-  color: var(--color-dim);
-  font-size: 14px;
-  line-height: 1.6;
-}
+.empty-state { text-align: center; padding: 40px 20px; color: var(--color-dim); font-size: 14px; line-height: 1.6; }
 
 /* ── TAB BAR ── */
-.tab-bar {
-  display: flex; overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
+.tab-bar { display: flex; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .tab-bar::-webkit-scrollbar { display: none; }
 .tab-btn {
   flex: 0 0 auto; padding: 10px 16px;
@@ -347,11 +381,7 @@ select.inp option { background: #1f2229; color: #e8e9ee; }
   transition: color 0.2s, border-color 0.2s;
   white-space: nowrap; outline: none;
 }
-.tab-btn.active { color: var(--color-acc-blue); border-bottom: 3px solid var(--color-acc-blue); }
-
-/* ── VIEW TRANSITIONS ── */
-.view { animation: none; }
-.view.active { animation: tabIn 0.22s ease both; }
+.tab-btn.active { color: var(--color-acc-blue); border-bottom: 3px solid var(--color-acc-blue); padding-bottom: 9px; }
 
 /* ── LOG ── */
 .log-card { background: var(--color-s1); border: 1px solid var(--color-border); border-radius: 16px; overflow: hidden; }
@@ -364,6 +394,7 @@ select.inp option { background: #1f2229; color: #e8e9ee; }
   position: fixed; inset: 0; background: rgba(0,0,0,0.75);
   z-index: 9000; display: flex; align-items: flex-end; justify-content: center;
   backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease;
 }
 .modal-sheet {
   background: var(--color-s1); border: 1px solid var(--color-border);
@@ -374,12 +405,29 @@ select.inp option { background: #1f2229; color: #e8e9ee; }
 }
 .modal-handle { width: 36px; height: 4px; background: var(--color-border2); border-radius: 99px; margin: 12px auto 0; }
 
+/* ── GOAL CARD ── */
+.goal-card { background: var(--color-s1); border: 1px solid var(--color-border); border-radius: 16px; padding: 16px; margin-bottom: 10px; position: relative; }
+.goal-area-tag { font-size: 11px; font-weight: 600; color: var(--color-sub); letter-spacing: 0.3px; text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.goal-name { font-family: var(--font-serif); font-size: 18px; color: var(--color-text); margin-bottom: 10px; line-height: 1.3; }
+.goal-nums { display: flex; justify-content: space-between; font-size: 12px; color: var(--color-sub); margin-bottom: 7px; }
+.goal-track { height: 4px; background: rgba(255,255,255,0.06); border-radius: 99px; overflow: hidden; margin-bottom: 12px; }
+.goal-fill { height: 100%; border-radius: 99px; transition: width 1s ease; }
+.goal-update { display: flex; gap: 8px; }
+.goal-inp { flex: 1; background: var(--color-s2); border: 1px solid var(--color-border); color: var(--color-text); border-radius: 10px; padding: 9px 12px; font-size: 13px; font-family: var(--font-sans); outline: none; }
+.goal-btn { padding: 9px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; font-family: var(--font-sans); cursor: pointer; }
+.goal-del { position: absolute; top: 14px; right: 16px; font-size: 11px; font-weight: 600; color: var(--color-dim); background: transparent; border: none; cursor: pointer; padding: 2px 6px; }
+.goal-done-tag { display: inline-block; font-size: 11px; font-weight: 600; color: #52b788; background: rgba(82,183,136,0.1); border: 1px solid rgba(82,183,136,0.2); border-radius: 6px; padding: 2px 10px; margin-bottom: 6px; }
+
+/* ── ADD FORM ── */
+.add-form { background: var(--color-s1); border: 1px solid var(--color-border); border-radius: 16px; padding: 18px; margin-bottom: 10px; }
+.add-form-title { font-size: 13px; font-weight: 600; color: var(--color-sub); margin-bottom: 14px; }
+.btn-add { width: 100%; background: rgba(91,138,240,0.12); border: 1px solid rgba(91,138,240,0.2); color: var(--color-acc-blue); font-family: var(--font-sans); font-size: 14px; font-weight: 600; padding: 12px; border-radius: 10px; cursor: pointer; }
+
+/* ── SECTION ── */
+.section { padding: 16px 16px 0; }
+
 /* ── STAT TILES ── */
-.stat-tile {
-  background: var(--color-s1); border: 1px solid var(--color-border);
-  border-radius: 14px; padding: 14px; text-align: center;
-  position: relative; overflow: hidden;
-}
+.stat-tile { background: var(--color-s1); border: 1px solid var(--color-border); border-radius: 14px; padding: 14px; text-align: center; position: relative; overflow: hidden; }
 .stat-tile::before { content: ''; position: absolute; top: 0; left: 12px; right: 40%; height: 2px; border-radius: 0 0 2px 2px; }
 
 /* ── SCROLL CONTAINER ── */

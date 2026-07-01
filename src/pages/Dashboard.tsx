@@ -77,7 +77,7 @@ export default function Dashboard() {
       <TopBar />
 
       {/* Habits */}
-      <div className="section" style={{ padding: '16px 16px 0' }}>
+      <div className="section s1">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
           <div className="sec-label" style={{ marginBottom: 0 }}>Hábitos de hoy</div>
           <Link to="/habitos" style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-sub)', background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 8, padding: '5px 12px', fontFamily: 'DM Sans,sans-serif', textDecoration: 'none' }}>
@@ -341,3 +341,5 @@ function getFinDone() {
   const today = new Date().toISOString().slice(0, 10)
   return db.filter((t: { date: string }) => t.date === today).length > 0
 }
+
+
