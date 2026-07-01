@@ -14,7 +14,7 @@ export default defineConfig({
       manifest: {
         name: 'Life OS',
         short_name: 'Life OS',
-        description: 'Tu sistema de vida personal — segundo cerebro, hábitos, fitness, nutrición y finanzas',
+        description: 'Tu sistema de vida personal',
         theme_color: '#111318',
         background_color: '#111318',
         display: 'standalone',
