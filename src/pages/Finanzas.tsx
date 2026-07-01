@@ -1,267 +1,713 @@
-import { useState } from 'react'
-import { Input } from '@/components/ui'
-import { useFinanceStore } from '@/stores/financeStore'
+import { useState, useRef, useEffect } from 'react'
+import { useFinanceStore, CAT_META, CUENTA_TYPE, fmt, fmtShort } from '@/stores/financeStore'
 import { useToast } from '@/stores/toast'
+import { Input } from '@/components/ui'
+import Chart from 'chart.js/auto'
+
+const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
+const MONTHS_SH = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
+
+function todayISO() { return new Date().toISOString().slice(0, 10) }
+function monthKey(y: number, m: number) { return `${y}-${String(m + 1).padStart(2, '0')}` }
 
 export default function Finanzas() {
-  const [tab, setTab] = useState<'balance' | 'huchas' | 'pufos'>('balance')
-  const txs = useFinanceStore(s => s.txs)
-  const addTx = useFinanceStore(s => s.addTx)
-  const removeTx = useFinanceStore(s => s.removeTx)
-  const huchas = useFinanceStore(s => s.huchas)
-  const addHucha = useFinanceStore(s => s.addHucha)
-  const updateHucha = useFinanceStore(s => s.updateHucha)
-  const removeHucha = useFinanceStore(s => s.removeHucha)
-  const pufos = useFinanceStore(s => s.pufos)
-  const addPufo = useFinanceStore(s => s.addPufo)
-  const updatePufo = useFinanceStore(s => s.updatePufo)
-  const removePufo = useFinanceStore(s => s.removePufo)
+  const [tab, setTab] = useState<'summary' | 'moves' | 'analysis' | 'patrimonio'>('summary')
+  const store = useFinanceStore()
   const toast = useToast()
-
-  const [amount, setAmount] = useState('')
-  const [txType, setTxType] = useState<'income' | 'expense'>('expense')
-  const [category, setCategory] = useState('Otros')
-  const [desc, setDesc] = useState('')
-  const [huchaName, setHuchaName] = useState('')
-  const [huchaTarget, setHuchaTarget] = useState('')
-  const [huchaColor, setHuchaColor] = useState('#c9a84c')
-  const [pufoName, setPufoName] = useState('')
-  const [pufoTotal, setPufoTotal] = useState('')
-  const [pufoCreditor, setPufoCreditor] = useState('')
-
-  const today = new Date().toISOString().slice(0, 10)
-  const balance = txs.reduce((s, t) => s + (t.type === 'income' ? t.amount : -t.amount), 0)
-  const totalIngresos = txs.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0)
-  const totalGastos = txs.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
-
-  const COLORS = ['#c9a84c', '#5b8af0', '#52b788', '#e07a5f', '#9b7fe0', '#e05f5f']
-  const CATEGORIES = ['Supermercado', 'Restaurante', 'Transporte', 'Ocio', 'Salud', 'Hogar', 'Suscripciones', 'Ropa', 'Educación', 'Inversión', 'Nómina', 'Regalo', 'Otros']
-
-  function handleAddTx() {
-    const a = parseFloat(amount)
-    if (!a) return
-    addTx({ date: today, amount: a, type: txType, category, description: desc.trim() })
-    toast.show(`✓ ${txType === 'income' ? 'Ingreso' : 'Gasto'} de ${a}€ registrado`)
-    setAmount(''); setDesc('')
-  }
-
-  function handleAddHucha() {
-    const t = parseFloat(huchaTarget)
-    if (!t || !huchaName.trim()) return
-    addHucha({ name: huchaName.trim(), target: t, current: 0, color: huchaColor })
-    toast.show('✓ Hucha creada')
-    setHuchaName(''); setHuchaTarget('')
-  }
-
-  function handleAddPufo() {
-    const t = parseFloat(pufoTotal)
-    if (!t || !pufoName.trim()) return
-    addPufo({ name: pufoName.trim(), total: t, paid: 0, creditor: pufoCreditor.trim() })
-    toast.show('✓ Deuda registrada')
-    setPufoName(''); setPufoTotal(''); setPufoCreditor('')
-  }
-
-  if (tab === 'balance') {
-    return (
-      <div className="animate-tab p-4">
-        <div className="bg-gradient-to-br from-[#191c22] to-[#1c1d16] border border-[var(--color-border)] rounded-2xl p-5 mb-3">
-          <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-[0.8px] mb-1">Balance</div>
-          <div className="font-serif text-[40px] leading-none" style={{ color: balance >= 0 ? '#52b788' : '#e05f5f' }}>
-            {balance >= 0 ? '+' : ''}{balance.toFixed(2)}€
-          </div>
-          <div className="flex gap-4 mt-2 text-xs">
-            <span className="text-[#52b788]">+{totalIngresos.toFixed(0)}€</span>
-            <span className="text-[var(--color-red)]">-{totalGastos.toFixed(0)}€</span>
-          </div>
-        </div>
-
-        {txs.length > 0 && (
-          <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-4 mb-3">
-            <div className="text-[12px] font-semibold text-[var(--color-sub)] tracking-wide mb-3">Últimos 14 días</div>
-            <div className="flex items-end gap-[2px] h-[60px]">
-              {Array.from({ length: 14 }, (_, i) => {
-                const d = new Date(Date.now() - (13 - i) * 86400000).toISOString().slice(0, 10)
-                const dayTxs = txs.filter(t => t.date === d)
-                const inc = dayTxs.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0)
-                const exp = dayTxs.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
-                const maxVal = Math.max(inc, exp, 1)
-                const maxAll = Math.max(1, ...Array.from({ length: 14 }, (_, j) => {
-                  const d2 = new Date(Date.now() - (13 - j) * 86400000).toISOString().slice(0, 10)
-                  const ts = txs.filter(t => t.date === d2)
-                  return Math.max(
-                    ts.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0),
-                    ts.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
-                  )
-                }))
-                return (
-                  <div key={i} className="flex-1 flex items-end gap-[1px]" title={d}>
-                    {exp > 0 && <div className="flex-1 rounded-t-sm bg-[var(--color-red)] opacity-80" style={{ height: `${Math.max(2, (exp / maxAll) * 56)}px` }} />}
-                    {inc > 0 && <div className="flex-1 rounded-t-sm bg-[#52b788] opacity-80" style={{ height: `${Math.max(2, (inc / maxAll) * 56)}px` }} />}
-                  </div>
-                )
-              })}
-            </div>
-            <div className="flex justify-between mt-1 text-[9px] text-[var(--color-dim)]">
-              <span>🟢 Ingresos</span>
-              <span>🔴 Gastos</span>
-            </div>
-          </div>
-        )}
-
-        <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-4 mb-3">
-          <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-[0.8px] mb-3">Nuevo movimiento</div>
-          <div className="flex gap-2 mb-2">
-            <button onClick={() => setTxType('expense')}
-              className={`flex-1 py-2 rounded-xl text-[13px] font-bold font-sans cursor-pointer border transition-all ${
-                txType === 'expense' ? 'bg-red-500/[0.1] text-[var(--color-red)] border-red-500/[0.2]' : 'bg-[var(--color-s2)] text-[var(--color-dim)] border-[var(--color-border)]'
-              }`}>Gasto</button>
-            <button onClick={() => setTxType('income')}
-              className={`flex-1 py-2 rounded-xl text-[13px] font-bold font-sans cursor-pointer border transition-all ${
-                txType === 'income' ? 'bg-[#52b788]/[0.1] text-[#52b788] border-[#52b788]/[0.2]' : 'bg-[var(--color-s2)] text-[var(--color-dim)] border-[var(--color-border)]'
-              }`}>Ingreso</button>
-          </div>
-          <Input value={amount} onChange={setAmount} type="number" step="0.01" placeholder="Cantidad (€)" className="mb-2" />
-          <select value={category} onChange={e => setCategory(e.target.value)}
-            className="w-full bg-[var(--color-s2)] border border-[var(--color-border)] text-[var(--color-text)] rounded-xl px-3.5 py-2.5 text-sm font-sans mb-2 outline-none cursor-pointer">
-            {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
-          <Input value={desc} onChange={setDesc} placeholder="Descripción (opcional)" className="mb-2" />
-          <button onClick={handleAddTx} className="w-full py-2.5 rounded-xl bg-[#c9a84c] text-[#111] text-sm font-bold font-sans cursor-pointer shadow-lg shadow-[#c9a84c]/25">Registrar</button>
-        </div>
-
-        <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-[0.8px] mb-2.5">Últimos movimientos</div>
-        {txs.length === 0 ? (
-          <div className="text-center py-8 text-[13px] text-[var(--color-dim)]">Sin movimientos registrados.</div>
-        ) : (
-          txs.slice(0, 20).map((tx, i) => (
-            <div key={i} className="flex items-center gap-3 px-3.5 py-3 bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl mb-2">
-              <div className="flex-1 min-w-0">
-                <div className="text-[13px] font-medium text-[var(--color-text)]">{tx.description || tx.category}</div>
-                <div className="text-[11px] text-[var(--color-dim)] mt-0.5">{tx.date} · {tx.category}</div>
-              </div>
-              <div className={`font-serif text-base italic ${tx.type === 'income' ? 'text-[#52b788]' : 'text-[var(--color-red)]'}`}>
-                {tx.type === 'income' ? '+' : '-'}{tx.amount.toFixed(2)}€
-              </div>
-              <button onClick={() => removeTx(i)} className="w-6 h-6 rounded-lg bg-red-500/[0.08] text-[var(--color-red)] border border-red-500/[0.15] text-[11px] font-bold flex items-center justify-center cursor-pointer">✕</button>
-            </div>
-          ))
-        )}
-      </div>
-    )
-  }
-
-  if (tab === 'huchas') {
-    return (
-      <div className="animate-tab p-4">
-        <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-4 mb-3">
-          <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-[0.8px] mb-3">Nueva hucha</div>
-          <Input value={huchaName} onChange={setHuchaName} placeholder="Nombre (ej: Vacaciones)" className="mb-2" />
-          <Input value={huchaTarget} onChange={setHuchaTarget} type="number" step="0.01" placeholder="Objetivo (€)" className="mb-2" />
-          <div className="flex gap-1.5 mb-2.5">
-            {COLORS.map(c => (
-              <button key={c} onClick={() => setHuchaColor(c)}
-                className={`w-7 h-7 rounded-full cursor-pointer border-2 transition-all ${huchaColor === c ? 'border-white' : 'border-transparent'}`}
-                style={{ background: c }} />
-            ))}
-          </div>
-          <button onClick={handleAddHucha} className="w-full py-2.5 rounded-xl bg-[#c9a84c] text-[#111] text-sm font-bold font-sans cursor-pointer shadow-lg shadow-[#c9a84c]/25">Crear hucha</button>
-        </div>
-
-        <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-[0.8px] mb-2.5">Mis huchas</div>
-        {huchas.length === 0 ? (
-          <div className="text-center py-12 text-[13px] text-[var(--color-dim)]">Sin huchas creadas.</div>
-        ) : (
-          huchas.map((h, i) => {
-            const pct = Math.min(100, Math.round(h.current / h.target * 100))
-            return (
-              <div key={i} className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-4 mb-2.5">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="text-sm font-semibold text-[var(--color-text)]">{h.name}</div>
-                  <div className="font-serif text-lg" style={{ color: h.color }}>{pct}%</div>
-                </div>
-                <div className="h-1.5 bg-white/[0.05] rounded-full overflow-hidden mb-2">
-                  <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: h.color }} />
-                </div>
-                <div className="flex justify-between text-[11px] text-[var(--color-dim)]">
-                  <span>{h.current.toFixed(0)}€ de {h.target.toFixed(0)}€</span>
-                  <span>{h.target - h.current > 0 ? `${(h.target - h.current).toFixed(0)}€` : '✓'}</span>
-                </div>
-                <div className="flex gap-2 mt-2">
-                  {[10, 50, 100].map(a => (
-                    <button key={a} onClick={() => { updateHucha(h.name, a); toast.show(`+${a}€ a ${h.name}`) }}
-                      className="flex-1 py-1.5 rounded-lg text-[11px] font-semibold font-sans cursor-pointer border"
-                      style={{ background: h.color + '18', color: h.color, borderColor: h.color + '33' }}>+{a}€</button>
-                  ))}
-                </div>
-                <button onClick={() => removeHucha(i)} className="mt-2 text-[11px] text-[var(--color-dim)] cursor-pointer hover:text-red-400">Eliminar</button>
-              </div>
-            )
-          })
-        )}
-      </div>
-    )
-  }
-
-  if (tab === 'pufos') {
-    return (
-      <div className="animate-tab p-4">
-        <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-4 mb-3">
-          <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-[0.8px] mb-3">Registrar deuda</div>
-          <Input value={pufoName} onChange={setPufoName} placeholder="Concepto (ej: Préstamo coche)" className="mb-2" />
-          <Input value={pufoTotal} onChange={setPufoTotal} type="number" step="0.01" placeholder="Total (€)" className="mb-2" />
-          <Input value={pufoCreditor} onChange={setPufoCreditor} placeholder="Acreedor (opcional)" className="mb-2" />
-          <button onClick={handleAddPufo} className="w-full py-2.5 rounded-xl bg-[var(--color-red)]/10 text-[var(--color-red)] border border-red-500/[0.2] text-sm font-semibold font-sans cursor-pointer">Registrar deuda</button>
-        </div>
-
-        <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-[0.8px] mb-2.5">Deudas activas</div>
-        {pufos.length === 0 ? (
-          <div className="text-center py-12 text-[13px] text-[var(--color-dim)]">Sin deudas. ¡Bien!</div>
-        ) : (
-          pufos.map((p, i) => {
-            const pct = Math.min(100, Math.round(p.paid / p.total * 100))
-            return (
-              <div key={i} className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-4 mb-2.5">
-                <div className="flex items-center justify-between mb-1">
-                  <div className="text-sm font-semibold text-[var(--color-text)]">{p.name}</div>
-                  <div className="text-xs text-[var(--color-dim)]">{p.creditor}</div>
-                </div>
-                <div className="h-1.5 bg-white/[0.05] rounded-full overflow-hidden mb-2">
-                  <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: pct === 100 ? '#52b788' : '#e07a5f' }} />
-                </div>
-                <div className="flex justify-between text-[11px] text-[var(--color-dim)]">
-                  <span>{p.paid.toFixed(0)}€ pagados de {p.total.toFixed(0)}€</span>
-                  <span className="font-bold text-[var(--color-red)]">{p.total - p.paid > 0 ? `${(p.total - p.paid).toFixed(0)}€` : '✓ Liquidado'}</span>
-                </div>
-                {p.total - p.paid > 0 && (
-                  <div className="flex gap-2 mt-2">
-                    {[20, 50, 100].map(a => (
-                      <button key={a} onClick={() => { updatePufo(p.name, a); toast.show(`+${a}€ pagado a ${p.name}`) }}
-                        className="flex-1 py-1.5 rounded-lg text-[11px] font-semibold font-sans cursor-pointer border bg-[#52b788]/10 text-[#52b788] border-[#52b788]/20">Pagar {a}€</button>
-                    ))}
-                  </div>
-                )}
-                <button onClick={() => removePufo(i)} className="mt-2 text-[11px] text-[var(--color-dim)] cursor-pointer hover:text-red-400">Eliminar</button>
-              </div>
-            )
-          })
-        )}
-      </div>
-    )
-  }
 
   return (
     <div>
       <div className="page-header">
         <div className="page-module" style={{ color: 'var(--color-acc-gold)' }}>Finanzas</div>
-        <div className="page-title">Finanzas</div>
+        <div className="page-title">Dinero</div>
         <div className="tab-bar">
-          {(['balance','huchas','pufos'] as const).map(t => (
+          {(['summary','moves','analysis','patrimonio'] as const).map(t => (
             <button key={t} onClick={() => setTab(t)} className={`tab-btn tab-gold${tab === t ? ' active' : ''}`}>
-              {t === 'balance' ? 'Balance' : t === 'huchas' ? 'Huchas' : 'Deudas'}
+              {{summary:'Resumen',moves:'Movimientos',analysis:'Análisis',patrimonio:'Patrimonio'}[t]}
             </button>
           ))}
         </div>
       </div>
+      <div style={{ padding: 16 }}>
+        {tab === 'summary' && <SummaryTab />}
+        {tab === 'moves' && <MovesTab />}
+        {tab === 'analysis' && <AnalysisTab />}
+        {tab === 'patrimonio' && <PatrimonioTab />}
+      </div>
+    </div>
+  )
+}
+
+/* ── SUMMARY TAB ── */
+function SummaryTab() {
+  const { txs } = useFinanceStore()
+  const [viewYear, setViewYear] = useState(new Date().getFullYear())
+  const [viewMonth, setViewMonth] = useState(new Date().getMonth())
+  const donaRef = useRef<HTMLCanvasElement>(null)
+  const chartRef = useRef<Chart | null>(null)
+
+  const txsMonth = txs.filter(t => t.date.startsWith(monthKey(viewYear, viewMonth)))
+  const income = txsMonth.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0)
+  const expense = txsMonth.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
+  const balance = income - expense
+
+  useEffect(() => {
+    if (!donaRef.current) return
+    if (chartRef.current) chartRef.current.destroy()
+    const ctx = donaRef.current.getContext('2d')!
+
+    const expTxs = txsMonth.filter(t => t.type === 'expense')
+    const byCat: Record<string, number> = {}
+    expTxs.forEach(t => { byCat[t.category] = (byCat[t.category] || 0) + t.amount })
+    const cats = Object.entries(byCat).sort((a, b) => b[1] - a[1])
+
+    if (!cats.length) {
+      chartRef.current = new Chart(ctx, {
+        type: 'doughnut',
+        data: { datasets: [{ data: [1], backgroundColor: ['rgba(255,255,255,0.05)'], borderWidth: 0 }] },
+        options: { cutout: '72%', plugins: { legend: { display: false }, tooltip: { enabled: false } } }
+      })
+    } else {
+      const colors = cats.map(([c]) => CAT_META[c]?.color || '#8a8d96')
+      chartRef.current = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: cats.map(c => c[0]),
+          datasets: [{
+            data: cats.map(c => c[1]),
+            backgroundColor: colors.map(c => c + 'cc'),
+            borderColor: colors, borderWidth: 1.5,
+          }]
+        },
+        options: {
+          cutout: '72%', animation: { duration: 500 },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#191c22', borderColor: 'rgba(255,255,255,0.07)', borderWidth: 1,
+              titleColor: '#e8e9ee', bodyColor: '#8a8d96',
+              callbacks: { label: (c: { raw: unknown }) => `${fmt(c.raw as number)} (${Math.round((c.raw as number) / expense * 100)}%)` }
+            }
+          }
+        }
+      })
+    }
+  }, [txsMonth, expense])
+
+  const topCats = Object.entries(
+    txsMonth.filter(t => t.type === 'expense').reduce((acc: Record<string, number>, t) => {
+      acc[t.category] = (acc[t.category] || 0) + t.amount; return acc
+    }, {})
+  ).sort((a, b) => b[1] - a[1]).slice(0, 5)
+
+  const showAlert = expense > income && income > 0
+  const showWarn = income > 0 && expense / income > 0.85 && !showAlert
+
+  const recent = txsMonth.sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5)
+
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        background: 'var(--color-s1)', border: '1px solid var(--color-border)',
+        borderRadius: 14, padding: '10px 14px', marginBottom: 12 }}>
+        <button onClick={() => { if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y - 1) } else setViewMonth(m => m - 1) }}
+          style={{ width: 32, height: 32, borderRadius: 9, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-sub)', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>‹</button>
+        <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 18, color: 'var(--color-text)' }}>{MONTHS[viewMonth]} {viewYear}</div>
+        <button onClick={() => { if (viewMonth === 11) { setViewMonth(0); setViewYear(y => y + 1) } else setViewMonth(m => m + 1) }}
+          style={{ width: 32, height: 32, borderRadius: 9, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-sub)', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>›</button>
+      </div>
+
+      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 20, padding: '24px 20px 20px', marginBottom: 12, position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: -40, right: -40, width: 160, height: 160, background: 'radial-gradient(circle, rgba(201,168,76,0.07) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: 8 }}>Balance del mes</div>
+        <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 44, lineHeight: 1, marginBottom: 6, color: balance > 0 ? 'var(--color-acc-green)' : balance < 0 ? 'var(--color-red)' : 'var(--color-text)' }}>
+          {balance >= 0 ? '+' : ''}{fmt(balance)}
+        </div>
+        <div style={{ fontSize: 12, color: 'var(--color-sub)', marginBottom: 20 }}>{MONTHS[viewMonth]} {viewYear}</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+          <div style={{ background: 'var(--color-s2)', border: '1px solid var(--color-border)', borderRadius: 12, padding: 12 }}>
+            <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 5 }}>Ingresos</div>
+            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 22, color: 'var(--color-acc-green)' }}>{fmt(income)}</div>
+            <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 3 }}>{txsMonth.filter(t => t.type === 'income').length} movimientos</div>
+          </div>
+          <div style={{ background: 'var(--color-s2)', border: '1px solid var(--color-border)', borderRadius: 12, padding: 12 }}>
+            <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 5 }}>Gastos</div>
+            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 22, color: 'var(--color-red)' }}>{fmt(expense)}</div>
+            <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 3 }}>{txsMonth.filter(t => t.type === 'expense').length} movimientos</div>
+          </div>
+        </div>
+      </div>
+
+      {(showAlert || showWarn) && (
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, background: 'rgba(224,95,95,0.07)', border: '1px solid rgba(224,95,95,0.2)', borderRadius: 12, padding: '12px 14px', marginBottom: 12 }}>
+          <span style={{ fontSize: 16, flexShrink: 0, marginTop: 1 }}>⚠️</span>
+          <span style={{ fontSize: 13, color: 'var(--color-sub)', lineHeight: 1.45 }}>
+            {showAlert ? <>Estás gastando <strong style={{ color: 'var(--color-red)' }}>{fmt(expense - income)} más</strong> de lo que ingresas este mes.</>
+              : <>Llevas gastado el <strong style={{ color: 'var(--color-red)' }}>{Math.round(expense / income * 100)}%</strong> de tus ingresos este mes.</>}
+          </span>
+        </div>
+      )}
+
+      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
+        <div className="sec-label" style={{ marginBottom: 12 }}>Gastos por categoría</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+          <div style={{ position: 'relative', width: 110, height: 110, flexShrink: 0 }}>
+            <canvas ref={donaRef} width={110} height={110} />
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 18, color: 'var(--color-text)', lineHeight: 1 }}>{fmtShort(expense)}</div>
+              <div style={{ fontSize: 9, fontWeight: 600, color: 'var(--color-dim)', marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.5px' }}>gastado</div>
+            </div>
+          </div>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 7 }}>
+            {topCats.length === 0 ? (
+              <div style={{ fontSize: 12, color: 'var(--color-dim)' }}>Sin gastos registrados.</div>
+            ) : topCats.map(([name, amt]) => (
+              <div key={name} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', flexShrink: 0, background: CAT_META[name]?.color || '#8a8d96' }} />
+                <span style={{ flex: 1, fontSize: 12, fontWeight: 500, color: 'var(--color-sub)' }}>{name}</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text)' }}>{Math.round(amt / expense * 100)}%</span>
+                <span style={{ fontSize: 11, color: 'var(--color-dim)', minWidth: 52, textAlign: 'right' }}>{fmtShort(amt)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="card" style={{ marginBottom: 10 }}>
+        {recent.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '32px 0', fontSize: 13, color: 'var(--color-dim)' }}>Sin movimientos este mes.</div>
+        ) : recent.map((t, i) => (
+          <TxRow key={i} tx={t} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/* ── MOVES TAB ── */
+function MovesTab() {
+  const { txs, addTx } = useFinanceStore()
+  const toast = useToast()
+  const [type, setType] = useState<'income' | 'expense'>('income')
+  const [concept, setConcept] = useState('')
+  const [amount, setAmount] = useState('')
+  const [category, setCategory] = useState('Nómina')
+  const [date, setDate] = useState(todayISO())
+  const [note, setNote] = useState('')
+  const [filter, setFilter] = useState('Todos')
+
+  const incCats = ['Nómina','Freelance','Otros ingresos']
+  const expCats = ['Vivienda','Alimentación','Transporte','Salud','Ocio','Ropa','Suscripciones','Deporte','Restaurantes','Viajes','Educación','Ahorro','Otros gastos']
+  const cats = type === 'income' ? incCats : expCats
+
+  function handleAdd() {
+    const a = parseFloat(amount)
+    if (!a || a <= 0) { toast.show('Introduce un importe'); return }
+    addTx({ concept: concept.trim() || category, amount: a, category, date, note: note.trim(), type })
+    toast.show(type === 'income' ? `✓ Ingreso de ${fmt(a)} añadido` : `✓ Gasto de ${fmt(a)} añadido`)
+    setConcept(''); setAmount(''); setNote('')
+  }
+
+  const allCats = ['Todos', ...new Set(txs.map(t => t.category))]
+  let filtered = txs.slice()
+  if (filter !== 'Todos') filtered = filtered.filter(t => t.category === filter)
+  filtered.sort((a, b) => b.date.localeCompare(a.date))
+
+  const byDate: Record<string, typeof filtered> = {}
+  filtered.forEach(t => { const d = t.date; if (!byDate[d]) byDate[d] = []; byDate[d].push(t) })
+
+  return (
+    <div>
+      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 14 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 10 }}>
+          <button onClick={() => { setType('income'); setCategory('Nómina') }}
+            style={{ padding: 9, borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', textAlign: 'center', cursor: 'pointer', border: '1px solid',
+              background: type === 'income' ? 'rgba(82,183,136,0.12)' : 'var(--color-s2)',
+              color: type === 'income' ? 'var(--color-acc-green)' : 'var(--color-dim)',
+              borderColor: type === 'income' ? 'rgba(82,183,136,0.3)' : 'var(--color-border)' }}>↑ Ingreso</button>
+          <button onClick={() => { setType('expense'); setCategory('Alimentación') }}
+            style={{ padding: 9, borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', textAlign: 'center', cursor: 'pointer', border: '1px solid',
+              background: type === 'expense' ? 'rgba(224,95,95,0.1)' : 'var(--color-s2)',
+              color: type === 'expense' ? 'var(--color-red)' : 'var(--color-dim)',
+              borderColor: type === 'expense' ? 'rgba(224,95,95,0.25)' : 'var(--color-border)' }}>↓ Gasto</button>
+        </div>
+        <input className="inp" value={concept} onChange={e => setConcept(e.target.value)} type="text" placeholder="Concepto (ej: Nómina, Supermercado...)" />
+        <input className="inp" value={amount} onChange={e => setAmount(e.target.value)} type="number" step="0.01" placeholder="Importe en €" />
+        <select className="inp" value={category} onChange={e => setCategory(e.target.value)}>
+          {cats.map(c => <option key={c} value={c}>{CAT_META[c]?.icon || '•'} {c}</option>)}
+        </select>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
+          <input className="inp" value={date} onChange={e => setDate(e.target.value)} type="date" style={{ marginBottom: 0, fontSize: 13 }} />
+          <input className="inp" value={note} onChange={e => setNote(e.target.value)} type="text" placeholder="Nota..." style={{ marginBottom: 0 }} />
+        </div>
+        <button onClick={handleAdd} style={{ width: '100%', background: 'var(--color-acc-gold)', color: '#111', border: 'none', fontFamily: 'DM Sans,sans-serif', fontSize: 14, fontWeight: 700, padding: 11, borderRadius: 10, cursor: 'pointer', boxShadow: '0 2px 12px rgba(201,168,76,0.25)' }}>
+          {type === 'income' ? 'Añadir ingreso' : 'Añadir gasto'}
+        </button>
+      </div>
+
+      <div style={{ display: 'flex', gap: 6, overflowX: 'auto', marginBottom: 12, paddingBottom: 2 }}>
+        {allCats.map(c => (
+          <button key={c} onClick={() => setFilter(c)}
+            style={{ flex: '0 0 auto', padding: '6px 14px', borderRadius: 99, fontSize: 12, fontWeight: 600, border: '1px solid', whiteSpace: 'nowrap', cursor: 'pointer',
+              background: filter === c ? 'rgba(201,168,76,0.1)' : 'var(--color-s1)',
+              color: filter === c ? 'var(--color-acc-gold)' : 'var(--color-sub)',
+              borderColor: filter === c ? 'rgba(201,168,76,0.3)' : 'var(--color-border)' }}>{c}</button>
+        ))}
+      </div>
+
+      <div className="card">
+        {filtered.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '32px 0', fontSize: 13, color: 'var(--color-dim)' }}>Sin movimientos{filter !== 'Todos' ? ' en esta categoría' : ''}.</div>
+        ) : Object.entries(byDate).sort((a, b) => b[0].localeCompare(a[0])).map(([d, txList]) => {
+          const dt = new Date(d + 'T12:00:00')
+          return (
+            <div key={d}>
+              <div style={{ padding: '8px 16px 0', fontSize: 10, fontWeight: 700, color: 'var(--color-dim)', letterSpacing: '0.5px', textTransform: 'uppercase', borderTop: '1px solid rgba(255,255,255,0.03)' }}>
+                {dt.getDate()} {MONTHS_SH[dt.getMonth()]}
+              </div>
+              {txList.map(t => <TxRow key={`${d}-${t.id}`} tx={t} />)}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function TxRow({ tx }: { tx: { id?: number; concept: string; category: string; amount: number; type: string; note: string } }) {
+  const { removeTx, txs } = useFinanceStore()
+  const idx = txs.findIndex(t => t.id === tx.id)
+  const meta = CAT_META[tx.category] || { icon: '📤', color: '#8a8d96' }
+  const sign = tx.type === 'income' ? '+' : '−'
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 16px', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+      <div style={{ width: 38, height: 38, borderRadius: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17, flexShrink: 0, background: meta.color + '18', border: '1px solid ' + meta.color + '30' }}>{meta.icon}</div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{tx.concept}</div>
+        <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 2 }}>{tx.category}{tx.note ? ' · ' + tx.note : ''}</div>
+      </div>
+      <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 20, fontWeight: 400, flexShrink: 0, color: tx.type === 'income' ? 'var(--color-acc-green)' : 'var(--color-red)' }}>
+        {sign}{fmt(tx.amount)}
+      </div>
+      {idx >= 0 && (
+        <button onClick={() => removeTx(idx)}
+          style={{ width: 28, height: 28, borderRadius: 8, flexShrink: 0, background: 'rgba(224,95,95,0.08)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.15)', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>✕</button>
+      )}
+    </div>
+  )
+}
+
+/* ── ANALYSIS TAB ── */
+function AnalysisTab() {
+  const { txs } = useFinanceStore()
+  const barRef = useRef<HTMLCanvasElement>(null)
+  const rateRef = useRef<HTMLCanvasElement>(null)
+  const chartRefs = useRef<{ bar: Chart | null; rate: Chart | null }>({ bar: null, rate: null })
+
+  const totalIncome = txs.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0)
+  const totalExpense = txs.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
+  const totalSaved = totalIncome - totalExpense
+  const savingsRate = totalIncome > 0 ? Math.round((totalSaved / totalIncome) * 100) : 0
+
+  const now = new Date()
+  const months6 = Array.from({ length: 6 }, (_, i) => {
+    let y = now.getFullYear(), m = now.getMonth() - (5 - i)
+    while (m < 0) { m += 12; y-- }
+    const keyM = monthKey(y, m)
+    const monthTxs = txs.filter(t => t.date.startsWith(keyM))
+    return {
+      label: MONTHS_SH[m],
+      income: monthTxs.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0),
+      expense: monthTxs.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0),
+    }
+  })
+
+  const chartDefaults = {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#191c22', borderColor: 'rgba(255,255,255,0.07)', borderWidth: 1, titleColor: '#e8e9ee', bodyColor: '#8a8d96' } },
+    scales: {
+      x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#4a4d56', font: { size: 10 } } },
+      y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#4a4d56', font: { size: 10 } }, beginAtZero: true }
+    }
+  }
+
+  useEffect(() => {
+    if (!barRef.current || !rateRef.current) return
+    const c = chartRefs.current
+    if (c.bar) c.bar.destroy()
+    if (c.rate) c.rate.destroy()
+
+    c.bar = new Chart(barRef.current.getContext('2d')!, {
+      type: 'bar',
+      data: {
+        labels: months6.map(m => m.label),
+        datasets: [
+          { label: 'Ingresos', data: months6.map(m => m.income), backgroundColor: 'rgba(82,183,136,0.2)', borderColor: 'rgba(82,183,136,0.6)', borderWidth: 1.5, borderRadius: 5, borderSkipped: false },
+          { label: 'Gastos', data: months6.map(m => m.expense), backgroundColor: 'rgba(224,95,95,0.18)', borderColor: 'rgba(224,95,95,0.55)', borderWidth: 1.5, borderRadius: 5, borderSkipped: false },
+        ]
+      },
+      options: { ...chartDefaults, plugins: { ...chartDefaults.plugins, legend: { display: true, labels: { color: '#8a8d96', boxWidth: 10, boxHeight: 10, font: { size: 11 } } } } }
+    })
+
+    c.rate = new Chart(rateRef.current.getContext('2d')!, {
+      type: 'line',
+      data: {
+        labels: months6.map(m => m.label),
+        datasets: [{ data: months6.map(m => m.income > 0 ? Math.round(((m.income - m.expense) / m.income) * 100) : 0), borderColor: 'rgba(201,168,76,0.8)', backgroundColor: 'rgba(201,168,76,0.06)', borderWidth: 2, tension: 0.35, pointBackgroundColor: 'rgba(201,168,76,0.9)', pointRadius: 4, fill: true }]
+      },
+      options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, ticks: { ...chartDefaults.scales.y.ticks, callback: (v: string | number) => (typeof v === 'number' ? v : parseFloat(v as string)) + '%' } } } }
+    })
+  }, [txs])
+
+  const expTxs = txs.filter(t => t.type === 'expense' && t.date.startsWith(monthKey(now.getFullYear(), now.getMonth())))
+  const totalExp = expTxs.reduce((s, t) => s + t.amount, 0)
+  const byCat: Record<string, number> = {}
+  expTxs.forEach(t => { byCat[t.category] = (byCat[t.category] || 0) + t.amount })
+  const catsSorted = Object.entries(byCat).sort((a, b) => b[1] - a[1])
+
+  return (
+    <div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
+        {[
+          { label: 'Total ingresos', val: fmtShort(totalIncome), unit: 'histórico', cls: 'st-green', color: '#52b788' },
+          { label: 'Total gastos', val: fmtShort(totalExpense), unit: 'histórico', cls: 'st-red', color: '#e05f5f' },
+          { label: 'Ahorro neto', val: fmtShort(Math.abs(totalSaved)), unit: totalSaved >= 0 ? 'acumulado' : 'en negativo', cls: 'st-gold', color: '#c9a84c' },
+          { label: 'Tasa ahorro', val: savingsRate + '%', unit: 'del total', cls: 'st-blue', color: '#5b8af0' },
+        ].map(s => (
+          <div key={s.label} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, position: 'relative', overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', top: 0, left: 12, right: '40%', height: 2, borderRadius: '0 0 2px 2px', background: s.color }} />
+            <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>{s.label}</div>
+            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 26, lineHeight: 1, color: s.color }}>{s.val}</div>
+            <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 4 }}>{s.unit}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-sub)', letterSpacing: '0.3px', marginBottom: 12 }}>Ingresos vs gastos — últimos 6 meses</div>
+        <div style={{ position: 'relative', height: 160 }}><canvas ref={barRef} /></div>
+      </div>
+      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-sub)', letterSpacing: '0.3px', marginBottom: 12 }}>Tasa de ahorro mensual (%)</div>
+        <div style={{ position: 'relative', height: 120 }}><canvas ref={rateRef} /></div>
+      </div>
+
+      <div className="card">
+        {catsSorted.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '32px 0', fontSize: 13, color: 'var(--color-dim)' }}>Sin gastos este mes.</div>
+        ) : catsSorted.map(([cat, amt]) => {
+          const pct = Math.round(amt / totalExp * 100)
+          const meta = CAT_META[cat] || { icon: '📤', color: '#8a8d96' }
+          return (
+            <div key={cat} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+              <div style={{ width: 10, height: 10, borderRadius: '50%', flexShrink: 0, background: meta.color }} />
+              <span style={{ flex: 1, fontSize: 13, fontWeight: 500, color: 'var(--color-text)' }}>{meta.icon} {cat}</span>
+              <div style={{ flex: '0 0 80px' }}>
+                <div style={{ height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 99, overflow: 'hidden' }}>
+                  <div style={{ height: '100%', borderRadius: 99, width: `${pct}%`, background: meta.color }} />
+                </div>
+              </div>
+              <span style={{ fontSize: 11, color: 'var(--color-dim)', minWidth: 34, textAlign: 'right' }}>{pct}%</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text)', minWidth: 60, textAlign: 'right' }}>{fmt(amt)}</span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+/* ── PATRIMONIO TAB ── */
+function PatrimonioTab() {
+  const { cuentas, huchas, pufos, saveCuenta, removeCuenta, addHucha, aportarHucha, removeHucha, addPufo, settlePufo, removePufo } = useFinanceStore()
+  const toast = useToast()
+  const [sub, setSub] = useState<'cuentas' | 'huchas' | 'pufos'>('cuentas')
+  const [cuentaModal, setCuentaModal] = useState(false)
+  const [editIdx, setEditIdx] = useState<number | null>(null)
+  const [cName, setCName] = useState('')
+  const [cType, setCType] = useState('bank')
+  const [cBal, setCBal] = useState('')
+  const [cColor, setCColor] = useState('#5b8af0')
+  const [cNote, setCNote] = useState('')
+
+  const assets = cuentas.reduce((s, cu) => CUENTA_TYPE[cu.type]?.asset ? s + cu.balance : s, 0)
+  const liabilities = cuentas.reduce((s, cu) => !CUENTA_TYPE[cu.type]?.asset ? s + Math.abs(cu.balance) : s, 0)
+  const net = assets - liabilities
+
+  function openForm(idx?: number) {
+    if (idx != null) {
+      const cu = cuentas[idx]
+      setCName(cu.name); setCType(cu.type); setCBal(String(cu.balance)); setCColor(cu.color || '#5b8af0'); setCNote(cu.note || '')
+      setEditIdx(idx)
+    } else {
+      setCName(''); setCType('bank'); setCBal(''); setCColor('#5b8af0'); setCNote('')
+      setEditIdx(null)
+    }
+    setCuentaModal(true)
+  }
+
+  function handleSave() {
+    if (!cName.trim()) { toast.show('Escribe un nombre para la cuenta'); return }
+    saveCuenta({ name: cName.trim(), type: cType, balance: parseFloat(cBal) || 0, color: cColor, note: cNote.trim(), updatedAt: todayISO() }, editIdx)
+    setCuentaModal(false)
+    toast.show('✓ ' + cName.trim() + ' guardada')
+  }
+
+  const activePufos = pufos.filter(p => !p.settled)
+  const meDeben = activePufos.filter(p => p.dir === 'me_debe').reduce((s, p) => s + p.amount, 0)
+  const lesDebo = activePufos.filter(p => p.dir === 'le_debo').reduce((s, p) => s + p.amount, 0)
+  const [pufoDir, setPufoDir] = useState<'me_debe' | 'le_debo'>('me_debe')
+  const [pWho, setPWho] = useState('')
+  const [pAmt, setPAmt] = useState('')
+  const [pReason, setPReason] = useState('')
+  const [hName, setHName] = useState('')
+  const [hGoal, setHGoal] = useState('')
+  const [hCurr, setHCurr] = useState('')
+  const [hDeadline, setHDeadline] = useState('')
+  const [hColor, setHColor] = useState('#c9a84c')
+  const [hEmoji, setHEmoji] = useState('🎯')
+
+  return (
+    <div>
+      <div style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 8, paddingBottom: 4 }}>
+        {([
+          { k: 'cuentas' as const, l: '🏦 Cuentas', c: '#c9a84c' },
+          { k: 'huchas' as const, l: '🎯 Huchas', c: '#52b788' },
+          { k: 'pufos' as const, l: '💸 Pufos', c: '#e05f5f' },
+        ]).map(s => (
+          <button key={s.k} onClick={() => setSub(s.k)}
+            style={{ flex: '0 0 auto', whiteSpace: 'nowrap', padding: '10px 16px', borderRadius: 10, fontSize: 12, fontWeight: 700,
+              fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid',
+              background: sub === s.k ? s.c + '26' : 'transparent',
+              color: sub === s.k ? s.c : 'var(--color-dim)',
+              borderColor: sub === s.k ? s.c + '4d' : 'var(--color-border)' }}>{s.l}</button>
+        ))}
+      </div>
+
+      {sub === 'cuentas' && (
+        <>
+          <div style={{ background: 'linear-gradient(145deg,#191c22,#1a1f2c)', border: '1px solid rgba(91,138,240,0.2)', borderRadius: 20, padding: 20, marginBottom: 12, textAlign: 'center' }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 6 }}>Patrimonio neto</div>
+            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 44, lineHeight: 1, color: net >= 0 ? '#5b8af0' : 'var(--color-red)' }}>{fmt(net)}</div>
+            <div style={{ fontSize: 12, color: 'var(--color-sub)', marginTop: 6 }}>{cuentas.length} cuenta{cuentas.length !== 1 ? 's' : ''}</div>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginTop: 14 }}>
+              <div><div style={{ fontSize: 12, color: '#52b788', fontWeight: 700 }}>{fmtShort(assets)}</div><div style={{ fontSize: 10, color: 'var(--color-dim)', marginTop: 2 }}>Activos</div></div>
+              <div style={{ width: 1, background: 'rgba(255,255,255,0.07)' }} />
+              <div><div style={{ fontSize: 12, color: '#e05f5f', fontWeight: 700 }}>{fmtShort(liabilities)}</div><div style={{ fontSize: 10, color: 'var(--color-dim)', marginTop: 2 }}>Pasivos</div></div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Mis cuentas</div>
+            <button onClick={() => openForm()}
+              style={{ background: 'rgba(91,138,240,0.1)', color: '#5b8af0', border: '1px solid rgba(91,138,240,0.2)', borderRadius: 8, padding: '5px 12px', fontSize: 11, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>+ Añadir</button>
+          </div>
+          {cuentas.length === 0 ? (
+            <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 28, textAlign: 'center' }}>
+              <div style={{ fontSize: 32, marginBottom: 10 }}>🏦</div>
+              <div style={{ fontSize: 14, color: 'var(--color-sub)' }}>Sin cuentas todavía</div>
+            </div>
+          ) : (
+            <>
+              {[false, true].map(isLiab => {
+                const items = cuentas.map((cu, i) => ({ cu, i })).filter(({ cu }) => (CUENTA_TYPE[cu.type]?.asset ?? true) === !isLiab)
+                if (!items.length) return null
+                return (
+                  <div key={isLiab ? 'liab' : 'asset'} style={{ marginBottom: 12 }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: isLiab ? 'var(--color-red)' : 'var(--color-acc-green)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 6 }}>
+                      {isLiab ? 'Pasivos' : 'Activos'}
+                    </div>
+                    <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, overflow: 'hidden' }}>
+                      {items.map(({ cu, i }) => {
+                        const meta = CUENTA_TYPE[cu.type] || { icon: '💰', label: 'Cuenta' }
+                        return (
+                          <div key={i} style={{ padding: '13px 16px', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                            <div style={{ width: 40, height: 40, borderRadius: 12, flexShrink: 0, background: cu.color + '18', border: '1px solid ' + cu.color + '30', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>{meta.icon}</div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)', marginBottom: 1 }}>{cu.name}</div>
+                              <div style={{ fontSize: 11, color: 'var(--color-dim)' }}>{meta.label}{cu.note ? ' · ' + cu.note : ''}</div>
+                            </div>
+                            <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                              <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 18, color: isLiab ? 'var(--color-red)' : 'var(--color-text)', lineHeight: 1 }}>{fmtShort(cu.balance)}</div>
+                              <div style={{ fontSize: 10, color: 'var(--color-dim)', marginTop: 2 }}>actualizado {cu.updatedAt || '—'}</div>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
+                              <button onClick={() => openForm(i)} style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(91,138,240,0.08)', color: '#5b8af0', border: '1px solid rgba(91,138,240,0.15)', cursor: 'pointer', fontSize: 12 }}>✎</button>
+                              <button onClick={() => { removeCuenta(i); toast.show('Cuenta eliminada') }} style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(224,95,95,0.06)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.12)', cursor: 'pointer', fontSize: 11 }}>✕</button>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              })}
+            </>
+          )}
+
+          {cuentaModal && (
+            <div onClick={e => { if (e.target === e.currentTarget) setCuentaModal(false) }} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 9000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+              <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 480, padding: '20px 20px 40px', maxHeight: '90dvh', overflowY: 'auto' }}>
+                <div style={{ width: 36, height: 4, background: 'var(--color-border2)', borderRadius: 99, margin: '0 auto 16px' }} />
+                <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 20, marginBottom: 16 }}>{editIdx != null ? 'Editar cuenta' : 'Nueva cuenta'}</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
+                  <input className="inp" value={cName} onChange={e => setCName(e.target.value)} type="text" placeholder="Nombre (ej: Cuenta ING)" />
+                  <select className="inp" value={cType} onChange={e => setCType(e.target.value)}>
+                    {Object.entries(CUENTA_TYPE).map(([k, v]) => <option key={k} value={k}>{v.icon} {v.label}</option>)}
+                  </select>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
+                  <input className="inp" value={cBal} onChange={e => setCBal(e.target.value)} type="number" step="0.01" placeholder="Saldo actual (€)" />
+                  <input className="inp" value={cColor} onChange={e => setCColor(e.target.value)} type="color" style={{ height: 44, cursor: 'pointer' }} />
+                </div>
+                <input className="inp" value={cNote} onChange={e => setCNote(e.target.value)} type="text" placeholder="Nota opcional" />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  <button onClick={() => setCuentaModal(false)} className="btn-ghost" style={{ width: '100%' }}>Cancelar</button>
+                  <button onClick={handleSave} className="btn-primary" style={{ background: 'var(--color-acc-blue)', width: 'auto' }}>Guardar</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {sub === 'huchas' && (
+        <>
+          {huchas.map((h, i) => {
+            const pct = Math.min((h.current / h.goal) * 100, 100)
+            const done = h.current >= h.goal
+            const left = Math.max(h.goal - h.current, 0)
+            return (
+              <div key={i} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 10, position: 'relative', overflow: 'hidden' }}>
+                <div style={{ position: 'absolute', top: 0, left: 12, right: '50%', height: 2, borderRadius: '0 0 2px 2px', background: h.color || '#c9a84c' }} />
+                {done && <div style={{ display: 'inline-block', fontSize: 11, fontWeight: 600, color: '#52b788', background: 'rgba(82,183,136,0.1)', border: '1px solid rgba(82,183,136,0.2)', borderRadius: 6, padding: '2px 10px', marginBottom: 8 }}>Meta alcanzada ✓</div>}
+                <button onClick={() => { removeHucha(i); toast.show('Hucha eliminada') }} style={{ position: 'absolute', top: 14, right: 16, background: 'transparent', border: 'none', color: 'var(--color-dim)', fontSize: 16, cursor: 'pointer', padding: 4 }}>×</button>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 12 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0, background: (h.color || '#c9a84c') + '18', border: '1px solid ' + (h.color || '#c9a84c') + '30' }}>{h.emoji || '🎯'}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 19, color: 'var(--color-text)', lineHeight: 1.2, marginBottom: 3 }}>{h.name}</div>
+                    <div style={{ fontSize: 11, color: 'var(--color-dim)' }}>
+                      {h.deadline ? `Límite: ${new Date(h.deadline + 'T12:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}` : 'Sin fecha límite'}
+                    </div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--color-sub)', marginBottom: 7 }}>
+                  <div><span style={{ fontFamily: 'DM Serif Display,serif', fontSize: 18, color: h.color || '#c9a84c' }}>{fmt(h.current)}</span><span style={{ fontSize: 12, color: 'var(--color-dim)' }}> ahorrados</span></div>
+                  <div style={{ textAlign: 'right' }}><span style={{ fontSize: 13, color: 'var(--color-dim)' }}>Meta: </span><strong style={{ fontSize: 14, color: 'var(--color-text)' }}>{fmt(h.goal)}</strong></div>
+                </div>
+                <div style={{ height: 6, background: 'rgba(255,255,255,0.06)', borderRadius: 99, overflow: 'hidden', marginBottom: 12 }}>
+                  <div style={{ height: '100%', borderRadius: 99, transition: 'width 0.6s ease', width: `${pct}%`, background: h.color || '#c9a84c' }} />
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--color-dim)', textAlign: 'right', marginBottom: 12, marginTop: -8 }}>{pct.toFixed(1)}% · Faltan {fmt(left)}</div>
+                {!done && (
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <input className="inp" id={`ha-${i}`} type="number" placeholder="Añadir importe €" style={{ flex: 1, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-text)', borderRadius: 10, padding: '9px 12px', fontSize: 13, fontFamily: 'DM Sans,sans-serif' }} />
+                    <button onClick={() => {
+                      const el = document.getElementById(`ha-${i}`) as HTMLInputElement
+                      const val = parseFloat(el?.value || '0')
+                      if (!val || val <= 0) return
+                      aportarHucha(i, val)
+                      if (h.current + val >= h.goal) toast.show(`🎉 ¡Hucha "${h.name}" completada!`)
+                      else toast.show(`✓ +${fmt(val)} aportados`)
+                      el.value = ''
+                    }}
+                      style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', background: (h.color || '#c9a84c') + '18', color: h.color || '#c9a84c', border: '1px solid ' + (h.color || '#c9a84c') + '30' }}>Aportar</button>
+                  </div>
+                )}
+              </div>
+            )
+          })}
+          <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, marginTop: 8 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 12 }}>Nueva hucha</div>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+              <input className="inp" value={hName} onChange={e => setHName(e.target.value)} type="text" placeholder="Nombre" style={{ flex: 1, margin: 0 }} />
+              <input className="inp" value={hEmoji} onChange={e => setHEmoji(e.target.value)} type="text" placeholder="🎯" maxLength={2} style={{ width: 56, textAlign: 'center', fontSize: 20, margin: 0 }} />
+            </div>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+              <input className="inp" value={hGoal} onChange={e => setHGoal(e.target.value)} type="number" placeholder="Objetivo €" style={{ flex: 1, margin: 0 }} />
+              <input className="inp" value={hCurr} onChange={e => setHCurr(e.target.value)} type="number" placeholder="Tengo ya €" style={{ flex: 1, margin: 0 }} />
+            </div>
+            <input className="inp" value={hDeadline} onChange={e => setHDeadline(e.target.value)} type="date" style={{ marginBottom: 8, fontSize: 13 }} />
+            <select className="inp" value={hColor} onChange={e => setHColor(e.target.value)} style={{ marginBottom: 12 }}>
+              <option value="#c9a84c">🟡 Dorado</option>
+              <option value="#52b788">🟢 Verde</option>
+              <option value="#5b8af0">🔵 Azul</option>
+              <option value="#9b7fe0">🟣 Morado</option>
+            </select>
+            <button onClick={() => {
+              const g = parseFloat(hGoal)
+              if (!hName.trim() || !g || g <= 0) { toast.show('Introduce nombre y objetivo'); return }
+              addHucha({ name: hName.trim(), goal: g, current: parseFloat(hCurr) || 0, emoji: hEmoji.trim() || '🎯', deadline: hDeadline, color: hColor })
+              setHName(''); setHGoal(''); setHCurr(''); setHEmoji(''); setHDeadline('')
+              toast.show(`✓ Hucha "${hName}" creada`)
+            }}
+              style={{ width: '100%', padding: 12, borderRadius: 12, background: '#5b8af0', color: '#fff', border: 'none', fontSize: 14, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>Crear hucha</button>
+          </div>
+        </>
+      )}
+
+      {sub === 'pufos' && (
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
+            <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 12, padding: 14 }}>
+              <div style={{ fontSize: 11, color: 'var(--color-dim)', marginBottom: 4 }}>Me deben</div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: '#52b788' }}>{fmt(meDeben)}</div>
+            </div>
+            <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 12, padding: 14 }}>
+              <div style={{ fontSize: 11, color: 'var(--color-dim)', marginBottom: 4 }}>Les debo</div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: '#e05f5f' }}>{fmt(lesDebo)}</div>
+            </div>
+          </div>
+
+          <div className="card" style={{ marginBottom: 12 }}>
+            {activePufos.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: 20, fontSize: 13, color: 'var(--color-dim)' }}>Sin pufos activos.</div>
+            ) : activePufos.map((p, i) => {
+              const realIdx = pufos.indexOf(p)
+              return (
+                <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                  <div style={{ fontSize: 24 }}>{p.dir === 'me_debe' ? '💰' : '📤'}</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>{p.who}</div>
+                    <div style={{ fontSize: 11, color: 'var(--color-dim)' }}>{p.reason || ''}</div>
+                  </div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: p.dir === 'me_debe' ? '#52b788' : '#e05f5f' }}>{fmt(p.amount)}</div>
+                  <button onClick={() => { settlePufo(realIdx); toast.show('✓ Pufo saldado') }}
+                    style={{ padding: '5px 10px', borderRadius: 8, background: 'rgba(82,183,136,0.1)', color: '#52b788', border: '1px solid rgba(82,183,136,0.2)', fontSize: 11, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>Saldar</button>
+                  <button onClick={() => { removePufo(realIdx); toast.show('Pufo eliminado') }}
+                    style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(224,95,95,0.06)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.12)', cursor: 'pointer', fontSize: 11 }}>✕</button>
+                </div>
+              )
+            })}
+          </div>
+
+          <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 12 }}>Nuevo pufo</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
+              <button onClick={() => setPufoDir('me_debe')}
+                style={{ padding: 10, borderRadius: 10, fontFamily: 'DM Sans,sans-serif', fontSize: 13, fontWeight: 600, cursor: 'pointer', border: '1px solid',
+                  background: pufoDir === 'me_debe' ? 'rgba(82,183,136,0.12)' : 'transparent',
+                  color: pufoDir === 'me_debe' ? '#52b788' : 'var(--color-dim)',
+                  borderColor: pufoDir === 'me_debe' ? 'rgba(82,183,136,0.2)' : 'var(--color-border)' }}>Me deben</button>
+              <button onClick={() => setPufoDir('le_debo')}
+                style={{ padding: 10, borderRadius: 10, fontFamily: 'DM Sans,sans-serif', fontSize: 13, fontWeight: 600, cursor: 'pointer', border: '1px solid',
+                  background: pufoDir === 'le_debo' ? 'rgba(224,95,95,0.1)' : 'transparent',
+                  color: pufoDir === 'le_debo' ? '#e05f5f' : 'var(--color-dim)',
+                  borderColor: pufoDir === 'le_debo' ? 'rgba(224,95,95,0.25)' : 'var(--color-border)' }}>Les debo</button>
+            </div>
+            <input className="inp" value={pWho} onChange={e => setPWho(e.target.value)} type="text" placeholder="¿Quién?" />
+            <input className="inp" value={pAmt} onChange={e => setPAmt(e.target.value)} type="number" step="0.01" placeholder="Importe €" />
+            <input className="inp" value={pReason} onChange={e => setPReason(e.target.value)} type="text" placeholder="Motivo (opcional)" />
+            <button onClick={() => {
+              const a = parseFloat(pAmt)
+              if (!pWho.trim() || !a || a <= 0) { toast.show('Introduce persona e importe'); return }
+              addPufo({ id: Date.now(), who: pWho.trim(), person: pWho.trim(), amount: a, dir: pufoDir, reason: pReason.trim(), concept: pReason.trim(), date: todayISO(), settled: false })
+              toast.show('✓ Pufo registrado')
+              setPWho(''); setPAmt(''); setPReason('')
+            }}
+              style={{ width: '100%', padding: 12, borderRadius: 12, background: '#5b8af0', color: '#fff', border: 'none', fontSize: 14, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', marginTop: 4 }}>Añadir pufo</button>
+          </div>
+        </>
+      )}
     </div>
   )
 }
