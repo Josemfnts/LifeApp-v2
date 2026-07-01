@@ -12,16 +12,16 @@ const DOW_S = ['D', 'L', 'M', 'X', 'J', 'V', 'S']
 function todayISO() { return new Date().toISOString().slice(0, 10) }
 
 export default function Nutricion() {
-  const [tab, setTab] = useState<'diary' | 'dishes' | 'search' | 'goals' | 'menu'>('diary')
+  const [tab, setTab] = useState<'diary' | 'dishes' | 'search' | 'goals' | 'menu' | 'tools'>('diary')
   return (
     <div>
       <div className="page-header">
         <div className="page-module" style={{ color: 'var(--color-acc-green)' }}>Nutrición</div>
         <div className="page-title">Alimentación</div>
         <div className="tab-bar">
-          {(['diary','dishes','search','goals','menu'] as const).map(t => (
+          {(['diary','dishes','search','goals','menu','tools'] as const).map(t => (
             <button key={t} onClick={() => setTab(t)} className={`tab-btn tab-green${tab === t ? ' active' : ''}`}>
-              {{diary:'Diario',dishes:'Platos',search:'Buscar',goals:'Metas',menu:'Menú'}[t]}
+              {{diary:'Diario',dishes:'Platos',search:'Buscar',goals:'Metas',menu:'Menú',tools:'Herram.'}[t]}
             </button>
           ))}
         </div>
@@ -32,6 +32,7 @@ export default function Nutricion() {
         {tab === 'search' && <SearchTab />}
         {tab === 'goals' && <GoalsTab />}
         {tab === 'menu' && <MenuTab />}
+        {tab === 'tools' && <ToolsTab />}
       </div>
     </div>
   )
@@ -39,10 +40,11 @@ export default function Nutricion() {
 
 /* ── DIARY TAB ── */
 function DiaryTab() {
-  const { log, addFood, removeFood, goals } = useNutriStore()
+  const { log, addFood, removeFood, goals, water, addWater, favorites, toggleFavorite } = useNutriStore()
   const toast = useToast()
   const today = todayISO()
   const todayFoods = log[today] || []
+  const todayWater = water[today] || 0
   const ringRef = useRef<HTMLCanvasElement>(null)
   const chartRef = useRef<Chart | null>(null)
 
@@ -93,6 +95,69 @@ function DiaryTab() {
 
   return (
     <div>
+      {/* Agua */}
+      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
+        <div className="sec-label" style={{ marginBottom: 8 }}>💧 Agua</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6 }}>
+            {[250, 500].map(ml => (
+              <button key={ml} onClick={() => { addWater(today, ml); toast.show(`+${ml}ml`) }}
+                style={{ flex: 1, padding: '10px 4px', borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid', background: ml === 250 ? 'rgba(91,138,240,0.1)' : 'rgba(91,138,240,0.15)', color: 'var(--color-blue)', borderColor: 'rgba(91,138,240,0.2)' }}>
+                {ml === 250 ? '🥛 250ml' : '🍶 500ml'}
+              </button>
+            ))}
+          </div>
+          <div style={{ textAlign: 'center', flexShrink: 0, minWidth: 48 }}>
+            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 28, color: 'var(--color-blue)', lineHeight: 1 }}>{todayWater}</div>
+            <div style={{ fontSize: 10, color: 'var(--color-dim)', marginTop: 2 }}>ml</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Weekly kcal */}
+      {(() => {
+        const days = Array.from({ length: 7 }, (_, i) => {
+          const d = new Date(Date.now() - (6 - i) * 86400000)
+          const ds = d.toISOString().slice(0, 10)
+          return { label: DOW_S[d.getDay()], kcal: (log[ds] || []).reduce((s: number, f: { kcal: number }) => s + f.kcal, 0), isToday: i === 6 }
+        })
+        const maxK = Math.max(1, ...days.map(d => d.kcal))
+        return (
+          <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
+            <div className="sec-label" style={{ marginBottom: 10 }}>📊 kcal últimos 7 días</div>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 60 }}>
+              {days.map(d => {
+                const h = Math.max(4, (d.kcal / maxK) * 56)
+                return (
+                  <div key={d.label} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+                    <div style={{ width: '100%', borderRadius: 4, minHeight: 4, height: h, background: d.isToday ? 'var(--color-acc-green)' : 'rgba(82,183,136,0.3)', transition: 'height 0.4s' }} />
+                    <span style={{ fontSize: 9, color: d.isToday ? 'var(--color-text)' : 'var(--color-dim)', textTransform: 'uppercase' }}>{d.label}</span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* Favorites */}
+      {favorites.length > 0 && (
+        <div style={{ marginBottom: 12 }}>
+          <div className="sec-label" style={{ marginBottom: 8 }}>⭐ Favoritos</div>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {FOODS_DB.filter(f => favorites.includes(f.name)).map(f => (
+              <button key={f.name} onClick={() => {
+                addFood(today, { name: f.name, kcal: f.kcal, p: f.p, c: f.c, f: f.f, grams: 100, meal })
+                toast.show(`✓ ${f.name} (${f.kcal}kcal)`)
+              }}
+                style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid rgba(82,183,136,0.2)', background: 'rgba(82,183,136,0.08)', color: 'var(--color-acc-green)' }}>
+                {f.name} ({f.kcal}kcal)
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Kcal ring + macros */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 20, padding: 16, background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, marginBottom: 12 }}>
         <div style={{ position: 'relative', width: 90, height: 90, flexShrink: 0 }}>
@@ -161,6 +226,10 @@ function DiaryTab() {
                     <div style={{ fontSize: 11, color: 'var(--color-sub)', marginTop: 2 }}>{f.grams}g · P:{f.p}g C:{f.c}g G:{f.f}g</div>
                   </div>
                   <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 18, color: 'var(--color-acc-green)', fontStyle: 'italic' }}>{f.kcal} kcal</div>
+                  <button onClick={() => { toggleFavorite(f.name); toast.show(favorites.includes(f.name) ? 'Quitado de favoritos' : '★ Añadido a favoritos') }}
+                    style={{ width: 24, height: 24, borderRadius: 6, background: 'none', border: 'none', fontSize: 14, cursor: 'pointer', color: favorites.includes(f.name) ? '#c9a84c' : 'var(--color-dim)' }}>
+                    {favorites.includes(f.name) ? '★' : '☆'}
+                  </button>
                   <button onClick={() => { removeFood(today, realIdx); toast.show('Alimento eliminado') }}
                     style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(224,95,95,0.08)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.15)', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>✕</button>
                 </div>
@@ -274,42 +343,96 @@ function DishesTab() {
 
 /* ── SEARCH TAB ── */
 function SearchTab() {
-  const { addFood } = useNutriStore()
+  const { addFood, toggleFavorite, favorites } = useNutriStore()
   const toast = useToast()
   const [query, setQuery] = useState('')
   const [meal, setMeal] = useState('Comida')
+  const [onlineResults, setOnlineResults] = useState<{ name: string; kcal: number; p: number; c: number; f: number }[]>([])
+  const [loading, setLoading] = useState(false)
+  const [showBarcode, setShowBarcode] = useState(false)
+  const [barcode, setBarcode] = useState('')
 
-  const results = query.trim()
+  const localResults = query.trim()
     ? FOODS_DB.filter(f => f.name.toLowerCase().includes(query.toLowerCase())).slice(0, 20)
     : []
+  const allResults = [...localResults, ...onlineResults.filter(o => !localResults.some(l => l.name === o.name))]
 
-  function addFound(f: typeof FOODS_DB[0]) {
-    addFood(todayISO(), {
-      name: f.name, kcal: f.kcal, p: f.p, c: f.c, f: f.f, grams: 100, meal
-    })
+  function addFound(f: { name: string; kcal: number; p: number; c: number; f: number }) {
+    addFood(todayISO(), { name: f.name, kcal: f.kcal, p: f.p, c: f.c, f: f.f, grams: 100, meal })
     toast.show(`✓ ${f.name} añadido (${f.kcal} kcal)`)
+  }
+
+  async function searchOnline() {
+    if (!query.trim()) return
+    setLoading(true)
+    try {
+      const r = await fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&json=1&page_size=15`)
+      const d = await r.json()
+      setOnlineResults((d.products || []).map((p: { product_name?: string; nutriments?: Record<string, number> }) => ({
+        name: p.product_name || 'Sin nombre',
+        kcal: Math.round(p.nutriments?.['energy-kcal_100g'] || 0),
+        p: Math.round(p.nutriments?.proteins_100g || 0),
+        c: Math.round(p.nutriments?.carbohydrates_100g || 0),
+        f: Math.round(p.nutriments?.fat_100g || 0),
+      })))
+    } catch { toast.show('Error al buscar online') }
+    finally { setLoading(false) }
+  }
+
+  async function scanBarcode() {
+    const bc = barcode.trim()
+    if (!bc) return
+    setLoading(true)
+    try {
+      const r = await fetch(`https://world.openfoodfacts.org/api/v0/product/${bc}.json`)
+      const d = await r.json()
+      if (d.status === 1 && d.product) {
+        const p = d.product; const n = p.nutriments || {}
+        addFound({ name: p.product_name || bc, kcal: Math.round(n['energy-kcal_100g'] || 0), p: Math.round(n.proteins_100g || 0), c: Math.round(n.carbohydrates_100g || 0), f: Math.round(n.fat_100g || 0) })
+        setShowBarcode(false); setBarcode('')
+      } else { toast.show('Producto no encontrado') }
+    } catch { toast.show('Error al escanear') }
+    finally { setLoading(false) }
   }
 
   return (
     <div>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
         <input className="inp" value={query} onChange={e => setQuery(e.target.value)} type="text" placeholder="Buscar alimento..." style={{ flex: 1, marginBottom: 0 }} />
         <select className="inp" value={meal} onChange={e => setMeal(e.target.value)} style={{ width: 120, marginBottom: 0 }}>
           {MEAL_TYPES.map(m => <option key={m} value={m}>{m}</option>)}
         </select>
       </div>
-
-      {!query.trim() && (
-        <div style={{ textAlign: 'center', padding: 32, fontSize: 13, color: 'var(--color-dim)' }}>Busca entre 54 alimentos.</div>
+      <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+        <button onClick={searchOnline} disabled={loading} className="btn-ghost" style={{ flex: 1, padding: '8px 12px', fontSize: 13, color: 'var(--color-blue)', borderColor: 'rgba(91,138,240,0.3)' }}>
+          {loading ? '🔍 Buscando...' : '🌐 Buscar en OpenFoodFacts'}
+        </button>
+        <button onClick={() => setShowBarcode(!showBarcode)} style={{ padding: '8px 12px', borderRadius: 12, fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid rgba(82,183,136,0.2)', background: 'rgba(82,183,136,0.08)', color: 'var(--color-acc-green)' }}>📷 Código</button>
+      </div>
+      {showBarcode && (
+        <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+          <input className="inp" value={barcode} onChange={e => setBarcode(e.target.value)} placeholder="Código de barras" style={{ marginBottom: 0 }} />
+          <button onClick={scanBarcode} disabled={loading} className="btn-ghost" style={{ width: 'auto', padding: '8px 18px', color: 'var(--color-acc-green)' }}>{loading ? '...' : 'Escanear'}</button>
+        </div>
       )}
 
-      {results.map(f => (
+      {!query.trim() && onlineResults.length === 0 && (
+        <div style={{ textAlign: 'center', padding: 32, fontSize: 13, color: 'var(--color-dim)' }}>Busca entre 54 alimentos o en OpenFoodFacts.</div>
+      )}
+
+      {allResults.map(f => (
         <div key={f.name} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, marginBottom: 8 }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)', marginBottom: 3 }}>{f.name}</div>
-          <div style={{ fontSize: 12, color: 'var(--color-sub)', marginBottom: 10 }}>{f.cat} · 100g: {f.kcal} kcal | P:{f.p}g C:{f.c}g G:{f.f}g</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)', marginBottom: 3 }}>{f.name}</div>
+            <button onClick={() => { toggleFavorite(f.name); toast.show(favorites.includes(f.name) ? 'Quitado' : '★ Favorito') }}
+              style={{ background: 'none', border: 'none', fontSize: 16, cursor: 'pointer', color: favorites.includes(f.name) ? '#c9a84c' : 'var(--color-dim)' }}>
+              {favorites.includes(f.name) ? '★' : '☆'}
+            </button>
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--color-sub)', marginBottom: 10 }}>100g: {f.kcal} kcal | P:{f.p}g C:{f.c}g G:{f.f}g</div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 20, fontStyle: 'italic', color: 'var(--color-acc-green)' }}>{f.kcal} kcal</div>
-            <div style={{ fontSize: 12, color: 'var(--color-dim)', flex: 1 }}>por 100g</div>
+            <div style={{ fontSize: 12, color: 'var(--color-dim)', flex: 1 }}>/100g</div>
             <button onClick={() => addFound(f)}
               style={{ padding: '7px 18px', borderRadius: 10, background: 'rgba(82,183,136,0.1)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.2)', fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>Añadir</button>
           </div>
@@ -396,7 +519,7 @@ function MenuTab() {
         ))}
       </div>
 
-      <div className="sec-label">{DOW_S[viewDay] === 'D' ? 'Domingo' : DOW_S[viewDay] === 'L' ? 'Lunes' : DOW_S[viewDay] === 'M' ? 'Martes' : DOW_S[viewDay] === 'X' ? 'Miércoles' : DOW_S[viewDay] === 'J' ? 'Jueves' : DOW_S[viewDay] === 'V' ? 'Viernes' : 'Sábado'}</div>
+      <div className="sec-label">{['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'][viewDay]}</div>
 
       {MEAL_TYPES.map(meal => (
         <div key={meal} style={{ marginBottom: 12 }}>
@@ -427,3 +550,137 @@ function MenuTab() {
     </div>
   )
 }
+
+/* ── TOOLS: ayuno, peso, comparador ── */
+function ToolsTab() {
+  const { fasting, startFast, endFast, bodyMetrics, addBodyMetric } = useNutriStore()
+  const toast = useToast()
+  const [w, setW] = useState('')
+  const [fat, setFat] = useState('')
+  const [muscle, setMuscle] = useState('')
+  const [c1, setC1] = useState('')
+  const [c2, setC2] = useState('')
+  const [comp, setComp] = useState<{ name: string; kcal: number; p: number; c: number; f: number }[]>([])
+  const isFasting = !!fasting.startTime
+  const startDate = fasting.startTime ? new Date(fasting.startTime) : null
+  const elapsed = startDate ? Math.round((Date.now() - startDate.getTime()) / 3600000 * 10) / 10 : 0
+  const barRef = useRef<HTMLCanvasElement>(null)
+  const bChart = useRef<Chart | null>(null)
+
+  useEffect(() => {
+    if (!barRef.current || bodyMetrics.length < 2) return
+    bChart.current?.destroy()
+    const bm = [...bodyMetrics].slice(-14)
+    bChart.current = new Chart(barRef.current.getContext('2d')!, {
+      type: 'line',
+      data: {
+        labels: bm.map(m => m.date.slice(5)),
+        datasets: [{ data: bm.map(m => m.weight), borderColor: '#52b788', borderWidth: 2, tension: 0.3, pointRadius: 3, pointBackgroundColor: '#52b788' }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c: { raw: unknown }) => (c.raw as number) + ' kg' } } },
+        scales: { x: { ticks: { color: '#4a4d56', font: { size: 9 } } }, y: { ticks: { color: '#4a4d56', font: { size: 9 } } } }
+      }
+    })
+  }, [bodyMetrics])
+
+  function compare() {
+    const a1 = FOODS_DB.find(f => f.name === c1)
+    const a2 = FOODS_DB.find(f => f.name === c2)
+    if (!a1 || !a2) { toast.show('Selecciona 2 alimentos'); return }
+    setComp([a1, a2])
+  }
+
+  return (
+    <div>
+      {/* Fasting */}
+      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
+        <div className="sec-label">⏱ Ayuno intermitente</div>
+        {isFasting ? (
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 40, color: 'var(--color-blue)', lineHeight: 1 }}>{elapsed}h</div>
+            <div style={{ fontSize: 12, color: 'var(--color-sub)', marginTop: 4 }}>
+              en ayuno desde {startDate?.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+            </div>
+            <button onClick={() => { endFast(); toast.show(`✓ Ayuno de ${elapsed}h registrado`) }}
+              style={{ marginTop: 12, width: '100%', padding: 12, borderRadius: 12, background: 'var(--color-blue)', color: '#fff', border: 'none', fontSize: 14, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>
+              Terminar ayuno
+            </button>
+          </div>
+        ) : (
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: 13, color: 'var(--color-sub)', marginBottom: 12 }}>Objetivo: {fasting.targetHours}h</div>
+            <button onClick={() => { startFast(); toast.show('✓ Ayuno iniciado') }}
+              style={{ width: '100%', padding: 12, borderRadius: 12, background: 'rgba(91,138,240,0.1)', color: 'var(--color-blue)', border: '1px solid rgba(91,138,240,0.2)', fontSize: 14, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>
+              Iniciar ayuno
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Body weight */}
+      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
+        <div className="sec-label">⚖️ Peso corporal</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 8 }}>
+          <input className="inp" value={w} onChange={e => setW(e.target.value)} type="number" step="0.1" placeholder="Peso kg" style={{ marginBottom: 0 }} />
+          <input className="inp" value={fat} onChange={e => setFat(e.target.value)} type="number" step="0.1" placeholder="% Grasa" style={{ marginBottom: 0 }} />
+          <input className="inp" value={muscle} onChange={e => setMuscle(e.target.value)} type="number" step="0.1" placeholder="% Músc" style={{ marginBottom: 0 }} />
+        </div>
+        <button onClick={() => {
+          const pw = parseFloat(w)
+          if (!pw) return
+          addBodyMetric({ date: todayISO(), weight: pw, fat: parseFloat(fat) || 0, muscle: parseFloat(muscle) || 0 })
+          toast.show('✓ Peso guardado')
+          setW(''); setFat(''); setMuscle('')
+        }}
+          className="btn-ghost" style={{ border: '1px solid rgba(82,183,136,0.2)', color: 'var(--color-acc-green)', background: 'rgba(82,183,136,0.1)' }}>
+          Guardar
+        </button>
+        {bodyMetrics.length >= 2 && (
+          <div style={{ marginTop: 12 }}>
+            <div style={{ position: 'relative', height: 100 }}><canvas ref={barRef} /></div>
+          </div>
+        )}
+        {bodyMetrics.length > 0 && (
+          <div style={{ marginTop: 8, fontSize: 12, color: 'var(--color-dim)', textAlign: 'center' }}>
+            Último: {bodyMetrics[bodyMetrics.length - 1].weight}kg · IMC: {(bodyMetrics[bodyMetrics.length - 1].weight / 1.75 ** 2).toFixed(1)}
+          </div>
+        )}
+      </div>
+
+      {/* Food comparator */}
+      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
+        <div className="sec-label">🔬 Comparador de alimentos</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
+          <select className="inp" value={c1} onChange={e => setC1(e.target.value)} style={{ marginBottom: 0 }}>
+            <option value="">Alimento 1</option>
+            {FOODS_DB.map(f => <option key={f.name} value={f.name}>{f.name}</option>)}
+          </select>
+          <select className="inp" value={c2} onChange={e => setC2(e.target.value)} style={{ marginBottom: 0 }}>
+            <option value="">Alimento 2</option>
+            {FOODS_DB.map(f => <option key={f.name} value={f.name}>{f.name}</option>)}
+          </select>
+        </div>
+        <button onClick={compare} className="btn-ghost" style={{ border: '1px solid rgba(82,183,136,0.2)', color: 'var(--color-acc-green)', background: 'rgba(82,183,136,0.1)', marginBottom: 8 }}>
+          Comparar
+        </button>
+        {comp.length === 2 && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            {comp.map((f, i) => (
+              <div key={i} style={{ background: 'var(--color-s2)', borderRadius: 10, padding: 10, textAlign: 'center' }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text)', marginBottom: 6 }}>{f.name}</div>
+                <div style={{ fontSize: 11, color: 'var(--color-sub)' }}>🔥 {f.kcal} kcal</div>
+                <div style={{ fontSize: 11, color: '#5b8af0' }}>P: {f.p}g</div>
+                <div style={{ fontSize: 11, color: '#c9a84c' }}>C: {f.c}g</div>
+                <div style={{ fontSize: 11, color: '#e07a5f' }}>G: {f.f}g</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+
