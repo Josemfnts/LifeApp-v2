@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
-import { useFisicoStore, type RunRecord } from '@/stores/fisicoStore'
+import { useFisicoStore } from '@/stores/fisicoStore'
 import type { Routine, SessionExercise, MobRoutine } from '@/stores/fisicoStore'
 import { Input, Button } from '@/components/ui'
 import { EXERCISES_DB, EXERCISE_GROUPS, EXERCISE_COLORS } from '@/data/exercises'
+import { useToast } from '@/stores/toast'
 
 /* ── Timer Hook ── */
 function useTimer() {
@@ -28,6 +29,7 @@ function StrengthTab() {
   const sessions = useFisicoStore(s => s.sessions)
   const routines = useFisicoStore(s => s.routines)
   const customExercises = useFisicoStore(s => s.customExercises)
+  const toast = useToast()
   const activeSession = useFisicoStore(s => s.activeSession)
   const startSession = useFisicoStore(s => s.startSession)
   const addExerciseToSession = useFisicoStore(s => s.addExerciseToSession)
@@ -139,7 +141,7 @@ function StrengthTab() {
           <div>
             <div className="flex items-center justify-between mb-3">
               <div className="text-base font-bold text-[var(--color-text)]">{activeSession.name}</div>
-              <button onClick={finishSession} className="px-4 py-2 rounded-xl bg-[#52b788]/10 text-[#52b788] border border-[#52b788]/20 text-[13px] font-semibold font-sans cursor-pointer">Finalizar ✓</button>
+              <button onClick={() => { finishSession(); const prs = useFisicoStore.getState().checkPRs(); if (prs.length) toast.show(`🏆 ${prs.length} PRs batidos!`) }} className="px-4 py-2 rounded-xl bg-[#52b788]/10 text-[#52b788] border border-[#52b788]/20 text-[13px] font-semibold font-sans cursor-pointer">Finalizar ✓</button>
             </div>
 
             {activeSession.exercises.map((ex, ei) => (
@@ -351,6 +353,9 @@ function StrengthTab() {
 
   /* ── PROGRESS ── */
   if (sub === 'progress') {
+    const { prs } = useFisicoStore.getState()
+    const allExercises = [...EXERCISES_DB, ...customExercises]
+
     if (sessions.length === 0) {
       return (
         <div className="animate-tab">
@@ -372,56 +377,87 @@ function StrengthTab() {
     const maxKg = Math.max(...last12.map(s => s.totalKg), 1)
     const maxDur = Math.max(...last12.map(s => s.duration), 1)
 
+    // Training calendar data (last 30 days)
+    const calDays: { date: string; day: number; hasSession: boolean; isToday: boolean }[] = []
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(Date.now() - i * 86400000)
+      const ds = d.toISOString().slice(0, 10)
+      calDays.push({
+        date: ds,
+        day: d.getDate(),
+        hasSession: sessions.some(s => s.date === ds),
+        isToday: i === 0,
+      })
+    }
+
     return (
       <div className="animate-tab">
-        <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-4 mb-3">
-          <div className="text-[12px] font-semibold text-[var(--color-sub)] tracking-wide mb-3">Volumen semanal (kg totales)</div>
-          <div className="flex items-end gap-1 h-[100px]">
+        <div className="grid grid-cols-2 gap-2 mb-3">
+          <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, textAlign: 'center' }}>
+            <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>Sesiones totales</div>
+            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 28, color: '#e07a5f', lineHeight: 1 }}>{sessions.length}</div>
+          </div>
+          <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, textAlign: 'center' }}>
+            <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>Kg totales</div>
+            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 28, color: '#5b8af0', lineHeight: 1 }}>{Math.round(sessions.reduce((s, x) => s + x.totalKg, 0))}</div>
+          </div>
+        </div>
+
+        {/* Training calendar */}
+        <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-sub)', letterSpacing: '0.3px', marginBottom: 10 }}>Calendario de entrenamiento</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 3 }}>
+            {['L','M','X','J','V','S','D'].map(d => <div key={d} style={{ textAlign: 'center', fontSize: 9, fontWeight: 600, color: 'var(--color-dim)', padding: '2px 0' }}>{d}</div>)}
+            {Array.from({ length: new Date(Date.now() - 29 * 86400000).getDay() === 0 ? 6 : (new Date(Date.now() - 29 * 86400000).getDay() - 1) }, (_, i) => (
+              <div key={`e${i}`} style={{ aspectRatio: '1' }} />
+            ))}
+            {calDays.map((d, i) => (
+              <div key={i} style={{
+                aspectRatio: '1', borderRadius: 6,
+                background: d.hasSession ? '#e07a5f44' : 'rgba(255,255,255,0.03)',
+                border: d.isToday ? '1.5px solid rgba(255,255,255,0.3)' : d.hasSession ? '1px solid #e07a5f33' : '1px solid transparent',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 10, fontWeight: d.isToday ? 700 : 500,
+                color: d.hasSession ? '#e07a5f' : 'var(--color-dim)',
+              }}>{d.day}</div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-sub)', letterSpacing: '0.3px', marginBottom: 10 }}>Volumen (kg totales)</div>
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 80 }}>
             {last12.map((s, i) => {
-              const h = Math.max(4, (s.totalKg / maxKg) * 100)
+              const h = Math.max(3, (s.totalKg / maxKg) * 76)
               return (
-                <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                  <div
-                    className="w-full rounded-sm bg-[#e07a5f] transition-all duration-500"
-                    style={{ height: `${h}px` }}
-                    title={`${s.date}: ${Math.round(s.totalKg)} kg`}
-                  />
-                  <span className="text-[9px] text-[var(--color-dim)]">{labels[i]}</span>
+                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                  <div style={{ width: '100%', borderRadius: '3px 3px 0 0', height: h, background: '#e07a5f', transition: 'height 0.5s' }} title={`${s.date}: ${Math.round(s.totalKg)} kg`} />
+                  <span style={{ fontSize: 8, color: 'var(--color-dim)' }}>{labels[i]}</span>
                 </div>
               )
             })}
           </div>
         </div>
 
-        <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-4 mb-3">
-          <div className="text-[12px] font-semibold text-[var(--color-sub)] tracking-wide mb-3">Duración por sesión (min)</div>
-          <div className="flex items-end gap-1 h-[80px]">
-            {last12.map((s, i) => {
-              const h = Math.max(4, (s.duration / maxDur) * 80)
-              return (
-                <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                  <div
-                    className="w-full rounded-sm bg-[#5b8af0] transition-all duration-500"
-                    style={{ height: `${h}px` }}
-                    title={`${s.date}: ${s.duration} min`}
-                  />
-                  <span className="text-[9px] text-[var(--color-dim)]">{labels[i]}</span>
+        {/* PRs */}
+        {prs.length > 0 && (
+          <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-sub)', letterSpacing: '0.3px', marginBottom: 10 }}>🏆 Records personales</div>
+            {prs.map((pr, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: i < prs.length - 1 ? '1px solid rgba(255,255,255,0.03)' : 'none' }}>
+                <span style={{ fontSize: 18 }}>🏆</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text)' }}>{pr.exercise}</div>
+                  <div style={{ fontSize: 11, color: 'var(--color-dim)' }}>{pr.date}</div>
                 </div>
-              )
-            })}
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 20, color: '#c9a84c' }}>{pr.weight} kg</div>
+                  <div style={{ fontSize: 10, color: 'var(--color-dim)' }}>{pr.reps} reps</div>
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2">
-          <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-3.5">
-            <div className="text-[10px] font-semibold text-[var(--color-dim)] uppercase tracking-wider mb-1.5">Sesiones totales</div>
-            <div className="font-serif text-[28px] text-[#e07a5f] leading-none">{sessions.length}</div>
-          </div>
-          <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-3.5">
-            <div className="text-[10px] font-semibold text-[var(--color-dim)] uppercase tracking-wider mb-1.5">Kg totales</div>
-            <div className="font-serif text-[28px] text-[#5b8af0] leading-none">{Math.round(sessions.reduce((s, x) => s + x.totalKg, 0))}</div>
-          </div>
-        </div>
+        )}
       </div>
     )
   }

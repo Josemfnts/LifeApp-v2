@@ -9,6 +9,8 @@ export interface RunRecord { id?: number; date: string; distance: number; timeSe
 export interface RunPlan { id?: number; name: string; goal: string; weeks: number; daysPerWeek: number; targetTime: string; startDate: string; description: string }
 export interface MobExercise { name: string; focus: string; duration: number }
 export interface MobRoutine { id: number; name: string; focus: string; exercises: { name: string; duration: number }[] }
+export interface PR { exercise: string; weight: number; reps: number; date: string }
+export interface SetTemplate { name: string; sets: number; reps: number; restSeconds: number }
 
 function load<T>(key: string, fallback: T): T {
   try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback } catch { return fallback }
@@ -27,6 +29,8 @@ interface FisicoStore {
   mobExercises: MobExercise[]
   mobSessions: { id?: number; date: string; routineName: string; exercises: { name: string; done: boolean }[] }[]
   activeMobSession: { name: string; exercises: { name: string; done: boolean }[] } | null
+  prs: PR[]
+  setTemplates: SetTemplate[]
 
   // Sessions
   loadSessions: () => void
@@ -36,6 +40,14 @@ interface FisicoStore {
   finishSession: () => void
   cancelSession: () => void
   deleteSession: (idx: number) => void
+
+  // PRs
+  checkPRs: () => PR[]
+  getPR: (exerciseName: string) => PR | undefined
+
+  // Templates
+  addTemplate: (t: SetTemplate) => void
+  removeTemplate: (name: string) => void
 
   // Routines
   saveRoutine: (name: string, exercises: { name: string; group: string; color: string; sets: number }[]) => void
@@ -74,6 +86,8 @@ export const useFisicoStore = create<FisicoStore>((set, get) => ({
   mobExercises: load('fisico_mob_exercises', []),
   mobSessions: load('fisico_mob_sessions', []),
   activeMobSession: null,
+  prs: load('fisico_prs', []),
+  setTemplates: load('fisico_templates', []),
 
   loadSessions: () => set({ sessions: load('fisico_sessions', []) }),
 
@@ -202,4 +216,38 @@ export const useFisicoStore = create<FisicoStore>((set, get) => ({
   },
 
   cancelMobSession: () => set({ activeMobSession: null }),
+
+  checkPRs: () => {
+    const ses = get().activeSession
+    if (!ses) return []
+    const prs = [...get().prs]
+    const newPRs: PR[] = []
+    const today = new Date().toISOString().slice(0, 10)
+    ses.exercises.forEach(ex => {
+      ex.sets.forEach(st => {
+        if (!st.done || !st.weight || !st.reps) return
+        const existing = prs.find(p => p.exercise === ex.name)
+        if (!existing || st.weight > existing.weight || (st.weight === existing.weight && st.reps > existing.reps)) {
+          const pr: PR = { exercise: ex.name, weight: st.weight, reps: st.reps, date: today }
+          if (existing) Object.assign(existing, pr)
+          else prs.push(pr)
+          newPRs.push(pr)
+        }
+      })
+    })
+    if (newPRs.length > 0) { save('fisico_prs', prs); set({ prs }) }
+    return newPRs
+  },
+  getPR: (exerciseName) => get().prs.find(p => p.exercise === exerciseName),
+
+  addTemplate: (t) => {
+    const templates = [...get().setTemplates.filter(x => x.name !== t.name), t]
+    save('fisico_templates', templates)
+    set({ setTemplates: templates })
+  },
+  removeTemplate: (name) => {
+    const templates = get().setTemplates.filter(x => x.name !== name)
+    save('fisico_templates', templates)
+    set({ setTemplates: templates })
+  },
 }))
