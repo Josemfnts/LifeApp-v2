@@ -5,6 +5,7 @@ import { useXP } from '@/contexts/XPContext'
 import { useTheme, THEME_LABELS, type Theme } from '@/contexts/ThemeContext'
 import { useToast } from '@/stores/toast'
 import { getGlobalLevel, calcCombinedStreak } from '@/lib/xp-engine'
+import { supabase, signOut } from '@/lib/supabase'
 
 const ALL_KEYS = [
   'josema_rpg_time_v4','josema_rpg_rec_v4',
@@ -23,6 +24,7 @@ export function TopBar() {
   const toast = useToast()
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [name, setName] = useState(getDisplayName())
+  const [session, setSession] = useState<{ user: { email?: string } } | null>(null)
   const greeting = getGreeting()
   const now = new Date()
   const dateStr = formatDateSpanish(now)
@@ -110,7 +112,12 @@ export function TopBar() {
         <div className="top-meta">
           <div className="date-chip">{dateStr}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <button className="gear-btn" onClick={() => { setSettingsOpen(true); setStorageInfo(calcStorage()) }}>
+            <button className="gear-btn" onClick={async () => {
+              setSettingsOpen(true)
+              setStorageInfo(calcStorage())
+              const { data } = await supabase.auth.getSession()
+              setSession(data.session)
+            }}>
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -177,6 +184,26 @@ export function TopBar() {
                     {theme === key && <div style={{ marginLeft: 'auto', width: 20, height: 20, borderRadius: '50%', background: 'var(--color-acc-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: '#fff' }}>✓</div>}
                   </button>
                 ))}
+              </div>
+            </div>
+
+            <div style={{ margin: '16px 20px 0' }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', letterSpacing: '0.8px', textTransform: 'uppercase', marginBottom: 10 }}>Cuenta</div>
+              <div style={{ background: 'var(--color-s2)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14 }}>
+                {session ? (
+                  <div>
+                    <div style={{ fontSize: 13, color: 'var(--color-sub)', marginBottom: 4 }}>Conectado como</div>
+                    <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-text)', marginBottom: 12 }}>{session.user.email}</div>
+                    <button onClick={async () => { await signOut(); window.location.reload() }}
+                      style={{ width: '100%', background: 'rgba(224,95,95,0.08)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.15)', fontFamily: 'DM Sans,sans-serif', fontSize: 14, fontWeight: 600, padding: 11, borderRadius: 10, cursor: 'pointer' }}>Cerrar sesión</button>
+                  </div>
+                ) : (
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: 13, color: 'var(--color-sub)', marginBottom: 10 }}>Sincroniza tus datos en la nube</div>
+                    <button onClick={() => { setSettingsOpen(false); window.dispatchEvent(new CustomEvent('show-login')) }}
+                      style={{ width: '100%', background: 'rgba(91,138,240,0.12)', color: 'var(--color-acc-blue)', border: '1px solid rgba(91,138,240,0.2)', fontFamily: 'DM Sans,sans-serif', fontSize: 14, fontWeight: 600, padding: 11, borderRadius: 10, cursor: 'pointer' }}>🔐 Iniciar sesión</button>
+                  </div>
+                )}
               </div>
             </div>
 
