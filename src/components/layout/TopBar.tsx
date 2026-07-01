@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { getGreeting, formatDateSpanish } from '@/lib/dates'
 import { getDisplayName, setDisplayName } from '@/lib/storage'
 import { useXP } from '@/contexts/XPContext'
-import { useTheme } from '@/contexts/ThemeContext'
+import { useTheme, THEME_LABELS, type Theme } from '@/contexts/ThemeContext'
 import { useToast } from '@/stores/toast'
 import { getGlobalLevel, calcCombinedStreak } from '@/lib/xp-engine'
 
@@ -19,7 +19,7 @@ const ALL_KEYS = [
 
 export function TopBar() {
   const { xp } = useXP()
-  const { theme, toggle: toggleTheme } = useTheme()
+  const { theme, set: setTheme } = useTheme()
   const toast = useToast()
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [name, setName] = useState(getDisplayName())
@@ -157,29 +157,26 @@ export function TopBar() {
 
             <div style={{ margin: '16px 20px 0' }}>
               <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', letterSpacing: '0.8px', textTransform: 'uppercase', marginBottom: 10 }}>Apariencia</div>
-              <div style={{ background: 'var(--color-s2)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14 }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div>
-                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>Tema {theme === 'dark' ? 'oscuro' : 'claro'}</div>
-                    <div style={{ fontSize: 12, color: 'var(--color-sub)' }}>Alternar entre tema oscuro y claro</div>
-                  </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {(Object.entries(THEME_LABELS) as [Theme, { name: string; icon: string; desc: string }][]).map(([key, t]) => (
                   <button
-                    onClick={toggleTheme}
+                    key={key}
+                    onClick={() => setTheme(key)}
                     style={{
-                      width: 56, height: 28, borderRadius: 99, position: 'relative',
-                      background: theme === 'dark' ? 'var(--color-acc-blue)' : 'var(--color-border2)',
-                      border: 'none', cursor: 'pointer', transition: 'background 0.2s'
-                    }}
-                  >
-                    <div style={{
-                      position: 'absolute', top: 2,
-                      width: 24, height: 24, borderRadius: '50%', background: 'white',
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
-                      transition: 'transform 0.2s',
-                      transform: theme === 'dark' ? 'translateX(28px)' : 'translateX(2px)'
-                    }} />
+                      background: theme === key ? 'var(--color-s2)' : 'var(--color-s1)',
+                      border: theme === key ? '1px solid var(--color-acc-blue)' : '1px solid var(--color-border)',
+                      borderRadius: 14, padding: 14,
+                      display: 'flex', alignItems: 'center', gap: 12,
+                      cursor: 'pointer', transition: 'all 0.15s',
+                    }}>
+                    <span style={{ fontSize: 28 }}>{t.icon}</span>
+                    <div style={{ textAlign: 'left' }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>{t.name}</div>
+                      <div style={{ fontSize: 12, color: 'var(--color-sub)' }}>{t.desc}</div>
+                    </div>
+                    {theme === key && <div style={{ marginLeft: 'auto', width: 20, height: 20, borderRadius: '50%', background: 'var(--color-acc-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: '#fff' }}>✓</div>}
                   </button>
-                </div>
+                ))}
               </div>
             </div>
 
