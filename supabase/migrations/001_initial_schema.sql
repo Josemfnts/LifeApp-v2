@@ -1,5 +1,10 @@
 -- Life OS — Schema inicial
--- Ejecutar en Supabase SQL Editor
+-- ATENCIÓN: Esto borra todo y recrea desde cero
+
+DROP SCHEMA IF EXISTS public CASCADE;
+CREATE SCHEMA public;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO public;
 
 -- XP Log
 CREATE TABLE IF NOT EXISTS xp_entries (
@@ -372,12 +377,9 @@ SELECT apply_owner_policy('recurring_tasks');
 SELECT apply_owner_policy('pending_tasks');
 SELECT apply_owner_policy('shifts');
 SELECT apply_owner_policy('habits');
-SELECT apply_owner_policy('habit_logs');
 SELECT apply_owner_policy('exercises');
 SELECT apply_owner_policy('routines');
 SELECT apply_owner_policy('sessions');
-SELECT apply_owner_policy('session_exercises');
-SELECT apply_owner_policy('session_sets');
 SELECT apply_owner_policy('runs');
 SELECT apply_owner_policy('run_plans');
 SELECT apply_owner_policy('mobility_routines');
@@ -416,13 +418,8 @@ CREATE POLICY "Owners can manage routine_exercises" ON routine_exercises FOR ALL
   EXISTS (SELECT 1 FROM routines WHERE routines.id = routine_id AND routines.user_id = auth.uid())
 );
 
--- Routine exercises inherit routine owner
-CREATE POLICY "Owners can manage routine_exercises" ON routine_exercises FOR ALL USING (
-  EXISTS (SELECT 1 FROM routines WHERE routines.id = routine_id AND routines.user_id = auth.uid())
-);
-
 -- Session sets inherit session owner
-CREATE POLICY "Owners can manage session_sets" ON session_sets FOR ALL USING (
+CREATE POLICY "session_sets_policy" ON session_sets FOR ALL USING (
   EXISTS (SELECT 1 FROM session_exercises JOIN sessions ON sessions.id = session_exercises.session_id WHERE session_exercises.id = session_exercise_id AND sessions.user_id = auth.uid())
 );
 
@@ -434,4 +431,23 @@ CREATE POLICY "Owners can manage run_intervals" ON run_intervals FOR ALL USING (
 -- Mobility session exercises inherit session owner
 CREATE POLICY "Owners can manage mobility_session_exercises" ON mobility_session_exercises FOR ALL USING (
   EXISTS (SELECT 1 FROM mobility_sessions WHERE mobility_sessions.id = session_id AND mobility_sessions.user_id = auth.uid())
+);
+
+-- Habit logs: users can manage logs for their own habits
+CREATE POLICY "Owners can manage their habit_logs" ON habit_logs FOR ALL USING (
+  EXISTS (SELECT 1 FROM habits WHERE habits.id = habit_id AND habits.user_id = auth.uid())
+);
+
+-- Session exercises: users can manage if they own the session
+CREATE POLICY "Owners can manage session_exercises" ON session_exercises FOR ALL USING (
+  EXISTS (SELECT 1 FROM sessions WHERE sessions.id = session_id AND sessions.user_id = auth.uid())
+);
+
+-- Session sets: users can manage if they own the session (via session_exercise -> session)
+CREATE POLICY "Owners can manage session_sets" ON session_sets FOR ALL USING (
+  EXISTS (
+    SELECT 1 FROM session_exercises
+    JOIN sessions ON sessions.id = session_exercises.session_id
+    WHERE session_exercises.id = session_exercise_id AND sessions.user_id = auth.uid()
+  )
 );
