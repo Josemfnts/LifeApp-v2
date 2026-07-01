@@ -28,9 +28,9 @@ export default function Agenda() {
 
   return (
     <div>
-      <div className="pt-[52px] px-5 pb-0 border-b border-[var(--color-border)] bg-gradient-to-b from-[#0d0f13] to-[var(--color-bg)]">
-        <div className="text-[11px] font-semibold text-[var(--color-acc-blue)] tracking-wide mb-1">Agenda</div>
-        <div className="font-serif text-[26px] text-[var(--color-text)] leading-tight">Planificación</div>
+      <div className="page-header">
+        <div className="page-module" style={{ color: 'var(--color-acc-blue)' }}>Agenda</div>
+        <div className="page-title">Planificación</div>
         <div className="flex mt-0.5">
           {([
             { key: 'month', label: 'Mes' },

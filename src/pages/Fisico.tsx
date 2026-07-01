@@ -724,9 +724,9 @@ export default function Fisico() {
 
   return (
     <div>
-      <div className="pt-[52px] px-5 pb-0 border-b border-[var(--color-border)] bg-gradient-to-b from-[#0d0f13] to-[var(--color-bg)]">
-        <div className="text-[11px] font-semibold text-[#e07a5f] tracking-wide mb-1">Físico</div>
-        <div className="font-serif text-[26px] text-[var(--color-text)] leading-tight">Fuerza</div>
+      <div className="page-header">
+        <div className="page-module" style={{ color: 'var(--color-acc-orange)' }}>Físico</div>
+        <div className="page-title">Fuerza</div>
         <div className="flex gap-2 mb-0 pb-0 mt-1">
           {([
             { k: 'strength', l: '💪 Fuerza' },

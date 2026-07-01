@@ -251,9 +251,9 @@ export default function Finanzas() {
 
   return (
     <div>
-      <div className="pt-[52px] px-5 pb-0 border-b border-[var(--color-border)] bg-gradient-to-b from-[#0d0f13] to-[var(--color-bg)]">
-        <div className="text-[11px] font-semibold text-[#c9a84c] tracking-wide mb-1">Finanzas</div>
-        <div className="font-serif text-[26px] text-[var(--color-text)] leading-tight">Finanzas</div>
+      <div className="page-header">
+        <div className="page-module" style={{ color: 'var(--color-acc-gold)' }}>Finanzas</div>
+        <div className="page-title">Finanzas</div>
         <div className="flex mt-0.5">
           {(['balance','huchas','pufos'] as const).map(t => (
             <button key={t} onClick={() => setTab(t)}

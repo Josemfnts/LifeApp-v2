@@ -269,9 +269,9 @@ export default function Nutricion() {
 
   return (
     <div>
-      <div className="pt-[52px] px-5 pb-0 border-b border-[var(--color-border)] bg-gradient-to-b from-[#0d0f13] to-[var(--color-bg)]">
-        <div className="text-[11px] font-semibold text-[#52b788] tracking-wide mb-1">Nutrición</div>
-        <div className="font-serif text-[26px] text-[var(--color-text)] leading-tight">Nutrición</div>
+      <div className="page-header">
+        <div className="page-module" style={{ color: 'var(--color-acc-green)' }}>Nutrición</div>
+        <div className="page-title">Nutrición</div>
         <div className="flex mt-0.5">
           {(['diario','peso','recetas'] as const).map(t => (
             <button key={t} onClick={() => setTab(t)}
