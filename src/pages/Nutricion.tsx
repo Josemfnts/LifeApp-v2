@@ -60,33 +60,44 @@ function DiaryTab() {
   const [c, setC] = useState('')
   const [f, setF] = useState('')
   const [grams, setGrams] = useState('100')
+  const [portion, setPortion] = useState('g')
+  const [retroDate, setRetroDate] = useState(today)
+  const [showCopy, setShowCopy] = useState(false)
+  const [copyDate, setCopyDate] = useState('')
+  const [copyMeal, setCopyMeal] = useState('Comida')
 
-  useEffect(() => {
-    if (!ringRef.current) return
-    if (chartRef.current) chartRef.current.destroy()
-    chartRef.current = new Chart(ringRef.current.getContext('2d')!, {
-      type: 'doughnut',
-      data: {
-        datasets: [{
-          data: [Math.min(totalKcal, goals.kcal), Math.max(0, goals.kcal - totalKcal)],
-          backgroundColor: ['rgba(82,183,136,0.85)', 'rgba(255,255,255,0.06)'],
-          borderWidth: 0,
-        }]
-      },
-      options: { cutout: '75%', plugins: { legend: { display: false }, tooltip: { enabled: false } } }
-    })
-  }, [totalKcal, goals.kcal])
+  // Streak
+  const streakDays = (() => {
+    let s = 0; const d = new Date()
+    for (let i = 0; i < 365; i++) {
+      const ds = d.toISOString().slice(0, 10)
+      const foods = log[ds] || []
+      if (foods.length > 0) s++; else if (i > 0) break
+      d.setDate(d.getDate() - 1)
+    }
+    return s
+  })()
 
   function handleAdd() {
     const k = parseFloat(kcal)
-    if (!name.trim() || !k || k <= 0) { toast.show('Introduce nombre y kcal'); return }
-    addFood(today, {
+    if (!name.trim() || !k || k <= 0) { toast.show('Nombre y kcal obligatorios'); return }
+    addFood(retroDate, {
       name: name.trim(), kcal: k,
       p: parseFloat(p) || 0, c: parseFloat(c) || 0, f: parseFloat(f) || 0,
       grams: parseFloat(grams) || 100, meal
     })
-    toast.show(`✓ ${name.trim()} añadido (${k} kcal)`)
+    toast.show(`✓ ${name.trim()} (${k}kcal)`)
     setName(''); setKcal(''); setP(''); setC(''); setF(''); setGrams('100')
+  }
+
+  function handleCopyDay() {
+    if (!copyDate) return
+    const foods = log[copyDate] || []
+    if (!foods.length) { toast.show('Ese día no tiene registros'); return }
+    const filtered = foods.filter(f => !copyMeal || f.meal === copyMeal)
+    filtered.forEach(f => addFood(retroDate, { ...f }))
+    toast.show(`✓ ${filtered.length} alimentos copiados`)
+    setShowCopy(false)
   }
 
   const mealGroups = MEAL_TYPES.filter(m => todayFoods.some(f => f.meal === m))
@@ -157,6 +168,15 @@ function DiaryTab() {
         </div>
       )}
 
+      {/* Streak */}
+      {streakDays > 0 && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+          <span style={{ fontSize: 16 }}>🔥</span>
+          <span style={{ fontFamily: 'DM Serif Display,serif', fontSize: 16, color: '#c9a84c' }}>{streakDays}</span>
+          <span style={{ fontSize: 11, color: 'var(--color-dim)', fontWeight: 600 }}>días de racha</span>
+        </div>
+      )}
+
       {/* Kcal ring + macros */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 20, padding: 16, background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, marginBottom: 12 }}>
         <div style={{ position: 'relative', width: 90, height: 90, flexShrink: 0 }}>
@@ -192,11 +212,34 @@ function DiaryTab() {
       </div>
 
       {/* Quick add */}
-      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
-        <div className="sec-label">Registrar alimento</div>
-        <select className="inp" value={meal} onChange={e => setMeal(e.target.value)}>
+    <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
+      <div className="sec-label">Registrar alimento</div>
+      {/* Retro date + copy */}
+      <div style={{ display: 'flex', gap: 6, marginBottom: 8, alignItems: 'center' }}>
+        <input className="inp" value={retroDate} onChange={e => setRetroDate(e.target.value)} type="date" style={{ width: 130, marginBottom: 0, fontSize: 12 }} />
+        <select className="inp" value={meal} onChange={e => setMeal(e.target.value)} style={{ flex: 1, marginBottom: 0 }}>
           {MEAL_TYPES.map(m => <option key={m} value={m}>{m}</option>)}
         </select>
+        <button onClick={() => setShowCopy(!showCopy)} style={{ padding: '8px 10px', borderRadius: 10, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-dim)', fontSize: 12, cursor: 'pointer', fontFamily: 'DM Sans,sans-serif' }}>📋</button>
+      </div>
+      {showCopy && (
+        <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+          <input className="inp" value={copyDate} onChange={e => setCopyDate(e.target.value)} type="date" placeholder="Copiar de..." style={{ flex: 1, marginBottom: 0 }} />
+          <select className="inp" value={copyMeal} onChange={e => setCopyMeal(e.target.value)} style={{ width: 110, marginBottom: 0 }}>
+            <option value="">Todo</option>
+            {MEAL_TYPES.map(m => <option key={m} value={m}>{m}</option>)}
+          </select>
+          <button onClick={handleCopyDay} style={{ padding: '8px 12px', borderRadius: 10, background: 'rgba(82,183,136,0.12)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.2)', fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>Copiar</button>
+        </div>
+      )}
+
+      {/* Portion selector */}
+      <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+        <select className="inp" value={portion} onChange={e => setPortion(e.target.value)} style={{ width: 80, marginBottom: 0 }}>
+          {['g','ml','taza','pieza','cdta','cda'].map(u => <option key={u} value={u}>{u === 'cdta' ? 'cdta' : u === 'cda' ? 'cda' : u === 'taza' ? 'taza' : u === 'pieza' ? 'pieza' : u}</option>)}
+        </select>
+        <input className="inp" value={grams} onChange={e => setGrams(e.target.value)} type="number" placeholder="Cantidad" style={{ flex: 1, marginBottom: 0 }} />
+      </div>
         <Input value={name} onChange={setName} placeholder="Nombre del alimento..." className="mb-2" />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, marginBottom: 8 }}>
           <input className="inp" value={kcal} onChange={e => setKcal(e.target.value)} type="number" placeholder="kcal" style={{ marginBottom: 0 }} />
@@ -208,7 +251,37 @@ function DiaryTab() {
         <button onClick={handleAdd} className="btn-primary" style={{ background: 'var(--color-acc-green)', boxShadow: '0 2px 12px rgba(82,183,136,0.25)' }}>Añadir al diario</button>
       </div>
 
-      {/* Food log by meal */}
+      {/* Nutritional calendar mini */}
+    {(() => {
+      const now = new Date()
+      const y = now.getFullYear(); const m = now.getMonth()
+      const dim = new Date(y, m + 1, 0).getDate()
+      const fdow = new Date(y, m, 1).getDay()
+      const start = fdow === 0 ? 6 : fdow - 1
+      const today = new Date().toISOString().slice(0, 10)
+      return (
+        <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-sub)', letterSpacing: '0.3px', marginBottom: 10 }}>📅 Calendario de registros</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 2 }}>
+            {['L','M','X','J','V','S','D'].map(d => <div key={d} style={{ textAlign: 'center', fontSize: 8, fontWeight: 600, color: 'var(--color-dim)', padding: '2px 0' }}>{d}</div>)}
+            {Array.from({ length: start }, (_, i) => <div key={`e${i}`} style={{ aspectRatio: '1' }} />)}
+            {Array.from({ length: dim }, (_, i) => {
+              const d = i + 1
+              const ds = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+              const dayKcal = (log[ds] || []).reduce((s: number, f: { kcal: number }) => s + f.kcal, 0)
+              const pct = dayKcal > 0 ? Math.min(dayKcal / goals.kcal, 1) : 0
+              return (
+                <div key={d} style={{ aspectRatio: '1', borderRadius: 4, background: pct > 0 ? `rgba(82,183,136,${Math.min(1, pct * 1.2)})` : 'rgba(255,255,255,0.03)', border: ds === today ? '1px solid rgba(255,255,255,0.3)' : '1px solid transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: ds === today ? 700 : 400, color: pct > 0.6 ? '#fff' : 'var(--color-dim)' }}>
+                  {d}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )
+    })()}
+
+    {/* Food log by meal */}
       <div className="card">
         {todayFoods.length === 0 ? (
           <div style={{ textAlign: 'center', padding: 32, fontSize: 13, color: 'var(--color-dim)' }}>Sin registros aún.</div>
@@ -678,18 +751,29 @@ function ToolsTab() {
 
       {/* Body weight */}
       <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
-        <div className="sec-label">⚖️ Peso corporal</div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 8 }}>
+        <div className="sec-label">⚖️ Peso y medidas</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6, marginBottom: 6 }}>
           <input className="inp" value={w} onChange={e => setW(e.target.value)} type="number" step="0.1" placeholder="Peso kg" style={{ marginBottom: 0 }} />
           <input className="inp" value={fat} onChange={e => setFat(e.target.value)} type="number" step="0.1" placeholder="% Grasa" style={{ marginBottom: 0 }} />
           <input className="inp" value={muscle} onChange={e => setMuscle(e.target.value)} type="number" step="0.1" placeholder="% Músc" style={{ marginBottom: 0 }} />
         </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6, marginBottom: 8 }}>
+          <input className="inp" id="body-cintura" type="number" step="0.1" placeholder="Cintura cm" style={{ marginBottom: 0 }} />
+          <input className="inp" id="body-pecho" type="number" step="0.1" placeholder="Pecho cm" style={{ marginBottom: 0 }} />
+          <input className="inp" id="body-brazo" type="number" step="0.1" placeholder="Brazo cm" style={{ marginBottom: 0 }} />
+        </div>
         <button onClick={() => {
-          const pw = parseFloat(w)
-          if (!pw) return
+          const pw = parseFloat(w); if (!pw) return
+          const cin = (document.getElementById('body-cintura') as HTMLInputElement)?.value
+          const pecho = (document.getElementById('body-pecho') as HTMLInputElement)?.value
+          const brazo = (document.getElementById('body-brazo') as HTMLInputElement)?.value
           addBodyMetric({ date: todayISO(), weight: pw, fat: parseFloat(fat) || 0, muscle: parseFloat(muscle) || 0 })
-          toast.show('✓ Peso guardado')
-          setW(''); setFat(''); setMuscle('')
+          const extra: Record<string, number> = {}
+          if (cin) extra.cintura = parseFloat(cin)
+          if (pecho) extra.pecho = parseFloat(pecho)
+          if (brazo) extra.brazo = parseFloat(brazo)
+          if (Object.keys(extra).length) localStorage.setItem('nutri_medidas', JSON.stringify([...JSON.parse(localStorage.getItem('nutri_medidas') || '[]'), { date: todayISO(), ...extra }]))
+          toast.show('✓ Medidas guardadas'); setW(''); setFat(''); setMuscle('')
         }}
           className="btn-ghost" style={{ border: '1px solid rgba(82,183,136,0.2)', color: 'var(--color-acc-green)', background: 'rgba(82,183,136,0.1)' }}>
           Guardar
