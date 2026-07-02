@@ -3,11 +3,12 @@ import { useAgendaStore, DAYS, MONTHS, COLOR_HEX, SHIFT_COLORS, SHIFT_LABELS, PR
 import { useToast } from '@/stores/toast'
 import { Input } from '@/components/ui'
 import { KanbanView } from '@/components/agenda/KanbanView'
+import { PlanesView } from '@/components/agenda/PlanesView'
 import Pomodoro from '@/pages/Pomodoro'
 import Diario from '@/pages/Diario'
 
 export default function Agenda() {
-  const [tab, setTab] = useState<'month' | 'week' | 'day' | 'shifts' | 'stats' | 'kanban' | 'pomodoro' | 'diario'>('month')
+  const [tab, setTab] = useState<'month' | 'week' | 'day' | 'shifts' | 'stats' | 'kanban' | 'planes' | 'pomodoro' | 'diario'>('month')
   const [selDate, setSelDate] = useState(new Date())
   const rollover = useAgendaStore(s => s.rollover)
   useEffect(() => { rollover() }, [])
@@ -22,9 +23,9 @@ export default function Agenda() {
         <div className="page-module" style={{ color: 'var(--color-acc-blue)' }}>Agenda</div>
         <div className="page-title">Planificación</div>
         <div className="tab-bar">
-          {(['month','week','day','shifts','stats','kanban','pomodoro','diario'] as const).map(t => (
+          {(['month','week','day','shifts','stats','kanban','planes','pomodoro','diario'] as const).map(t => (
             <button key={t} onClick={() => setTab(t)} className={`tab-btn${tab === t ? ' active' : ''}`}>
-              {{month:'Mes',week:'Semana',day:'Día',shifts:'Turnos',stats:'Stats',kanban:'Kanban',pomodoro:'🍅',diario:'📝'}[t]}
+              {{month:'Mes',week:'Semana',day:'Día',shifts:'Turnos',stats:'Stats',kanban:'Kanban',planes:'Planes',pomodoro:'🍅',diario:'📝'}[t]}
             </button>
           ))}
         </div>
@@ -36,6 +37,7 @@ export default function Agenda() {
         {tab === 'shifts' && <ShiftsView />}
         {tab === 'stats' && <StatsView />}
         {tab === 'kanban' && <KanbanView />}
+        {tab === 'planes' && <PlanesView />}
         {tab === 'pomodoro' && <Pomodoro />}
         {tab === 'diario' && <Diario />}
       </div>
