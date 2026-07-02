@@ -43,9 +43,24 @@ export default function App() {
     })
     const handler = () => setShowLogin(true)
     window.addEventListener('show-login', handler)
+
+    // Keyboard shortcuts
+    const keys = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        const num = parseInt(e.key)
+        if (num >= 1 && num <= 9) {
+          e.preventDefault()
+          const routes = ['/', '/agenda', '/habitos', '/fisico', '/nutricion', '/finanzas', '/diario', '/pomodoro']
+          const idx = num - 1
+          if (idx < routes.length) window.location.href = routes[idx]
+        }
+      }
+    }
+    window.addEventListener('keydown', keys)
     return () => {
       subscription.unsubscribe()
       window.removeEventListener('show-login', handler)
+      window.removeEventListener('keydown', keys)
     }
   }, [])
 

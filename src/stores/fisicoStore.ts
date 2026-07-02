@@ -3,7 +3,7 @@ import { saveToCloud } from '@/lib/sync'
 
 export interface SessionSet { setNumber: number; weight: number; reps: number; done: boolean }
 export interface SessionExercise { name: string; group: string; color: string; sets: SessionSet[] }
-export interface TrainingSession { id?: number; name: string; date: string; duration: number; totalKg: number; exercises: SessionExercise[]; notes: string }
+export interface TrainingSession { id?: number; name: string; date: string; startedAt?: number; duration: number; totalKg: number; exercises: SessionExercise[]; notes: string }
 export interface Routine { id: number; name: string; exercises: { name: string; group: string; color: string; sets: number }[] }
 export interface CustomExercise { name: string; group: string }
 export interface RunRecord { id?: number; date: string; distance: number; timeSeconds: number; hr?: number; elevation?: number; type: string; notes: string; intervals?: { rep: number; dist: number; pace: string; rec: string }[] }
@@ -97,7 +97,7 @@ export const useFisicoStore = create<FisicoStore>((set, get) => ({
       name: e.name, group: e.group, color: e.color,
       sets: Array.from({ length: e.sets }, (_, i) => ({ setNumber: i + 1, weight: 0, reps: 0, done: false })),
     }))
-    set({ activeSession: { name, date: new Date().toISOString().slice(0, 10), duration: 0, totalKg: 0, exercises: exs, notes: '' } })
+    set({ activeSession: { name, date: new Date().toISOString().slice(0, 10), startedAt: Date.now(), duration: 0, totalKg: 0, exercises: exs, notes: '' } })
   },
 
   addExerciseToSession: (ex) => {
@@ -123,7 +123,7 @@ export const useFisicoStore = create<FisicoStore>((set, get) => ({
     const ses = get().activeSession
     if (!ses) return
     const totalKg = ses.exercises.reduce((sum, ex) => sum + ex.sets.reduce((s, st) => s + (st.done ? st.weight * st.reps : 0), 0), 0)
-    const finished: TrainingSession = { ...ses, totalKg, duration: Math.floor((Date.now() - new Date(ses.date + 'T00:00:00').getTime()) / 60000) || 30 }
+    const finished: TrainingSession = { ...ses, totalKg, duration: ses.startedAt ? Math.round((Date.now() - ses.startedAt) / 60000) : 0 }
     const sessions = [finished, ...get().sessions]
     save('fisico_sessions', sessions)
     set({ sessions, activeSession: null })

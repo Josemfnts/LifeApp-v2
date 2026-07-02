@@ -29,11 +29,11 @@ function streakDots(h: Habit, log: HabitLog) {
 }
 
 export function HabitTodayCard({ habit, val, log, onToggle, onIncrement, onSetFull }: HabitTodayCardProps) {
-  const isDone = habit.type === 'bool' ? !!val : val >= habit.goal
+  const isDone = habit.type === 'bool' ? !!val : habit.type === 'avoid' ? val === 0 : val >= habit.goal
   const pctH = habit.type === 'count' ? Math.min(100, Math.round(val / habit.goal * 100)) : (isDone ? 100 : 0)
   const streakVal = calcStreak(habit, log, new Date())
-  const btnColor = isDone ? '#52b788' : habit.color
-  const btnBg = isDone ? 'rgba(82,183,136,0.12)' : habit.color + '22'
+  const btnColor = isDone ? '#52b788' : habit.type === 'avoid' ? '#e05f5f' : habit.color
+  const btnBg = isDone ? 'rgba(82,183,136,0.12)' : habit.type === 'avoid' ? 'rgba(224,95,95,0.08)' : habit.color + '22'
 
   return (
     <Card className="mb-2.5">
@@ -55,7 +55,7 @@ export function HabitTodayCard({ habit, val, log, onToggle, onIncrement, onSetFu
         <div className="flex-1 min-w-0">
           <div className="text-[15px] font-semibold text-[var(--color-text)]">{habit.name}</div>
           <div className="text-xs text-[var(--color-sub)]">
-            {habit.type === 'count' ? `${val}/${habit.goal} ${habit.unit}` : isDone ? '✓ Completado hoy' : 'Pendiente hoy'}
+              {habit.type === 'count' ? `${val}/${habit.goal} ${habit.unit}` : habit.type === 'avoid' ? (isDone ? '✓ Evitado hoy' : '⚠️ Ha ocurrido') : isDone ? '✓ Completado hoy' : 'Pendiente hoy'}
           </div>
         </div>
         <div className="flex flex-col items-center gap-0 flex-shrink-0">

@@ -7,17 +7,7 @@ import { useToast } from '@/stores/toast'
 import { getGlobalLevel, calcCombinedStreak } from '@/lib/xp-engine'
 import { supabase, signOut } from '@/lib/supabase'
 import { requestPermission } from '@/lib/notifications'
-
-const ALL_KEYS = [
-  'josema_rpg_time_v4','josema_rpg_rec_v4',
-  'lifeos_agenda_pending_v1','lifeos_agenda_shifts_v1',
-  'josema_rpg_nutri_log','josema_rpg_nutri_goals','josema_rpg_foods','josema_rpg_nutri_recipes',
-  'lifeos_nutri_body_v1','lifeos_nutri_menu_v1','lifeos_nutri_menu_plans_v1',
-  'josema_rpg_xp_v1','josema_rpg_missions_v1',
-  'lifeos_sessions_v1','lifeos_routines_v1','lifeos_exercises_v1','lifeos_prs_v1','lifeos_active_v1',
-  'lifeos_finances_tx_v1','lifeos_finances_huchas_v1','lifeos_finances_pufos_v1',
-  'lifeos_habits_v1','lifeos_habits_log_v1',
-]
+import { ALL_STORAGE_KEYS, STORAGE_LABELS } from '@/lib/storageKeys'
 
 export function TopBar() {
   const { xp } = useXP()
@@ -32,29 +22,22 @@ export function TopBar() {
   const streak = calcCombinedStreak(xp)
   const lv = getGlobalLevel(xp)
   const grandTotal = Object.values(xp).reduce((s, a) => s + a.total, 0)
-  const [storageInfo, setStorageInfo] = useState('')
+  const [storageInfo, setStorageInfo] = useState<{ n: number; label: string }[]>([])
+  const [storageTotalKb, setStorageTotalKb] = useState(0)
 
-  function calcStorage() {
-    const labels: Record<string, string> = {
-      'josema_rpg_time_v4': 'Agenda (tareas)',
-      'josema_rpg_nutri_log': 'Nutrición (diario)',
-      'lifeos_sessions_v1': 'Físico (sesiones)',
-      'lifeos_finances_tx_v1': 'Finanzas',
-      'lifeos_habits_v1': 'Hábitos',
-      'lifeos_nutri_body_v1': 'Peso y composición',
-    }
-    const lines: string[] = []
+  function calcStorage(): { lines: { n: number; label: string }[]; totalKb: number } {
+    const lines: { n: number; label: string }[] = []
     let total = 0
-    Object.entries(labels).forEach(([k, label]) => {
+    Object.entries(STORAGE_LABELS).forEach(([k, label]) => {
       const v = localStorage.getItem(k)
       if (v) {
         let n = 1
         try { const p = JSON.parse(v); n = Array.isArray(p) ? p.length : Object.keys(p).length } catch {}
         total += v.length
-        lines.push(`<span style="color:var(--color-text);font-weight:600">${n}</span> ${label}`)
+        lines.push({ n, label })
       }
     })
-    return lines.join('<br>') + '<br><br><span style="color:var(--color-dim)">~' + (total / 1024).toFixed(1) + ' KB</span>'
+    return { lines, totalKb: total / 1024 }
   }
 
   function handleSaveName() {
@@ -65,7 +48,7 @@ export function TopBar() {
 
   function exportBackup() {
     const backup: { version: number; date: string; data: Record<string, unknown> } = { version: 1, date: new Date().toISOString(), data: {} }
-    ALL_KEYS.forEach(k => { const v = localStorage.getItem(k); if (v) backup.data[k] = JSON.parse(v) })
+    ALL_STORAGE_KEYS.forEach(k => { const v = localStorage.getItem(k); if (v) backup.data[k] = JSON.parse(v) })
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' })
     const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
@@ -91,8 +74,7 @@ export function TopBar() {
 
   function clearAllData() {
     if (!confirm('¿Seguro? Se borrarán TODOS los datos de la app.')) return
-    ALL_KEYS.forEach(k => localStorage.removeItem(k))
-    localStorage.removeItem('lifeos_username_v1')
+    ALL_STORAGE_KEYS.forEach(k => localStorage.removeItem(k))
     setSettingsOpen(false)
     toast.show('Datos borrados. Recargando...')
     setTimeout(() => window.location.reload(), 1200)
@@ -115,7 +97,9 @@ export function TopBar() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <button className="gear-btn" onClick={async () => {
               setSettingsOpen(true)
-              setStorageInfo(calcStorage())
+              const info = calcStorage()
+              setStorageInfo(info.lines)
+              setStorageTotalKb(info.totalKb)
               const { data } = await supabase.auth.getSession()
               setSession(data.session)
             }}>
@@ -260,7 +244,12 @@ export function TopBar() {
               </div>
               <div style={{ background: 'var(--color-s2)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)', marginBottom: 10 }}>Almacenamiento</div>
-                <div style={{ fontSize: 12, color: 'var(--color-sub)', lineHeight: 1.8 }} dangerouslySetInnerHTML={{ __html: storageInfo }} />
+                <div style={{ fontSize: 12, color: 'var(--color-sub)', lineHeight: 1.8 }}>
+                  {storageInfo.map((item, i) => (
+                    <div key={i}><span style={{ color: 'var(--color-text)', fontWeight: 600 }}>{item.n}</span> {item.label}</div>
+                  ))}
+                  <div style={{ color: 'var(--color-dim)', marginTop: 8 }}>~{storageTotalKb.toFixed(1)} KB</div>
+                </div>
               </div>
             </div>
 

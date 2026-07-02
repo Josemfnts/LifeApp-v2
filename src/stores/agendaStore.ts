@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { saveToCloud, loadFromCloud } from '@/lib/sync'
+import { saveToCloud } from '@/lib/sync'
 
 function getStr(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`

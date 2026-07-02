@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useFisicoStore } from '@/stores/fisicoStore'
-import type { Routine, SessionExercise, MobRoutine } from '@/stores/fisicoStore'
-import { Input, Button } from '@/components/ui'
+import { Input } from '@/components/ui'
 import { EXERCISES_DB, EXERCISE_GROUPS, EXERCISE_COLORS } from '@/data/exercises'
 import { useToast } from '@/stores/toast'
 
@@ -391,7 +390,6 @@ function StrengthTab() {
   /* ── PROGRESS ── */
   if (sub === 'progress') {
     const { prs } = useFisicoStore.getState()
-    const allExercises = [...EXERCISES_DB, ...customExercises]
 
     if (sessions.length === 0) {
       return (
@@ -412,7 +410,6 @@ function StrengthTab() {
     })
 
     const maxKg = Math.max(...last12.map(s => s.totalKg), 1)
-    const maxDur = Math.max(...last12.map(s => s.duration), 1)
 
     // Training calendar data (last 30 days)
     const calDays: { date: string; day: number; hasSession: boolean; isToday: boolean }[] = []

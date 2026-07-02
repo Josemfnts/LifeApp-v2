@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
-import { useNutriStore, type FoodEntry } from '@/stores/nutriStore'
-import { FOODS_DB, FOOD_CATEGORIES } from '@/data/foods'
-import { RECIPES_DB, RECIPE_CATEGORIES } from '@/data/recipes'
+import { useNutriStore } from '@/stores/nutriStore'
+import { FOODS_DB } from '@/data/foods'
 import { useToast } from '@/stores/toast'
 import { Input } from '@/components/ui'
 import Chart from 'chart.js/auto'
@@ -611,7 +610,7 @@ function MenuTab() {
 
 /* ── TOOLS: ayuno, peso, comparador ── */
 function ToolsTab() {
-  const { fasting, startFast, endFast, bodyMetrics, addBodyMetric } = useNutriStore()
+  const { fasting, startFast, endFast, bodyMetrics, addBodyMetric, macroCalc } = useNutriStore()
   const toast = useToast()
   const [w, setW] = useState('')
   const [fat, setFat] = useState('')
@@ -700,11 +699,14 @@ function ToolsTab() {
             <div style={{ position: 'relative', height: 100 }}><canvas ref={barRef} /></div>
           </div>
         )}
-        {bodyMetrics.length > 0 && (
-          <div style={{ marginTop: 8, fontSize: 12, color: 'var(--color-dim)', textAlign: 'center' }}>
-            Último: {bodyMetrics[bodyMetrics.length - 1].weight}kg · IMC: {(bodyMetrics[bodyMetrics.length - 1].weight / 1.75 ** 2).toFixed(1)}
-          </div>
-        )}
+        {bodyMetrics.length > 0 && (() => {
+          const heightM = (macroCalc.height || 175) / 100
+          return (
+            <div style={{ marginTop: 8, fontSize: 12, color: 'var(--color-dim)', textAlign: 'center' }}>
+              Último: {bodyMetrics[bodyMetrics.length - 1].weight}kg · IMC: {(bodyMetrics[bodyMetrics.length - 1].weight / (heightM * heightM)).toFixed(1)}
+            </div>
+          )
+        })()}
       </div>
 
       {/* Food comparator */}

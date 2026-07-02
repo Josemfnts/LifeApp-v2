@@ -14,7 +14,17 @@ export default function Habitos() {
   const todayDate = new Date()
   const dateLabel = ['D','L','M','X','J','V','S'][todayDate.getDay()]+' '+todayDate.getDate()+' '+['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][todayDate.getMonth()]
 
-  function handleToggle(id: number) { const cur = getLogValue(today, id); setLogValue(today, id, cur ? 0 : 1); toast.show(cur ? 'Hábito desmarcado' : '✓ Hábito completado') }
+  function handleToggle(id: number) {
+    const cur = getLogValue(today, id)
+    const h = habits.find(h => h.id === id)
+    if (h?.type === 'avoid') {
+      setLogValue(today, id, cur ? 0 : 1)
+      toast.show(cur ? '✓ Evitado' : '⚠️ Marcado como ocurrencia')
+    } else {
+      setLogValue(today, id, cur ? 0 : 1)
+      toast.show(cur ? 'Hábito desmarcado' : '✓ Hábito completado')
+    }
+  }
   function handleIncrement(id: number, d: number) { const cur = getLogValue(today, id); setLogValue(today, id, Math.max(0, cur + d)) }
   function handleSetFull(id: number) { const cur = getLogValue(today, id); const h = habits.find(h => h.id === id); const g = h?.goal || 1; setLogValue(today, id, cur >= g ? 0 : g); toast.show(cur >= g ? 'Hábito desmarcado' : '✓ Hábito completado') }
 

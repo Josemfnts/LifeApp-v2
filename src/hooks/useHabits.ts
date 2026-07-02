@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react'
 import { getItem, setItem } from '@/lib/storage'
 import type { Habit, HabitLog } from '@/types'
-import { STORAGE_KEYS } from '@/types'
 
 function getStr(d: Date): string {
   return d.toISOString().slice(0, 10)
@@ -26,6 +25,7 @@ export function getLogValue(log: HabitLog, date: string, habitId: number): numbe
 
 export function isHabitDone(h: Habit, val: number): boolean {
   if (h.type === 'bool') return !!val
+  if (h.type === 'avoid') return val === 0
   return val >= h.goal
 }
 

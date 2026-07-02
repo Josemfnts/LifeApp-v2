@@ -13,7 +13,7 @@ export function HabitForm({ onAdd }: HabitFormProps) {
   const [emoji, setEmoji] = useState('⭐')
   const [color, setColor] = useState('#9b7fe0')
   const [name, setName] = useState('')
-  const [type, setType] = useState<'bool' | 'count'>('bool')
+  const [type, setType] = useState<'bool' | 'count' | 'avoid'>('bool')
   const [freq, setFreq] = useState<Habit['freq']>('daily')
   const [goal, setGoal] = useState('1')
   const [unit, setUnit] = useState('')
@@ -79,6 +79,7 @@ export function HabitForm({ onAdd }: HabitFormProps) {
         className="w-full bg-[var(--color-s2)] border border-[var(--color-border)] text-[var(--color-text)] rounded-xl px-3.5 py-2.5 text-sm font-sans mb-2 cursor-pointer outline-none"
       >
         <option value="bool">✓ Hábito sí/no (completado o no)</option>
+        <option value="avoid">🚫 Hábito a evitar (ej: no fumar, no azúcar)</option>
         <option value="count">🔢 Cantidad con objetivo</option>
       </select>
 

@@ -4,7 +4,7 @@ import { TopBar } from '@/components/layout/TopBar'
 import { useXP } from '@/contexts/XPContext'
 import { useToast } from '@/stores/toast'
 import { calcLevel } from '@/lib/xp-engine'
-import { getDisplayName } from '@/lib/storage'
+import { STORE_KEYS } from '@/lib/storageKeys'
 import { AREA_COLORS, AREA_ICONS, AREA_NAMES, type AreaStat, type Goal } from '@/types'
 
 const acCls: Record<AreaStat, string> = { disc: 'ac-a', fuerza: 'ac-b', intel: 'ac-c', riqueza: 'ac-d' }
@@ -18,7 +18,7 @@ export default function Dashboard() {
   const areas: AreaStat[] = ['disc', 'fuerza', 'intel', 'riqueza']
 
   const [goals, setGoals] = useState<Goal[]>(() => {
-    try { return JSON.parse(localStorage.getItem('josema_rpg_missions_v1') || '[]') } catch { return [] }
+    try { return JSON.parse(localStorage.getItem(STORE_KEYS.josema_rpg_missions_v1) || '[]') } catch { return [] }
   })
   const [goalName, setGoalName] = useState('')
   const [goalCur, setGoalCur] = useState('')
@@ -26,18 +26,18 @@ export default function Dashboard() {
   const [goalStat, setGoalStat] = useState<AreaStat>('disc')
 
   useEffect(() => {
-    const dbTime = JSON.parse(localStorage.getItem('josema_rpg_time_v4') || '{}')
-    const dbNutri = JSON.parse(localStorage.getItem('josema_rpg_nutri_log') || '{}')
-    const dbSessions = JSON.parse(localStorage.getItem('lifeos_sessions_v1') || '[]')
-    const dbTx = JSON.parse(localStorage.getItem('lifeos_finances_tx_v1') || '[]')
+    const dbTime = JSON.parse(localStorage.getItem(STORE_KEYS.agenda_tasks) || '{}')
+    const dbNutri = JSON.parse(localStorage.getItem(STORE_KEYS.nutri_log) || '{}')
+    const dbSessions = JSON.parse(localStorage.getItem(STORE_KEYS.fisico_sessions) || '[]')
+    const dbTx = JSON.parse(localStorage.getItem(STORE_KEYS.finances_tx) || '[]')
 
     const tasks = dbTime[todayStr] || []
     if (tasks.filter((t: { done: boolean }) => t.done).length === tasks.length && tasks.length > 0) {
       if (!xp.disc.log.some(e => e.date === todayStr && e.concept === 'Agenda completada'))
         award('disc', 50, 'Agenda completada', todayStr)
     }
-    const todayMeals = dbNutri[todayStr] || {}
-    if ((Object.values(todayMeals).flat() as unknown[]).length > 0) {
+    const todayFoods = dbNutri[todayStr] || []
+    if (todayFoods.length > 0) {
       if (!xp.fuerza.log.some(e => e.date === todayStr && e.concept === 'Nutrición registrada'))
         award('fuerza', 50, 'Nutrición registrada', todayStr)
     }
@@ -49,15 +49,15 @@ export default function Dashboard() {
       if (!xp.riqueza.log.some(e => e.date === todayStr && e.concept === 'Finanzas registradas'))
         award('riqueza', 50, 'Finanzas registradas', todayStr)
     }
-  }, [todayStr])
+  }, [todayStr, xp.disc.log, xp.fuerza.log, xp.intel.log, xp.riqueza.log, award])
 
   const recentLog = Object.entries(xp)
     .flatMap(([stat, area]) => (area.log || []).map(e => ({ ...e, stat })))
     .sort((a, b) => b.date.localeCompare(a.date))
     .slice(0, 10)
 
-  const dbHabits = JSON.parse(localStorage.getItem('lifeos_habits_v1') || '[]')
-  const dbLog = JSON.parse(localStorage.getItem('lifeos_habits_log_v1') || '{}')
+  const dbHabits = JSON.parse(localStorage.getItem(STORE_KEYS.lifeos_habits) || '[]')
+  const dbLog = JSON.parse(localStorage.getItem(STORE_KEYS.lifeos_habits_log) || '{}')
   const dow = new Date().getDay()
   const activeHabits = dbHabits.filter((h: { freq: string; days: number[] }) => {
     if (h.freq === 'daily') return true
@@ -68,6 +68,7 @@ export default function Dashboard() {
   })
   const habitsDone = activeHabits.filter((h: { id: number; type: string; goal: number }) => {
     const val = (dbLog[todayStr] || {})[h.id] || 0
+    if (h.type === 'avoid') return val === 0
     return h.type === 'bool' ? !!val : val >= h.goal
   }).length
   const habitsPct = activeHabits.length ? Math.round(habitsDone / activeHabits.length * 100) : 0
@@ -174,7 +175,7 @@ export default function Dashboard() {
           return (
             <div key={i} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 10, position: 'relative' }}>
               {done && <div style={{ display: 'inline-block', fontSize: 11, fontWeight: 600, color: '#52b788', background: 'rgba(82,183,136,0.1)', border: '1px solid rgba(82,183,136,0.2)', borderRadius: 6, padding: '2px 10px', marginBottom: 6 }}>✓ Completado</div>}
-              <button onClick={() => { const next = goals.filter((_, ii) => ii !== i); setGoals(next); localStorage.setItem('josema_rpg_missions_v1', JSON.stringify(next)) }}
+              <button onClick={() => { const next = goals.filter((_, ii) => ii !== i); setGoals(next); localStorage.setItem(STORE_KEYS.josema_rpg_missions_v1, JSON.stringify(next)) }}
                 style={{ position: 'absolute', top: 14, right: 16, fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '2px 6px' }}>✕</button>
               <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-sub)', letterSpacing: '0.3px', textTransform: 'uppercase', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{ width: 6, height: 6, borderRadius: '50%', display: 'inline-block', background: col }} />
@@ -197,7 +198,7 @@ export default function Dashboard() {
                     if (isNaN(val)) return
                     const next = [...goals]; const wasDone = next[i].current >= next[i].goal
                     next[i] = { ...next[i], current: val }; setGoals(next)
-                    localStorage.setItem('josema_rpg_missions_v1', JSON.stringify(next))
+                    localStorage.setItem(STORE_KEYS.josema_rpg_missions_v1, JSON.stringify(next))
                     if (!wasDone && val >= next[i].goal) { award(next[i].stat, 200, 'Objetivo: ' + next[i].name, todayStr); toast.show('+200 XP — ¡Objetivo completado!') }
                   }}
                     style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', background: col + '18', color: col, border: `1px solid ${col}33` }}>Actualizar</button>
@@ -220,7 +221,7 @@ export default function Dashboard() {
           <button onClick={() => {
             if (!goalName.trim()) return
             const next = [...goals, { name: goalName.trim(), current: parseFloat(goalCur) || 0, goal: parseFloat(goalTarget) || 100, stat: goalStat }]
-            setGoals(next); localStorage.setItem('josema_rpg_missions_v1', JSON.stringify(next))
+            setGoals(next); localStorage.setItem(STORE_KEYS.josema_rpg_missions_v1, JSON.stringify(next))
             setGoalName(''); setGoalCur(''); setGoalTarget(''); toast.show('✓ Objetivo añadido')
           }}
             style={{ width: '100%', background: 'rgba(91,138,240,0.12)', border: '1px solid rgba(91,138,240,0.2)', color: 'var(--color-acc-blue)', fontFamily: 'DM Sans,sans-serif', fontSize: 14, fontWeight: 600, padding: 12, borderRadius: 10, cursor: 'pointer' }}>Añadir objetivo</button>
@@ -251,8 +252,7 @@ export default function Dashboard() {
       {/* Logros */}
       {(() => {
         const achievements: { icon: string; title: string; desc: string; unlocked: boolean }[] = []
-        const dbH = JSON.parse(localStorage.getItem('lifeos_habits_v1') || '[]')
-        const dbHL = JSON.parse(localStorage.getItem('lifeos_habits_log_v1') || '{}')
+        const dbHL = JSON.parse(localStorage.getItem(STORE_KEYS.lifeos_habits_log) || '{}')
         const allDates2 = Object.keys(dbHL)
         const totalCheckins = allDates2.reduce((s: number, d: string) => s + Object.values(dbHL[d] as Record<string, number>).reduce((ss: number, v: number) => ss + (v > 0 ? 1 : 0), 0), 0)
         const combinedStreak = (() => {
@@ -266,10 +266,10 @@ export default function Dashboard() {
           }
           return s
         })()
-        const allTasks2 = Object.values(JSON.parse(localStorage.getItem('agenda_tasks') || '{}')).flat() as { done: boolean }[]
+        const allTasks2 = Object.values(JSON.parse(localStorage.getItem(STORE_KEYS.agenda_tasks) || '{}')).flat() as { done: boolean }[]
         const totalDone2 = allTasks2.filter((t: { done: boolean }) => t.done).length
-        const sessCount = JSON.parse(localStorage.getItem('lifeos_sessions_v1') || '[]').length
-        const txCount2 = JSON.parse(localStorage.getItem('lifeos_finances_tx_v1') || '[]').length
+        const sessCount = JSON.parse(localStorage.getItem(STORE_KEYS.fisico_sessions) || '[]').length
+        const txCount2 = JSON.parse(localStorage.getItem(STORE_KEYS.finances_tx) || '[]').length
 
         achievements.push({ icon: '🔥', title: 'Principiante', desc: '7 días de racha', unlocked: combinedStreak >= 7 })
         achievements.push({ icon: '🔥', title: 'Constante', desc: '30 días de racha', unlocked: combinedStreak >= 30 })
@@ -305,7 +305,7 @@ export default function Dashboard() {
 
 /* Helper functions for today summary data */
 function getTasksSummary() {
-  const db = JSON.parse(localStorage.getItem('josema_rpg_time_v4') || '{}')
+  const db = JSON.parse(localStorage.getItem(STORE_KEYS.agenda_tasks) || '{}')
   const today = new Date().toISOString().slice(0, 10)
   const tasks = db[today] || []
   if (!tasks.length) return 'Sin tareas planificadas'
@@ -313,7 +313,7 @@ function getTasksSummary() {
   return `${done}/${tasks.length} completadas`
 }
 function getTasksSub() {
-  const db = JSON.parse(localStorage.getItem('josema_rpg_time_v4') || '{}')
+  const db = JSON.parse(localStorage.getItem(STORE_KEYS.agenda_tasks) || '{}')
   const today = new Date().toISOString().slice(0, 10)
   const tasks = db[today] || []
   if (!tasks.length) return 'Ve a Agenda para añadir tareas'
@@ -321,7 +321,7 @@ function getTasksSub() {
   return done === tasks.length ? '¡Día completado!' : `${tasks.length - done} pendientes`
 }
 function getTasksBadge() {
-  const db = JSON.parse(localStorage.getItem('josema_rpg_time_v4') || '{}')
+  const db = JSON.parse(localStorage.getItem(STORE_KEYS.agenda_tasks) || '{}')
   const today = new Date().toISOString().slice(0, 10)
   const tasks = db[today] || []
   if (!tasks.length) return '+50 XP'
@@ -329,7 +329,7 @@ function getTasksBadge() {
   return done === tasks.length ? '✓ Hecho' : '+50 XP'
 }
 function getTasksDone() {
-  const db = JSON.parse(localStorage.getItem('josema_rpg_time_v4') || '{}')
+  const db = JSON.parse(localStorage.getItem(STORE_KEYS.agenda_tasks) || '{}')
   const today = new Date().toISOString().slice(0, 10)
   const tasks = db[today] || []
   if (!tasks.length) return false
@@ -337,59 +337,57 @@ function getTasksDone() {
 }
 
 function getNutriSummary() {
-  const db = JSON.parse(localStorage.getItem('josema_rpg_nutri_log') || '{}')
+  const db = JSON.parse(localStorage.getItem(STORE_KEYS.nutri_log) || '{}')
   const today = new Date().toISOString().slice(0, 10)
-  const meals = db[today] || {}
-  const all: { kcal?: number }[] = Object.values(meals).flat() as { kcal?: number }[]
-  if (!all.length) return 'Sin registros de comida'
-  const kcal = all.reduce((s, f) => s + (f.kcal || 0), 0)
+  const foods: { kcal?: number }[] = db[today] || []
+  if (!foods.length) return 'Sin registros de comida'
+  const kcal = foods.reduce((s, f) => s + (f.kcal || 0), 0)
   return `${Math.round(kcal)} kcal registradas`
 }
 function getNutriSub() {
-  const db = JSON.parse(localStorage.getItem('josema_rpg_nutri_log') || '{}')
+  const db = JSON.parse(localStorage.getItem(STORE_KEYS.nutri_log) || '{}')
   const today = new Date().toISOString().slice(0, 10)
-  const meals = db[today] || {}
-  const all: { kcal?: number }[] = Object.values(meals).flat() as { kcal?: number }[]
-  if (!all.length) return 'Registra tus comidas en Nutrición'
-  return `${all.length} alimentos · ${Object.keys(meals).length} comidas`
+  const foods: { meal?: string }[] = db[today] || []
+  if (!foods.length) return 'Registra tus comidas en Nutrición'
+  const meals = new Set(foods.map(f => f.meal))
+  return `${foods.length} alimentos · ${meals.size} comidas`
 }
 function getNutriBadge() {
-  const db = JSON.parse(localStorage.getItem('josema_rpg_nutri_log') || '{}')
+  const db = JSON.parse(localStorage.getItem(STORE_KEYS.nutri_log) || '{}')
   const today = new Date().toISOString().slice(0, 10)
-  const meals = db[today] || {}
-  const all = Object.values(meals).flat()
-  return all.length ? '✓ Activo' : '+50 XP'
+  const foods = db[today] || []
+  return foods.length ? '✓ Activo' : '+50 XP'
 }
 function getNutriDone() {
-  const db = JSON.parse(localStorage.getItem('josema_rpg_nutri_log') || '{}')
+  const db = JSON.parse(localStorage.getItem(STORE_KEYS.nutri_log) || '{}')
   const today = new Date().toISOString().slice(0, 10)
-  return Object.values(db[today] || {}).flat().length > 0
+  return (db[today] || []).length > 0
 }
 
 function getTrainSub() {
-  const db = JSON.parse(localStorage.getItem('lifeos_sessions_v1') || '[]')
+  const db = JSON.parse(localStorage.getItem(STORE_KEYS.fisico_sessions) || '[]')
   const today = new Date().toISOString().slice(0, 10)
   const s = db.find((s: { date: string }) => s.date === today)
   return s ? `${s.duration} min · ${Math.round(s.totalKg)} kg` : 'Toca para registrar sesión'
 }
 function getTrainBadge() {
-  const db = JSON.parse(localStorage.getItem('lifeos_sessions_v1') || '[]')
+  const db = JSON.parse(localStorage.getItem(STORE_KEYS.fisico_sessions) || '[]')
   const today = new Date().toISOString().slice(0, 10)
   return db.some((s: { date: string }) => s.date === today) ? '✓ Hecho' : '+50 XP'
 }
 function getTrainDone() {
-  const db = JSON.parse(localStorage.getItem('lifeos_sessions_v1') || '[]')
+  const db = JSON.parse(localStorage.getItem(STORE_KEYS.fisico_sessions) || '[]')
   const today = new Date().toISOString().slice(0, 10)
   return db.some((s: { date: string }) => s.date === today)
 }
 
 function getFinBadge() {
-  const db = JSON.parse(localStorage.getItem('lifeos_finances_tx_v1') || '[]')
+  const db = JSON.parse(localStorage.getItem(STORE_KEYS.finances_tx) || '[]')
   const today = new Date().toISOString().slice(0, 10)
   return db.filter((t: { date: string }) => t.date === today).length ? '✓ Activo' : '+50 XP'
 }
 function getFinDone() {
-  const db = JSON.parse(localStorage.getItem('lifeos_finances_tx_v1') || '[]')
+  const db = JSON.parse(localStorage.getItem(STORE_KEYS.finances_tx) || '[]')
   const today = new Date().toISOString().slice(0, 10)
   return db.filter((t: { date: string }) => t.date === today).length > 0
 }

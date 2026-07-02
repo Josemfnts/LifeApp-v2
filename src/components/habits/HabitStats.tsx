@@ -12,7 +12,7 @@ const MONTHS_S = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep',
 
 export function HabitStats({ habits, log }: HabitStatsProps) {
   const [selId, setSelId] = useState<string>('all')
-  const today = new Date()
+  const today = useMemo(() => new Date(), [])
   const todayStr = today.toISOString().slice(0, 10)
 
   const relevantHabits = selId === 'all' ? habits : habits.filter(h => h.id === +selId)

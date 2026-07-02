@@ -51,8 +51,8 @@ export function checkHabitReminders() {
   const today = new Date().toISOString().slice(0, 10)
   if (lastCheck === today) return
 
-  const dbH = JSON.parse(localStorage.getItem('lifeos_habits_v1') || '[]')
-  const dbL = JSON.parse(localStorage.getItem('lifeos_habits_log_v1') || '{}')
+  const dbH = JSON.parse(localStorage.getItem('lifeos_habits') || '[]')
+  const dbL = JSON.parse(localStorage.getItem('lifeos_habits_log') || '{}')
   const dow = new Date().getDay()
   const active = dbH.filter((h: { freq: string; days: number[] }) => {
     if (h.freq === 'daily') return true

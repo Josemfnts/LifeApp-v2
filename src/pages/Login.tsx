@@ -21,12 +21,19 @@ export default function Login({ onDone }: LoginProps) {
         await signIn(email, password)
         await downloadFromCloud()
         toast.show('✓ Sesión iniciada y datos sincronizados')
+        onDone()
       } else {
-        await signUp(email, password)
-        await syncAllToCloud()
-        toast.show('✓ Cuenta creada. Revisa tu email.')
+        const data = await signUp(email, password)
+        if (!data.session) {
+          toast.show('✓ Cuenta creada. Confirma tu email antes de entrar.')
+          setMode('login')
+          setPassword('')
+        } else {
+          await syncAllToCloud()
+          toast.show('✓ Cuenta creada y sincronizada')
+          onDone()
+        }
       }
-      onDone()
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error'
       toast.show('❌ ' + (msg.includes('Invalid') ? 'Credenciales incorrectas' : msg))

@@ -2,9 +2,10 @@ import { useState, useMemo, useEffect } from 'react'
 import { useAgendaStore, DAYS, MONTHS, COLOR_HEX, SHIFT_COLORS, SHIFT_LABELS, PRIORITY_COLORS } from '@/stores/agendaStore'
 import { useToast } from '@/stores/toast'
 import { Input } from '@/components/ui'
+import { KanbanView } from '@/components/agenda/KanbanView'
 
 export default function Agenda() {
-  const [tab, setTab] = useState<'month' | 'week' | 'day' | 'shifts' | 'stats'>('month')
+  const [tab, setTab] = useState<'month' | 'week' | 'day' | 'shifts' | 'stats' | 'kanban'>('month')
   const [selDate, setSelDate] = useState(new Date())
   const rollover = useAgendaStore(s => s.rollover)
   useEffect(() => { rollover() }, [])
@@ -19,9 +20,9 @@ export default function Agenda() {
         <div className="page-module" style={{ color: 'var(--color-acc-blue)' }}>Agenda</div>
         <div className="page-title">Planificación</div>
         <div className="tab-bar">
-          {(['month','week','day','shifts','stats'] as const).map(t => (
+          {(['month','week','day','shifts','stats','kanban'] as const).map(t => (
             <button key={t} onClick={() => setTab(t)} className={`tab-btn${tab === t ? ' active' : ''}`}>
-              {{month:'Mes',week:'Semana',day:'Día',shifts:'Turnos',stats:'Stats'}[t]}
+              {{month:'Mes',week:'Semana',day:'Día',shifts:'Turnos',stats:'Stats',kanban:'Kanban'}[t]}
             </button>
           ))}
         </div>
@@ -32,6 +33,7 @@ export default function Agenda() {
         {tab === 'day' && <DayView date={selDate} />}
         {tab === 'shifts' && <ShiftsView />}
         {tab === 'stats' && <StatsView />}
+        {tab === 'kanban' && <KanbanView />}
       </div>
     </div>
   )

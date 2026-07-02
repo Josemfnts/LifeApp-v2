@@ -30,7 +30,7 @@ export interface Habit {
   name: string
   emoji: string
   color: string
-  type: 'bool' | 'count'
+  type: 'bool' | 'count' | 'avoid'
   freq: 'daily' | 'weekdays' | 'weekend' | 'custom'
   goal: number
   unit: string

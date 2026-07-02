@@ -6,7 +6,7 @@ export default function Pomodoro() {
   const [timeLeft, setTimeLeft] = useState(25 * 60)
   const [running, setRunning] = useState(false)
   const [sessions, setSessions] = useState(0)
-  const toast = useToast()
+  const toastShow = useToast(s => s.show)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
@@ -20,9 +20,9 @@ export default function Pomodoro() {
             setTimeLeft(newMode === 'focus' ? 25 * 60 : 5 * 60)
             if (mode === 'focus') {
               setSessions(s => s + 1)
-              toast.show('🎉 ¡Sesión completada! Tómate un descanso.')
+              toastShow('🎉 ¡Sesión completada! Tómate un descanso.')
             } else {
-              toast.show('⏰ Descanso terminado. ¡A trabajar!')
+              toastShow('⏰ Descanso terminado. ¡A trabajar!')
             }
             return newMode === 'focus' ? 25 * 60 : 5 * 60
           }
@@ -33,7 +33,7 @@ export default function Pomodoro() {
       if (intervalRef.current) clearInterval(intervalRef.current)
     }
     return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
-  }, [running, mode])
+  }, [running, mode, toastShow])
 
   const mins = Math.floor(timeLeft / 60)
   const secs = timeLeft % 60
@@ -64,7 +64,7 @@ export default function Pomodoro() {
         </div>
 
         <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
-          <button onClick={() => { setRunning(!running); if (!running && mode === 'focus') { const t = document.querySelector('[style*="stroke-dashoffset"]') } }}
+          <button onClick={() => setRunning(!running)}
             style={{ padding: '14px 32px', borderRadius: 16, fontSize: 16, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: 'none',
               background: running ? 'rgba(224,95,95,0.12)' : 'var(--color-red)',
               color: running ? 'var(--color-red)' : '#fff',

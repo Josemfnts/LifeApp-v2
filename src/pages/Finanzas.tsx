@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useFinanceStore, CAT_META, CUENTA_TYPE, fmt, fmtShort } from '@/stores/financeStore'
 import { useToast } from '@/stores/toast'
-import { Input } from '@/components/ui'
 import Chart from 'chart.js/auto'
 
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
@@ -27,11 +26,13 @@ export default function Finanzas() {
   const [tab, setTab] = useState<'summary' | 'moves' | 'analysis' | 'patrimonio' | 'budgets'>('summary')
   const store = useFinanceStore()
   const toast = useToast()
+  const processRecurrentes = useFinanceStore(s => s.processRecurrentes)
+  const toastShow = useToast(s => s.show)
 
   useEffect(() => {
-    const newTxs = store.processRecurrentes()
-    if (newTxs.length > 0) toast.show(`✓ ${newTxs.length} transacciones recurrentes añadidas`)
-  }, [])
+    const newTxs = processRecurrentes()
+    if (newTxs.length > 0) toastShow(`✓ ${newTxs.length} transacciones recurrentes añadidas`)
+  }, [processRecurrentes, toastShow])
 
   return (
     <div>
@@ -39,7 +40,7 @@ export default function Finanzas() {
         <div className="page-module" style={{ color: 'var(--color-acc-gold)' }}>Finanzas</div>
         <div className="page-title">Dinero</div>
         <div className="tab-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', overflow: 'hidden' }}>
+          <div style={{ display: 'flex', overflowX: 'auto', overflowY: 'hidden', minWidth: 0 }}>
             {(['summary','moves','analysis','patrimonio','budgets'] as const).map(t => (
               <button key={t} onClick={() => setTab(t)} className={`tab-btn tab-gold${tab === t ? ' active' : ''}`}>
                 {{summary:'Resumen',moves:'Movs',analysis:'Análisis',patrimonio:'Patrimonio',budgets:'Presupuesto'}[t]}
@@ -464,8 +465,6 @@ function PatrimonioTab() {
 
   const [settleModal, setSettleModal] = useState(false)
   const [settleIdx, setSettleIdx] = useState(-1)
-  const patRef = useRef<HTMLCanvasElement>(null)
-  const patChartRef = useRef<Chart | null>(null)
   const [settleTarget, setSettleTarget] = useState('none')
 
   const assets = cuentas.reduce((s, cu) => CUENTA_TYPE[cu.type]?.asset ? s + cu.balance : s, 0)
@@ -719,7 +718,7 @@ function PatrimonioTab() {
           <div className="card" style={{ marginBottom: 12 }}>
             {activePufos.length === 0 ? (
               <div style={{ textAlign: 'center', padding: 20, fontSize: 13, color: 'var(--color-dim)' }}>Sin pufos activos.</div>
-            ) : activePufos.map((p, i) => {
+            ) : activePufos.map((p) => {
               const realIdx = pufos.indexOf(p)
               return (
                 <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
@@ -962,77 +961,6 @@ function BudgetsTab() {
           </div>
         )}
       </div>
-    </div>
-  )
-}
-
-/* ── PATRIMONIO CHART ── */
-function PatrimonioChart({ net }: { net: number }) {
-  const chartRef = useRef<Chart | null>(null)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-
-  useEffect(() => {
-    if (!canvasRef.current) return
-    const K_HIST = 'lifeos_patrimonio_hist_v1'
-    let hist: { date: string; net: number }[] = []
-    try { hist = JSON.parse(localStorage.getItem(K_HIST) || '[]') } catch {}
-
-    const today = todayISO()
-    const todayEntry = hist.find(h => h.date === today)
-    if (todayEntry) { todayEntry.net = net }
-    else { hist.push({ date: today, net }) }
-    if (hist.length > 90) hist = hist.slice(-90)
-    localStorage.setItem(K_HIST, JSON.stringify(hist))
-
-    if (chartRef.current) chartRef.current.destroy()
-    const labels = hist.map(h => { const d = new Date(h.date + 'T12:00:00'); return d.getDate() + '/' + (d.getMonth() + 1) })
-    const data = hist.map(h => h.net)
-    const color = net >= 0 ? '#5b8af0' : '#e05f5f'
-
-    chartRef.current = new Chart(canvasRef.current.getContext('2d')!, {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [{
-          data,
-          borderColor: color, borderWidth: 2,
-          backgroundColor: (ctx2: { chart: { ctx: CanvasRenderingContext2D; chartArea?: { top: number; bottom: number } } }) => {
-            const { ctx: cv, chartArea } = ctx2.chart
-            if (!chartArea) return color + '18'
-            const grad = cv.createLinearGradient(0, chartArea.top, 0, chartArea.bottom)
-            grad.addColorStop(0, color + '44')
-            grad.addColorStop(1, color + '05')
-            return grad
-          },
-          fill: true, tension: 0.4,
-          pointRadius: hist.length <= 10 ? 4 : 0,
-          pointBackgroundColor: color,
-          pointBorderColor: '#111318', pointBorderWidth: 2,
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: { label: (ctx: { raw: unknown }) => fmt(ctx.raw as number) },
-            backgroundColor: '#191c22', borderColor: 'rgba(255,255,255,0.07)',
-            borderWidth: 1, titleColor: '#e8e9ee', bodyColor: '#8a8d96',
-            padding: 10, cornerRadius: 8,
-          }
-        },
-        scales: {
-          x: { grid: { display: false }, ticks: { color: '#4a4d56', font: { size: 9 }, maxTicksLimit: 6 } },
-          y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#4a4d56', font: { size: 9 }, callback: (v: unknown) => fmtShort(v as number) } }
-        }
-      }
-    })
-  }, [net])
-
-  return (
-    <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginTop: 12, marginBottom: 12 }}>
-      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-sub)', letterSpacing: '0.3px', marginBottom: 12 }}>Evolución del patrimonio</div>
-      <div style={{ position: 'relative', height: 130 }}><canvas ref={canvasRef} /></div>
     </div>
   )
 }
