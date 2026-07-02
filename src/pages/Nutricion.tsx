@@ -634,6 +634,26 @@ function MenuTab() {
     toast.show(existing ? 'Quitado del menú' : '✓ Añadido al menú')
   }
 
+  const shoppingList = (() => {
+    const items: Record<string, { totalGrams: number; dishes: Set<string> }> = {}
+    for (let day = 0; day < 7; day++) {
+      const dayMenu = menu.find(m => m.day === day)
+      if (!dayMenu) continue
+      dayMenu.meals.forEach(mealEntry => {
+        const dish = dishes.find(d => d.name === mealEntry.dishName)
+        if (!dish) return
+        dish.ingredients.forEach(ing => {
+          if (!items[ing.name]) items[ing.name] = { totalGrams: 0, dishes: new Set() }
+          items[ing.name].totalGrams += ing.grams
+          items[ing.name].dishes.add(dish.name)
+        })
+      })
+    }
+    return Object.entries(items)
+      .map(([name, data]) => ({ name, totalGrams: data.totalGrams, dishes: [...data.dishes].join(', ') }))
+      .sort((a, b) => b.totalGrams - a.totalGrams)
+  })()
+
   return (
     <div>
       <div style={{ display: 'flex', gap: 4, marginBottom: 12 }}>
@@ -677,6 +697,28 @@ function MenuTab() {
           </div>
         </div>
       ))}
+
+      {shoppingList.length > 0 && (
+        <div style={{ marginTop: 20 }}>
+          <div className="sec-label">🛒 Lista de la compra (semanal)</div>
+          <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, overflow: 'hidden' }}>
+            <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--color-border)', display: 'grid', gridTemplateColumns: '1fr 80px', fontSize: 9, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              <span>Ingrediente</span><span style={{ textAlign: 'right' }}>Cantidad</span>
+            </div>
+            {shoppingList.map((item, i) => (
+              <div key={i} style={{ padding: '8px 14px', borderBottom: i < shoppingList.length - 1 ? '1px solid rgba(255,255,255,0.03)' : 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text)' }}>{item.name}</div>
+                  <div style={{ fontSize: 10, color: 'var(--color-dim)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.dishes}</div>
+                </div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-acc-green)', flexShrink: 0, textAlign: 'right', minWidth: 70 }}>
+                  {item.totalGrams >= 1000 ? (item.totalGrams / 1000).toFixed(1) + ' kg' : item.totalGrams + ' g'}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
