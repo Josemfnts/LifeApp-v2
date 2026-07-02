@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
-import { useFisicoStore } from '@/stores/fisicoStore'
+import { useFisicoStore, STATIC_EXERCISES, EXERCISE_GROUPS, EQUIPMENT_TYPES, EQUIPMENT_LABELS, EXERCISE_COLORS } from '@/stores/fisicoStore'
 import { Input } from '@/components/ui'
-import { EXERCISES_DB, EXERCISE_GROUPS, EXERCISE_COLORS } from '@/data/exercises'
 import { useToast } from '@/stores/toast'
 
 /* ── Timer Hook ── */
@@ -33,6 +32,14 @@ function StrengthTab() {
   const startSession = useFisicoStore(s => s.startSession)
   const addExerciseToSession = useFisicoStore(s => s.addExerciseToSession)
   const updateSet = useFisicoStore(s => s.updateSet)
+  const addSetToExercise = useFisicoStore(s => s.addSetToExercise)
+  const removeSet = useFisicoStore(s => s.removeSet)
+  const updateExercise = useFisicoStore(s => s.updateExercise)
+  const generateWarmupSets = useFisicoStore(s => s.generateWarmupSets)
+  const getLastExerciseData = useFisicoStore(s => s.getLastExerciseData)
+  const unit = useFisicoStore(s => s.unit)
+  const wakeLock = useFisicoStore(s => s.wakeLock)
+  const setWakeLock = useFisicoStore(s => s.setWakeLock)
   const finishSession = useFisicoStore(s => s.finishSession)
   const cancelSession = useFisicoStore(s => s.cancelSession)
   const deleteSession = useFisicoStore(s => s.deleteSession)
@@ -46,13 +53,13 @@ function StrengthTab() {
   const [rtnName, setRtnName] = useState('')
   const [builderExs, setBuilderExs] = useState<{ name: string; group: string; color: string; sets: number }[]>([])
   const [showExPicker, setShowExPicker] = useState(false)
+  const [restPreset, setRestPreset] = useState(90)
+  const [notes, setNotes] = useState('')
   const [cexName, setCexName] = useState('')
   const [cexGroup, setCexGroup] = useState('Pecho')
   const [selRoutine, setSelRoutine] = useState('')
-  const [restPreset, setRestPreset] = useState(90)
-  const [notes, setNotes] = useState('')
-
-  const allExercises = [...EXERCISES_DB, ...customExercises]
+  const [equipFilter, setEquipFilter] = useState('')
+  const allExercises = [...STATIC_EXERCISES, ...customExercises.map(e => ({ ...e, equipment: '' }))]
   const todayStr = new Date().toISOString().slice(0, 10)
   const todaySessions = sessions.filter(s => s.date === todayStr)
   const todayKg = todaySessions.reduce((s, x) => s + x.totalKg, 0)
@@ -138,93 +145,129 @@ function StrengthTab() {
           </div>
         ) : (
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-base font-bold text-[var(--color-text)]">{activeSession.name}</div>
-              <button onClick={() => { finishSession(); const prs = useFisicoStore.getState().checkPRs(); if (prs.length) toast.show(`🏆 ${prs.length} PRs batidos!`) }} className="px-4 py-2 rounded-xl bg-[#52b788]/10 text-[#52b788] border border-[#52b788]/20 text-[13px] font-semibold font-sans cursor-pointer">Finalizar ✓</button>
-            </div>
-
-            {activeSession.exercises.map((ex, ei) => (
-              <div key={ei} className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl overflow-hidden mb-2.5">
-                <div className="flex items-center gap-2.5 px-3.5 py-3 border-b border-[var(--color-border)]">
-                  <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: ex.color }} />
-                  <div className="flex-1 text-[15px] font-semibold text-[var(--color-text)]">{ex.name}</div>
-                  <div className="text-[10px] font-semibold text-[var(--color-dim)] uppercase tracking-wider">{ex.group}</div>
-                </div>
-
-                <div className="grid grid-cols-[28px_1fr_1fr_1fr_36px] gap-1.5 px-3.5 py-2 text-[10px] font-semibold text-[var(--color-dim)] uppercase tracking-wider border-b border-white/[0.03]">
-                  <div className="text-left">#</div><div>Peso</div><div>Reps</div><div>✓</div><div></div>
-                </div>
-
-                {ex.sets.map((set, si) => (
-                  <div key={si} className={`grid grid-cols-[28px_1fr_1fr_1fr_36px] gap-1.5 px-3.5 py-2 items-center border-b border-white/[0.03] last:border-b-0 ${set.done ? 'bg-[#52b788]/[0.04]' : ''}`}>
-                    <div className="text-[11px] font-bold text-[var(--color-dim)]">{si + 1}</div>
-                    <input
-                      type="number"
-                      value={set.weight || ''}
-                      onChange={e => updateSet(ei, si, { weight: parseFloat(e.target.value) || 0 })}
-                      className="w-full bg-[var(--color-s2)] border border-[var(--color-border)] text-[var(--color-text)] rounded-lg px-2 py-1.5 text-xs font-sans outline-none text-center"
-                      placeholder="kg"
-                    />
-                    <input
-                      type="number"
-                      value={set.reps || ''}
-                      onChange={e => updateSet(ei, si, { reps: parseInt(e.target.value) || 0 })}
-                      className="w-full bg-[var(--color-s2)] border border-[var(--color-border)] text-[var(--color-text)] rounded-lg px-2 py-1.5 text-xs font-sans outline-none text-center"
-                      placeholder="reps"
-                    />
-                    <button
-                      onClick={() => { updateSet(ei, si, { done: !set.done }); if (!set.done) startTimer(restPreset) }}
-                      className={`w-7 h-7 rounded-lg mx-auto flex items-center justify-center text-xs cursor-pointer border-[1.5px] ${
-                        set.done ? 'bg-[#166534] border-[#52b788] text-[#4ade80]' : 'border-[var(--color-border2)]'
-                      }`}
-                    >{set.done ? '✓' : ''}</button>
-                    <button onClick={() => {/* remove set */}} className="text-[var(--color-dim)] text-xs hover:text-red-400">✕</button>
-                  </div>
-                ))}
-
-                <div className="flex gap-2 px-3.5 py-2.5 border-t border-white/[0.03] bg-[var(--color-s2)]">
-                  <button onClick={() => {/* add set */}} className="text-xs text-[var(--color-sub)]">+ Añadir serie</button>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text)' }}>{activeSession.name}</div>
+                <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 2 }}>
+                  {activeSession.exercises.length} ejercicios · {unit.toUpperCase()}
                 </div>
               </div>
-            ))}
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button onClick={() => { setWakeLock(!wakeLock); toast.show(wakeLock ? 'Pantalla normal' : '✓ Pantalla siempre activa') }}
+                  style={{ padding: '8px 12px', borderRadius: 10, fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid', background: wakeLock ? 'rgba(82,183,136,0.12)' : 'var(--color-s2)', color: wakeLock ? 'var(--color-acc-green)' : 'var(--color-dim)', borderColor: wakeLock ? 'rgba(82,183,136,0.2)' : 'var(--color-border)' }}>
+                  {wakeLock ? '🔒 On' : '📱'}
+                </button>
+                <button onClick={() => { const prs = finishSession(); if (prs.length) toast.show(`🏆 ${prs.length} PRs!`) }}
+                  style={{ padding: '8px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: 'none', background: 'var(--color-acc-green)', color: '#fff' }}>
+                  Finalizar ✓
+                </button>
+              </div>
+            </div>
 
-            <button onClick={() => setShowExPicker(true)} className="w-full py-3.5 rounded-xl bg-[#e07a5f]/[0.08] text-[#e07a5f] border border-dashed border-[#e07a5f]/[0.25] text-sm font-semibold font-sans cursor-pointer mb-2">
+            {activeSession.exercises.map((ex, ei) => {
+              const lastData = getLastExerciseData(ex.name)
+              const doneSets = ex.sets.filter(s => s.done).length
+              return (
+                <div key={ei} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, overflow: 'hidden', marginBottom: 10 }}>
+                  {/* Exercise header */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderBottom: '1px solid var(--color-border)' }}>
+                    <div style={{ width: 8, height: 8, borderRadius: '50%', flexShrink: 0, background: ex.color }} />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-text)' }}>{ex.name}</div>
+                      <div style={{ fontSize: 10, color: 'var(--color-dim)', marginTop: 1 }}>{ex.group}{lastData ? ` · Última: ${lastData.weight}${unit} x ${lastData.reps}` : ''}</div>
+                    </div>
+                    {doneSets === ex.sets.length && ex.sets.length > 0 && <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-acc-green)' }}>✓</span>}
+                    <button onClick={() => { const ses = useFisicoStore.getState().activeSession; if (ses) useFisicoStore.setState({ activeSession: { ...ses, exercises: ses.exercises.filter((_, i) => i !== ei) } }) }}
+                      style={{ background: 'none', border: 'none', color: 'var(--color-dim)', cursor: 'pointer', fontSize: 14 }}>✕</button>
+                  </div>
+
+                  {/* Set type buttons */}
+                  <div style={{ display: 'flex', gap: 4, padding: '8px 14px', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                    {(['warmup','normal','dropset','failure'] as const).map(t => (
+                      <button key={t} onClick={() => addSetToExercise(ei, lastData?.weight || 0, lastData?.reps || 10)}
+                        style={{
+                          fontSize: 10, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer',
+                          padding: '3px 8px', borderRadius: 6, border: '1px solid var(--color-border)',
+                          background: 'var(--color-s2)', color: 'var(--color-dim)',
+                        }}>
+                        {{warmup:'🔥 Calent.',normal:'➕ Normal',dropset:'📉 Drop',failure:'💀 Fallo'}[t]}
+                      </button>
+                    ))}
+                    <div style={{ flex: 1 }} />
+                    <button onClick={() => {
+                      const w = prompt('Peso de trabajo (kg):', String(lastData?.weight || ''))
+                      if (w) generateWarmupSets(ei, parseFloat(w))
+                    }}
+                      style={{ fontSize: 10, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', padding: '3px 8px', borderRadius: 6, border: '1px solid rgba(201,168,76,0.2)', background: 'rgba(201,168,76,0.08)', color: 'var(--color-acc-gold)' }}>
+                      🧮 Calent. %
+                    </button>
+                  </div>
+
+                  {/* Sets */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '28px 1fr 1fr 40px 28px 28px', gap: 4, padding: '6px 14px', fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                    <div style={{ textAlign: 'left' }}>#</div><div>Peso</div><div>Reps</div><div>✓</div><div>Tipo</div><div></div>
+                  </div>
+                  {ex.sets.map((set, si) => (
+                    <div key={si} style={{ display: 'grid', gridTemplateColumns: '28px 1fr 1fr 40px 28px 28px', gap: 4, padding: '6px 14px', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.02)', background: set.done ? 'rgba(82,183,136,0.04)' : set.type === 'warmup' ? 'rgba(201,168,76,0.03)' : 'transparent' }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: set.type === 'warmup' ? '#c9a84c' : 'var(--color-dim)' }}>{set.setNumber}</div>
+                      <input type="number" value={set.weight || ''} onChange={e => updateSet(ei, si, { weight: parseFloat(e.target.value) || 0 })}
+                        style={{ width: '100%', background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-text)', borderRadius: 8, padding: '5px 4px', fontSize: 12, fontFamily: 'DM Sans,sans-serif', outline: 'none', textAlign: 'center' }}
+                        placeholder={unit} />
+                      <input type="number" value={set.reps || ''} onChange={e => updateSet(ei, si, { reps: parseInt(e.target.value) || 0 })}
+                        style={{ width: '100%', background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-text)', borderRadius: 8, padding: '5px 4px', fontSize: 12, fontFamily: 'DM Sans,sans-serif', outline: 'none', textAlign: 'center' }}
+                        placeholder="reps" />
+                      <button onClick={() => { updateSet(ei, si, { done: !set.done }); if (!set.done && ex.restSeconds) startTimer(ex.restSeconds, ei) }}
+                        style={{ width: 28, height: 28, borderRadius: 8, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, cursor: 'pointer', background: set.done ? '#166534' : 'transparent', border: `1.5px solid ${set.done ? '#52b788' : 'var(--color-border2)'}`, color: set.done ? '#4ade80' : 'transparent' }}>
+                        {set.done ? '✓' : ''}
+                      </button>
+                      <div style={{ fontSize: 9, color: set.type === 'warmup' ? '#c9a84c' : set.type === 'dropset' ? '#e07a5f' : set.type === 'failure' ? '#e05f5f' : 'var(--color-dim)', textAlign: 'center' }}>
+                        {set.type === 'warmup' ? '🔥' : set.type === 'dropset' ? '📉' : set.type === 'failure' ? '💀' : '—'}
+                      </div>
+                      <button onClick={() => removeSet(ei, si)} style={{ background: 'none', border: 'none', color: 'var(--color-dim)', cursor: 'pointer', fontSize: 12, textAlign: 'center' }}>✕</button>
+                    </div>
+                  ))}
+
+                  {/* Exercise footer: rest timer, notes */}
+                  <div style={{ display: 'flex', gap: 8, padding: '8px 14px', borderTop: '1px solid rgba(255,255,255,0.03)', background: 'var(--color-s2)', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span style={{ fontSize: 10, color: 'var(--color-dim)' }}>⏱</span>
+                      <select value={ex.restSeconds || 90} onChange={e => updateExercise(ei, { restSeconds: parseInt(e.target.value) })}
+                        style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', color: 'var(--color-sub)', borderRadius: 6, padding: '3px 6px', fontSize: 10, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>
+                        {[30, 60, 90, 120, 180].map(s => <option key={s} value={s}>{s}s</option>)}
+                      </select>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span style={{ fontSize: 10, color: 'var(--color-dim)' }}>🏋️</span>
+                      <button onClick={() => {
+                        const w = ex.sets.find(s => s.done)?.weight
+                        if (!w) { toast.show('Completa una serie primero'); return }
+                        const unit2 = useFisicoStore.getState().unit === 'kg' ? [25,20,15,10,5,2.5,1.25] : [45,35,25,10,5,2.5]
+                        const barWeight = useFisicoStore.getState().unit === 'kg' ? 20 : 45
+                        const perSide = (w - barWeight) / 2
+                        let remaining = perSide; const result: number[] = []
+                        for (const p of unit2) { while (remaining >= p) { result.push(p); remaining = Math.round((remaining - p) * 100) / 100 } }
+                        toast.show(`Barra: ${perSide.toFixed(1)}${unit}/lado → ${result.map(p => p + unit).join(' + ')}`)
+                      }}
+                        style={{ fontSize: 9, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', padding: '2px 6px', borderRadius: 4, border: '1px solid rgba(91,138,240,0.2)', background: 'rgba(91,138,240,0.08)', color: 'var(--color-blue)' }}>
+                        Discos
+                      </button>
+                    </div>
+                    <input className="inp" value={ex.notes || ''} onChange={e => updateExercise(ei, { notes: e.target.value })} placeholder="Nota..." style={{ flex: 1, marginBottom: 0, padding: '4px 8px', fontSize: 11 }} />
+                  </div>
+                </div>
+              )
+            })}
+
+            <button onClick={() => setShowExPicker(true)} style={{ width: '100%', padding: 14, borderRadius: 14, background: 'rgba(224,122,95,0.08)', color: 'var(--color-acc-orange)', border: '1px dashed rgba(224,122,95,0.25)', fontSize: 14, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', marginBottom: 8 }}>
               + Añadir ejercicio
             </button>
 
-            {/* Set templates */}
-            {(() => {
-              const { setTemplates } = useFisicoStore.getState()
-              if (setTemplates.length === 0) return null
-              return (
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
-                  <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', width: '100%', marginBottom: 2 }}>Plantillas:</span>
-                  {setTemplates.map((t, i) => (
-                    <button key={i} onClick={() => {
-                      if (activeSession) {
-                        const ex = activeSession.exercises[activeSession.exercises.length - 1]
-                        if (ex) {
-                          const newSets = Array.from({ length: t.sets }, (_, j) => ({ setNumber: j + 1, weight: 0, reps: t.reps, done: false }))
-                          useFisicoStore.setState({ activeSession: { ...activeSession, exercises: activeSession.exercises.map((e, ei) => ei === activeSession.exercises.length - 1 ? { ...e, sets: [...e.sets, ...newSets] } : e) } })
-                        }
-                      }
-                    }}
-                      style={{ padding: '4px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid rgba(224,122,95,0.2)', background: 'rgba(224,122,95,0.08)', color: '#e07a5f' }}>
-                      {t.name}: {t.sets}x{t.reps}
-                    </button>
-                  ))}
-                </div>
-              )
-            })()}
+            <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Notas de la sesión..."
+              style={{ width: '100%', background: 'var(--color-s1)', border: '1px solid var(--color-border)', color: 'var(--color-text)', borderRadius: 12, padding: 12, fontSize: 13, fontFamily: 'DM Sans,sans-serif', resize: 'none', height: 64, outline: 'none', marginBottom: 8 }} />
 
-            <textarea
-              value={notes}
-              onChange={e => setNotes(e.target.value)}
-              placeholder="Notas de la sesión (sensaciones, PR, lesiones...)"
-              className="w-full bg-[var(--color-s1)] border border-[var(--color-border)] text-[var(--color-text)] rounded-xl p-3 text-[13px] font-sans resize-none h-[72px] outline-none mb-2"
-            />
-
-            <button onClick={cancelSession} className="w-full py-2.5 rounded-xl bg-red-500/[0.1] text-[var(--color-red)] border border-red-500/[0.15] text-sm font-semibold font-sans cursor-pointer">Cancelar sesión</button>
+            <button onClick={cancelSession} style={{ width: '100%', padding: 12, borderRadius: 12, background: 'rgba(224,95,95,0.08)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.15)', fontSize: 14, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>
+              Cancelar sesión
+            </button>
           </div>
         )}
 
@@ -236,7 +279,6 @@ function StrengthTab() {
               <div className="px-4 pt-2 pb-3 font-serif text-xl text-[var(--color-text)]">Añadir ejercicio</div>
               <div style={{ padding: '0 16px 8px' }}>
                 <input className="inp" placeholder="🔍 Buscar ejercicio..." onChange={(e) => {
-                  // Simple client-side filter
                   const val = e.target.value.toLowerCase()
                   const items = document.querySelectorAll('[data-ex-name]')
                   items.forEach(el => {
@@ -244,20 +286,31 @@ function StrengthTab() {
                     ;(el as HTMLElement).style.display = val ? (name.includes(val) ? '' : 'none') : ''
                   })
                 }} />
-              </div>
-              {EXERCISE_GROUPS.map(group => (
-                <div key={group}>
-                  <div className="px-4 py-2 text-[10px] font-bold text-[var(--color-dim)] uppercase tracking-[0.8px] bg-[var(--color-s1)] sticky top-0 z-10">{group}</div>
-                  {allExercises.filter(e => e.group === group).map(ex => (
-                    <div key={ex.name} onClick={() => { addExerciseToSession({ name: ex.name, group: ex.group, color: EXERCISE_COLORS[ex.group] || '#e07a5f', sets: 3 }); setShowExPicker(false) }}
-                      data-ex-name={ex.name}
-                      className="flex items-center gap-3 px-4 py-3 border-b border-white/[0.03] cursor-pointer active:bg-[var(--color-s2)]">
-                      <div className="w-2 h-2 rounded-full" style={{ background: EXERCISE_COLORS[ex.group] || '#e07a5f' }} />
-                      <span className="flex-1 text-sm font-medium text-[var(--color-text)]">{ex.name}</span>
-                    </div>
+                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 6 }}>
+                  <button onClick={() => setEquipFilter('')} style={{ padding: '4px 10px', borderRadius: 99, fontSize: 10, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid', background: !equipFilter ? 'rgba(224,122,95,0.12)' : 'var(--color-s2)', color: !equipFilter ? 'var(--color-acc-orange)' : 'var(--color-dim)', borderColor: !equipFilter ? 'rgba(224,122,95,0.3)' : 'var(--color-border)' }}>Todo</button>
+                  {EQUIPMENT_TYPES.map(eq => (
+                    <button key={eq} onClick={() => setEquipFilter(eq)} style={{ padding: '4px 10px', borderRadius: 99, fontSize: 10, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid', background: equipFilter === eq ? 'rgba(224,122,95,0.12)' : 'var(--color-s2)', color: equipFilter === eq ? 'var(--color-acc-orange)' : 'var(--color-dim)', borderColor: equipFilter === eq ? 'rgba(224,122,95,0.3)' : 'var(--color-border)' }}>{EQUIPMENT_LABELS[eq]}</button>
                   ))}
                 </div>
-              ))}
+              </div>
+              {EXERCISE_GROUPS.map(group => {
+                const filtered = allExercises.filter(e => e.group === group && (!equipFilter || e.equipment === equipFilter))
+                if (!filtered.length) return null
+                return (
+                  <div key={group}>
+                    <div style={{ padding: '10px 16px 4px', fontSize: 10, fontWeight: 700, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.8px', background: 'var(--color-s1)', position: 'sticky', top: 0, zIndex: 1 }}>{group}</div>
+                    {filtered.map(ex => (
+                      <div key={ex.name} onClick={() => { addExerciseToSession({ name: ex.name, group: ex.group, color: EXERCISE_COLORS[ex.group] || '#e07a5f', sets: 3 }); setShowExPicker(false) }}
+                        data-ex-name={ex.name}
+                        style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.03)', cursor: 'pointer', transition: 'background 0.12s' }}>
+                        <div style={{ width: 8, height: 8, borderRadius: '50%', flexShrink: 0, background: EXERCISE_COLORS[ex.group] || '#e07a5f' }} />
+                        <span style={{ flex: 1, fontSize: 14, fontWeight: 500, color: 'var(--color-text)' }}>{ex.name}</span>
+                        {ex.equipment && <span style={{ fontSize: 10, color: 'var(--color-dim)', background: 'var(--color-s2)', borderRadius: 4, padding: '1px 6px' }}>{EQUIPMENT_LABELS[ex.equipment]}</span>}
+                      </div>
+                    ))}
+                  </div>
+                )
+              })}
               <div className="px-4 pt-3">
                 <button onClick={() => setShowExPicker(false)} className="w-full py-3 rounded-xl bg-[var(--color-s2)] text-[var(--color-sub)] border border-[var(--color-border)] text-sm font-semibold font-sans cursor-pointer">Cancelar</button>
               </div>
