@@ -440,8 +440,7 @@ function ShiftsView() {
   const { shifts, setShift } = useAgendaStore()
   const toast = useToast()
   const [viewDate, setViewDate] = useState(new Date())
-  const [bulkFrom, setBulkFrom] = useState('')
-  const [bulkTo, setBulkTo] = useState('')
+  const [editMode, setEditMode] = useState(false)
 
   const y = viewDate.getFullYear(); const m = viewDate.getMonth()
   const firstDow = new Date(y, m, 1).getDay()
@@ -449,11 +448,40 @@ function ShiftsView() {
   const start = firstDow === 0 ? 6 : firstDow - 1
   const today = new Date().toISOString().slice(0, 10)
 
-  function handleBulk(t: string) { if (!bulkFrom || !bulkTo) return; const f = new Date(bulkFrom + 'T00:00:00'); const t2 = new Date(bulkTo + 'T00:00:00'); for (let d = new Date(f); d <= t2; d.setDate(d.getDate() + 1)) setShift(d.toISOString().slice(0, 10), t); toast.show(`Turnos ${t} asignados`) }
+  const CYCLE: (string | null)[] = ['TM', 'TT', 'TN', 'L', null]
+
+  function handleTap(dStr: string) {
+    if (!editMode) return
+    const current = shifts[dStr]
+    const idx = CYCLE.indexOf(current ?? null)
+    const next = CYCLE[(idx + 1) % CYCLE.length]
+    if (next) setShift(dStr, next)
+    else { const s = { ...shifts }; delete s[dStr]; useAgendaStore.setState({ shifts: s }); localStorage.setItem('agenda_shifts', JSON.stringify(s)) }
+  }
 
   return (
     <div>
-      <div className="sec-label">Asignar turno rápido</div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <div className="sec-label" style={{ marginBottom: 0 }}>Turnos</div>
+        <button onClick={() => { setEditMode(!editMode); toast.show(editMode ? 'Edición desactivada' : '✏️ Modo edición: toca un día para cambiar turno') }}
+          style={{ padding: '8px 14px', borderRadius: 10, fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid',
+            background: editMode ? 'rgba(91,138,240,0.15)' : 'var(--color-s2)',
+            color: editMode ? 'var(--color-acc-blue)' : 'var(--color-dim)',
+            borderColor: editMode ? 'rgba(91,138,240,0.3)' : 'var(--color-border)' }}>
+          ✏️ {editMode ? 'Editando' : 'Editar'}
+        </button>
+      </div>
+
+      {editMode && (
+        <div style={{ background: 'rgba(91,138,240,0.06)', border: '1px solid rgba(91,138,240,0.15)', borderRadius: 10, padding: '8px 12px', marginBottom: 12, fontSize: 11, color: 'var(--color-sub)', display: 'flex', gap: 12, justifyContent: 'center' }}>
+          <span>1 toque → <b style={{ color: '#5b8af0' }}>TM</b></span>
+          <span>2 toques → <b style={{ color: '#c9a84c' }}>TT</b></span>
+          <span>3 toques → <b style={{ color: '#9b7fe0' }}>TN</b></span>
+          <span>4 toques → <b style={{ color: '#52b788' }}>L</b></span>
+          <span>5 toques → sin turno</span>
+        </div>
+      )}
+
       <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 14 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <button onClick={() => setViewDate(p => new Date(p.getFullYear(), p.getMonth() - 1, 1))} style={{ width: 34, height: 34, borderRadius: 10, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-sub)', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>‹</button>
@@ -469,34 +497,26 @@ function ShiftsView() {
             const d = i + 1
             const dStr = new Date(y, m, d, 12).toISOString().slice(0, 10)
             const s = shifts[dStr]
-            return s ? (
-              <div key={d} style={{ aspectRatio: '1', borderRadius: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, background: (SHIFT_COLORS[s] || '#333') + '22', color: SHIFT_COLORS[s], border: `1px solid ${(SHIFT_COLORS[s] || '#333') + '44'}`, cursor: 'pointer' }} onClick={() => { const ns = prompt('Turno (TM, TT, TN, L):'); if (ns && ['TM','TT','TN','L'].includes(ns.toUpperCase())) { setShift(dStr, ns.toUpperCase()); toast.show('✓ Turno actualizado') } }}>
-                <span>{d}</span><span style={{ fontSize: 9, marginTop: 1 }}>{s}</span>
-              </div>
-            ) : (
-              <div key={d} onClick={() => { const ns = prompt('Turno (TM, TT, TN, L):'); if (ns && ['TM','TT','TN','L'].includes(ns.toUpperCase())) { setShift(dStr, ns.toUpperCase()); toast.show('✓ Turno asignado') } }}
-                style={{ aspectRatio: '1', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, cursor: 'pointer', background: dStr === today ? '#5b8af022' : 'var(--color-s2)', border: dStr === today ? '1px solid rgba(91,138,240,0.3)' : '1px solid var(--color-border)', color: dStr === today ? 'var(--color-acc-blue)' : 'var(--color-dim)' }}>{d}</div>
+            return (
+              <button key={d} onClick={() => handleTap(dStr)}
+                style={{
+                  aspectRatio: '1', width: '100%', borderRadius: 10, border: dStr === today ? '2px solid rgba(255,255,255,0.2)' : '1px solid var(--color-border)',
+                  background: s ? (SHIFT_COLORS[s] || '#333') + '22' : 'var(--color-s2)',
+                  cursor: editMode ? 'pointer' : 'default',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 13, fontWeight: dStr === today ? 700 : 500,
+                  color: s ? SHIFT_COLORS[s] : 'var(--color-dim)',
+                  transition: 'all 0.12s',
+                  fontFamily: 'DM Sans,sans-serif',
+                }}>
+                <span style={{ lineHeight: 1 }}>{d}</span>
+                {s && <span style={{ fontSize: 10, fontWeight: 700, lineHeight: 1, marginTop: 2 }}>{s}</span>}
+              </button>
             )
           })}
         </div>
       </div>
 
-      <div className="sec-label">Asignar bloque</div>
-      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 14 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-          <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', width: 32 }}>DE</span>
-          <input className="inp" value={bulkFrom} onChange={e => setBulkFrom(e.target.value)} type="date" style={{ flex: 1, marginBottom: 0 }} />
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-          <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', width: 32 }}>A</span>
-          <input className="inp" value={bulkTo} onChange={e => setBulkTo(e.target.value)} type="date" style={{ flex: 1, marginBottom: 0 }} />
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 6 }}>
-          {(['TM','TT','TN','L'] as const).map(t => (
-            <button key={t} onClick={() => handleBulk(t)} style={{ padding: '10px 4px', borderRadius: 10, fontSize: 13, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid', background: (SHIFT_COLORS[t] || '#333') + '1a', color: SHIFT_COLORS[t], borderColor: (SHIFT_COLORS[t] || '#333') + '33' }}>{t}</button>
-          ))}
-        </div>
-      </div>
       <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14 }}>
         <div className="sec-label" style={{ marginBottom: 10 }}>Leyenda</div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
