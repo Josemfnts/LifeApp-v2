@@ -834,7 +834,11 @@ function ToolsTab() {
           if (cin) extra.cintura = parseFloat(cin)
           if (pecho) extra.pecho = parseFloat(pecho)
           if (brazo) extra.brazo = parseFloat(brazo)
-          if (Object.keys(extra).length) localStorage.setItem('nutri_medidas', JSON.stringify([...JSON.parse(localStorage.getItem('nutri_medidas') || '[]'), { date: todayISO(), ...extra }]))
+          if (Object.keys(extra).length) {
+            const medidas = [...JSON.parse(localStorage.getItem('nutri_medidas') || '[]'), { date: todayISO(), ...extra }]
+            localStorage.setItem('nutri_medidas', JSON.stringify(medidas))
+            import('@/lib/sync').then(m => m.saveToCloud('nutri_medidas', medidas))
+          }
           toast.show('✓ Medidas guardadas'); setW(''); setFat(''); setMuscle('')
         }}
           className="btn-ghost" style={{ border: '1px solid rgba(82,183,136,0.2)', color: 'var(--color-acc-green)', background: 'rgba(82,183,136,0.1)' }}>
