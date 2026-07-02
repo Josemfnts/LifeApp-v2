@@ -60,35 +60,13 @@ function DiaryTab() {
   const [c, setC] = useState('')
   const [f, setF] = useState('')
   const [grams, setGrams] = useState('100')
-  const [portion, setPortion] = useState('g')
   const [retroDate, setRetroDate] = useState(today)
   const [showCopy, setShowCopy] = useState(false)
   const [copyDate, setCopyDate] = useState('')
   const [copyMeal, setCopyMeal] = useState('Comida')
 
-  // Streak
-  const streakDays = (() => {
-    let s = 0; const d = new Date()
-    for (let i = 0; i < 365; i++) {
-      const ds = d.toISOString().slice(0, 10)
-      const foods = log[ds] || []
-      if (foods.length > 0) s++; else if (i > 0) break
-      d.setDate(d.getDate() - 1)
-    }
-    return s
-  })()
-
-  function handleAdd() {
-    const k = parseFloat(kcal)
-    if (!name.trim() || !k || k <= 0) { toast.show('Nombre y kcal obligatorios'); return }
-    addFood(retroDate, {
-      name: name.trim(), kcal: k,
-      p: parseFloat(p) || 0, c: parseFloat(c) || 0, f: parseFloat(f) || 0,
-      grams: parseFloat(grams) || 100, meal
-    })
-    toast.show(`✓ ${name.trim()} (${k}kcal)`)
-    setName(''); setKcal(''); setP(''); setC(''); setF(''); setGrams('100')
-  }
+  const streakDays = (() => { let s = 0; const d = new Date(); for (let i = 0; i < 365; i++) { const ds = d.toISOString().slice(0, 10); if ((log[ds] || []).length > 0) s++; else if (i > 0) break; d.setDate(d.getDate() - 1) } return s })()
+  const [portion, setPortion] = useState('g')
 
   function handleCopyDay() {
     if (!copyDate) return
@@ -100,11 +78,27 @@ function DiaryTab() {
     setShowCopy(false)
   }
 
+  function handleAdd() {
+    const k = parseFloat(kcal)
+    if (!name.trim() || !k || k <= 0) { toast.show('Nombre y kcal obligatorios'); return }
+    addFood(retroDate, { name: name.trim(), kcal: k, p: parseFloat(p) || 0, c: parseFloat(c) || 0, f: parseFloat(f) || 0, grams: parseFloat(grams) || 100, meal })
+    toast.show(`✓ ${name.trim()} (${k}kcal)`)
+    setName(''); setKcal(''); setP(''); setC(''); setF(''); setGrams('100')
+  }
+
   const mealGroups = MEAL_TYPES.filter(m => todayFoods.some(f => f.meal === m))
     .map(m => ({ meal: m, foods: todayFoods.filter(f => f.meal === m) }))
 
   return (
     <div>
+      {streakDays > 0 && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+          <span style={{ fontSize: 16 }}>🔥</span>
+          <span style={{ fontFamily: 'DM Serif Display,serif', fontSize: 16, color: '#c9a84c' }}>{streakDays}</span>
+          <span style={{ fontSize: 11, color: 'var(--color-dim)', fontWeight: 600 }}>días de racha</span>
+        </div>
+      )}
+
       {/* Agua */}
       <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
         <div className="sec-label" style={{ marginBottom: 8 }}>💧 Agua</div>
@@ -247,7 +241,6 @@ function DiaryTab() {
           <input className="inp" value={c} onChange={e => setC(e.target.value)} type="number" placeholder="Carb." style={{ marginBottom: 0 }} />
           <input className="inp" value={f} onChange={e => setF(e.target.value)} type="number" placeholder="Grasa" style={{ marginBottom: 0 }} />
         </div>
-        <Input value={grams} onChange={setGrams} type="number" placeholder="Gramos (default 100g)" className="mb-2" />
         <button onClick={handleAdd} className="btn-primary" style={{ background: 'var(--color-acc-green)', boxShadow: '0 2px 12px rgba(82,183,136,0.25)' }}>Añadir al diario</button>
       </div>
 
@@ -280,6 +273,33 @@ function DiaryTab() {
         </div>
       )
     })()}
+
+    {/* Nutritional calendar */}
+      {(() => {
+        const now = new Date(); const y = now.getFullYear(); const m = now.getMonth()
+        const dim = new Date(y, m + 1, 0).getDate()
+        const fdow = new Date(y, m, 1).getDay(); const start = fdow === 0 ? 6 : fdow - 1
+        return (
+          <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-sub)', letterSpacing: '0.3px', marginBottom: 10 }}>📅 Calendario de registros</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 2 }}>
+              {['L','M','X','J','V','S','D'].map(d => <div key={d} style={{ textAlign: 'center', fontSize: 8, fontWeight: 600, color: 'var(--color-dim)', padding: '2px 0' }}>{d}</div>)}
+              {Array.from({ length: start }, (_, i) => <div key={`e${i}`} style={{ aspectRatio: '1' }} />)}
+              {Array.from({ length: dim }, (_, i) => {
+                const d = i + 1
+                const ds = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+                const dayKcal = (log[ds] || []).reduce((s: number, f: { kcal: number }) => s + f.kcal, 0)
+                const pct = dayKcal > 0 ? Math.min(dayKcal / goals.kcal, 1) : 0
+                return (
+                  <div key={d} style={{ aspectRatio: '1', borderRadius: 4, background: pct > 0 ? `rgba(82,183,136,${Math.min(1, pct * 1.2)})` : 'rgba(255,255,255,0.03)', border: ds === today ? '1px solid rgba(255,255,255,0.3)' : '1px solid transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: ds === today ? 700 : 400, color: pct > 0.6 ? '#fff' : 'var(--color-dim)' }}>
+                    {d}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )
+      })()}
 
     {/* Food log by meal */}
       <div className="card">
