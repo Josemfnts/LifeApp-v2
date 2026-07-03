@@ -118,13 +118,13 @@ function WeekView() {
 
   // Pending section
   const [pText, setPText] = useState('')
-  const [pColor, setPColor] = useState('blue')
+  const pColor = 'blue'
   const [pPriority, setPPriority] = useState('')
 
   // Recurring section
   const [rText, setRText] = useState('')
   const [rDay, setRDay] = useState('1')
-  const [rColor, setRColor] = useState('blue')
+  const rColor = 'blue'
   const [rTime, setRTime] = useState('')
   const [subTab, setSubTab] = useState<'pending' | 'recurring'>('pending')
 
@@ -139,33 +139,27 @@ function WeekView() {
   return (
     <div>
       {/* Search */}
-      <Input value={search} onChange={setSearch} placeholder="🔍 Buscar en pendientes..." className="mb-3" />
+      <Input value={search} onChange={setSearch} placeholder="Buscar en pendientes" className="mb-4" />
 
       {/* Sub tabs */}
-      <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
-        <button onClick={() => setSubTab('pending')} style={{ flex: 1, padding: '9px 4px', borderRadius: 10, fontSize: 12, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid', background: subTab === 'pending' ? 'rgba(91,138,240,0.15)' : 'transparent', color: subTab === 'pending' ? 'var(--color-acc-blue)' : 'var(--color-dim)', borderColor: subTab === 'pending' ? 'rgba(91,138,240,0.3)' : 'var(--color-border)' }}>✅ Pendientes ({filteredPending.length})</button>
-        <button onClick={() => setSubTab('recurring')} style={{ flex: 1, padding: '9px 4px', borderRadius: 10, fontSize: 12, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid', background: subTab === 'recurring' ? 'rgba(91,138,240,0.15)' : 'transparent', color: subTab === 'recurring' ? 'var(--color-acc-blue)' : 'var(--color-dim)', borderColor: subTab === 'recurring' ? 'rgba(91,138,240,0.3)' : 'var(--color-border)' }}>🔄 Fijas</button>
+      <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
+        <button onClick={() => setSubTab('pending')} style={{ flex: 1, padding: '10px 4px', borderRadius: 10, fontSize: 12, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid', background: subTab === 'pending' ? 'color-mix(in srgb, var(--color-acc-blue) 14%, transparent)' : 'transparent', color: subTab === 'pending' ? 'var(--color-acc-blue)' : 'var(--color-dim)', borderColor: subTab === 'pending' ? 'color-mix(in srgb, var(--color-acc-blue) 30%, transparent)' : 'var(--color-border)' }}>Pendientes ({filteredPending.length})</button>
+        <button onClick={() => setSubTab('recurring')} style={{ flex: 1, padding: '10px 4px', borderRadius: 10, fontSize: 12, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid', background: subTab === 'recurring' ? 'color-mix(in srgb, var(--color-acc-blue) 14%, transparent)' : 'transparent', color: subTab === 'recurring' ? 'var(--color-acc-blue)' : 'var(--color-dim)', borderColor: subTab === 'recurring' ? 'color-mix(in srgb, var(--color-acc-blue) 30%, transparent)' : 'var(--color-border)' }}>Fijas</button>
       </div>
 
       {subTab === 'pending' && (
         <>
           <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
             <div className="sec-label" style={{ marginBottom: 10 }}>Nueva tarea pendiente</div>
-            <Input value={pText} onChange={setPText} placeholder="¿Qué tienes que hacer?" className="mb-2" />
-            <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
-              {Object.entries(COLOR_HEX).map(([k, h]) => (
-                <button key={k} onClick={() => setPColor(k)} style={{ width: 28, height: 28, borderRadius: '50%', border: pColor === k ? '2.5px solid var(--color-text)' : '2.5px solid transparent', background: h, cursor: 'pointer', transition: 'all 0.12s' }} />
+            <Input value={pText} onChange={setPText} placeholder="¿Qué tienes que hacer?" className="mb-3" />
+            <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+              {[{ v: 'high', l: 'Alta' }, { v: 'medium', l: 'Media' }, { v: 'low', l: 'Baja' }].map(p => (
+                <button key={p.v} onClick={() => setPPriority(pPriority === p.v ? '' : p.v)} style={{ flex: 1, padding: '8px 4px', borderRadius: 9, fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid', background: pPriority === p.v ? PRIORITY_COLORS[p.v] + '22' : 'var(--color-s2)', color: pPriority === p.v ? PRIORITY_COLORS[p.v] : 'var(--color-dim)', borderColor: pPriority === p.v ? PRIORITY_COLORS[p.v] + '44' : 'var(--color-border)' }}>{p.l}</button>
               ))}
-            </div>
-            <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
-              {[{ v: 'high', l: '🔴 Alta' }, { v: 'medium', l: '🟡 Media' }, { v: 'low', l: '🟢 Baja' }].map(p => (
-                <button key={p.v} onClick={() => setPPriority(p.v)} style={{ flex: 1, padding: '6px 4px', borderRadius: 8, fontSize: 11, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid', background: pPriority === p.v ? PRIORITY_COLORS[p.v] + '22' : 'var(--color-s2)', color: pPriority === p.v ? PRIORITY_COLORS[p.v] : 'var(--color-dim)', borderColor: pPriority === p.v ? PRIORITY_COLORS[p.v] + '44' : 'var(--color-border)' }}>{p.l}</button>
-              ))}
-              <button onClick={() => setPPriority('')} style={{ padding: '6px 8px', borderRadius: 8, fontSize: 11, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid', background: !pPriority ? 'rgba(91,138,240,0.1)' : 'var(--color-s2)', color: !pPriority ? 'var(--color-acc-blue)' : 'var(--color-dim)', borderColor: !pPriority ? 'rgba(91,138,240,0.2)' : 'var(--color-border)' }}>—</button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-              <button onClick={handleAddPending} className="btn-ghost" style={{ fontSize: 13 }}>📋 Dejar pendiente</button>
-              <button onClick={() => { if (!pText.trim()) return; addTask(new Date().toISOString().slice(0, 10), { text: pText.trim(), time: '', color: pColor, done: false, priority: pPriority || undefined }); setPText(''); toast.show('✓ Tarea añadida a hoy') }} className="btn-primary" style={{ fontSize: 13 }}>📅 Añadir a hoy</button>
+              <button onClick={handleAddPending} className="btn-ghost" style={{ fontSize: 13 }}>Dejar pendiente</button>
+              <button onClick={() => { if (!pText.trim()) return; addTask(new Date().toISOString().slice(0, 10), { text: pText.trim(), time: '', color: pColor, done: false, priority: pPriority || undefined }); setPText(''); toast.show('✓ Tarea añadida a hoy') }} className="btn-primary" style={{ fontSize: 13 }}>Añadir a hoy</button>
             </div>
           </div>
 
@@ -210,9 +204,8 @@ function WeekView() {
           <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
             <div className="sec-label" style={{ marginBottom: 10 }}>Nueva tarea fija</div>
             <Input value={rText} onChange={setRText} placeholder="Tarea fija..." className="mb-2" />
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
               <select className="inp" value={rDay} onChange={e => setRDay(e.target.value)} style={{ marginBottom: 0 }}>{DAYS.map((d, i) => <option key={i} value={i}>{d}</option>)}</select>
-              <select className="inp" value={rColor} onChange={e => setRColor(e.target.value)} style={{ marginBottom: 0 }}>{Object.keys(COLOR_HEX).map(k => <option key={k} value={k}>{k}</option>)}</select>
               <input className="inp" value={rTime} onChange={e => setRTime(e.target.value)} type="time" placeholder="Hora" style={{ marginBottom: 0 }} />
             </div>
             <button onClick={handleAddRecurring} className="btn-ghost">+ Añadir tarea fija</button>
@@ -253,7 +246,7 @@ function DayView({ date }: { date: Date }) {
   const [showForm, setShowForm] = useState(false)
   const [newText, setNewText] = useState('')
   const [newTime, setNewTime] = useState('')
-  const [newColor, setNewColor] = useState('blue')
+  const newColor = 'blue'
   const [newPriority, setNewPriority] = useState('')
   const [newSubtasks, setNewSubtasks] = useState<string[]>([])
   const [subInput, setSubInput] = useState('')
@@ -342,12 +335,9 @@ function DayView({ date }: { date: Date }) {
       ) : (
         <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 14, marginBottom: 12 }}>
           <Input value={newText} onChange={setNewText} placeholder="¿Qué tienes que hacer?" className="mb-2" />
-          <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-            <input className="inp" value={newTime} onChange={e => setNewTime(e.target.value)} type="time" style={{ width: 96, marginBottom: 0 }} />
-            <select className="inp" value={newColor} onChange={e => setNewColor(e.target.value)} style={{ flex: 1, marginBottom: 0 }}>{Object.keys(COLOR_HEX).map(k => <option key={k} value={k}>{k}</option>)}</select>
-          </div>
+          <input className="inp" value={newTime} onChange={e => setNewTime(e.target.value)} type="time" style={{ marginBottom: 8 }} />
           <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
-            {[{ v: 'high', l: '🔴 Alta' }, { v: 'medium', l: '🟡 Media' }, { v: 'low', l: '🟢 Baja' }].map(p => (
+            {[{ v: 'high', l: 'Alta' }, { v: 'medium', l: 'Media' }, { v: 'low', l: 'Baja' }].map(p => (
               <button key={p.v} onClick={() => setNewPriority(p.v)} style={{ flex: 1, padding: '5px 4px', borderRadius: 6, fontSize: 10, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid', background: newPriority === p.v ? PRIORITY_COLORS[p.v] + '22' : 'var(--color-s2)', color: newPriority === p.v ? PRIORITY_COLORS[p.v] : 'var(--color-dim)', borderColor: newPriority === p.v ? PRIORITY_COLORS[p.v] + '44' : 'var(--color-border)' }}>{p.l}</button>
             ))}
           </div>

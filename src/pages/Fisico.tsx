@@ -72,9 +72,9 @@ function StrengthTab() {
           style={{
             flex: 1, padding: '9px 4px', borderRadius: 10, fontSize: 12, fontWeight: 700,
             fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid', whiteSpace: 'nowrap',
-            background: sub === k ? '#e07a5f26' : 'transparent',
-            color: sub === k ? '#e07a5f' : 'var(--color-dim)',
-            borderColor: sub === k ? '#e07a5f4d' : 'var(--color-border)',
+            background: sub === k ? 'var(--color-acc-orange)26' : 'transparent',
+            color: sub === k ? 'var(--color-acc-orange)' : 'var(--color-dim)',
+            borderColor: sub === k ? 'var(--color-acc-orange)4d' : 'var(--color-border)',
             transition: 'all 0.15s',
           }}
         >{{today:'Hoy',history:'Historial',routines:'Rutinas',library:'Ejercicios',progress:'Progreso'}[k]}</button>
@@ -89,30 +89,30 @@ function StrengthTab() {
         {subBar}
         <div className="grid grid-cols-3 gap-2 mb-3">
           <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-3.5 text-center relative overflow-hidden">
-            <div className="absolute top-0 left-[10%] right-[10%] h-0.5 rounded-b-sm bg-[#e07a5f]" />
-            <div className="font-serif text-[26px] text-[#e07a5f] leading-none">{todayKg}</div>
+            <div className="absolute top-0 left-[10%] right-[10%] h-0.5 rounded-b-sm bg-[var(--color-acc-orange)]" />
+            <div className="font-serif text-[26px] text-[var(--color-acc-orange)] leading-none">{todayKg}</div>
             <div className="text-[10px] font-semibold text-[var(--color-dim)] uppercase tracking-wide mt-1">kg totales</div>
           </div>
           <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-3.5 text-center relative overflow-hidden">
-            <div className="absolute top-0 left-[10%] right-[10%] h-0.5 rounded-b-sm bg-[#5b8af0]" />
-            <div className="font-serif text-[26px] text-[#5b8af0] leading-none">{todaySets}</div>
+            <div className="absolute top-0 left-[10%] right-[10%] h-0.5 rounded-b-sm bg-[var(--color-acc-blue)]" />
+            <div className="font-serif text-[26px] text-[var(--color-acc-blue)] leading-none">{todaySets}</div>
             <div className="text-[10px] font-semibold text-[var(--color-dim)] uppercase tracking-wide mt-1">series</div>
           </div>
           <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-3.5 text-center relative overflow-hidden">
-            <div className="absolute top-0 left-[10%] right-[10%] h-0.5 rounded-b-sm bg-[#52b788]" />
-            <div className="font-serif text-[26px] text-[#52b788] leading-none">{todaySessions.length}</div>
+            <div className="absolute top-0 left-[10%] right-[10%] h-0.5 rounded-b-sm bg-[var(--color-acc-green)]" />
+            <div className="font-serif text-[26px] text-[var(--color-acc-green)] leading-none">{todaySessions.length}</div>
             <div className="text-[10px] font-semibold text-[var(--color-dim)] uppercase tracking-wide mt-1">sesiones</div>
           </div>
         </div>
 
         {/* Rest Timer */}
         {t && (
-          <div className="bg-[#5b8af0]/[0.06] border border-[#5b8af0]/[0.2] rounded-2xl p-3.5 mb-3 flex flex-col">
+          <div className="bg-[var(--color-acc-blue)]/[0.06] border border-[var(--color-acc-blue)]/[0.2] rounded-2xl p-3.5 mb-3 flex flex-col">
             <div className="flex gap-1.5 mb-2.5">
               {[60, 90, 120, 180].map(s => (
                 <button key={s} onClick={() => { setRestPreset(s); startTimer(s) }}
                   className={`flex-1 py-1 rounded-lg text-[11px] font-bold font-sans cursor-pointer border transition-all ${
-                    restPreset === s ? 'bg-[#5b8af0]/15 text-[#5b8af0] border-[#5b8af0]/30' : 'bg-[var(--color-s2)] text-[var(--color-dim)] border-[var(--color-border)]'
+                    restPreset === s ? 'bg-[var(--color-acc-blue)]/15 text-[var(--color-acc-blue)] border-[var(--color-acc-blue)]/30' : 'bg-[var(--color-s2)] text-[var(--color-dim)] border-[var(--color-border)]'
                   }`}
                 >{s >= 60 ? `${s / 60}min` : `${s}s`}</button>
               ))}
@@ -125,14 +125,14 @@ function StrengthTab() {
                   style={{ transition: 'stroke-dashoffset 0.9s linear' }} />
               </svg>
               <div className="flex-1">
-                <div className="text-[11px] font-semibold text-[#5b8af0] uppercase tracking-wider mb-1.5">Descanso activo</div>
+                <div className="text-[11px] font-semibold text-[var(--color-acc-blue)] uppercase tracking-wider mb-1.5">Descanso activo</div>
                 <div className="font-serif text-[28px] leading-none">
                   {Math.floor(t.remaining / 60)}:{String(t.remaining % 60).padStart(2, '0')}
                 </div>
               </div>
             </div>
             <div className="flex gap-1.5 mt-2.5">
-              <button onClick={() => startTimer(restPreset)} className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#52b788]/10 text-[#52b788] border border-[#52b788]/20 font-sans cursor-pointer">↺ Reset</button>
+              <button onClick={() => startTimer(restPreset)} className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--color-acc-green)]/10 text-[var(--color-acc-green)] border border-[var(--color-acc-green)]/20 font-sans cursor-pointer">↺ Reset</button>
               <button onClick={stopTimer} className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-500/[0.1] text-[var(--color-red)] border border-red-500/[0.15] font-sans cursor-pointer">✕ Parar</button>
             </div>
           </div>
@@ -153,7 +153,7 @@ function StrengthTab() {
               <button onClick={() => {
                 const rtn = routines.find(r => r.id === +selRoutine)
                 startSession(rtn?.name || 'Sesión libre', rtn?.exercises || [])
-              }} className="py-2.5 rounded-xl font-semibold text-sm font-sans cursor-pointer bg-[var(--color-acc-blue)] text-white border-[var(--color-acc-blue)] shadow-lg shadow-[#5b8af0]/25">
+              }} className="py-2.5 rounded-xl font-semibold text-sm font-sans cursor-pointer bg-[var(--color-acc-blue)] text-white border-[var(--color-acc-blue)] shadow-lg shadow-[var(--color-acc-blue)]/25">
                 ▶ Empezar
               </button>
               <button onClick={() => startSession('Sesión libre')} className="py-2.5 rounded-xl font-semibold text-sm font-sans cursor-pointer bg-[var(--color-s2)] text-[var(--color-sub)] border border-[var(--color-border)]">
@@ -163,21 +163,22 @@ function StrengthTab() {
           </div>
         ) : (
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <div>
-                <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text)' }}>{activeSession.name}</div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 12 }}>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{activeSession.name}</div>
                 <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 2 }}>
                   {activeSession.exercises.length} ejercicios · {unit.toUpperCase()}
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: 8 }}>
+              <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
                 <button onClick={() => { setWakeLock(!wakeLock); toast.show(wakeLock ? 'Pantalla normal' : '✓ Pantalla siempre activa') }}
-                  style={{ padding: '8px 12px', borderRadius: 10, fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid', background: wakeLock ? 'rgba(82,183,136,0.12)' : 'var(--color-s2)', color: wakeLock ? 'var(--color-acc-green)' : 'var(--color-dim)', borderColor: wakeLock ? 'rgba(82,183,136,0.2)' : 'var(--color-border)' }}>
-                  {wakeLock ? '🔒 On' : '📱'}
+                  title="Mantener pantalla activa"
+                  style={{ padding: '8px 12px', borderRadius: 10, fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid', background: wakeLock ? 'color-mix(in srgb, var(--color-acc-green) 12%, transparent)' : 'var(--color-s2)', color: wakeLock ? 'var(--color-acc-green)' : 'var(--color-dim)', borderColor: wakeLock ? 'color-mix(in srgb, var(--color-acc-green) 22%, transparent)' : 'var(--color-border)' }}>
+                  {wakeLock ? 'Activa' : 'Pantalla'}
                 </button>
-                <button onClick={() => { const prs = finishSession(); if (prs.length) toast.show(`🏆 ${prs.length} PRs!`) }}
+                <button onClick={() => { const prs = finishSession(); if (prs.length) toast.show(`${prs.length} récord${prs.length > 1 ? 's' : ''} batido${prs.length > 1 ? 's' : ''}`) }}
                   style={{ padding: '8px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: 'none', background: 'var(--color-acc-green)', color: '#fff' }}>
-                  Finalizar ✓
+                  Finalizar
                 </button>
               </div>
             </div>
@@ -208,16 +209,17 @@ function StrengthTab() {
                           padding: '3px 8px', borderRadius: 6, border: '1px solid var(--color-border)',
                           background: 'var(--color-s2)', color: 'var(--color-dim)',
                         }}>
-                        {{warmup:'🔥 Calent.',normal:'➕ Normal',dropset:'📉 Drop',failure:'💀 Fallo'}[t]}
+                        {{warmup:'Calent.',normal:'Normal',dropset:'Drop',failure:'Al fallo'}[t]}
                       </button>
                     ))}
                     <div style={{ flex: 1 }} />
                     <button onClick={() => {
-                      const w = prompt('Peso de trabajo (kg):', String(lastData?.weight || ''))
-                      if (w) generateWarmupSets(ei, parseFloat(w))
+                      const w = lastData?.weight || ex.sets.find(s => s.weight)?.weight
+                      if (!w) { toast.show('Introduce un peso primero'); return }
+                      generateWarmupSets(ei, w)
                     }}
-                      style={{ fontSize: 10, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', padding: '3px 8px', borderRadius: 6, border: '1px solid rgba(201,168,76,0.2)', background: 'rgba(201,168,76,0.08)', color: 'var(--color-acc-gold)' }}>
-                      🧮 Calent. %
+                      style={{ fontSize: 10, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', padding: '3px 8px', borderRadius: 6, border: '1px solid color-mix(in srgb, var(--color-acc-gold) 22%, transparent)', background: 'color-mix(in srgb, var(--color-acc-gold) 9%, transparent)', color: 'var(--color-acc-gold)' }}>
+                      Auto calent.
                     </button>
                   </div>
 
@@ -227,7 +229,7 @@ function StrengthTab() {
                   </div>
                   {ex.sets.map((set, si) => (
                     <div key={si} style={{ display: 'grid', gridTemplateColumns: '28px 1fr 1fr 40px 28px 28px', gap: 4, padding: '6px 14px', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.02)', background: set.done ? 'rgba(82,183,136,0.04)' : set.type === 'warmup' ? 'rgba(201,168,76,0.03)' : 'transparent' }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: set.type === 'warmup' ? '#c9a84c' : 'var(--color-dim)' }}>{set.setNumber}</div>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: set.type === 'warmup' ? 'var(--color-acc-gold)' : 'var(--color-dim)' }}>{set.setNumber}</div>
                       <input type="number" value={set.weight || ''} onChange={e => updateSet(ei, si, { weight: parseFloat(e.target.value) || 0 })}
                         style={{ width: '100%', background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-text)', borderRadius: 8, padding: '5px 4px', fontSize: 12, fontFamily: 'DM Sans,sans-serif', outline: 'none', textAlign: 'center' }}
                         placeholder={unit} />
@@ -235,11 +237,11 @@ function StrengthTab() {
                         style={{ width: '100%', background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-text)', borderRadius: 8, padding: '5px 4px', fontSize: 12, fontFamily: 'DM Sans,sans-serif', outline: 'none', textAlign: 'center' }}
                         placeholder="reps" />
                       <button onClick={() => { updateSet(ei, si, { done: !set.done }); if (!set.done && ex.restSeconds) startTimer(ex.restSeconds, ei) }}
-                        style={{ width: 28, height: 28, borderRadius: 8, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, cursor: 'pointer', background: set.done ? '#166534' : 'transparent', border: `1.5px solid ${set.done ? '#52b788' : 'var(--color-border2)'}`, color: set.done ? '#4ade80' : 'transparent' }}>
+                        style={{ width: 28, height: 28, borderRadius: 8, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, cursor: 'pointer', background: set.done ? '#166534' : 'transparent', border: `1.5px solid ${set.done ? 'var(--color-acc-green)' : 'var(--color-border2)'}`, color: set.done ? '#4ade80' : 'transparent' }}>
                         {set.done ? '✓' : ''}
                       </button>
-                      <div style={{ fontSize: 9, color: set.type === 'warmup' ? '#c9a84c' : set.type === 'dropset' ? '#e07a5f' : set.type === 'failure' ? '#e05f5f' : 'var(--color-dim)', textAlign: 'center' }}>
-                        {set.type === 'warmup' ? '🔥' : set.type === 'dropset' ? '📉' : set.type === 'failure' ? '💀' : '—'}
+                      <div style={{ fontSize: 10, fontWeight: 700, color: set.type === 'warmup' ? 'var(--color-acc-gold)' : set.type === 'dropset' ? 'var(--color-acc-orange)' : set.type === 'failure' ? 'var(--color-red)' : 'var(--color-dim)', textAlign: 'center' }}>
+                        {set.type === 'warmup' ? 'W' : set.type === 'dropset' ? 'D' : set.type === 'failure' ? 'F' : '—'}
                       </div>
                       <button onClick={() => removeSet(ei, si)} style={{ background: 'none', border: 'none', color: 'var(--color-dim)', cursor: 'pointer', fontSize: 12, textAlign: 'center' }}>✕</button>
                     </div>
@@ -248,14 +250,13 @@ function StrengthTab() {
                   {/* Exercise footer: rest timer, notes */}
                   <div style={{ display: 'flex', gap: 8, padding: '8px 14px', borderTop: '1px solid rgba(255,255,255,0.03)', background: 'var(--color-s2)', alignItems: 'center' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <span style={{ fontSize: 10, color: 'var(--color-dim)' }}>⏱</span>
+                      <span style={{ fontSize: 9, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Descanso</span>
                       <select value={ex.restSeconds || 90} onChange={e => updateExercise(ei, { restSeconds: parseInt(e.target.value) })}
                         style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', color: 'var(--color-sub)', borderRadius: 6, padding: '3px 6px', fontSize: 10, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>
                         {[30, 60, 90, 120, 180].map(s => <option key={s} value={s}>{s}s</option>)}
                       </select>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <span style={{ fontSize: 10, color: 'var(--color-dim)' }}>🏋️</span>
                       <button onClick={() => {
                         const w = ex.sets.find(s => s.done)?.weight
                         if (!w) { toast.show('Completa una serie primero'); return }
@@ -318,10 +319,10 @@ function StrengthTab() {
                   <div key={group}>
                     <div style={{ padding: '10px 16px 4px', fontSize: 10, fontWeight: 700, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.8px', background: 'var(--color-s1)', position: 'sticky', top: 0, zIndex: 1 }}>{group}</div>
                     {filtered.map(ex => (
-                      <div key={ex.name} onClick={() => { addExerciseToSession({ name: ex.name, group: ex.group, color: EXERCISE_COLORS[ex.group] || '#e07a5f', sets: 3 }); setShowExPicker(false) }}
+                      <div key={ex.name} onClick={() => { addExerciseToSession({ name: ex.name, group: ex.group, color: EXERCISE_COLORS[ex.group] || 'var(--color-acc-orange)', sets: 3 }); setShowExPicker(false) }}
                         data-ex-name={ex.name}
                         style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.03)', cursor: 'pointer', transition: 'background 0.12s' }}>
-                        <div style={{ width: 8, height: 8, borderRadius: '50%', flexShrink: 0, background: EXERCISE_COLORS[ex.group] || '#e07a5f' }} />
+                        <div style={{ width: 8, height: 8, borderRadius: '50%', flexShrink: 0, background: EXERCISE_COLORS[ex.group] || 'var(--color-acc-orange)' }} />
                         <span style={{ flex: 1, fontSize: 14, fontWeight: 500, color: 'var(--color-text)' }}>{ex.name}</span>
                         {ex.equipment && <span style={{ fontSize: 10, color: 'var(--color-dim)', background: 'var(--color-s2)', borderRadius: 4, padding: '1px 6px' }}>{EQUIPMENT_LABELS[ex.equipment]}</span>}
                       </div>
@@ -351,15 +352,15 @@ function StrengthTab() {
           sessions.map((s, i) => (
             <div key={i} className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl mb-2 overflow-hidden">
               <div className="flex items-center gap-3 px-4 py-3.5">
-                <div className="text-center bg-[#e07a5f]/10 border border-[#e07a5f]/20 rounded-xl px-3 py-2 flex-shrink-0">
-                  <div className="font-serif text-[22px] text-[#e07a5f] leading-none">{s.date.slice(8)}</div>
-                  <div className="text-[10px] font-bold text-[#e07a5f] uppercase tracking-[1px]">{['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][new Date(s.date + 'T12:00').getMonth()]}</div>
+                <div className="text-center bg-[var(--color-acc-orange)]/10 border border-[var(--color-acc-orange)]/20 rounded-xl px-3 py-2 flex-shrink-0">
+                  <div className="font-serif text-[22px] text-[var(--color-acc-orange)] leading-none">{s.date.slice(8)}</div>
+                  <div className="text-[10px] font-bold text-[var(--color-acc-orange)] uppercase tracking-[1px]">{['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][new Date(s.date + 'T12:00').getMonth()]}</div>
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-[15px] font-semibold text-[var(--color-text)]">{s.name}</div>
                   <div className="text-xs text-[var(--color-sub)] mt-1">{s.duration} min · {s.exercises.length} ejercicios</div>
                 </div>
-                <div className="font-serif text-[22px] text-[#e07a5f] italic">{Math.round(s.totalKg)} kg</div>
+                <div className="font-serif text-[22px] text-[var(--color-acc-orange)] italic">{Math.round(s.totalKg)} kg</div>
                 <button onClick={() => deleteSession(i)} className="w-7 h-7 rounded-lg bg-red-500/[0.08] text-[var(--color-red)] border border-red-500/[0.15] text-[11px] font-bold flex items-center justify-center cursor-pointer">✕</button>
               </div>
             </div>
@@ -378,12 +379,12 @@ function StrengthTab() {
         {routines.map(r => (
           <div key={r.id} className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl overflow-hidden mb-2">
             <div className="flex items-center gap-3 px-4 py-3.5 border-b border-[var(--color-border)]">
-              <div className="w-10 h-10 rounded-xl bg-[#e07a5f]/10 border border-[#e07a5f]/20 flex items-center justify-center text-lg">🏋️</div>
+              <div className="w-10 h-10 rounded-xl bg-[var(--color-acc-orange)]/10 border border-[var(--color-acc-orange)]/20 flex items-center justify-center text-lg">🏋️</div>
               <div className="flex-1">
                 <div className="text-[15px] font-semibold text-[var(--color-text)]">{r.name}</div>
                 <div className="text-xs text-[var(--color-sub)] mt-0.5">{r.exercises.length} ejercicios</div>
               </div>
-              <button onClick={() => startSession(r.name, r.exercises)} className="px-4 py-2 rounded-xl bg-[#e07a5f] text-white text-[13px] font-semibold font-sans cursor-pointer shadow-lg shadow-[#e07a5f]/25">▶</button>
+              <button onClick={() => startSession(r.name, r.exercises)} className="px-4 py-2 rounded-xl bg-[var(--color-acc-orange)] text-white text-[13px] font-semibold font-sans cursor-pointer shadow-lg shadow-[var(--color-acc-orange)]/25">▶</button>
               <button onClick={() => deleteRoutine(r.id)} className="w-7 h-7 rounded-lg bg-red-500/[0.08] text-[var(--color-red)] border border-red-500/[0.15] text-[11px] font-bold flex items-center justify-center cursor-pointer">✕</button>
             </div>
           </div>
@@ -409,7 +410,7 @@ function StrengthTab() {
             <select
               onChange={e => {
                 const ex = allExercises.find(x => x.name === e.target.value)
-                if (ex) setBuilderExs(prev => [...prev, { name: ex.name, group: ex.group, color: EXERCISE_COLORS[ex.group] || '#e07a5f', sets: 3 }])
+                if (ex) setBuilderExs(prev => [...prev, { name: ex.name, group: ex.group, color: EXERCISE_COLORS[ex.group] || 'var(--color-acc-orange)', sets: 3 }])
               }}
               className="flex-1 bg-[var(--color-s2)] border border-[var(--color-border)] text-[var(--color-text)] rounded-xl px-3 py-2.5 text-sm font-sans outline-none cursor-pointer"
             >
@@ -419,7 +420,7 @@ function StrengthTab() {
           </div>
           <button
             onClick={() => { if (rtnName.trim() && builderExs.length) { saveRoutine(rtnName.trim(), builderExs); setRtnName(''); setBuilderExs([]) } }}
-            className="w-full py-2.5 rounded-xl bg-[#e07a5f] text-white text-sm font-semibold font-sans cursor-pointer shadow-lg shadow-[#e07a5f]/25"
+            className="w-full py-2.5 rounded-xl bg-[var(--color-acc-orange)] text-white text-sm font-semibold font-sans cursor-pointer shadow-lg shadow-[var(--color-acc-orange)]/25"
           >Guardar rutina</button>
         </div>
       </div>
@@ -439,7 +440,7 @@ function StrengthTab() {
         <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl overflow-hidden">
           {allExercises.map(ex => (
             <div key={ex.name} className="flex items-center gap-3 px-4 py-3 border-b border-white/[0.03] last:border-b-0">
-              <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: EXERCISE_COLORS[ex.group] || '#e07a5f' }} />
+              <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: EXERCISE_COLORS[ex.group] || 'var(--color-acc-orange)' }} />
               <div className="flex-1">
                 <div className="text-sm font-medium text-[var(--color-text)]">{ex.name}</div>
                 <div className="text-[11px] text-[var(--color-dim)] mt-0.5">{ex.group}</div>
@@ -455,7 +456,7 @@ function StrengthTab() {
             {EXERCISE_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
           </select>
           <button onClick={() => { if (cexName.trim()) { addCustomExercise({ name: cexName.trim(), group: cexGroup }); setCexName('') } }}
-            className="w-full py-2.5 rounded-xl bg-[#e07a5f] text-white text-sm font-semibold font-sans cursor-pointer shadow-lg shadow-[#e07a5f]/25">Guardar ejercicio</button>
+            className="w-full py-2.5 rounded-xl bg-[var(--color-acc-orange)] text-white text-sm font-semibold font-sans cursor-pointer shadow-lg shadow-[var(--color-acc-orange)]/25">Guardar ejercicio</button>
         </div>
       </div>
     )
@@ -505,11 +506,11 @@ function StrengthTab() {
         <div className="grid grid-cols-2 gap-2 mb-3">
           <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, textAlign: 'center' }}>
             <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>Sesiones totales</div>
-            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 28, color: '#e07a5f', lineHeight: 1 }}>{sessions.length}</div>
+            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 28, color: 'var(--color-acc-orange)', lineHeight: 1 }}>{sessions.length}</div>
           </div>
           <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, textAlign: 'center' }}>
             <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>Kg totales</div>
-            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 28, color: '#5b8af0', lineHeight: 1 }}>{Math.round(sessions.reduce((s, x) => s + x.totalKg, 0))}</div>
+            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 28, color: 'var(--color-acc-blue)', lineHeight: 1 }}>{Math.round(sessions.reduce((s, x) => s + x.totalKg, 0))}</div>
           </div>
         </div>
 
@@ -524,11 +525,11 @@ function StrengthTab() {
             {calDays.map((d, i) => (
               <div key={i} style={{
                 aspectRatio: '1', borderRadius: 6,
-                background: d.hasSession ? '#e07a5f44' : 'rgba(255,255,255,0.03)',
-                border: d.isToday ? '1.5px solid rgba(255,255,255,0.3)' : d.hasSession ? '1px solid #e07a5f33' : '1px solid transparent',
+                background: d.hasSession ? 'var(--color-acc-orange)44' : 'rgba(255,255,255,0.03)',
+                border: d.isToday ? '1.5px solid rgba(255,255,255,0.3)' : d.hasSession ? '1px solid var(--color-acc-orange)33' : '1px solid transparent',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 10, fontWeight: d.isToday ? 700 : 500,
-                color: d.hasSession ? '#e07a5f' : 'var(--color-dim)',
+                color: d.hasSession ? 'var(--color-acc-orange)' : 'var(--color-dim)',
               }}>{d.day}</div>
             ))}
           </div>
@@ -541,7 +542,7 @@ function StrengthTab() {
               const h = Math.max(3, (s.totalKg / maxKg) * 76)
               return (
                 <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                  <div style={{ width: '100%', borderRadius: '3px 3px 0 0', height: h, background: '#e07a5f', transition: 'height 0.5s' }} title={`${s.date}: ${Math.round(s.totalKg)} kg`} />
+                  <div style={{ width: '100%', borderRadius: '3px 3px 0 0', height: h, background: 'var(--color-acc-orange)', transition: 'height 0.5s' }} title={`${s.date}: ${Math.round(s.totalKg)} kg`} />
                   <span style={{ fontSize: 8, color: 'var(--color-dim)' }}>{labels[i]}</span>
                 </div>
               )
@@ -562,7 +563,7 @@ function StrengthTab() {
                   <div style={{ fontSize: 11, color: 'var(--color-dim)' }}>{pr.date}</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 20, color: '#c9a84c' }}>{pr.weight} kg</div>
+                  <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 20, color: 'var(--color-acc-gold)' }}>{pr.weight} kg</div>
                   <div style={{ fontSize: 10, color: 'var(--color-dim)' }}>{pr.reps} reps</div>
                 </div>
               </div>
@@ -582,7 +583,7 @@ function StrengthTab() {
               const rm = Math.round(w * (1 + r / 30))
               toast.show(`🏋️ 1RM estimado: ${rm} kg`)
             }}
-              className="btn-ghost" style={{ border: '1px solid rgba(224,122,95,0.2)', color: '#e07a5f', background: 'rgba(224,122,95,0.08)' }}>Calcular 1RM</button>
+              className="btn-ghost" style={{ border: '1px solid rgba(224,122,95,0.2)', color: 'var(--color-acc-orange)', background: 'rgba(224,122,95,0.08)' }}>Calcular 1RM</button>
           </div>
           </>
         )}
@@ -636,12 +637,12 @@ function RunningTab() {
       <div className="grid grid-cols-2 gap-2 mb-3">
         <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-3.5">
           <div className="text-[10px] font-semibold text-[var(--color-dim)] uppercase tracking-wider mb-1.5">Km totales</div>
-          <div className="font-serif text-[28px] text-[#5b8af0] leading-none">{totalKm.toFixed(1)}</div>
+          <div className="font-serif text-[28px] text-[var(--color-acc-blue)] leading-none">{totalKm.toFixed(1)}</div>
           <div className="text-xs text-[var(--color-dim)] mt-1">{totalRuns} carreras</div>
         </div>
         <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-3.5">
           <div className="text-[10px] font-semibold text-[var(--color-dim)] uppercase tracking-wider mb-1.5">Tiempo total</div>
-          <div className="font-serif text-[28px] text-[#52b788] leading-none">{formatTime(totalTime)}</div>
+          <div className="font-serif text-[28px] text-[var(--color-acc-green)] leading-none">{formatTime(totalTime)}</div>
           <div className="text-xs text-[var(--color-dim)] mt-1">acumulado</div>
         </div>
       </div>
@@ -666,7 +667,7 @@ function RunningTab() {
           <option value="trail">🟤 Trail / montaña</option>
         </select>
         <Input value={runNotes} onChange={setRunNotes} placeholder="Notas (sensaciones, ruta...)" className="mb-2" />
-        <button onClick={handleAdd} className="w-full py-2.5 rounded-xl bg-[#5b8af0] text-white text-sm font-semibold font-sans cursor-pointer shadow-lg shadow-[#5b8af0]/25">Guardar carrera</button>
+        <button onClick={handleAdd} className="w-full py-2.5 rounded-xl bg-[var(--color-acc-blue)] text-white text-sm font-semibold font-sans cursor-pointer shadow-lg shadow-[var(--color-acc-blue)]/25">Guardar carrera</button>
       </div>
 
       <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-[0.8px] mb-2.5">Historial</div>
@@ -676,9 +677,9 @@ function RunningTab() {
         runs.map((r, i) => (
           <div key={i} className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl mb-2 overflow-hidden">
             <div className="flex items-center gap-3 px-4 py-3.5">
-              <div className="text-center bg-[#5b8af0]/10 border border-[#5b8af0]/20 rounded-xl px-3 py-2 flex-shrink-0">
-                <div className="font-serif text-[22px] text-[#5b8af0] leading-none">{r.date.slice(8)}</div>
-                <div className="text-[10px] font-bold text-[#5b8af0] uppercase tracking-[1px]">{['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][new Date(r.date + 'T12:00').getMonth()]}</div>
+              <div className="text-center bg-[var(--color-acc-blue)]/10 border border-[var(--color-acc-blue)]/20 rounded-xl px-3 py-2 flex-shrink-0">
+                <div className="font-serif text-[22px] text-[var(--color-acc-blue)] leading-none">{r.date.slice(8)}</div>
+                <div className="text-[10px] font-bold text-[var(--color-acc-blue)] uppercase tracking-[1px]">{['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][new Date(r.date + 'T12:00').getMonth()]}</div>
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-semibold text-[var(--color-text)]">{r.distance} km · {formatTime(r.timeSeconds)}</div>
@@ -724,9 +725,9 @@ function MobilityTab() {
           style={{
             flex: 1, padding: '8px 4px', borderRadius: 10, fontSize: 11, fontWeight: 700,
             fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid',
-            background: mobSub === k ? '#9b7fe026' : 'var(--color-s2)',
-            color: mobSub === k ? '#9b7fe0' : 'var(--color-dim)',
-            borderColor: mobSub === k ? '#9b7fe04d' : 'var(--color-border)',
+            background: mobSub === k ? 'var(--color-acc-purple)26' : 'var(--color-s2)',
+            color: mobSub === k ? 'var(--color-acc-purple)' : 'var(--color-dim)',
+            borderColor: mobSub === k ? 'var(--color-acc-purple)4d' : 'var(--color-border)',
             transition: 'all 0.15s',
           }}
         >{{session:'🧘 Sesión',routines:'📋 Rutinas',history:'📊 Historial'}[k]}</button>
@@ -752,37 +753,37 @@ function MobilityTab() {
                 <option value="">— Selecciona una rutina —</option>
                 {mobRoutines.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
               </select>
-              <button onClick={() => startMobSession('Sesión libre', [])} className="w-full py-2.5 rounded-xl bg-[#9b7fe0]/15 text-[#9b7fe0] border border-[#9b7fe0]/30 text-sm font-semibold font-sans cursor-pointer">▶ Sesión libre</button>
+              <button onClick={() => startMobSession('Sesión libre', [])} className="w-full py-2.5 rounded-xl bg-[var(--color-acc-purple)]/15 text-[var(--color-acc-purple)] border border-[var(--color-acc-purple)]/30 text-sm font-semibold font-sans cursor-pointer">▶ Sesión libre</button>
             </div>
           </>
         ) : (
           <div>
-            <div className="bg-[var(--color-s1)] border border-[#9b7fe0]/30 rounded-2xl overflow-hidden mb-3">
+            <div className="bg-[var(--color-s1)] border border-[var(--color-acc-purple)]/30 rounded-2xl overflow-hidden mb-3">
               <div className="flex items-center justify-between px-4 py-3.5 border-b border-[var(--color-border)]">
                 <div>
                   <div className="text-sm font-bold text-[var(--color-text)]">{activeSession.name}</div>
                   <div className="text-[11px] text-[var(--color-dim)] mt-0.5">
-                    <span className="text-[#9b7fe0] font-bold">{activeSession.exercises.filter(e => e.done).length}</span>
+                    <span className="text-[var(--color-acc-purple)] font-bold">{activeSession.exercises.filter(e => e.done).length}</span>
                     {' / '}{activeSession.exercises.length} ejercicios
                   </div>
                 </div>
                 <button onClick={cancelMobSession} className="px-3.5 py-1.5 rounded-lg bg-red-500/[0.08] text-[var(--color-red)] border border-red-500/[0.2] text-xs font-semibold font-sans cursor-pointer">Cancelar</button>
               </div>
               <div className="h-1 bg-white/[0.05]">
-                <div className="h-full bg-gradient-to-r from-[#9b7fe0] to-[#52b788] transition-all duration-400" style={{ width: `${activeSession.exercises.length ? Math.round(activeSession.exercises.filter(e => e.done).length / activeSession.exercises.length * 100) : 0}%` }} />
+                <div className="h-full bg-gradient-to-r from-[var(--color-acc-purple)] to-[var(--color-acc-green)] transition-all duration-400" style={{ width: `${activeSession.exercises.length ? Math.round(activeSession.exercises.filter(e => e.done).length / activeSession.exercises.length * 100) : 0}%` }} />
               </div>
               {activeSession.exercises.map((ex, i) => (
                 <div
                   key={i}
                   onClick={() => toggleMobExercise(i)}
-                  className={`flex items-center gap-2.5 px-4 py-3 border-b border-white/[0.04] last:border-b-0 cursor-pointer transition-colors active:bg-white/[0.03] ${ex.done ? 'bg-[#52b788]/[0.04]' : ''}`}
+                  className={`flex items-center gap-2.5 px-4 py-3 border-b border-white/[0.04] last:border-b-0 cursor-pointer transition-colors active:bg-white/[0.03] ${ex.done ? 'bg-[var(--color-acc-green)]/[0.04]' : ''}`}
                 >
-                  <div className={`w-2.5 h-2.5 rounded-full ${ex.done ? 'bg-[#52b788]' : 'bg-[#9b7fe0]'}`} />
+                  <div className={`w-2.5 h-2.5 rounded-full ${ex.done ? 'bg-[var(--color-acc-green)]' : 'bg-[var(--color-acc-purple)]'}`} />
                   <span className="flex-1 text-[13px] font-medium text-[var(--color-text)]">{ex.name}</span>
                 </div>
               ))}
               <div className="p-4 border-t border-[var(--color-border)]">
-                <button onClick={finishMobSession} className="w-full py-2.5 rounded-xl bg-[#9b7fe0]/15 text-[#9b7fe0] border border-[#9b7fe0]/30 text-sm font-semibold font-sans cursor-pointer">✓ Guardar sesión</button>
+                <button onClick={finishMobSession} className="w-full py-2.5 rounded-xl bg-[var(--color-acc-purple)]/15 text-[var(--color-acc-purple)] border border-[var(--color-acc-purple)]/30 text-sm font-semibold font-sans cursor-pointer">✓ Guardar sesión</button>
               </div>
             </div>
           </div>
@@ -804,7 +805,7 @@ function MobilityTab() {
           <div className="flex gap-2 mb-2">
             <Input value={exName} onChange={setExName} placeholder="Nombre del ejercicio" className="flex-1 mb-0" />
             <button onClick={() => { if (exName.trim()) { setBuilderExs(prev => [...prev, { name: exName.trim(), duration: 60 }]); setExName('') } }}
-              className="px-4 py-2.5 rounded-xl bg-[#9b7fe0]/15 text-[#9b7fe0] border border-[#9b7fe0]/30 text-xs font-semibold font-sans cursor-pointer">+</button>
+              className="px-4 py-2.5 rounded-xl bg-[var(--color-acc-purple)]/15 text-[var(--color-acc-purple)] border border-[var(--color-acc-purple)]/30 text-xs font-semibold font-sans cursor-pointer">+</button>
           </div>
           {builderExs.length > 0 && (
             <div className="mb-2.5">
@@ -822,7 +823,7 @@ function MobilityTab() {
               addMobRoutine({ id: Date.now(), name: rtnName.trim(), focus: rtnFocus, exercises: builderExs })
               setRtnName(''); setBuilderExs([])
             }
-          }} className="w-full py-2.5 rounded-xl bg-[#9b7fe0] text-white text-sm font-semibold font-sans cursor-pointer">Guardar rutina</button>
+          }} className="w-full py-2.5 rounded-xl bg-[var(--color-acc-purple)] text-white text-sm font-semibold font-sans cursor-pointer">Guardar rutina</button>
         </div>
 
         <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-[0.8px] mb-2.5">Mis rutinas</div>
@@ -832,12 +833,12 @@ function MobilityTab() {
           mobRoutines.map(r => (
             <div key={r.id} className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl overflow-hidden mb-2">
               <div className="flex items-center gap-3 px-4 py-3.5">
-                <div className="w-10 h-10 rounded-xl bg-[#9b7fe0]/10 border border-[#9b7fe0]/20 flex items-center justify-center text-lg">🧘</div>
+                <div className="w-10 h-10 rounded-xl bg-[var(--color-acc-purple)]/10 border border-[var(--color-acc-purple)]/20 flex items-center justify-center text-lg">🧘</div>
                 <div className="flex-1">
                   <div className="text-sm font-semibold text-[var(--color-text)]">{r.name}</div>
                   <div className="text-xs text-[var(--color-sub)] mt-0.5">{r.exercises.length} ejercicios</div>
                 </div>
-                <button onClick={() => startMobSession(r.name, r.exercises)} className="px-4 py-2 rounded-xl bg-[#9b7fe0]/15 text-[#9b7fe0] border border-[#9b7fe0]/30 text-xs font-semibold font-sans cursor-pointer">▶</button>
+                <button onClick={() => startMobSession(r.name, r.exercises)} className="px-4 py-2 rounded-xl bg-[var(--color-acc-purple)]/15 text-[var(--color-acc-purple)] border border-[var(--color-acc-purple)]/30 text-xs font-semibold font-sans cursor-pointer">▶</button>
               </div>
             </div>
           ))
@@ -857,7 +858,7 @@ function MobilityTab() {
           mobSessions.map((s, i) => (
             <div key={i} className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl mb-2 overflow-hidden">
               <div className="flex items-center gap-3 px-4 py-3.5">
-                <div className="w-10 h-10 rounded-xl bg-[#9b7fe0]/10 border border-[#9b7fe0]/20 flex items-center justify-center text-lg flex-shrink-0">🧘</div>
+                <div className="w-10 h-10 rounded-xl bg-[var(--color-acc-purple)]/10 border border-[var(--color-acc-purple)]/20 flex items-center justify-center text-lg flex-shrink-0">🧘</div>
                 <div className="flex-1">
                   <div className="text-sm font-semibold text-[var(--color-text)]">{s.routineName}</div>
                   <div className="text-xs text-[var(--color-sub)] mt-0.5">{s.date} · {s.exercises.filter(e => e.done).length}/{s.exercises.length}</div>
@@ -884,9 +885,9 @@ export default function Fisico() {
         <div className="page-title">Fuerza</div>
         <div style={{ display: 'flex', gap: 8, marginTop: 2 }}>
           {([
-            { k: 'strength' as const, l: '💪 Fuerza', c: '#e07a5f' },
-            { k: 'running' as const, l: '🏃 Running', c: '#5b8af0' },
-            { k: 'mobility' as const, l: '🧘 Movilidad', c: '#9b7fe0' },
+            { k: 'strength' as const, l: '💪 Fuerza', c: 'var(--color-acc-orange)' },
+            { k: 'running' as const, l: '🏃 Running', c: 'var(--color-acc-blue)' },
+            { k: 'mobility' as const, l: '🧘 Movilidad', c: 'var(--color-acc-purple)' },
           ]).map(s => (
             <button key={s.k} onClick={() => setSection(s.k)}
               style={{

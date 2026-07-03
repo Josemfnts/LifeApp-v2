@@ -57,19 +57,19 @@ export default function Login({ onDone }: LoginProps) {
         <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
           <button type="button" onClick={() => setMode('login')}
             style={{
-              flex: 1, padding: 10, borderRadius: 10, fontSize: 14, fontWeight: 600,
+              flex: 1, padding: 11, borderRadius: 12, fontSize: 14, fontWeight: 600,
               fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid',
-              background: mode === 'login' ? 'rgba(91,138,240,0.12)' : 'transparent',
+              background: mode === 'login' ? 'color-mix(in srgb, var(--color-acc-blue) 12%, transparent)' : 'transparent',
               color: mode === 'login' ? 'var(--color-acc-blue)' : 'var(--color-dim)',
-              borderColor: mode === 'login' ? 'rgba(91,138,240,0.3)' : 'var(--color-border)',
+              borderColor: mode === 'login' ? 'color-mix(in srgb, var(--color-acc-blue) 30%, transparent)' : 'var(--color-border)',
             }}>Iniciar sesión</button>
           <button type="button" onClick={() => setMode('register')}
             style={{
-              flex: 1, padding: 10, borderRadius: 10, fontSize: 14, fontWeight: 600,
+              flex: 1, padding: 11, borderRadius: 12, fontSize: 14, fontWeight: 600,
               fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid',
-              background: mode === 'register' ? 'rgba(82,183,136,0.12)' : 'transparent',
-              color: mode === 'register' ? 'var(--color-acc-green)' : 'var(--color-dim)',
-              borderColor: mode === 'register' ? 'rgba(82,183,136,0.3)' : 'var(--color-border)',
+              background: mode === 'register' ? 'color-mix(in srgb, var(--color-acc-blue) 12%, transparent)' : 'transparent',
+              color: mode === 'register' ? 'var(--color-acc-blue)' : 'var(--color-dim)',
+              borderColor: mode === 'register' ? 'color-mix(in srgb, var(--color-acc-blue) 30%, transparent)' : 'var(--color-border)',
             }}>Crear cuenta</button>
         </div>
 

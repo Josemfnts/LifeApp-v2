@@ -13,11 +13,11 @@ export function PlanesView() {
     <div>
       <div style={{ display: 'flex', gap: 4, overflowX: 'auto', marginBottom: 14 }}>
         {([
-          { k: 'viajes' as const, l: '✈️ Viajes' },
-          { k: 'actividades' as const, l: '🎯 Actividades' },
-          { k: 'compras' as const, l: '🛒 Compra' },
-          { k: 'inbox' as const, l: '💡 Ideas' },
-          { k: 'proyectos' as const, l: '📋 Proyectos' },
+          { k: 'viajes' as const, l: 'Viajes' },
+          { k: 'actividades' as const, l: 'Actividades' },
+          { k: 'compras' as const, l: 'Compra' },
+          { k: 'inbox' as const, l: 'Ideas' },
+          { k: 'proyectos' as const, l: 'Proyectos' },
         ]).map(s => (
           <button key={s.k} onClick={() => setSubtab(s.k)}
             style={{ flex: '0 0 auto', whiteSpace: 'nowrap', padding: '8px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700,
