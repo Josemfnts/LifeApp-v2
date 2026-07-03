@@ -63,6 +63,7 @@ export function checkHabitReminders() {
   })
   const undone = active.filter((h: { id: number; type: string; goal: number }) => {
     const val = (dbL[today] || {})[h.id] || 0
+    if (h.type === 'avoid') return val !== 0
     return h.type === 'bool' ? !val : val < h.goal
   })
 

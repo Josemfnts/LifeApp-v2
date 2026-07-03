@@ -47,6 +47,13 @@ export const STORE_KEYS = {
   josema_rpg_missions_v1: 'josema_rpg_missions_v1',
   journal_entries: 'journal_entries',
 
+  lifeos_viajes_v1: 'lifeos_viajes_v1',
+  lifeos_actividades_v1: 'lifeos_actividades_v1',
+  lifeos_compras_v1: 'lifeos_compras_v1',
+  lifeos_inbox_v1: 'lifeos_inbox_v1',
+  lifeos_proyectos_v1: 'lifeos_proyectos_v1',
+  nutri_medidas: 'nutri_medidas',
+
   lifeos_username_v1: 'lifeos_username_v1',
   lifeos_theme_v2: 'lifeos_theme_v2',
   lifeos_notif_habits: 'lifeos_notif_habits',

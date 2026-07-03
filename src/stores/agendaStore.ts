@@ -14,9 +14,14 @@ export const SHIFT_LABELS: Record<string, string> = { TM:'Mañana', TT:'Tarde', 
 export const PRIORITY_COLORS: Record<string, string> = { high:'#e05f5f', medium:'#c9a84c', low:'#52b788' }
 
 export interface SubTask { text: string; done: boolean }
-export interface Task { text: string; time: string; color: string; done: boolean; isOverdue?: boolean; subtasks?: SubTask[]; priority?: string; notes?: string }
+export interface Task { text: string; time: string; color: string; done: boolean; isOverdue?: boolean; subtasks?: SubTask[]; priority?: string; notes?: string; fromRecurring?: boolean }
 export interface RecurringTask { text: string; color: string; time?: string }
 export interface PendingTask { text: string; color: string; priority?: string }
+
+// Tarea tal como se muestra en el día: lleva el origen para que los handlers
+// sepan si operar sobre el array de tareas directas (_dir) o si es una
+// instancia generada de una tarea fija/recurrente (_rec).
+export interface DayTask extends Task { _dir?: number; _rec?: boolean }
 
 function load<T>(key: string, fallback: T): T {
   try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback } catch { return fallback }
@@ -42,7 +47,9 @@ interface AgendaStore {
   addPending: (task: PendingTask) => void
   removePending: (idx: number) => void
   setShift: (date: string, type: string) => void
-  getTasksForDate: (date: string) => Task[]
+  removeShift: (date: string) => void
+  materializeRecurring: (date: string, task: Task) => void
+  getTasksForDate: (date: string) => DayTask[]
   rollover: () => void
 }
 
@@ -135,14 +142,32 @@ export const useAgendaStore = create<AgendaStore>((set, get) => ({
     save('agenda_shifts', next)
     return { shifts: next }
   }),
+  removeShift: (date) => set(state => {
+    const next = { ...state.shifts }
+    delete next[date]
+    save('agenda_shifts', next)
+    return { shifts: next }
+  }),
+  materializeRecurring: (date, task) => set(state => {
+    const next = { ...state.tasks }
+    if (!next[date]) next[date] = []
+    next[date] = [...next[date], { text: task.text, time: task.time, color: task.color, done: true, fromRecurring: true }]
+    save('agenda_tasks', next)
+    return { tasks: next }
+  }),
   getTasksForDate: (date) => {
     const state = get()
     const direct = state.tasks[date] || []
+    // Una recurrente ya "materializada" (marcada como hecha ese día) vive como
+    // tarea directa con fromRecurring=true; no la volvemos a generar desde la
+    // plantilla para no duplicarla.
+    const materialized = new Set(direct.filter(t => t.fromRecurring).map(t => t.text))
     const dow = new Date(date + 'T12:00:00').getDay()
-    const recTasks = (state.recurring[dow] || []).map(r => ({
-      text: r.text, time: r.time || '', color: r.color, done: false,
-    }))
-    return [...recTasks, ...direct]
+    const recTasks: DayTask[] = (state.recurring[dow] || [])
+      .filter(r => !materialized.has(r.text))
+      .map(r => ({ text: r.text, time: r.time || '', color: r.color, done: false, _rec: true }))
+    const directTasks: DayTask[] = direct.map((t, i) => ({ ...t, _dir: i }))
+    return [...recTasks, ...directTasks]
   },
   rollover: () => {
     const state = get()

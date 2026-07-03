@@ -89,11 +89,11 @@ export function HabitTodayCard({ habit, val, log, onToggle, onIncrement, onSetFu
             <div className="flex-1" />
           )}
           <button
-            onClick={() => habit.type === 'bool' ? onToggle(habit.id) : onSetFull(habit.id)}
+            onClick={() => habit.type === 'count' ? onSetFull(habit.id) : onToggle(habit.id)}
             className="px-4 py-2 rounded-xl text-[13px] font-semibold font-sans cursor-pointer flex-shrink-0 border"
             style={{ background: btnBg, color: btnColor, borderColor: btnColor + '33' }}
           >
-            {isDone ? '✓ Hecho' : 'Marcar hecho'}
+            {habit.type === 'avoid' ? (isDone ? '✓ Evitado' : 'Marcar evitado') : isDone ? '✓ Hecho' : 'Marcar hecho'}
           </button>
         </div>
       </div>

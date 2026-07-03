@@ -33,11 +33,13 @@ export function calcStreak(h: Habit, log: HabitLog, fromDate: Date): number {
   let streak = 0
   const d = new Date(fromDate)
   for (let i = 0; i < 365; i++) {
+    const dStr = getStr(d)
+    if (h.createdAt && dStr < h.createdAt) break
     if (!habitActiveOnDay(h, d)) {
       d.setDate(d.getDate() - 1)
       continue
     }
-    const val = getLogValue(log, getStr(d), h.id)
+    const val = getLogValue(log, dStr, h.id)
     if (!isHabitDone(h, val)) break
     streak++
     d.setDate(d.getDate() - 1)

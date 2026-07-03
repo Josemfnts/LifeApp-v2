@@ -26,6 +26,7 @@ export function WeeklyStrip({ habits, getLogValue }: WeeklyStripProps) {
         const val = getLogValue(dStr, h.id)
         if (h.type === 'bool' && val) done++
         else if (h.type === 'count' && val >= h.goal) done++
+        else if (h.type === 'avoid' && val === 0) done++
       })
       return { date: d, dStr, done, total: habits.length }
     })

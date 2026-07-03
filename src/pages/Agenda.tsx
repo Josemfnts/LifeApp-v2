@@ -242,7 +242,7 @@ function WeekView() {
 
 /* ── DAY VIEW ── */
 function DayView({ date }: { date: Date }) {
-  const { getTasksForDate, toggleTask, toggleSubtask, addTask, updateTask, removeTask, moveTask, shifts } = useAgendaStore()
+  const { getTasksForDate, toggleTask, toggleSubtask, addTask, updateTask, removeTask, moveTask, materializeRecurring, shifts } = useAgendaStore()
   const toast = useToast()
   const dStr = date.toISOString().slice(0, 10)
   const allTasks = getTasksForDate(dStr)
@@ -264,38 +264,50 @@ function DayView({ date }: { date: Date }) {
   const [moveModal, setMoveModal] = useState<{ idx: number } | null>(null)
   const [moveDate, setMoveDate] = useState('')
 
+  // Template save/load modals
+  const [templateNameModal, setTemplateNameModal] = useState(false)
+  const [templateName, setTemplateName] = useState('')
+  const [loadTemplateModal, setLoadTemplateModal] = useState(false)
+
   const HOURS = Array.from({ length: 18 }, (_, i) => i + 6)
   const now = new Date(); const nowH = now.getHours(); const nowM = now.getMinutes()
   const isToday = dStr === new Date().toISOString().slice(0, 10)
 
-  const byHour: Record<number, { t: typeof allTasks[0]; idx: number }[]> = {}
-  const unscheduled: { t: typeof allTasks[0]; idx: number }[] = []
-  allTasks.forEach((t, idx) => { if (!t.time) { unscheduled.push({ t, idx }); return }; const h = parseInt(t.time.split(':')[0]); if (!byHour[h]) byHour[h] = []; byHour[h].push({ t, idx }) })
+  const byHour: Record<number, typeof allTasks> = {}
+  const unscheduled: typeof allTasks = []
+  allTasks.forEach(t => { if (!t.time) { unscheduled.push(t); return }; const h = parseInt(t.time.split(':')[0]); if (!byHour[h]) byHour[h] = []; byHour[h].push(t) })
 
   function handleAdd() { if (!newText.trim()) return; const task = { text: newText.trim(), time: newTime, color: newColor, done: false, priority: newPriority || undefined, subtasks: newSubtasks.length > 0 ? newSubtasks.map(s => ({ text: s, done: false })) : undefined }; addTask(dStr, task); setNewText(''); setNewTime(''); setNewSubtasks([]); setShowForm(false); toast.show('✓ Tarea añadida') }
 
-  function saveTemplate() {
+  function openSaveTemplate() {
     const dayTasks = getTasksForDate(dStr)
     if (!dayTasks.length) { toast.show('No hay tareas para guardar'); return }
-    const name = prompt('Nombre de la plantilla:', `Día ${date.getDate()}/${date.getMonth()+1}`)
-    if (!name) return
+    setTemplateName(`Día ${date.getDate()}/${date.getMonth() + 1}`)
+    setTemplateNameModal(true)
+  }
+
+  function confirmSaveTemplate() {
+    if (!templateName.trim()) return
+    const dayTasks = getTasksForDate(dStr).map(t => ({
+      text: t.text, time: t.time, color: t.color, priority: t.priority,
+      subtasks: t.subtasks?.map(s => ({ text: s.text, done: false })),
+    }))
     const templates = JSON.parse(localStorage.getItem('agenda_templates') || '[]')
-    templates.push({ name, date: dStr, tasks: dayTasks })
+    templates.push({ name: templateName.trim(), date: dStr, tasks: dayTasks })
     localStorage.setItem('agenda_templates', JSON.stringify(templates))
+    setTemplateNameModal(false)
     toast.show('✓ Plantilla guardada')
   }
 
-  function loadTemplate() {
+  function openLoadTemplate() {
     const templates = JSON.parse(localStorage.getItem('agenda_templates') || '[]')
     if (!templates.length) { toast.show('No hay plantillas guardadas'); return }
-    const names = templates.map((t: { name: string }, i: number) => `${i+1}. ${t.name}`).join('\n')
-    const idx = prompt(`Elige plantilla:\n${names}\n\nNúmero:`)
-    if (!idx) return
-    const t = templates[parseInt(idx) - 1]
-    if (!t) return
-    t.tasks.forEach((task: { text: string; time: string; color: string; priority?: string; subtasks?: { text: string; done: boolean }[] }) => {
-      addTask(dStr, { ...task, done: false })
-    })
+    setLoadTemplateModal(true)
+  }
+
+  function applyTemplate(t: { name: string; tasks: { text: string; time: string; color: string; priority?: string; subtasks?: { text: string; done: boolean }[] }[] }) {
+    t.tasks.forEach(task => addTask(dStr, { ...task, done: false }))
+    setLoadTemplateModal(false)
     toast.show(`✓ Plantilla "${t.name}" cargada`)
   }
 
@@ -324,8 +336,8 @@ function DayView({ date }: { date: Date }) {
       {!showForm ? (
         <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
           <button onClick={() => setShowForm(true)} style={{ flex: 1, padding: 11, borderRadius: 12, background: 'rgba(91,138,240,0.1)', color: 'var(--color-acc-blue)', border: '1px solid rgba(91,138,240,0.2)', fontSize: 14, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>+ Añadir tarea</button>
-          <button onClick={saveTemplate} style={{ padding: '11px 14px', borderRadius: 12, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-dim)', fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>💾</button>
-          <button onClick={loadTemplate} style={{ padding: '11px 14px', borderRadius: 12, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-dim)', fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>📂</button>
+          <button onClick={openSaveTemplate} style={{ padding: '11px 14px', borderRadius: 12, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-dim)', fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>💾</button>
+          <button onClick={openLoadTemplate} style={{ padding: '11px 14px', borderRadius: 12, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-dim)', fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>📂</button>
         </div>
       ) : (
         <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 14, marginBottom: 12 }}>
@@ -356,8 +368,8 @@ function DayView({ date }: { date: Date }) {
       {/* Unscheduled + overdue */}
       {unscheduled.length > 0 && (
         <div style={{ marginBottom: 8 }}>
-          {unscheduled.map(({ t, idx }) => (
-            <TaskItem key={idx} task={t} idx={idx} date={dStr} />
+          {unscheduled.map(t => (
+            <TaskItem key={t._rec ? `r${t.text}` : `d${t._dir}`} task={t} date={dStr} />
           ))}
         </div>
       )}
@@ -371,8 +383,8 @@ function DayView({ date }: { date: Date }) {
             <div style={{ width: 42, flexShrink: 0, textAlign: 'right', paddingRight: 10, paddingTop: 4, fontSize: 11, fontWeight: 600, color: 'var(--color-dim)' }}>{h % 3 === 0 || hTasks.length > 0 ? `${h < 10 ? '0' + h : h}:00` : ''}</div>
             <div style={{ flex: 1, minWidth: 0, borderLeft: '1px solid rgba(255,255,255,0.06)', paddingLeft: 8, paddingBottom: 2, position: 'relative' }}>
               {isCurrent && <div style={{ position: 'absolute', left: -1, right: 0, height: 2, background: 'var(--color-acc-blue)', borderRadius: 1, zIndex: 2, top: `${Math.round(nowM / 60 * 52)}px` }}><div style={{ position: 'absolute', left: -5, top: -4, width: 10, height: 10, borderRadius: '50%', background: 'var(--color-acc-blue)', boxShadow: '0 0 8px rgba(91,138,240,0.6)' }} /></div>}
-              {hTasks.map(({ t, idx }) => (
-                <TaskItem key={idx} task={t} idx={idx} date={dStr} />
+              {hTasks.map(t => (
+                <TaskItem key={t._rec ? `r${t.text}` : `d${t._dir}`} task={t} date={dStr} />
               ))}
               {hTasks.length === 0 && <div style={{ padding: '8px 0', fontSize: 11, color: 'rgba(255,255,255,0.08)' }}>·</div>}
             </div>
@@ -394,36 +406,95 @@ function DayView({ date }: { date: Date }) {
           </div>
         </div>
       )}
+
+      {/* Save template modal */}
+      {templateNameModal && (
+        <div onClick={e => { if (e.target === e.currentTarget) setTemplateNameModal(false) }} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 9000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+          <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 480, padding: '20px 20px 40px' }}>
+            <div style={{ width: 36, height: 4, background: 'var(--color-border2)', borderRadius: 99, margin: '0 auto 16px' }} />
+            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 18, marginBottom: 12 }}>Guardar plantilla</div>
+            <input className="inp" value={templateName} onChange={e => setTemplateName(e.target.value)} placeholder="Nombre de la plantilla" />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 12 }}>
+              <button onClick={() => setTemplateNameModal(false)} className="btn-ghost" style={{ width: '100%' }}>Cancelar</button>
+              <button onClick={confirmSaveTemplate} className="btn-primary" style={{ background: 'var(--color-acc-blue)', width: 'auto' }}>Guardar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Load template modal */}
+      {loadTemplateModal && (() => {
+        const templates: { name: string; date: string; tasks: { text: string; time: string; color: string; priority?: string; subtasks?: { text: string; done: boolean }[] }[] }[] = JSON.parse(localStorage.getItem('agenda_templates') || '[]')
+        return (
+          <div onClick={e => { if (e.target === e.currentTarget) setLoadTemplateModal(false) }} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 9000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+            <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 480, padding: '20px 20px 40px', maxHeight: '70dvh', overflowY: 'auto' }}>
+              <div style={{ width: 36, height: 4, background: 'var(--color-border2)', borderRadius: 99, margin: '0 auto 16px' }} />
+              <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 18, marginBottom: 12 }}>Cargar plantilla</div>
+              {templates.map((t, i) => (
+                <button key={i} onClick={() => applyTemplate(t)} style={{ width: '100%', textAlign: 'left', padding: '12px 14px', borderRadius: 10, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-text)', fontSize: 14, fontWeight: 500, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', marginBottom: 8 }}>
+                  {t.name} <span style={{ fontSize: 11, color: 'var(--color-dim)' }}>· {t.tasks.length} tareas</span>
+                </button>
+              ))}
+              <button onClick={() => setLoadTemplateModal(false)} className="btn-ghost" style={{ width: '100%', marginTop: 4 }}>Cancelar</button>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* Move task modal */}
+      {moveModal && (
+        <div onClick={e => { if (e.target === e.currentTarget) setMoveModal(null) }} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 9000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+          <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 480, padding: '20px 20px 40px' }}>
+            <div style={{ width: 36, height: 4, background: 'var(--color-border2)', borderRadius: 99, margin: '0 auto 16px' }} />
+            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 18, marginBottom: 12 }}>Mover tarea</div>
+            <input className="inp" value={moveDate} onChange={e => setMoveDate(e.target.value)} type="date" />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 12 }}>
+              <button onClick={() => setMoveModal(null)} className="btn-ghost" style={{ width: '100%' }}>Cancelar</button>
+              <button onClick={() => { if (moveDate) { moveTask(dStr, moveModal.idx, moveDate); toast.show('✓ Tarea movida') }; setMoveModal(null) }} className="btn-primary" style={{ background: 'var(--color-acc-blue)', width: 'auto' }}>Mover</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 
-  function TaskItem({ task: t, idx, date: d }: { task: { text: string; time: string; color: string; done: boolean; isOverdue?: boolean; subtasks?: { text: string; done: boolean }[]; priority?: string; notes?: string }; idx: number; date: string }) {
+  function TaskItem({ task: t, date: d }: { task: import('@/stores/agendaStore').DayTask; date: string }) {
     const [expanded, setExpanded] = useState(false)
-    const hasSubtasks = t.subtasks && t.subtasks.length > 0
+    const isRec = !!t._rec
+    const dir = t._dir ?? -1
+    const hasSubtasks = !isRec && t.subtasks && t.subtasks.length > 0
     const col = COLOR_HEX[t.color] || '#5b8af0'
+
+    function handleToggle() {
+      if (isRec) { materializeRecurring(d, t); toast.show('✓ Hecho') }
+      else toggleTask(d, dir)
+    }
 
     return (
       <div style={{ marginBottom: 4 }}>
         <div
-          onClick={() => toggleTask(d, idx)}
+          onClick={handleToggle}
           style={{
             borderRadius: 8, padding: '6px 10px', borderLeft: `3px solid ${col}`,
             display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer',
             background: col + '11', opacity: t.done ? 0.45 : 1, transition: 'opacity 0.15s',
           }}>
           <div style={{ flex: 1, fontSize: 13, fontWeight: 500, color: t.done ? 'var(--color-dim)' : 'var(--color-text)', textDecoration: t.done ? 'line-through' : 'none' }}>{t.text}</div>
+          {isRec && <span title="Tarea fija" style={{ fontSize: 10, color: 'var(--color-dim)' }}>🔄</span>}
           {t.priority && <span style={{ fontSize: 10, color: PRIORITY_COLORS[t.priority] }}>{t.priority === 'high' ? '🔴' : t.priority === 'medium' ? '🟡' : '🟢'}</span>}
           {t.time && <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-dim)' }}>{t.time}</span>}
           {hasSubtasks && <button onClick={e => { e.stopPropagation(); setExpanded(!expanded) }} style={{ background: 'none', border: 'none', color: 'var(--color-dim)', fontSize: 11, cursor: 'pointer' }}>{expanded ? '▲' : '▼'}</button>}
           {t.notes && <span style={{ fontSize: 10, color: 'var(--color-dim)' }}>📝</span>}
-          <button onClick={e => { e.stopPropagation(); setEditingNotes(idx); setNoteText(t.notes || '') }} style={{ background: 'none', border: 'none', color: 'var(--color-dim)', fontSize: 10, cursor: 'pointer' }}>✎</button>
-          <button onClick={e => { e.stopPropagation(); const nd = prompt('Mover a fecha (YYYY-MM-DD):', new Date().toISOString().slice(0,10)); if (nd) { moveTask(d, idx, nd); toast.show('✓ Tarea movida') } }} style={{ background: 'none', border: 'none', color: 'var(--color-dim)', fontSize: 10, cursor: 'pointer' }}>↗</button>
-          <button onClick={e => { e.stopPropagation(); removeTask(d, idx); toast.show('Eliminada') }} style={{ background: 'none', border: 'none', color: 'var(--color-dim)', fontSize: 12, cursor: 'pointer' }}>✕</button>
+          {!isRec && <>
+            <button onClick={e => { e.stopPropagation(); setEditingNotes(dir); setNoteText(t.notes || '') }} style={{ background: 'none', border: 'none', color: 'var(--color-dim)', fontSize: 10, cursor: 'pointer' }}>✎</button>
+            <button onClick={e => { e.stopPropagation(); setMoveModal({ idx: dir }); setMoveDate(new Date().toISOString().slice(0, 10)) }} style={{ background: 'none', border: 'none', color: 'var(--color-dim)', fontSize: 10, cursor: 'pointer' }}>↗</button>
+            <button onClick={e => { e.stopPropagation(); removeTask(d, dir); toast.show('Eliminada') }} style={{ background: 'none', border: 'none', color: 'var(--color-dim)', fontSize: 12, cursor: 'pointer' }}>✕</button>
+          </>}
         </div>
         {expanded && hasSubtasks && (
           <div style={{ marginLeft: 4, paddingLeft: 12, borderLeft: '2px solid rgba(255,255,255,0.07)', marginTop: 8 }}>
             {t.subtasks!.map((st, si) => (
-              <div key={si} onClick={() => toggleSubtask(d, idx, si)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 0', cursor: 'pointer' }}>
+              <div key={si} onClick={() => toggleSubtask(d, dir, si)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 0', cursor: 'pointer' }}>
                 <div style={{ width: 18, height: 18, borderRadius: 5, border: `1.5px solid ${st.done ? col : 'var(--color-border2)'}`, background: st.done ? col + '44' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, flexShrink: 0 }}>{st.done ? '✓' : ''}</div>
                 <span style={{ fontSize: 12, color: st.done ? 'var(--color-dim)' : 'var(--color-sub)', textDecoration: st.done ? 'line-through' : 'none' }}>{st.text}</span>
               </div>
@@ -437,7 +508,7 @@ function DayView({ date }: { date: Date }) {
 
 /* ── SHIFTS VIEW ── */
 function ShiftsView() {
-  const { shifts, setShift } = useAgendaStore()
+  const { shifts, setShift, removeShift } = useAgendaStore()
   const toast = useToast()
   const [viewDate, setViewDate] = useState(new Date())
   const [editMode, setEditMode] = useState(false)
@@ -456,7 +527,7 @@ function ShiftsView() {
     const idx = CYCLE.indexOf(current ?? null)
     const next = CYCLE[(idx + 1) % CYCLE.length]
     if (next) setShift(dStr, next)
-    else { const s = { ...shifts }; delete s[dStr]; useAgendaStore.setState({ shifts: s }); localStorage.setItem('agenda_shifts', JSON.stringify(s)) }
+    else removeShift(dStr)
   }
 
   return (

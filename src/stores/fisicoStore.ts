@@ -18,6 +18,9 @@ function load<T>(key: string, fallback: T): T {
 }
 function save(key: string, val: unknown) { localStorage.setItem(key, JSON.stringify(val)); saveToCloud(key, val) }
 
+type WakeLockSentinel = { release: () => Promise<void> }
+let wakeLockSentinel: WakeLockSentinel | null = null
+
 export const STATIC_EXERCISES = [
   { name: 'Press banca', group: 'Pecho', equipment: 'bar' },
   { name: 'Press inclinado mancuernas', group: 'Pecho', equipment: 'dumbbell' },
@@ -242,11 +245,12 @@ export const useFisicoStore = create<FisicoStore>((set, get) => ({
     const sessions = [finished, ...get().sessions]
     save('fisico_sessions', sessions)
     const newPRs = get().checkPRs()
-    set({ sessions, activeSession: null, wakeLock: false })
+    set({ sessions, activeSession: null })
+    get().setWakeLock(false)
     return newPRs
   },
 
-  cancelSession: () => set({ activeSession: null, wakeLock: false }),
+  cancelSession: () => { set({ activeSession: null }); get().setWakeLock(false) },
 
   deleteSession: (idx) => {
     const sessions = get().sessions.filter((_, i) => i !== idx)
@@ -367,7 +371,12 @@ export const useFisicoStore = create<FisicoStore>((set, get) => ({
   },
   setWakeLock: (on) => {
     if (on && 'wakeLock' in navigator) {
-      (navigator as Navigator & { wakeLock: { request: (t: string) => Promise<{ release: () => Promise<void> }> } }).wakeLock.request('screen').catch(() => {})
+      (navigator as Navigator & { wakeLock: { request: (t: string) => Promise<WakeLockSentinel> } }).wakeLock.request('screen')
+        .then(sentinel => { wakeLockSentinel = sentinel })
+        .catch(() => {})
+    } else if (!on && wakeLockSentinel) {
+      wakeLockSentinel.release().catch(() => {})
+      wakeLockSentinel = null
     }
     set({ wakeLock: on })
   },

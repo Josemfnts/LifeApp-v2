@@ -65,10 +65,28 @@ function StrengthTab() {
   const todayKg = todaySessions.reduce((s, x) => s + x.totalKg, 0)
   const todaySets = todaySessions.reduce((s, x) => s + x.exercises.reduce((ss, ex) => ss + ex.sets.length, 0), 0)
 
+  const subBar = (
+    <div style={{ display: 'flex', gap: 6, marginBottom: 14, overflowX: 'auto' }}>
+      {(['today','history','routines','library','progress'] as const).map(k => (
+        <button key={k} onClick={() => setSub(k)}
+          style={{
+            flex: 1, padding: '9px 4px', borderRadius: 10, fontSize: 12, fontWeight: 700,
+            fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid', whiteSpace: 'nowrap',
+            background: sub === k ? '#e07a5f26' : 'transparent',
+            color: sub === k ? '#e07a5f' : 'var(--color-dim)',
+            borderColor: sub === k ? '#e07a5f4d' : 'var(--color-border)',
+            transition: 'all 0.15s',
+          }}
+        >{{today:'Hoy',history:'Historial',routines:'Rutinas',library:'Ejercicios',progress:'Progreso'}[k]}</button>
+      ))}
+    </div>
+  )
+
   /* ── TODAY / ACTIVE SESSION ── */
   if (sub === 'today') {
     return (
       <div className="animate-tab">
+        {subBar}
         <div className="grid grid-cols-3 gap-2 mb-3">
           <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-3.5 text-center relative overflow-hidden">
             <div className="absolute top-0 left-[10%] right-[10%] h-0.5 rounded-b-sm bg-[#e07a5f]" />
@@ -325,6 +343,7 @@ function StrengthTab() {
   if (sub === 'history') {
     return (
       <div className="animate-tab">
+        {subBar}
         <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-[0.8px] mb-2.5">Sesiones recientes</div>
         {sessions.length === 0 ? (
           <div className="text-center py-12 text-[13px] text-[var(--color-dim)]">Sin sesiones registradas.</div>
@@ -354,6 +373,7 @@ function StrengthTab() {
   if (sub === 'routines') {
     return (
       <div className="animate-tab">
+        {subBar}
         <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-[0.8px] mb-2.5">Mis rutinas</div>
         {routines.map(r => (
           <div key={r.id} className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl overflow-hidden mb-2">
@@ -410,6 +430,7 @@ function StrengthTab() {
   if (sub === 'library') {
     return (
       <div className="animate-tab">
+        {subBar}
         <div className="flex gap-1.5 overflow-x-auto mb-3.5 pb-0.5">
           {EXERCISE_GROUPS.map(g => (
             <button key={g} className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[var(--color-s1)] border border-[var(--color-border)] text-[var(--color-sub)] cursor-pointer whitespace-nowrap flex-shrink-0">{g}</button>
@@ -447,6 +468,7 @@ function StrengthTab() {
     if (sessions.length === 0) {
       return (
         <div className="animate-tab">
+          {subBar}
           <div className="text-center py-16 text-[var(--color-dim)] text-sm">
             <div className="text-4xl mb-3">📊</div>
             <div className="font-semibold text-[var(--color-sub)] mb-2">Sin datos todavía</div>
@@ -479,6 +501,7 @@ function StrengthTab() {
 
     return (
       <div className="animate-tab">
+        {subBar}
         <div className="grid grid-cols-2 gap-2 mb-3">
           <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, textAlign: 'center' }}>
             <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>Sesiones totales</div>
@@ -567,24 +590,7 @@ function StrengthTab() {
     )
   }
 
-  return (
-    <div>
-      <div style={{ display: 'flex', gap: 6, marginBottom: 14, overflowX: 'auto' }}>
-        {(['today','history','routines','library','progress'] as const).map(k => (
-          <button key={k} onClick={() => setSub(k)}
-            style={{
-              flex: 1, padding: '9px 4px', borderRadius: 10, fontSize: 12, fontWeight: 700,
-              fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid', whiteSpace: 'nowrap',
-              background: sub === k ? '#e07a5f26' : 'transparent',
-              color: sub === k ? '#e07a5f' : 'var(--color-dim)',
-              borderColor: sub === k ? '#e07a5f4d' : 'var(--color-border)',
-              transition: 'all 0.15s',
-            }}
-          >{{today:'Hoy',history:'Historial',routines:'Rutinas',library:'Ejercicios',progress:'Progreso'}[k]}</button>
-        ))}
-      </div>
-    </div>
-  )
+  return null
 }
 
 /* ── RUNNING TAB ── */
@@ -711,9 +717,27 @@ function MobilityTab() {
     { v: 'morning', l: '☀️ Rutina matutina' }, { v: 'night', l: '🌙 Rutina nocturna' },
   ]
 
+  const mobBar = (
+    <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+      {(['session','routines','history'] as const).map(k => (
+        <button key={k} onClick={() => setMobSub(k)}
+          style={{
+            flex: 1, padding: '8px 4px', borderRadius: 10, fontSize: 11, fontWeight: 700,
+            fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid',
+            background: mobSub === k ? '#9b7fe026' : 'var(--color-s2)',
+            color: mobSub === k ? '#9b7fe0' : 'var(--color-dim)',
+            borderColor: mobSub === k ? '#9b7fe04d' : 'var(--color-border)',
+            transition: 'all 0.15s',
+          }}
+        >{{session:'🧘 Sesión',routines:'📋 Rutinas',history:'📊 Historial'}[k]}</button>
+      ))}
+    </div>
+  )
+
   if (mobSub === 'session') {
     return (
       <div className="animate-tab">
+        {mobBar}
         {!activeSession ? (
           <>
             <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-4 mb-3">
@@ -770,6 +794,7 @@ function MobilityTab() {
   if (mobSub === 'routines') {
     return (
       <div className="animate-tab">
+        {mobBar}
         <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-4 mb-3">
           <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-[0.8px] mb-2.5">Nueva rutina</div>
           <Input value={rtnName} onChange={setRtnName} placeholder="Nombre de la rutina..." className="mb-2" />
@@ -824,6 +849,7 @@ function MobilityTab() {
   if (mobSub === 'history') {
     return (
       <div className="animate-tab">
+        {mobBar}
         <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-[0.8px] mb-2.5">Historial de sesiones</div>
         {mobSessions.length === 0 ? (
           <div className="text-center py-12 text-[13px] text-[var(--color-dim)]">Sin sesiones registradas.</div>
@@ -844,24 +870,7 @@ function MobilityTab() {
     )
   }
 
-  return (
-    <div>
-      <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
-        {(['session','routines','history'] as const).map(k => (
-          <button key={k} onClick={() => setMobSub(k)}
-            style={{
-              flex: 1, padding: '8px 4px', borderRadius: 10, fontSize: 11, fontWeight: 700,
-              fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid',
-              background: mobSub === k ? '#9b7fe026' : 'var(--color-s2)',
-              color: mobSub === k ? '#9b7fe0' : 'var(--color-dim)',
-              borderColor: mobSub === k ? '#9b7fe04d' : 'var(--color-border)',
-              transition: 'all 0.15s',
-            }}
-          >{{session:'🧘 Sesión',routines:'📋 Rutinas',history:'📊 Historial'}[k]}</button>
-        ))}
-      </div>
-    </div>
-  )
+  return null
 }
 
 /* ── MAIN FÍSICO PAGE ── */

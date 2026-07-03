@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { XPProvider } from '@/contexts/XPContext'
 import { ThemeProvider } from '@/contexts/ThemeContext'
@@ -7,6 +7,36 @@ import { SplashScreen } from '@/components/layout/SplashScreen'
 import { lazy, Suspense, useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { checkHabitReminders, checkAgendaReminders } from '@/lib/notifications'
+
+// Navegación por teclado con leader key "g" (patrón GitHub/Gmail): pulsa g y
+// luego 1-8. Va dentro del Router para navegar por SPA (useNavigate) en vez de
+// window.location.href, que recargaba la página entera y destruía el estado en
+// memoria — p.ej. una sesión de entrenamiento activa. Y no roba Ctrl+1..8, que
+// el navegador usa para cambiar de pestaña.
+function KeyboardShortcuts() {
+  const navigate = useNavigate()
+  useEffect(() => {
+    const routes = ['/', '/agenda', '/habitos', '/fisico', '/nutricion', '/finanzas', '/diario', '/pomodoro']
+    let leader = false
+    let timer: ReturnType<typeof setTimeout> | null = null
+    const onKey = (e: KeyboardEvent) => {
+      const el = document.activeElement as HTMLElement | null
+      const typing = !!el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT' || el.isContentEditable)
+      if (typing || e.ctrlKey || e.metaKey || e.altKey) return
+      if (!leader) {
+        if (e.key === 'g') { leader = true; if (timer) clearTimeout(timer); timer = setTimeout(() => { leader = false }, 1500) }
+        return
+      }
+      leader = false
+      if (timer) clearTimeout(timer)
+      const num = parseInt(e.key)
+      if (num >= 1 && num <= routes.length) { e.preventDefault(); navigate(routes[num - 1]) }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => { window.removeEventListener('keydown', onKey); if (timer) clearTimeout(timer) }
+  }, [navigate])
+  return null
+}
 
 const Dashboard = lazy(() => import('@/pages/Dashboard'))
 const Agenda = lazy(() => import('@/pages/Agenda'))
@@ -44,23 +74,9 @@ export default function App() {
     const handler = () => setShowLogin(true)
     window.addEventListener('show-login', handler)
 
-    // Keyboard shortcuts
-    const keys = (e: KeyboardEvent) => {
-      if (e.ctrlKey || e.metaKey) {
-        const num = parseInt(e.key)
-        if (num >= 1 && num <= 9) {
-          e.preventDefault()
-          const routes = ['/', '/agenda', '/habitos', '/fisico', '/nutricion', '/finanzas', '/diario', '/pomodoro']
-          const idx = num - 1
-          if (idx < routes.length) window.location.href = routes[idx]
-        }
-      }
-    }
-    window.addEventListener('keydown', keys)
     return () => {
       subscription.unsubscribe()
       window.removeEventListener('show-login', handler)
-      window.removeEventListener('keydown', keys)
     }
   }, [])
 
@@ -81,6 +97,7 @@ export default function App() {
       <XPProvider>
         <ThemeProvider>
           <BrowserRouter>
+            <KeyboardShortcuts />
             <SplashScreen />
             <Suspense fallback={<Loading />}>
               <Routes>
