@@ -12,6 +12,7 @@ export interface MobExercise { name: string; focus: string; duration: number }
 export interface MobRoutine { id: number; name: string; focus: string; exercises: { name: string; duration: number }[] }
 export interface PR { exercise: string; weight: number; reps: number; date: string }
 export interface SetTemplate { name: string; sets: number; reps: number; restSeconds: number }
+export interface Program { id: number; name: string; description: string; routines: number[]; color: string }
 
 function load<T>(key: string, fallback: T): T {
   try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback } catch { return fallback }
@@ -96,6 +97,7 @@ interface FisicoStore {
   activeMobSession: { name: string; exercises: { name: string; done: boolean }[] } | null
   prs: PR[]
   setTemplates: SetTemplate[]
+  programs: Program[]
   unit: 'kg' | 'lb'
   wakeLock: boolean
 
@@ -135,6 +137,10 @@ interface FisicoStore {
 
   addTemplate: (t: SetTemplate) => void
   removeTemplate: (name: string) => void
+  addProgram: (p: Program) => void
+  removeProgram: (id: number) => void
+  getMuscleAnalysis: () => { group: string; sets: number; color: string }[]
+  shareSummary: () => string
   toggleUnit: () => void
   setWakeLock: (on: boolean) => void
 }
@@ -153,6 +159,7 @@ export const useFisicoStore = create<FisicoStore>((set, get) => ({
   activeMobSession: null,
   prs: load('fisico_prs', []),
   setTemplates: load('fisico_templates', []),
+  programs: load('fisico_programs', []),
   unit: (localStorage.getItem('fisico_unit') as 'kg' | 'lb') || 'kg',
   wakeLock: false,
 
@@ -371,13 +378,51 @@ export const useFisicoStore = create<FisicoStore>((set, get) => ({
   },
   setWakeLock: (on) => {
     if (on && 'wakeLock' in navigator) {
-      (navigator as Navigator & { wakeLock: { request: (t: string) => Promise<WakeLockSentinel> } }).wakeLock.request('screen')
-        .then(sentinel => { wakeLockSentinel = sentinel })
-        .catch(() => {})
-    } else if (!on && wakeLockSentinel) {
-      wakeLockSentinel.release().catch(() => {})
-      wakeLockSentinel = null
+      (navigator as Navigator & { wakeLock: { request: (t: string) => Promise<{ release: () => Promise<void> }> } }).wakeLock.request('screen').catch(() => {})
     }
     set({ wakeLock: on })
+  },
+
+  addProgram: (p) => {
+    const programs = [...get().programs, p]
+    save('fisico_programs', programs)
+    set({ programs })
+  },
+  removeProgram: (id) => {
+    const programs = get().programs.filter(p => p.id !== id)
+    save('fisico_programs', programs)
+    set({ programs })
+  },
+
+  getMuscleAnalysis: () => {
+    const sessions = get().sessions
+    const groups: Record<string, { sets: number; color: string }> = {}
+    EXERCISE_GROUPS.forEach(g => { groups[g] = { sets: 0, color: EXERCISE_COLORS[g] || '#e07a5f' } })
+    sessions.forEach(s => {
+      s.exercises.forEach(ex => {
+        if (groups[ex.group]) groups[ex.group].sets += ex.sets.filter(st => st.done).length
+      })
+    })
+    return Object.entries(groups).map(([group, data]) => ({ group, sets: data.sets, color: data.color }))
+  },
+
+  shareSummary: () => {
+    const sessions = get().sessions
+    const prs = get().prs
+    const totalSessions = sessions.length
+    const totalKg = Math.round(sessions.reduce((s, x) => s + x.totalKg, 0))
+    const thisMonth = sessions.filter(s => s.date.startsWith(new Date().toISOString().slice(0, 7)))
+    const thisMonthSessions = thisMonth.length
+    const thisMonthKg = Math.round(thisMonth.reduce((s, x) => s + x.totalKg, 0))
+    const topPRs = prs.slice(0, 5).map(p => `🏆 ${p.exercise}: ${p.weight}kg x ${p.reps}`).join('\n')
+    return `💪 Life OS — Resumen de Fuerza
+
+📊 Total: ${totalSessions} sesiones · ${totalKg}kg
+📅 Este mes: ${thisMonthSessions} sesiones · ${thisMonthKg}kg
+
+🏆 Records personales:
+${topPRs || 'Sin PRs aún'}
+
+⚡ Entrena con Life OS`
   },
 }))

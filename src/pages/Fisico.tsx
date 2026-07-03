@@ -247,8 +247,29 @@ function StrengthTab() {
                     </div>
                   ))}
 
-                  {/* Exercise footer: rest timer, notes */}
-                  <div style={{ display: 'flex', gap: 8, padding: '8px 14px', borderTop: '1px solid rgba(255,255,255,0.03)', background: 'var(--color-s2)', alignItems: 'center' }}>
+                  {/* Exercise footer: rest timer, notes, superset */}
+                  <div style={{ display: 'flex', gap: 8, padding: '8px 14px', borderTop: '1px solid rgba(255,255,255,0.03)', background: 'var(--color-s2)', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span style={{ fontSize: 10, color: 'var(--color-dim)' }}>⏱</span>
+                      <select value={ex.restSeconds || 90} onChange={e => updateExercise(ei, { restSeconds: parseInt(e.target.value) })}
+                        style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', color: 'var(--color-sub)', borderRadius: 6, padding: '3px 6px', fontSize: 10, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>
+                        {[30, 60, 90, 120, 180].map(s => <option key={s} value={s}>{s}s</option>)}
+                      </select>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span style={{ fontSize: 10, color: 'var(--color-dim)' }}>🔗</span>
+                      <select value={ex.supersetWith ?? -1} onChange={e => {
+                        const v = parseInt(e.target.value)
+                        updateExercise(ei, { supersetWith: v >= 0 ? v : undefined })
+                        if (v >= 0) toast.show('✓ Superserie emparejada')
+                      }}
+                        style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', color: 'var(--color-sub)', borderRadius: 6, padding: '3px 6px', fontSize: 10, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>
+                        <option value={-1}>Sin pareja</option>
+                        {activeSession.exercises.map((e2, i2) => i2 !== ei ? (
+                          <option key={i2} value={i2}>+ {e2.name.slice(0, 15)}</option>
+                        ) : null)}
+                      </select>
+                    </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                       <span style={{ fontSize: 9, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Descanso</span>
                       <select value={ex.restSeconds || 90} onChange={e => updateExercise(ei, { restSeconds: parseInt(e.target.value) })}
