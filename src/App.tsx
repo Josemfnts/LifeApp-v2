@@ -16,7 +16,7 @@ import { checkHabitReminders, checkAgendaReminders } from '@/lib/notifications'
 function KeyboardShortcuts() {
   const navigate = useNavigate()
   useEffect(() => {
-    const routes = ['/', '/agenda', '/habitos', '/fisico', '/nutricion', '/finanzas', '/diario', '/pomodoro']
+    const routes = ['/', '/agenda', '/habitos', '/fisico', '/nutricion', '/finanzas', '/diario', '/pomodoro', '/comunidad']
     let leader = false
     let timer: ReturnType<typeof setTimeout> | null = null
     const onKey = (e: KeyboardEvent) => {
@@ -46,6 +46,7 @@ const Nutricion = lazy(() => import('@/pages/Nutricion'))
 const Finanzas = lazy(() => import('@/pages/Finanzas'))
 const Pomodoro = lazy(() => import('@/pages/Pomodoro'))
 const Diario = lazy(() => import('@/pages/Diario'))
+const Comunidad = lazy(() => import('@/pages/Comunidad'))
 const Login = lazy(() => import('@/pages/Login'))
 
 const queryClient = new QueryClient()
@@ -110,6 +111,7 @@ export default function App() {
                   <Route path="/finanzas" element={<Finanzas />} />
                   <Route path="/pomodoro" element={<Pomodoro />} />
                   <Route path="/diario" element={<Diario />} />
+                  <Route path="/comunidad" element={<Comunidad />} />
                 </Route>
               </Routes>
             </Suspense>

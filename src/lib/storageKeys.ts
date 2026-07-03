@@ -32,6 +32,7 @@ export const STORE_KEYS = {
   fisico_mob_sessions: 'fisico_mob_sessions',
   fisico_prs: 'fisico_prs',
   fisico_templates: 'fisico_templates',
+  fisico_programs: 'fisico_programs',
 
   finances_tx: 'finances_tx',
   finances_huchas: 'finances_huchas',

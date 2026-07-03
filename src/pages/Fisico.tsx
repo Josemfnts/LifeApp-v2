@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useFisicoStore, STATIC_EXERCISES, EXERCISE_GROUPS, EQUIPMENT_TYPES, EQUIPMENT_LABELS, EXERCISE_COLORS } from '@/stores/fisicoStore'
 import { Input } from '@/components/ui'
 import { useToast } from '@/stores/toast'
+import { createPost } from '@/lib/social'
 
 /* ── Timer Hook ── */
 function useTimer() {
@@ -38,6 +39,12 @@ function StrengthTab() {
   const generateWarmupSets = useFisicoStore(s => s.generateWarmupSets)
   const getLastExerciseData = useFisicoStore(s => s.getLastExerciseData)
   const unit = useFisicoStore(s => s.unit)
+  const toggleUnit = useFisicoStore(s => s.toggleUnit)
+  const programs = useFisicoStore(s => s.programs)
+  const addProgram = useFisicoStore(s => s.addProgram)
+  const removeProgram = useFisicoStore(s => s.removeProgram)
+  const getMuscleAnalysis = useFisicoStore(s => s.getMuscleAnalysis)
+  const shareSummary = useFisicoStore(s => s.shareSummary)
   const wakeLock = useFisicoStore(s => s.wakeLock)
   const setWakeLock = useFisicoStore(s => s.setWakeLock)
   const finishSession = useFisicoStore(s => s.finishSession)
@@ -59,6 +66,10 @@ function StrengthTab() {
   const [cexGroup, setCexGroup] = useState('Pecho')
   const [selRoutine, setSelRoutine] = useState('')
   const [equipFilter, setEquipFilter] = useState('')
+  const [showProgForm, setShowProgForm] = useState(false)
+  const [progName, setProgName] = useState('')
+  const [progColor, setProgColor] = useState('#dd7d55')
+  const [progRoutineSel, setProgRoutineSel] = useState<number[]>([])
   const allExercises = [...STATIC_EXERCISES, ...customExercises.map(e => ({ ...e, equipment: '' }))]
   const todayStr = new Date().toISOString().slice(0, 10)
   const todaySessions = sessions.filter(s => s.date === todayStr)
@@ -87,6 +98,12 @@ function StrengthTab() {
     return (
       <div className="animate-tab">
         {subBar}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
+          <button onClick={toggleUnit}
+            style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', borderRadius: 8, fontSize: 11, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid var(--color-border)', background: 'var(--color-s2)', color: 'var(--color-sub)' }}>
+            Unidad: <span style={{ color: 'var(--color-acc-orange)', fontWeight: 700 }}>{unit.toUpperCase()}</span>
+          </button>
+        </div>
         <div className="grid grid-cols-3 gap-2 mb-3">
           <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-3.5 text-center relative overflow-hidden">
             <div className="absolute top-0 left-[10%] right-[10%] h-0.5 rounded-b-sm bg-[var(--color-acc-orange)]" />
@@ -247,34 +264,27 @@ function StrengthTab() {
                     </div>
                   ))}
 
-                  {/* Exercise footer: rest timer, notes, superset */}
+                  {/* Exercise footer: rest timer, superset, discos, notes */}
                   <div style={{ display: 'flex', gap: 8, padding: '8px 14px', borderTop: '1px solid rgba(255,255,255,0.03)', background: 'var(--color-s2)', alignItems: 'center', flexWrap: 'wrap' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <span style={{ fontSize: 10, color: 'var(--color-dim)' }}>⏱</span>
+                      <span style={{ fontSize: 9, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Descanso</span>
                       <select value={ex.restSeconds || 90} onChange={e => updateExercise(ei, { restSeconds: parseInt(e.target.value) })}
                         style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', color: 'var(--color-sub)', borderRadius: 6, padding: '3px 6px', fontSize: 10, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>
                         {[30, 60, 90, 120, 180].map(s => <option key={s} value={s}>{s}s</option>)}
                       </select>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <span style={{ fontSize: 10, color: 'var(--color-dim)' }}>🔗</span>
+                      <span style={{ fontSize: 9, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Superserie</span>
                       <select value={ex.supersetWith ?? -1} onChange={e => {
                         const v = parseInt(e.target.value)
                         updateExercise(ei, { supersetWith: v >= 0 ? v : undefined })
                         if (v >= 0) toast.show('✓ Superserie emparejada')
                       }}
                         style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', color: 'var(--color-sub)', borderRadius: 6, padding: '3px 6px', fontSize: 10, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>
-                        <option value={-1}>Sin pareja</option>
+                        <option value={-1}>No</option>
                         {activeSession.exercises.map((e2, i2) => i2 !== ei ? (
-                          <option key={i2} value={i2}>+ {e2.name.slice(0, 15)}</option>
+                          <option key={i2} value={i2}>{e2.name.slice(0, 15)}</option>
                         ) : null)}
-                      </select>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <span style={{ fontSize: 9, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Descanso</span>
-                      <select value={ex.restSeconds || 90} onChange={e => updateExercise(ei, { restSeconds: parseInt(e.target.value) })}
-                        style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', color: 'var(--color-sub)', borderRadius: 6, padding: '3px 6px', fontSize: 10, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>
-                        {[30, 60, 90, 120, 180].map(s => <option key={s} value={s}>{s}s</option>)}
                       </select>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -381,7 +391,13 @@ function StrengthTab() {
                   <div className="text-[15px] font-semibold text-[var(--color-text)]">{s.name}</div>
                   <div className="text-xs text-[var(--color-sub)] mt-1">{s.duration} min · {s.exercises.length} ejercicios</div>
                 </div>
-                <div className="font-serif text-[22px] text-[var(--color-acc-orange)] italic">{Math.round(s.totalKg)} kg</div>
+                <div className="font-serif text-[22px] text-[var(--color-acc-orange)] italic">{Math.round(s.totalKg)} {unit}</div>
+                <button title="Compartir en comunidad" onClick={async () => {
+                  try {
+                    await createPost({ type: 'workout', title: s.name, body: '', data: { totalKg: Math.round(s.totalKg), exercises: s.exercises.length, duration: s.duration, unit } })
+                    toast.show('✓ Entreno compartido en la comunidad')
+                  } catch (e) { toast.show(e instanceof Error ? e.message : 'No se pudo compartir') }
+                }} className="w-7 h-7 rounded-lg bg-[var(--color-acc-purple)]/[0.1] text-[var(--color-acc-purple)] border border-[var(--color-acc-purple)]/20 text-[12px] flex items-center justify-center cursor-pointer">↗</button>
                 <button onClick={() => deleteSession(i)} className="w-7 h-7 rounded-lg bg-red-500/[0.08] text-[var(--color-red)] border border-red-500/[0.15] text-[11px] font-bold flex items-center justify-center cursor-pointer">✕</button>
               </div>
             </div>
@@ -396,7 +412,58 @@ function StrengthTab() {
     return (
       <div className="animate-tab">
         {subBar}
-        <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-[0.8px] mb-2.5">Mis rutinas</div>
+
+        {/* Programas (carpetas de rutinas) */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+          <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-[0.8px]">Programas</div>
+          <button onClick={() => setShowProgForm(!showProgForm)} style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-acc-orange)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'DM Sans,sans-serif' }}>{showProgForm ? 'Cerrar' : '+ Nuevo programa'}</button>
+        </div>
+        {showProgForm && (
+          <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, marginBottom: 10 }}>
+            <Input value={progName} onChange={setProgName} placeholder="Nombre del programa (ej: PPL, Fuerza 5x5)" className="mb-2" />
+            <div style={{ fontSize: 11, color: 'var(--color-dim)', marginBottom: 6 }}>Rutinas incluidas</div>
+            {routines.length === 0 ? (
+              <div style={{ fontSize: 12, color: 'var(--color-dim)', marginBottom: 8 }}>Crea rutinas primero para agruparlas.</div>
+            ) : (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+                {routines.map(r => {
+                  const on = progRoutineSel.includes(r.id)
+                  return (
+                    <button key={r.id} onClick={() => setProgRoutineSel(prev => on ? prev.filter(x => x !== r.id) : [...prev, r.id])}
+                      style={{ padding: '5px 11px', borderRadius: 8, fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid', background: on ? 'color-mix(in srgb, var(--color-acc-orange) 14%, transparent)' : 'var(--color-s2)', color: on ? 'var(--color-acc-orange)' : 'var(--color-sub)', borderColor: on ? 'color-mix(in srgb, var(--color-acc-orange) 30%, transparent)' : 'var(--color-border)' }}>
+                      {on ? '✓ ' : ''}{r.name}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+            <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
+              {['#dd7d55', '#6d76f0', '#48b586', '#c8a24e', '#9a82e8'].map(c => (
+                <button key={c} onClick={() => setProgColor(c)} style={{ width: 24, height: 24, borderRadius: '50%', border: progColor === c ? '2.5px solid var(--color-text)' : '2.5px solid transparent', background: c, cursor: 'pointer' }} />
+              ))}
+            </div>
+            <button onClick={() => {
+              if (!progName.trim()) { toast.show('Ponle nombre al programa'); return }
+              addProgram({ id: Date.now(), name: progName.trim(), description: '', routines: progRoutineSel, color: progColor })
+              setProgName(''); setProgRoutineSel([]); setShowProgForm(false); toast.show('✓ Programa creado')
+            }} className="btn-primary" style={{ background: 'var(--color-acc-orange)' }}>Crear programa</button>
+          </div>
+        )}
+        {programs.map(pr => (
+          <div key={pr.id} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderLeft: `3px solid ${pr.color}`, borderRadius: 14, padding: '12px 14px', marginBottom: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>{pr.name}</div>
+                <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 2 }}>
+                  {pr.routines.map(rid => routines.find(r => r.id === rid)?.name).filter(Boolean).join(' · ') || 'Sin rutinas'}
+                </div>
+              </div>
+              <button onClick={() => { removeProgram(pr.id); toast.show('Programa eliminado') }} style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(224,95,95,0.08)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.15)', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>✕</button>
+            </div>
+          </div>
+        ))}
+
+        <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-[0.8px] mb-2.5 mt-4">Mis rutinas</div>
         {routines.map(r => (
           <div key={r.id} className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl overflow-hidden mb-2">
             <div className="flex items-center gap-3 px-4 py-3.5 border-b border-[var(--color-border)]">
@@ -534,6 +601,41 @@ function StrengthTab() {
             <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 28, color: 'var(--color-acc-blue)', lineHeight: 1 }}>{Math.round(sessions.reduce((s, x) => s + x.totalKg, 0))}</div>
           </div>
         </div>
+
+        {/* Compartir resumen */}
+        <button onClick={async () => {
+          const text = shareSummary()
+          const nav = navigator as Navigator & { share?: (d: { text: string }) => Promise<void> }
+          if (nav.share) { try { await nav.share({ text }) } catch { /* cancelado */ } }
+          else { try { await navigator.clipboard.writeText(text); toast.show('✓ Resumen copiado al portapapeles') } catch { toast.show('No se pudo copiar') } }
+        }}
+          style={{ width: '100%', padding: 12, borderRadius: 12, marginBottom: 12, border: '1px solid color-mix(in srgb, var(--color-acc-orange) 25%, transparent)', background: 'color-mix(in srgb, var(--color-acc-orange) 10%, transparent)', color: 'var(--color-acc-orange)', fontSize: 13, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>
+          Compartir resumen de fuerza
+        </button>
+
+        {/* Análisis por músculo */}
+        {(() => {
+          const analysis = getMuscleAnalysis().filter(a => a.sets > 0).sort((a, b) => b.sets - a.sets)
+          if (analysis.length === 0) return null
+          const maxSets = Math.max(...analysis.map(a => a.sets), 1)
+          return (
+            <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-sub)', letterSpacing: '0.3px', marginBottom: 12 }}>Series por grupo muscular</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+                {analysis.map(a => (
+                  <div key={a.group} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ width: 74, flexShrink: 0, fontSize: 12, fontWeight: 500, color: 'var(--color-sub)' }}>{a.group}</span>
+                    <div style={{ flex: 1, height: 8, background: 'rgba(255,255,255,0.05)', borderRadius: 99, overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${Math.round(a.sets / maxSets * 100)}%`, background: a.color, borderRadius: 99, transition: 'width 0.5s' }} />
+                    </div>
+                    <span style={{ width: 28, flexShrink: 0, textAlign: 'right', fontSize: 12, fontWeight: 700, color: 'var(--color-text)' }}>{a.sets}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ fontSize: 10, color: 'var(--color-dim)', marginTop: 10 }}>Series completadas · histórico total</div>
+            </div>
+          )
+        })()}
 
         {/* Training calendar */}
         <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>

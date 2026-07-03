@@ -166,7 +166,6 @@ export const useFisicoStore = create<FisicoStore>((set, get) => ({
   loadSessions: () => set({ sessions: load('fisico_sessions', []) }),
 
   startSession: (name, exercises) => {
-    const lastSession = get().sessions[0]
     const exs: SessionExercise[] = (exercises || []).map(e => ({
       name: e.name, group: e.group, color: e.color,
       restSeconds: e.restSeconds || 90,
@@ -232,11 +231,11 @@ export const useFisicoStore = create<FisicoStore>((set, get) => ({
     const exs = [...ses.exercises]
     const currentSets = exs[exIdx].sets.filter(s => s.type !== 'warmup')
     const warmupPcts = [0.4, 0.6, 0.8]
-    const unit = get().unit
-    const plates = PLATE_SETS[unit]
+    const plates = PLATE_SETS[get().unit]
+    const step = plates[plates.length - 1] // disco más pequeño (1.25kg / 2.5lb)
     const warmups = warmupPcts.map((pct, i) => {
       const raw = workingWeight * pct
-      const rounded = Math.round(raw / 2.5) * 2.5
+      const rounded = Math.round(raw / step) * step
       return { setNumber: i + 1, weight: rounded, reps: Math.max(1, Math.round(i < 2 ? 8 : 3)), done: false, type: 'warmup' as const }
     })
     exs[exIdx] = { ...exs[exIdx], sets: [...warmups, ...currentSets.map((s, i) => ({ ...s, setNumber: warmups.length + i + 1 }))] }
@@ -378,7 +377,12 @@ export const useFisicoStore = create<FisicoStore>((set, get) => ({
   },
   setWakeLock: (on) => {
     if (on && 'wakeLock' in navigator) {
-      (navigator as Navigator & { wakeLock: { request: (t: string) => Promise<{ release: () => Promise<void> }> } }).wakeLock.request('screen').catch(() => {})
+      (navigator as Navigator & { wakeLock: { request: (t: string) => Promise<WakeLockSentinel> } }).wakeLock.request('screen')
+        .then(sentinel => { wakeLockSentinel = sentinel })
+        .catch(() => {})
+    } else if (!on && wakeLockSentinel) {
+      wakeLockSentinel.release().catch(() => {})
+      wakeLockSentinel = null
     }
     set({ wakeLock: on })
   },
@@ -409,16 +413,17 @@ export const useFisicoStore = create<FisicoStore>((set, get) => ({
   shareSummary: () => {
     const sessions = get().sessions
     const prs = get().prs
+    const u = get().unit
     const totalSessions = sessions.length
     const totalKg = Math.round(sessions.reduce((s, x) => s + x.totalKg, 0))
     const thisMonth = sessions.filter(s => s.date.startsWith(new Date().toISOString().slice(0, 7)))
     const thisMonthSessions = thisMonth.length
     const thisMonthKg = Math.round(thisMonth.reduce((s, x) => s + x.totalKg, 0))
-    const topPRs = prs.slice(0, 5).map(p => `🏆 ${p.exercise}: ${p.weight}kg x ${p.reps}`).join('\n')
+    const topPRs = prs.slice(0, 5).map(p => `🏆 ${p.exercise}: ${p.weight}${u} x ${p.reps}`).join('\n')
     return `💪 Life OS — Resumen de Fuerza
 
-📊 Total: ${totalSessions} sesiones · ${totalKg}kg
-📅 Este mes: ${thisMonthSessions} sesiones · ${thisMonthKg}kg
+📊 Total: ${totalSessions} sesiones · ${totalKg}${u}
+📅 Este mes: ${thisMonthSessions} sesiones · ${thisMonthKg}${u}
 
 🏆 Records personales:
 ${topPRs || 'Sin PRs aún'}

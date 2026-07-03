@@ -77,6 +77,20 @@ export default function Dashboard() {
     <div>
       <TopBar />
 
+      {/* Comunidad */}
+      <div className="section s0" style={{ paddingBottom: 0 }}>
+        <Link to="/comunidad" style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none', background: 'linear-gradient(135deg, color-mix(in srgb, var(--color-acc-purple) 16%, var(--color-s1)), var(--color-s1))', border: '1px solid color-mix(in srgb, var(--color-acc-purple) 25%, var(--color-border))', borderRadius: 16, padding: '14px 16px' }}>
+          <div style={{ width: 42, height: 42, borderRadius: 12, flexShrink: 0, background: 'linear-gradient(145deg,var(--color-acc-purple),var(--color-acc-blue))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#fff" strokeWidth={1.7}><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 10-4-4 4 4 0 004 4zm6 0a3 3 0 10-2.83-4M9 12a3 3 0 10-2.83-4" /></svg>
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-text)' }}>Comunidad</div>
+            <div style={{ fontSize: 12, color: 'var(--color-sub)', marginTop: 1 }}>Comparte entrenos, récords y platos · mira el feed</div>
+          </div>
+          <span style={{ fontSize: 18, color: 'var(--color-acc-purple)' }}>›</span>
+        </Link>
+      </div>
+
       {/* Habits */}
       <div className="section s1">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>

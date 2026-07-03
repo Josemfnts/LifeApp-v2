@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNutriStore } from '@/stores/nutriStore'
+import { createPost } from '@/lib/social'
 import { FOODS_DB } from '@/data/foods'
 import { useToast } from '@/stores/toast'
 import { Input } from '@/components/ui'
@@ -404,6 +405,13 @@ function DishesTab() {
               toast.show(`✓ "${d.name}" añadido al diario`)
             }}
               style={{ flex: 1, padding: 8, borderRadius: 10, background: 'rgba(82,183,136,0.1)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.2)', fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>Usar en diario</button>
+            <button title="Compartir en comunidad" onClick={async () => {
+              try {
+                await createPost({ type: 'recipe', title: d.name, body: `${d.totalKcal} kcal · P:${d.totalP}g C:${d.totalC}g G:${d.totalF}g`, data: { kcal: d.totalKcal, p: d.totalP, c: d.totalC, f: d.totalF } })
+                toast.show(`✓ "${d.name}" compartido en la comunidad`)
+              } catch (e) { toast.show(e instanceof Error ? e.message : 'No se pudo compartir') }
+            }}
+              style={{ width: 36, borderRadius: 10, background: 'color-mix(in srgb, var(--color-acc-purple) 12%, transparent)', color: 'var(--color-acc-purple)', border: '1px solid color-mix(in srgb, var(--color-acc-purple) 22%, transparent)', fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>↗</button>
             <button onClick={() => { removeDish(d.id); toast.show('Plato eliminado') }}
               style={{ width: 36, borderRadius: 10, background: 'rgba(224,95,95,0.08)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.15)', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
           </div>
