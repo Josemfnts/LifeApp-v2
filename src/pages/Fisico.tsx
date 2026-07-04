@@ -67,10 +67,14 @@ function StrengthTab() {
   const [cexGroup, setCexGroup] = useState('Pecho')
   const [selRoutine, setSelRoutine] = useState('')
   const [equipFilter, setEquipFilter] = useState('')
+  const [dbObj, setDbObj] = useState('')
+  const [dbNivel, setDbNivel] = useState('')
+  const [dbLugar, setDbLugar] = useState('')
+  const [dbSearch2, setDbSearch2] = useState('')
   const [showProgForm, setShowProgForm] = useState(false)
   const [progName, setProgName] = useState('')
-  const [progColor, setProgColor] = useState('#dd7d55')
   const [progRoutineSel, setProgRoutineSel] = useState<number[]>([])
+  const [progColor, setProgColor] = useState('#dd7d55')
   const allExercises = [...STATIC_EXERCISES, ...customExercises.map(e => ({ ...e, equipment: '' }))]
   const todayStr = new Date().toISOString().slice(0, 10)
   const todaySessions = sessions.filter(s => s.date === todayStr)
@@ -463,6 +467,57 @@ function StrengthTab() {
             </div>
           </div>
         ))}
+
+        {/* Routine database library */}
+        <div style={{ marginTop: 12 }}>
+          <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 14, marginBottom: 10 }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 10 }}>📚 Biblioteca ({ROUTINES.length} rutinas)</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6, marginBottom: 8 }}>
+              <select className="inp" value={dbObj} onChange={e => setDbObj(e.target.value)} style={{ marginBottom: 0, fontSize: 11 }}>
+                <option value="">Objetivo</option>
+                {ROUTINE_OBJECTIVES.map(o => <option key={o} value={o}>{getObjLabel(o)}</option>)}
+              </select>
+              <select className="inp" value={dbNivel} onChange={e => setDbNivel(e.target.value)} style={{ marginBottom: 0, fontSize: 11 }}>
+                <option value="">Nivel</option>
+                {ROUTINE_LEVELS.map(n => <option key={n} value={n}>{getNivelLabel(n)}</option>)}
+              </select>
+              <select className="inp" value={dbLugar} onChange={e => setDbLugar(e.target.value)} style={{ marginBottom: 0, fontSize: 11 }}>
+                <option value="">Lugar</option>
+                {ROUTINE_PLACES.map(l => <option key={l} value={l}>{getLugarLabel(l)}</option>)}
+              </select>
+            </div>
+            <input className="inp" value={dbSearch2} onChange={e => setDbSearch2(e.target.value)} placeholder="🔍 Buscar rutina..." style={{ marginBottom: 0 }} />
+          </div>
+          {filterRoutines({ objetivo: dbObj || undefined, nivel: dbNivel || undefined, lugar: dbLugar || undefined, search: dbSearch2 || undefined }).slice(0, 10).map(r => (
+            <div key={r.id} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 12, overflow: 'hidden', marginBottom: 8 }}>
+              <div style={{ padding: '12px 14px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-text)' }}>{r.nombre}</div>
+                  <div style={{ display: 'flex', gap: 4, flexShrink: 0, marginLeft: 8 }}>
+                    <span style={{ fontSize: 9, fontWeight: 600, padding: '2px 6px', borderRadius: 99, background: 'rgba(224,122,95,0.1)', color: 'var(--color-acc-orange)' }}>{getObjLabel(r.objetivo)}</span>
+                    <span style={{ fontSize: 9, fontWeight: 600, padding: '2px 6px', borderRadius: 99, background: 'var(--color-s2)', color: 'var(--color-dim)' }}>{getNivelLabel(r.nivel)}</span>
+                  </div>
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--color-sub)', marginBottom: 8 }}>
+                  {getLugarLabel(r.lugar)} · {r.dias_semana}d/sem · {r.duracion_sesion_min}min · {r.duracion_programa_semanas}semanas
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--color-dim)', marginBottom: 8, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                  {r.ejercicios.slice(0, 5).map(e => <span key={e.nombre} style={{ padding: '2px 6px', borderRadius: 4, background: 'var(--color-s2)' }}>{e.nombre} {e.series}x{e.repeticiones}</span>)}
+                  {r.ejercicios.length > 5 && <span style={{ color: 'var(--color-dim)', fontSize: 10 }}>+{r.ejercicios.length - 5} más</span>}
+                </div>
+                <button onClick={() => {
+                  startSession(r.nombre, r.ejercicios.map(e => ({
+                    name: e.nombre, group: e.grupo_muscular, color: EXERCISE_COLORS[e.grupo_muscular] || '#e07a5f', sets: e.series, restSeconds: e.descanso_seg
+                  })))
+                  toast.show('✓ Rutina cargada')
+                }} style={{ width: '100%', padding: 10, borderRadius: 10, background: 'var(--color-acc-orange)', color: '#fff', border: 'none', fontSize: 14, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>▶ Empezar esta rutina</button>
+              </div>
+            </div>
+          ))}
+          <div style={{ fontSize: 10, color: 'var(--color-dim)', textAlign: 'center', marginBottom: 12 }}>
+            {filterRoutines({ objetivo: dbObj || undefined, nivel: dbNivel || undefined, lugar: dbLugar || undefined, search: dbSearch2 || undefined }).length} de {ROUTINES.length} rutinas
+          </div>
+        </div>
 
         <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-[0.8px] mb-2.5 mt-4">Mis rutinas</div>
         {routines.map(r => (

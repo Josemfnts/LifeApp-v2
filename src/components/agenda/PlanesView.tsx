@@ -74,7 +74,7 @@ function ViajesTab() {
             <div style={{ fontSize: 11, color: 'var(--color-sub)' }}>{v.cuando}{v.presupuesto ? ' · ' + v.presupuesto + '€' : ''}</div>
             {v.nota && <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 2 }}>{v.nota}</div>}
           </div>
-          <button onClick={() => { setViajes(vs => vs.filter(x => x.id !== v.id)); save(VIAJES_KEY, viajes.filter(x => x.id !== v.id)); toast.show('Eliminado') }}
+          <button onClick={() => { setViajes(vs => { const n = vs.filter(x => x.id !== v.id); save(VIAJES_KEY, n); return n }); toast.show('Eliminado') }}
             style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(224,95,95,0.08)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.15)', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>✕</button>
         </div>
       ))}
@@ -109,7 +109,7 @@ function ActividadesTab() {
             <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>{a.nombre}</div>
             <div style={{ fontSize: 11, color: 'var(--color-sub)' }}>{a.cuando}{a.nota ? ' · ' + a.nota : ''}</div>
           </div>
-          <button onClick={() => { setActs(as => as.filter(x => x.id !== a.id)); save(ACTIVIDADES_KEY, acts.filter(x => x.id !== a.id)); toast.show('Eliminado') }}
+          <button onClick={() => { setActs(as => { const n = as.filter(x => x.id !== a.id); save(ACTIVIDADES_KEY, n); return n }); toast.show('Eliminado') }}
             style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(224,95,95,0.08)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.15)', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>✕</button>
         </div>
       ))}
@@ -143,7 +143,7 @@ function ComprasTab() {
             <div key={i.id} onClick={() => toggle(i.id)} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 10, padding: '10px 14px', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', opacity: 0.5 }}>
               <div style={{ width: 20, height: 20, borderRadius: 6, background: '#166534', border: '1.5px solid var(--color-acc-green)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4ade80', fontSize: 11, flexShrink: 0 }}>✓</div>
               <span style={{ flex: 1, fontSize: 13, color: 'var(--color-dim)', textDecoration: 'line-through' }}>{i.text}</span>
-              <button onClick={e => { e.stopPropagation(); setItems(is => is.filter(x => x.id !== i.id)); save(COMPRAS_KEY, items.filter(x => x.id !== i.id)) }}
+              <button onClick={e => { e.stopPropagation(); setItems(is => { const n = is.filter(x => x.id !== i.id); save(COMPRAS_KEY, n); return n }) }}
                 style={{ background: 'none', border: 'none', color: 'var(--color-dim)', cursor: 'pointer', fontSize: 12 }}>✕</button>
             </div>
           ))}
@@ -172,7 +172,7 @@ function InboxTab() {
             <div style={{ fontSize: 13, color: 'var(--color-text)' }}>{i.text}</div>
             <div style={{ fontSize: 10, color: 'var(--color-dim)', marginTop: 2 }}>{i.date}</div>
           </div>
-          <button onClick={() => { setIdeas(is => is.filter(x => x.id !== i.id)); save(INBOX_KEY, ideas.filter(x => x.id !== i.id)) }}
+          <button onClick={() => { setIdeas(is => { const n = is.filter(x => x.id !== i.id); save(INBOX_KEY, n); return n }) }}
             style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(224,95,95,0.08)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.15)', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>✕</button>
         </div>
       ))}
@@ -218,7 +218,7 @@ function ProyectosTab() {
                 <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>{p.nombre}</div>
                 <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 2 }}>{p.tareas.length} tareas · {pct}%</div>
               </div>
-              <button onClick={() => { setProjs(ps => ps.filter(x => x.id !== p.id)); save(PROYECTOS_KEY, projs.filter(x => x.id !== p.id)) }}
+              <button onClick={() => { setProjs(ps => { const n = ps.filter(x => x.id !== p.id); save(PROYECTOS_KEY, n); return n }) }}
                 style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(224,95,95,0.08)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.15)', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>✕</button>
             </div>
             {p.tareas.length > 0 && (

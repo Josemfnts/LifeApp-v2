@@ -59,9 +59,9 @@ const seen = new Map<string, Recipe>()
 allRecipes.forEach(r => seen.set(r.id, r))
 
 export const RECIPES = [...seen.values()]
+export const RECIPE_DIFFICULTIES = [...new Set(RECIPES.map(r => r.dificultad))]
 export const RECIPE_CATEGORIES = [...new Set(RECIPES.map(r => r.categoria))]
 export const RECIPE_TAGS = [...new Set(RECIPES.flatMap(r => r.etiquetas))]
-export const RECIPE_DIFFICULTIES = [...new Set(RECIPES.map(r => r.dificultad))]
 
 export function filterRecipes(filters: {
   categoria?: string

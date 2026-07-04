@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useNutriStore } from '@/stores/nutriStore'
 import { createPost } from '@/lib/social'
 import { FOODS_DB } from '@/data/foods'
-import { RECIPES, RECIPE_CATEGORIES, RECIPE_TAGS, filterRecipes } from '@/data/recipesDB'
+import { RECIPES, RECIPE_CATEGORIES, RECIPE_TAGS, RECIPE_DIFFICULTIES, filterRecipes } from '@/data/recipesDB'
 import { useToast } from '@/stores/toast'
 import { Input } from '@/components/ui'
 import Chart from 'chart.js/auto'
@@ -84,6 +84,7 @@ function DiaryTab() {
       },
       options: { cutout: '75%', plugins: { legend: { display: false }, tooltip: { enabled: false } } }
     })
+    return () => { if (chartRef.current) chartRef.current.destroy() }
   }, [totalKcal, goals.kcal])
 
   function handleCopyDay() {
@@ -330,6 +331,21 @@ function DishesTab() {
   const [ingGrams, setIngGrams] = useState('100')
   const [ingredients, setIngredients] = useState<{ name: string; kcal: number; p: number; c: number; f: number; grams: number }[]>([])
 
+  // Recipe DB filters
+  const [catFilter, setCatFilter] = useState('')
+  const [tagFilter, setTagFilter] = useState('')
+  const [difFilter, setDifFilter] = useState('')
+  const [searchFilter, setSearchFilter] = useState('')
+  const [maxTimeFilter, setMaxTimeFilter] = useState('')
+
+  const filteredRecipes = filterRecipes({
+    categoria: catFilter || undefined,
+    etiquetas: tagFilter ? [tagFilter] : undefined,
+    dificultad: difFilter || undefined,
+    search: searchFilter || undefined,
+    maxTime: maxTimeFilter ? parseInt(maxTimeFilter) : undefined,
+  }).slice(0, 30)
+
   function addIngredient() {
     const k = parseFloat(ingKcal)
     if (!ingName.trim() || !k) return
@@ -390,6 +406,74 @@ function DishesTab() {
           </>
         )}
       </div>
+
+      {/* Recipe database with filters */}
+      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
+        <div className="sec-label">📚 Biblioteca ({RECIPES.length} recetas)</div>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
+          <select className="inp" value={catFilter} onChange={e => setCatFilter(e.target.value)} style={{ flex: 1, minWidth: 100, marginBottom: 0, fontSize: 12 }}>
+            <option value="">Todas las categorías</option>
+            {RECIPE_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+          <select className="inp" value={difFilter} onChange={e => setDifFilter(e.target.value)} style={{ width: 100, marginBottom: 0, fontSize: 12 }}>
+            <option value="">Dificultad</option>
+            {RECIPE_DIFFICULTIES.map(d => <option key={d} value={d}>{d}</option>)}
+          </select>
+          <input className="inp" value={maxTimeFilter} onChange={e => setMaxTimeFilter(e.target.value)} type="number" placeholder="Max min" style={{ width: 70, marginBottom: 0 }} />
+        </div>
+        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 8 }}>
+          <button onClick={() => setTagFilter('')} style={{ padding: '3px 8px', borderRadius: 99, fontSize: 10, fontWeight: 600, cursor: 'pointer', border: '1px solid', background: !tagFilter ? 'rgba(82,183,136,0.15)' : 'var(--color-s2)', color: !tagFilter ? 'var(--color-acc-green)' : 'var(--color-dim)', borderColor: !tagFilter ? 'rgba(82,183,136,0.3)' : 'var(--color-border)', fontFamily: 'DM Sans,sans-serif' }}>Todas</button>
+          {RECIPE_TAGS.slice(0, 12).map(t => (
+            <button key={t} onClick={() => setTagFilter(t === tagFilter ? '' : t)}
+              style={{ padding: '3px 8px', borderRadius: 99, fontSize: 10, fontWeight: 600, cursor: 'pointer', border: '1px solid', background: tagFilter === t ? 'rgba(82,183,136,0.15)' : 'var(--color-s2)', color: tagFilter === t ? 'var(--color-acc-green)' : 'var(--color-dim)', borderColor: tagFilter === t ? 'rgba(82,183,136,0.3)' : 'var(--color-border)', fontFamily: 'DM Sans,sans-serif' }}>{t.replace(/_/g, ' ')}</button>
+          ))}
+        </div>
+        <input className="inp" value={searchFilter} onChange={e => setSearchFilter(e.target.value)} placeholder="🔍 Buscar receta..." style={{ marginBottom: 0 }} />
+      </div>
+
+      {filteredRecipes.map(r => (
+        <div key={r.id} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, marginBottom: 8 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
+            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 17, color: 'var(--color-text)' }}>{r.nombre}</div>
+            <div style={{ display: 'flex', gap: 4 }}>
+              {r.etiquetas.slice(0, 3).map(t => (
+                <span key={t} style={{ fontSize: 9, fontWeight: 600, padding: '2px 6px', borderRadius: 4, background: 'rgba(82,183,136,0.1)', color: 'var(--color-acc-green)', whiteSpace: 'nowrap' }}>{t.replace(/_/g, ' ')}</span>
+              ))}
+            </div>
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--color-sub)', marginBottom: 8 }}>
+            ⏱ {r.tiempo_min}min · {r.dificultad} · {r.raciones} ración · {r.macros_por_racion.kcal}kcal | P:{r.macros_por_racion.proteina_g}g C:{r.macros_por_racion.carbohidratos_g}g G:{r.macros_por_racion.grasas_g}g
+          </div>
+          <div style={{ fontSize: 11, color: 'var(--color-dim)', marginBottom: 10 }}>
+            {r.ingredientes.slice(0, 6).map(i => `${i.nombre} (${i.cantidad}${i.unidad})`).join(' · ')}
+            {r.ingredientes.length > 6 && ` +${r.ingredientes.length - 6} más`}
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button onClick={() => {
+              const today = todayISO()
+              if (r.ingredientes.length > 0) {
+                r.ingredientes.forEach(ing => {
+                  const food = FOODS_DB.find(f => f.name.toLowerCase() === ing.nombre.toLowerCase())
+                  addFood(today, {
+                    name: ing.nombre, kcal: food ? Math.round(food.kcal * ing.cantidad / 100) : Math.round(r.macros_por_racion.kcal / r.ingredientes.length),
+                    p: food ? +(food.p * ing.cantidad / 100).toFixed(1) : 0,
+                    c: food ? +(food.c * ing.cantidad / 100).toFixed(1) : 0,
+                    f: food ? +(food.f * ing.cantidad / 100).toFixed(1) : 0,
+                    grams: ing.cantidad, meal: r.categoria === 'desayuno' ? 'Desayuno' : r.categoria === 'comida' ? 'Comida' : r.categoria === 'cena' ? 'Cena' : 'Snack',
+                  })
+                })
+              } else {
+                addFood(today, { name: r.nombre, kcal: r.macros_por_racion.kcal, p: r.macros_por_racion.proteina_g, c: r.macros_por_racion.carbohidratos_g, f: r.macros_por_racion.grasas_g, grams: 100, meal: 'Comida' })
+              }
+              toast.show(`✓ "${r.nombre}" añadido al diario`)
+            }}
+              style={{ flex: 1, padding: 8, borderRadius: 10, background: 'rgba(82,183,136,0.1)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.2)', fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>Usar en diario</button>
+          </div>
+        </div>
+      ))}
+      <div style={{ fontSize: 10, color: 'var(--color-dim)', textAlign: 'center', marginBottom: 12 }}>{filteredRecipes.length} de {RECIPES.length} recetas</div>
+
+      <div className="sec-label" style={{ marginTop: 16 }}>Mis platos ({dishes.length})</div>
 
       {dishes.map(d => (
         <div key={d.id} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, marginBottom: 8, position: 'relative' }}>
@@ -752,18 +836,19 @@ function ToolsTab() {
     if (!barRef.current || bodyMetrics.length < 2) return
     bChart.current?.destroy()
     const bm = [...bodyMetrics].slice(-14)
-    bChart.current = new Chart(barRef.current.getContext('2d')!, {
-      type: 'line',
-      data: {
-        labels: bm.map(m => m.date.slice(5)),
-        datasets: [{ data: bm.map(m => m.weight), borderColor: '#52b788', borderWidth: 2, tension: 0.3, pointRadius: 3, pointBackgroundColor: '#52b788' }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c: { raw: unknown }) => (c.raw as number) + ' kg' } } },
-        scales: { x: { ticks: { color: '#4a4d56', font: { size: 9 } } }, y: { ticks: { color: '#4a4d56', font: { size: 9 } } } }
-      }
-    })
+      bChart.current = new Chart(barRef.current.getContext('2d')!, {
+        type: 'line',
+        data: {
+          labels: bm.map(m => m.date.slice(5)),
+          datasets: [{ data: bm.map(m => m.weight), borderColor: '#52b788', borderWidth: 2, tension: 0.3, pointRadius: 3, pointBackgroundColor: '#52b788' }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c: { raw: unknown }) => (c.raw as number) + ' kg' } } },
+          scales: { x: { ticks: { color: '#4a4d56', font: { size: 9 } } }, y: { ticks: { color: '#4a4d56', font: { size: 9 } } } }
+        }
+      })
+      return () => { if (bChart.current) bChart.current.destroy() }
   }, [bodyMetrics])
 
   function compare() {
