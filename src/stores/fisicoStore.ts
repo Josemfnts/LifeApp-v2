@@ -76,7 +76,7 @@ export const STATIC_EXERCISES = [
 export const EXERCISE_GROUPS = [...new Set(STATIC_EXERCISES.map(e => e.group))]
 export const EQUIPMENT_TYPES = ['bar', 'dumbbell', 'cable', 'machine', 'bodyweight']
 export const EQUIPMENT_LABELS: Record<string, string> = { bar: 'Barra', dumbbell: 'Mancuernas', cable: 'Polea', machine: 'Máquina', bodyweight: 'Peso corporal' }
-export const EXERCISE_COLORS: Record<string, string> = { Pecho: '#e07a5f', Espalda: '#5b8af0', Hombros: '#c9a84c', Bíceps: '#52b788', Tríceps: '#9b7fe0', Piernas: '#e05f5f', Glúteos: '#f472b6', Abdomen: '#a78bfa' }
+export const EXERCISE_COLORS: Record<string, string> = { Pecho: 'var(--color-acc-orange)', Espalda: 'var(--color-acc-blue)', Hombros: 'var(--color-acc-gold)', Bíceps: 'var(--color-acc-green)', Tríceps: 'var(--color-acc-purple)', Piernas: 'var(--color-red)', Glúteos: '#f472b6', Abdomen: '#a78bfa' }
 
 const PLATE_SETS: Record<string, number[]> = {
   kg: [25, 20, 15, 10, 5, 2.5, 1.25],
@@ -401,7 +401,7 @@ export const useFisicoStore = create<FisicoStore>((set, get) => ({
   getMuscleAnalysis: () => {
     const sessions = get().sessions
     const groups: Record<string, { sets: number; color: string }> = {}
-    EXERCISE_GROUPS.forEach(g => { groups[g] = { sets: 0, color: EXERCISE_COLORS[g] || '#e07a5f' } })
+    EXERCISE_GROUPS.forEach(g => { groups[g] = { sets: 0, color: EXERCISE_COLORS[g] || 'var(--color-acc-orange)' } })
     sessions.forEach(s => {
       s.exercises.forEach(ex => {
         if (groups[ex.group]) groups[ex.group].sets += ex.sets.filter(st => st.done).length

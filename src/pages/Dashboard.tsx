@@ -103,7 +103,7 @@ export default function Dashboard() {
         {activeHabits.length === 0 ? (
           <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 20, textAlign: 'center' }}>
             <div style={{ fontSize: 13, color: 'var(--color-sub)', marginBottom: 10 }}>Sin hábitos creados todavía</div>
-            <Link to="/habitos" style={{ background: 'rgba(155,127,224,0.1)', color: '#9b7fe0', border: '1px solid rgba(155,127,224,0.2)', borderRadius: 8, padding: '8px 16px', fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', textDecoration: 'none' }}>+ Crear primer hábito</Link>
+            <Link to="/habitos" style={{ background: 'rgba(155,127,224,0.1)', color: 'var(--color-acc-purple)', border: '1px solid rgba(155,127,224,0.2)', borderRadius: 8, padding: '8px 16px', fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', textDecoration: 'none' }}>+ Crear primer hábito</Link>
           </div>
         ) : (
           <div style={{ marginBottom: 10 }}>
@@ -111,7 +111,7 @@ export default function Dashboard() {
               <div style={{ fontSize: 12, color: 'var(--color-sub)' }}>
                 <span style={{ fontWeight: 700, color: 'var(--color-text)' }}>{habitsDone}</span> / {activeHabits.length} completados
               </div>
-              <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 18, color: '#9b7fe0' }}>{habitsPct}%</div>
+              <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 18, color: 'var(--color-acc-purple)' }}>{habitsPct}%</div>
             </div>
             <div className="pbar-track">
               <div className="pbar-fill" style={{ width: `${habitsPct}%`, background: 'linear-gradient(90deg,#9b7fe0,#c9a84c)' }} />
@@ -188,7 +188,7 @@ export default function Dashboard() {
           const col = AREA_COLORS[g.stat]
           return (
             <div key={i} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 10, position: 'relative' }}>
-              {done && <div style={{ display: 'inline-block', fontSize: 11, fontWeight: 600, color: '#52b788', background: 'rgba(82,183,136,0.1)', border: '1px solid rgba(82,183,136,0.2)', borderRadius: 6, padding: '2px 10px', marginBottom: 6 }}>✓ Completado</div>}
+              {done && <div style={{ display: 'inline-block', fontSize: 11, fontWeight: 600, color: 'var(--color-acc-green)', background: 'rgba(82,183,136,0.1)', border: '1px solid rgba(82,183,136,0.2)', borderRadius: 6, padding: '2px 10px', marginBottom: 6 }}>✓ Completado</div>}
               <button onClick={() => { const next = goals.filter((_, ii) => ii !== i); setGoals(next); localStorage.setItem(STORE_KEYS.josema_rpg_missions_v1, JSON.stringify(next)) }}
                 style={{ position: 'absolute', top: 14, right: 16, fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '2px 6px' }}>✕</button>
               <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-sub)', letterSpacing: '0.3px', textTransform: 'uppercase', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -305,7 +305,7 @@ export default function Dashboard() {
                   opacity: a.unlocked ? 1 : 0.4,
                 }}>
                   <div style={{ fontSize: 20, marginBottom: 4 }}>{a.icon}</div>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: a.unlocked ? '#c9a84c' : 'var(--color-dim)', marginBottom: 2 }}>{a.title}</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: a.unlocked ? 'var(--color-acc-gold)' : 'var(--color-dim)', marginBottom: 2 }}>{a.title}</div>
                   <div style={{ fontSize: 9, color: 'var(--color-dim)' }}>{a.desc}</div>
                 </div>
               ))}

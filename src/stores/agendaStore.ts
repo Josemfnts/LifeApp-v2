@@ -8,10 +8,10 @@ export function todayStr(): string { return getStr(new Date()) }
 
 export const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
 export const DAYS = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado']
-export const COLOR_HEX: Record<string, string> = { blue:'#5b8af0', red:'#e05f5f', yellow:'#c9a84c', purple:'#9b7fe0', green:'#52b788' }
-export const SHIFT_COLORS: Record<string, string> = { TM:'#5b8af0', TT:'#c9a84c', TN:'#9b7fe0', L:'#52b788' }
+export const COLOR_HEX: Record<string, string> = { blue:'var(--color-acc-blue)', red:'var(--color-red)', yellow:'var(--color-acc-gold)', purple:'var(--color-acc-purple)', green:'var(--color-acc-green)' }
+export const SHIFT_COLORS: Record<string, string> = { TM:'var(--color-acc-blue)', TT:'var(--color-acc-gold)', TN:'var(--color-acc-purple)', L:'var(--color-acc-green)' }
 export const SHIFT_LABELS: Record<string, string> = { TM:'Mañana', TT:'Tarde', TN:'Noche', L:'Libre' }
-export const PRIORITY_COLORS: Record<string, string> = { high:'#e05f5f', medium:'#c9a84c', low:'#52b788' }
+export const PRIORITY_COLORS: Record<string, string> = { high:'var(--color-red)', medium:'var(--color-acc-gold)', low:'var(--color-acc-green)' }
 
 export interface SubTask { text: string; done: boolean }
 export interface Task { text: string; time: string; color: string; done: boolean; isOverdue?: boolean; subtasks?: SubTask[]; priority?: string; notes?: string; fromRecurring?: boolean }

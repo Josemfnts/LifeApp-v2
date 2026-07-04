@@ -113,7 +113,7 @@ function DiaryTab() {
       {streakDays > 0 && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
           <span style={{ fontSize: 16 }}>🔥</span>
-          <span style={{ fontFamily: 'DM Serif Display,serif', fontSize: 16, color: '#c9a84c' }}>{streakDays}</span>
+          <span style={{ fontFamily: 'DM Serif Display,serif', fontSize: 16, color: 'var(--color-acc-gold)' }}>{streakDays}</span>
           <span style={{ fontSize: 11, color: 'var(--color-dim)', fontWeight: 600 }}>días de racha</span>
         </div>
       )}
@@ -196,9 +196,9 @@ function DiaryTab() {
             <span style={{ fontWeight: 600, color: 'var(--color-text)' }}>{goals.kcal} kcal</span>
             <span style={{ color: 'var(--color-acc-green)', fontWeight: 600 }}>{pctKcal}%</span>
           </div>
-          {[{ n: 'Proteína', v: totalP, g: goals.p, c: '#5b8af0' },
-            { n: 'Carbos', v: totalC, g: goals.c, c: '#c9a84c' },
-            { n: 'Grasa', v: totalF, g: goals.f, c: '#e07a5f' }].map(m => {
+          {[{ n: 'Proteína', v: totalP, g: goals.p, c: 'var(--color-acc-blue)' },
+            { n: 'Carbos', v: totalC, g: goals.c, c: 'var(--color-acc-gold)' },
+            { n: 'Grasa', v: totalF, g: goals.f, c: 'var(--color-acc-orange)' }].map(m => {
             const pct = Math.min(100, Math.round(m.v / m.g * 100))
             return (
               <div key={m.n} style={{ marginBottom: 9 }}>
@@ -302,7 +302,7 @@ function DiaryTab() {
                   </div>
                   <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 18, color: 'var(--color-acc-green)', fontStyle: 'italic' }}>{f.kcal} kcal</div>
                   <button onClick={() => { toggleFavorite(f.name); toast.show(favorites.includes(f.name) ? 'Quitado de favoritos' : '★ Añadido a favoritos') }}
-                    style={{ width: 24, height: 24, borderRadius: 6, background: 'none', border: 'none', fontSize: 14, cursor: 'pointer', color: favorites.includes(f.name) ? '#c9a84c' : 'var(--color-dim)' }}>
+                    style={{ width: 24, height: 24, borderRadius: 6, background: 'none', border: 'none', fontSize: 14, cursor: 'pointer', color: favorites.includes(f.name) ? 'var(--color-acc-gold)' : 'var(--color-dim)' }}>
                     {favorites.includes(f.name) ? '★' : '☆'}
                   </button>
                   <button onClick={() => { removeFood(today, realIdx); toast.show('Alimento eliminado') }}
@@ -648,7 +648,7 @@ function SearchTab() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)', marginBottom: 3 }}>{f.name}</div>
             <button onClick={() => { toggleFavorite(f.name); toast.show(favorites.includes(f.name) ? 'Quitado' : '★ Favorito') }}
-              style={{ background: 'none', border: 'none', fontSize: 16, cursor: 'pointer', color: favorites.includes(f.name) ? '#c9a84c' : 'var(--color-dim)' }}>
+              style={{ background: 'none', border: 'none', fontSize: 16, cursor: 'pointer', color: favorites.includes(f.name) ? 'var(--color-acc-gold)' : 'var(--color-dim)' }}>
               {favorites.includes(f.name) ? '★' : '☆'}
             </button>
           </div>
@@ -840,7 +840,7 @@ function ToolsTab() {
         type: 'line',
         data: {
           labels: bm.map(m => m.date.slice(5)),
-          datasets: [{ data: bm.map(m => m.weight), borderColor: '#52b788', borderWidth: 2, tension: 0.3, pointRadius: 3, pointBackgroundColor: '#52b788' }]
+          datasets: [{ data: bm.map(m => m.weight), borderColor: 'var(--color-acc-green)', borderWidth: 2, tension: 0.3, pointRadius: 3, pointBackgroundColor: 'var(--color-acc-green)' }]
         },
         options: {
           responsive: true, maintainAspectRatio: false,
@@ -955,9 +955,9 @@ function ToolsTab() {
               <div key={i} style={{ background: 'var(--color-s2)', borderRadius: 10, padding: 10, textAlign: 'center' }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text)', marginBottom: 6 }}>{f.name}</div>
                 <div style={{ fontSize: 11, color: 'var(--color-sub)' }}>🔥 {f.kcal} kcal</div>
-                <div style={{ fontSize: 11, color: '#5b8af0' }}>P: {f.p}g</div>
-                <div style={{ fontSize: 11, color: '#c9a84c' }}>C: {f.c}g</div>
-                <div style={{ fontSize: 11, color: '#e07a5f' }}>G: {f.f}g</div>
+                <div style={{ fontSize: 11, color: 'var(--color-acc-blue)' }}>P: {f.p}g</div>
+                <div style={{ fontSize: 11, color: 'var(--color-acc-gold)' }}>C: {f.c}g</div>
+                <div style={{ fontSize: 11, color: 'var(--color-acc-orange)' }}>G: {f.f}g</div>
               </div>
             ))}
           </div>

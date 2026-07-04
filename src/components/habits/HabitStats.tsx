@@ -56,7 +56,7 @@ export function HabitStats({ habits, log }: HabitStatsProps) {
   const heatCells = useMemo(() => {
     const days = 84
     const cells: { pct: number; isToday: boolean; bg: string }[] = []
-    const baseColor = selId !== 'all' && relevantHabits[0] ? relevantHabits[0].color : '#9b7fe0'
+    const baseColor = selId !== 'all' && relevantHabits[0] ? relevantHabits[0].color : 'var(--color-acc-purple)'
 
     for (let i = days - 1; i >= 0; i--) {
       const d = new Date(Date.now() - i * 86400000)
@@ -91,17 +91,17 @@ export function HabitStats({ habits, log }: HabitStatsProps) {
         </div>
         <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-3.5">
           <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-wide mb-1.5">Racha actual</div>
-          <div className="font-serif text-[32px] text-[#9b7fe0] leading-none">{stats.curStreakAll}</div>
+          <div className="font-serif text-[32px] text-[var(--color-acc-purple)] leading-none">{stats.curStreakAll}</div>
           <div className="text-[11px] text-[var(--color-dim)] mt-1">días seguidos</div>
         </div>
         <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-3.5">
           <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-wide mb-1.5">Tasa de éxito</div>
-          <div className="font-serif text-[32px] text-[#52b788] leading-none">{stats.rate}</div>
+          <div className="font-serif text-[32px] text-[var(--color-acc-green)] leading-none">{stats.rate}</div>
           <div className="text-[11px] text-[var(--color-dim)] mt-1">últimos 30 días</div>
         </div>
         <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-3.5">
           <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-wide mb-1.5">Total completados</div>
-          <div className="font-serif text-[32px] text-[#5b8af0] leading-none">{stats.totalCheckins}</div>
+          <div className="font-serif text-[32px] text-[var(--color-acc-blue)] leading-none">{stats.totalCheckins}</div>
           <div className="text-[11px] text-[var(--color-dim)] mt-1">check-ins</div>
         </div>
       </div>
@@ -141,7 +141,7 @@ export function HabitStats({ habits, log }: HabitStatsProps) {
       {(() => {
         const days = 365
         const cells2: { pct: number; bg: string }[] = []
-        const baseColor = selId !== 'all' && relevantHabits[0] ? relevantHabits[0].color : '#9b7fe0'
+        const baseColor = selId !== 'all' && relevantHabits[0] ? relevantHabits[0].color : 'var(--color-acc-purple)'
         for (let i = days - 1; i >= 0; i--) {
           const d = new Date(Date.now() - i * 86400000)
           const dStr = d.toISOString().slice(0, 10)

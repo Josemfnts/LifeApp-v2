@@ -8,8 +8,8 @@ interface BadgeProps {
 
 export function Badge({ children, variant = 'pending', className }: BadgeProps) {
   const variants = {
-    done: 'bg-[#52b788]/[0.12] text-[#52b788] border-[#52b788]/[0.2]',
-    pending: 'bg-[#5b8af0]/[0.08] text-[#5b8af0] border-[#5b8af0]/[0.15]',
+    done: 'bg-[var(--color-acc-green)]/[0.12] text-[var(--color-acc-green)] border-[var(--color-acc-green)]/[0.2]',
+    pending: 'bg-[var(--color-acc-blue)]/[0.08] text-[var(--color-acc-blue)] border-[var(--color-acc-blue)]/[0.15]',
     locked: 'bg-transparent text-[var(--color-dim)] border-[var(--color-border)]',
   }
 

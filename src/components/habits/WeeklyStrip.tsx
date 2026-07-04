@@ -39,7 +39,7 @@ export function WeeklyStrip({ habits, getLogValue }: WeeklyStripProps) {
     <div className="flex gap-1 my-2.5">
       {days.map((item, i) => {
         const pct = item.total ? item.done / item.total : 0
-        const color = pct >= 1 ? '#52b788' : pct >= 0.5 ? '#c9a84c' : pct > 0 ? '#5b8af0' : 'rgba(255,255,255,0.05)'
+        const color = pct >= 1 ? 'var(--color-acc-green)' : pct >= 0.5 ? 'var(--color-acc-gold)' : pct > 0 ? 'var(--color-acc-blue)' : 'rgba(255,255,255,0.05)'
         const border = i === todayIdx ? '2px solid rgba(255,255,255,0.25)' : '1px solid rgba(255,255,255,0.06)'
         const textColor = i === todayIdx ? 'var(--color-text)' : 'var(--color-dim)'
         return (

@@ -88,7 +88,7 @@ export function TopBar() {
 
         <div className="streak-row">
           <span style={{ fontSize: 16 }}>🔥</span>
-          <span style={{ fontFamily: 'DM Serif Display,serif', fontSize: 16, color: '#c9a84c' }}>{streak}</span>
+          <span style={{ fontFamily: 'DM Serif Display,serif', fontSize: 16, color: 'var(--color-acc-gold)' }}>{streak}</span>
           <span style={{ fontSize: 11, color: 'var(--color-dim)', fontWeight: 600 }}>días de racha</span>
         </div>
 

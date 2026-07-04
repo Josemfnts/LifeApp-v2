@@ -453,7 +453,7 @@ function DayView({ date }: { date: Date }) {
     const isRec = !!t._rec
     const dir = t._dir ?? -1
     const hasSubtasks = !isRec && t.subtasks && t.subtasks.length > 0
-    const col = COLOR_HEX[t.color] || '#5b8af0'
+    const col = COLOR_HEX[t.color] || 'var(--color-acc-blue)'
 
     function handleToggle() {
       if (isRec) { materializeRecurring(d, t); toast.show('✓ Hecho') }
@@ -535,10 +535,10 @@ function ShiftsView() {
 
       {editMode && (
         <div style={{ background: 'rgba(91,138,240,0.06)', border: '1px solid rgba(91,138,240,0.15)', borderRadius: 10, padding: '8px 12px', marginBottom: 12, fontSize: 11, color: 'var(--color-sub)', display: 'flex', gap: 12, justifyContent: 'center' }}>
-          <span>1 toque → <b style={{ color: '#5b8af0' }}>TM</b></span>
-          <span>2 toques → <b style={{ color: '#c9a84c' }}>TT</b></span>
-          <span>3 toques → <b style={{ color: '#9b7fe0' }}>TN</b></span>
-          <span>4 toques → <b style={{ color: '#52b788' }}>L</b></span>
+          <span>1 toque → <b style={{ color: 'var(--color-acc-blue)' }}>TM</b></span>
+          <span>2 toques → <b style={{ color: 'var(--color-acc-gold)' }}>TT</b></span>
+          <span>3 toques → <b style={{ color: 'var(--color-acc-purple)' }}>TN</b></span>
+          <span>4 toques → <b style={{ color: 'var(--color-acc-green)' }}>L</b></span>
           <span>5 toques → sin turno</span>
         </div>
       )}
@@ -619,27 +619,27 @@ function StatsView() {
     <div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
         <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: 0, left: 12, right: '40%', height: 2, borderRadius: '0 0 2px 2px', background: '#5b8af0' }} />
+          <div style={{ position: 'absolute', top: 0, left: 12, right: '40%', height: 2, borderRadius: '0 0 2px 2px', background: 'var(--color-acc-blue)' }} />
           <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>Tareas completadas</div>
-          <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 28, color: '#5b8af0', lineHeight: 1 }}>{totalDone}</div>
+          <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 28, color: 'var(--color-acc-blue)', lineHeight: 1 }}>{totalDone}</div>
           <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 4 }}>de {totalAll} totales</div>
         </div>
         <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: 0, left: 12, right: '40%', height: 2, borderRadius: '0 0 2px 2px', background: '#52b788' }} />
+          <div style={{ position: 'absolute', top: 0, left: 12, right: '40%', height: 2, borderRadius: '0 0 2px 2px', background: 'var(--color-acc-green)' }} />
           <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>Tasa de éxito</div>
-          <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 28, color: '#52b788', lineHeight: 1 }}>{rate}%</div>
+          <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 28, color: 'var(--color-acc-green)', lineHeight: 1 }}>{rate}%</div>
           <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 4 }}>histórico</div>
         </div>
         <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: 0, left: 12, right: '40%', height: 2, borderRadius: '0 0 2px 2px', background: '#e05f5f' }} />
+          <div style={{ position: 'absolute', top: 0, left: 12, right: '40%', height: 2, borderRadius: '0 0 2px 2px', background: 'var(--color-red)' }} />
           <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>Tareas vencidas</div>
-          <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 28, color: '#e05f5f', lineHeight: 1 }}>{overdue}</div>
+          <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 28, color: 'var(--color-red)', lineHeight: 1 }}>{overdue}</div>
           <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 4 }}>sin completar</div>
         </div>
         <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: 0, left: 12, right: '40%', height: 2, borderRadius: '0 0 2px 2px', background: '#c9a84c' }} />
+          <div style={{ position: 'absolute', top: 0, left: 12, right: '40%', height: 2, borderRadius: '0 0 2px 2px', background: 'var(--color-acc-gold)' }} />
           <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>Media diaria</div>
-          <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 28, color: '#c9a84c', lineHeight: 1 }}>{last7.length > 0 ? Math.round(last7.reduce((s, d) => s + d.done, 0) / last7.length) : 0}</div>
+          <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 28, color: 'var(--color-acc-gold)', lineHeight: 1 }}>{last7.length > 0 ? Math.round(last7.reduce((s, d) => s + d.done, 0) / last7.length) : 0}</div>
           <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 4 }}>última semana</div>
         </div>
       </div>

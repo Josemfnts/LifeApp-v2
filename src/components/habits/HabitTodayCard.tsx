@@ -32,7 +32,7 @@ export function HabitTodayCard({ habit, val, log, onToggle, onIncrement, onSetFu
   const isDone = habit.type === 'bool' ? !!val : habit.type === 'avoid' ? val === 0 : val >= habit.goal
   const pctH = habit.type === 'count' ? Math.min(100, Math.round(val / habit.goal * 100)) : (isDone ? 100 : 0)
   const streakVal = calcStreak(habit, log, new Date())
-  const btnColor = isDone ? '#52b788' : habit.type === 'avoid' ? '#e05f5f' : habit.color
+  const btnColor = isDone ? 'var(--color-acc-green)' : habit.type === 'avoid' ? 'var(--color-red)' : habit.color
   const btnBg = isDone ? 'rgba(82,183,136,0.12)' : habit.type === 'avoid' ? 'rgba(224,95,95,0.08)' : habit.color + '22'
 
   return (
@@ -47,7 +47,7 @@ export function HabitTodayCard({ habit, val, log, onToggle, onIncrement, onSetFu
         >
           {habit.emoji}
           {isDone && (
-            <div className="absolute inset-0 rounded-[14px] bg-[#52b788]/85 flex items-center justify-center text-sm text-white">
+            <div className="absolute inset-0 rounded-[14px] bg-[var(--color-acc-green)]/85 flex items-center justify-center text-sm text-white">
               ✓
             </div>
           )}

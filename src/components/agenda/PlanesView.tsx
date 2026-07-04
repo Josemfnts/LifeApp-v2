@@ -184,7 +184,7 @@ function ProyectosTab() {
   const [projs, setProjs] = useState<Proyecto[]>(() => load(PROYECTOS_KEY, []))
   const toast = useToast()
   const [name, setName] = useState('')
-  const [color, setColor] = useState('#5b8af0')
+  const [color, setColor] = useState('var(--color-acc-blue)')
   function add() { if (!name.trim()) return; setProjs(p => { const np = [...p, { id: Date.now(), nombre: name.trim(), tareas: [], color }]; save(PROYECTOS_KEY, np); return np }); setName(''); toast.show('✓ Proyecto creado') }
   function addTarea(pid: number, text: string) {
     setProjs(p => { const np = p.map(x => x.id === pid ? { ...x, tareas: [...x.tareas, { text, done: false }] } : x); save(PROYECTOS_KEY, np); return np })
@@ -200,7 +200,7 @@ function ProyectosTab() {
         <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
           <input className="inp" value={name} onChange={e => setName(e.target.value)} placeholder="Nombre del proyecto..." style={{ flex: 1, marginBottom: 0 }} />
           <div style={{ display: 'flex', gap: 4 }}>
-            {['#5b8af0','#52b788','#e07a5f','#c9a84c','#9b7fe0'].map(c => (
+            {['var(--color-acc-blue)','var(--color-acc-green)','var(--color-acc-orange)','var(--color-acc-gold)','var(--color-acc-purple)'].map(c => (
               <button key={c} onClick={() => setColor(c)} style={{ width: 24, height: 24, borderRadius: '50%', border: color === c ? '2.5px solid var(--color-text)' : '2.5px solid transparent', background: c, cursor: 'pointer' }} />
             ))}
           </div>

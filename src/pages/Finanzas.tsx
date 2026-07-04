@@ -402,10 +402,10 @@ function AnalysisTab() {
     <div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
         {[
-          { label: 'Total ingresos', val: fmtShort(totalIncome), unit: 'histórico', cls: 'st-green', color: '#52b788' },
-          { label: 'Total gastos', val: fmtShort(totalExpense), unit: 'histórico', cls: 'st-red', color: '#e05f5f' },
-          { label: 'Ahorro neto', val: fmtShort(Math.abs(totalSaved)), unit: totalSaved >= 0 ? 'acumulado' : 'en negativo', cls: 'st-gold', color: '#c9a84c' },
-          { label: 'Tasa ahorro', val: savingsRate + '%', unit: 'del total', cls: 'st-blue', color: '#5b8af0' },
+          { label: 'Total ingresos', val: fmtShort(totalIncome), unit: 'histórico', cls: 'st-green', color: 'var(--color-acc-green)' },
+          { label: 'Total gastos', val: fmtShort(totalExpense), unit: 'histórico', cls: 'st-red', color: 'var(--color-red)' },
+          { label: 'Ahorro neto', val: fmtShort(Math.abs(totalSaved)), unit: totalSaved >= 0 ? 'acumulado' : 'en negativo', cls: 'st-gold', color: 'var(--color-acc-gold)' },
+          { label: 'Tasa ahorro', val: savingsRate + '%', unit: 'del total', cls: 'st-blue', color: 'var(--color-acc-blue)' },
         ].map(s => (
           <div key={s.label} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, position: 'relative', overflow: 'hidden' }}>
             <div style={{ position: 'absolute', top: 0, left: 12, right: '40%', height: 2, borderRadius: '0 0 2px 2px', background: s.color }} />
@@ -460,7 +460,7 @@ function PatrimonioTab() {
   const [cName, setCName] = useState('')
   const [cType, setCType] = useState('bank')
   const [cBal, setCBal] = useState('')
-  const [cColor, setCColor] = useState('#5b8af0')
+  const [cColor, setCColor] = useState('var(--color-acc-blue)')
   const [cNote, setCNote] = useState('')
 
   const [settleModal, setSettleModal] = useState(false)
@@ -474,10 +474,10 @@ function PatrimonioTab() {
   function openForm(idx?: number) {
     if (idx != null) {
       const cu = cuentas[idx]
-      setCName(cu.name); setCType(cu.type); setCBal(String(cu.balance)); setCColor(cu.color || '#5b8af0'); setCNote(cu.note || '')
+      setCName(cu.name); setCType(cu.type); setCBal(String(cu.balance)); setCColor(cu.color || 'var(--color-acc-blue)'); setCNote(cu.note || '')
       setEditIdx(idx)
     } else {
-      setCName(''); setCType('bank'); setCBal(''); setCColor('#5b8af0'); setCNote('')
+      setCName(''); setCType('bank'); setCBal(''); setCColor('var(--color-acc-blue)'); setCNote('')
       setEditIdx(null)
     }
     setCuentaModal(true)
@@ -501,16 +501,16 @@ function PatrimonioTab() {
   const [hGoal, setHGoal] = useState('')
   const [hCurr, setHCurr] = useState('')
   const [hDeadline, setHDeadline] = useState('')
-  const [hColor, setHColor] = useState('#c9a84c')
+  const [hColor, setHColor] = useState('var(--color-acc-gold)')
   const [hEmoji, setHEmoji] = useState('🎯')
 
   return (
     <div>
       <div style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 8, paddingBottom: 4 }}>
         {([
-          { k: 'cuentas' as const, l: '🏦 Cuentas', c: '#c9a84c' },
-          { k: 'huchas' as const, l: '🎯 Huchas', c: '#52b788' },
-          { k: 'pufos' as const, l: '💸 Pufos', c: '#e05f5f' },
+          { k: 'cuentas' as const, l: '🏦 Cuentas', c: 'var(--color-acc-gold)' },
+          { k: 'huchas' as const, l: '🎯 Huchas', c: 'var(--color-acc-green)' },
+          { k: 'pufos' as const, l: '💸 Pufos', c: 'var(--color-red)' },
         ]).map(s => (
           <button key={s.k} onClick={() => setSub(s.k)}
             style={{ flex: '0 0 auto', whiteSpace: 'nowrap', padding: '10px 16px', borderRadius: 10, fontSize: 12, fontWeight: 700,
@@ -525,18 +525,18 @@ function PatrimonioTab() {
         <>
           <div style={{ background: 'linear-gradient(145deg,#191c22,#1a1f2c)', border: '1px solid rgba(91,138,240,0.2)', borderRadius: 20, padding: 20, marginBottom: 12, textAlign: 'center' }}>
             <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 6 }}>Patrimonio neto</div>
-            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 44, lineHeight: 1, color: net >= 0 ? '#5b8af0' : 'var(--color-red)' }}>{fmt(net)}</div>
+            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 44, lineHeight: 1, color: net >= 0 ? 'var(--color-acc-blue)' : 'var(--color-red)' }}>{fmt(net)}</div>
             <div style={{ fontSize: 12, color: 'var(--color-sub)', marginTop: 6 }}>{cuentas.length} cuenta{cuentas.length !== 1 ? 's' : ''}</div>
             <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginTop: 14 }}>
-              <div><div style={{ fontSize: 12, color: '#52b788', fontWeight: 700 }}>{fmtShort(assets)}</div><div style={{ fontSize: 10, color: 'var(--color-dim)', marginTop: 2 }}>Activos</div></div>
+              <div><div style={{ fontSize: 12, color: 'var(--color-acc-green)', fontWeight: 700 }}>{fmtShort(assets)}</div><div style={{ fontSize: 10, color: 'var(--color-dim)', marginTop: 2 }}>Activos</div></div>
               <div style={{ width: 1, background: 'rgba(255,255,255,0.07)' }} />
-              <div><div style={{ fontSize: 12, color: '#e05f5f', fontWeight: 700 }}>{fmtShort(liabilities)}</div><div style={{ fontSize: 10, color: 'var(--color-dim)', marginTop: 2 }}>Pasivos</div></div>
+              <div><div style={{ fontSize: 12, color: 'var(--color-red)', fontWeight: 700 }}>{fmtShort(liabilities)}</div><div style={{ fontSize: 10, color: 'var(--color-dim)', marginTop: 2 }}>Pasivos</div></div>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
             <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Mis cuentas</div>
             <button onClick={() => openForm()}
-              style={{ background: 'rgba(91,138,240,0.1)', color: '#5b8af0', border: '1px solid rgba(91,138,240,0.2)', borderRadius: 8, padding: '5px 12px', fontSize: 11, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>+ Añadir</button>
+              style={{ background: 'rgba(91,138,240,0.1)', color: 'var(--color-acc-blue)', border: '1px solid rgba(91,138,240,0.2)', borderRadius: 8, padding: '5px 12px', fontSize: 11, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>+ Añadir</button>
           </div>
           {cuentas.length === 0 ? (
             <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 28, textAlign: 'center' }}>
@@ -568,7 +568,7 @@ function PatrimonioTab() {
                               <div style={{ fontSize: 10, color: 'var(--color-dim)', marginTop: 2 }}>actualizado {cu.updatedAt || '—'}</div>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
-                              <button onClick={() => openForm(i)} style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(91,138,240,0.08)', color: '#5b8af0', border: '1px solid rgba(91,138,240,0.15)', cursor: 'pointer', fontSize: 12 }}>✎</button>
+                              <button onClick={() => openForm(i)} style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(91,138,240,0.08)', color: 'var(--color-acc-blue)', border: '1px solid rgba(91,138,240,0.15)', cursor: 'pointer', fontSize: 12 }}>✎</button>
                               <button onClick={() => { removeCuenta(i); toast.show('Cuenta eliminada') }} style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(224,95,95,0.06)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.12)', cursor: 'pointer', fontSize: 11 }}>✕</button>
                             </div>
                           </div>
@@ -611,7 +611,7 @@ function PatrimonioTab() {
       {sub === 'huchas' && huchas.length > 0 && (
         <div style={{ background: 'linear-gradient(145deg,#191c22,#191f1e)', border: '1px solid rgba(82,183,136,0.2)', borderRadius: 16, padding: 16, marginBottom: 12, textAlign: 'center' }}>
           <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 6 }}>Ahorro total en huchas</div>
-          <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 36, lineHeight: 1, color: '#52b788' }}>
+          <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 36, lineHeight: 1, color: 'var(--color-acc-green)' }}>
             {fmt(huchas.reduce((s, h) => s + h.current, 0))}
           </div>
           <div style={{ fontSize: 11, color: 'var(--color-sub)', marginTop: 4 }}>
@@ -628,11 +628,11 @@ function PatrimonioTab() {
             const left = Math.max(h.goal - h.current, 0)
             return (
               <div key={i} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 10, position: 'relative', overflow: 'hidden' }}>
-                <div style={{ position: 'absolute', top: 0, left: 12, right: '50%', height: 2, borderRadius: '0 0 2px 2px', background: h.color || '#c9a84c' }} />
-                {done && <div style={{ display: 'inline-block', fontSize: 11, fontWeight: 600, color: '#52b788', background: 'rgba(82,183,136,0.1)', border: '1px solid rgba(82,183,136,0.2)', borderRadius: 6, padding: '2px 10px', marginBottom: 8 }}>Meta alcanzada ✓</div>}
+                <div style={{ position: 'absolute', top: 0, left: 12, right: '50%', height: 2, borderRadius: '0 0 2px 2px', background: h.color || 'var(--color-acc-gold)' }} />
+                {done && <div style={{ display: 'inline-block', fontSize: 11, fontWeight: 600, color: 'var(--color-acc-green)', background: 'rgba(82,183,136,0.1)', border: '1px solid rgba(82,183,136,0.2)', borderRadius: 6, padding: '2px 10px', marginBottom: 8 }}>Meta alcanzada ✓</div>}
                 <button onClick={() => { removeHucha(i); toast.show('Hucha eliminada') }} style={{ position: 'absolute', top: 14, right: 16, background: 'transparent', border: 'none', color: 'var(--color-dim)', fontSize: 16, cursor: 'pointer', padding: 4 }}>×</button>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 12 }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0, background: (h.color || '#c9a84c') + '18', border: '1px solid ' + (h.color || '#c9a84c') + '30' }}>{h.emoji || '🎯'}</div>
+                  <div style={{ width: 44, height: 44, borderRadius: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0, background: (h.color || 'var(--color-acc-gold)') + '18', border: '1px solid ' + (h.color || 'var(--color-acc-gold)') + '30' }}>{h.emoji || '🎯'}</div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 19, color: 'var(--color-text)', lineHeight: 1.2, marginBottom: 3 }}>{h.name}</div>
                     <div style={{ fontSize: 11, color: 'var(--color-dim)' }}>
@@ -648,11 +648,11 @@ function PatrimonioTab() {
                   </div>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--color-sub)', marginBottom: 7 }}>
-                  <div><span style={{ fontFamily: 'DM Serif Display,serif', fontSize: 18, color: h.color || '#c9a84c' }}>{fmt(h.current)}</span><span style={{ fontSize: 12, color: 'var(--color-dim)' }}> ahorrados</span></div>
+                  <div><span style={{ fontFamily: 'DM Serif Display,serif', fontSize: 18, color: h.color || 'var(--color-acc-gold)' }}>{fmt(h.current)}</span><span style={{ fontSize: 12, color: 'var(--color-dim)' }}> ahorrados</span></div>
                   <div style={{ textAlign: 'right' }}><span style={{ fontSize: 13, color: 'var(--color-dim)' }}>Meta: </span><strong style={{ fontSize: 14, color: 'var(--color-text)' }}>{fmt(h.goal)}</strong></div>
                 </div>
                 <div style={{ height: 6, background: 'rgba(255,255,255,0.06)', borderRadius: 99, overflow: 'hidden', marginBottom: 12 }}>
-                  <div style={{ height: '100%', borderRadius: 99, transition: 'width 0.6s ease', width: `${pct}%`, background: h.color || '#c9a84c' }} />
+                  <div style={{ height: '100%', borderRadius: 99, transition: 'width 0.6s ease', width: `${pct}%`, background: h.color || 'var(--color-acc-gold)' }} />
                 </div>
                 <div style={{ fontSize: 11, color: 'var(--color-dim)', textAlign: 'right', marginBottom: 12, marginTop: -8 }}>{pct.toFixed(1)}% · Faltan {fmt(left)}</div>
                 {!done && (
@@ -667,7 +667,7 @@ function PatrimonioTab() {
                       else toast.show(`✓ +${fmt(val)} aportados`)
                       el.value = ''
                     }}
-                      style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', background: (h.color || '#c9a84c') + '18', color: h.color || '#c9a84c', border: '1px solid ' + (h.color || '#c9a84c') + '30' }}>Aportar</button>
+                      style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', background: (h.color || 'var(--color-acc-gold)') + '18', color: h.color || 'var(--color-acc-gold)', border: '1px solid ' + (h.color || 'var(--color-acc-gold)') + '30' }}>Aportar</button>
                   </div>
                 )}
               </div>
@@ -685,10 +685,10 @@ function PatrimonioTab() {
             </div>
             <input className="inp" value={hDeadline} onChange={e => setHDeadline(e.target.value)} type="date" style={{ marginBottom: 8, fontSize: 13 }} />
             <select className="inp" value={hColor} onChange={e => setHColor(e.target.value)} style={{ marginBottom: 12 }}>
-              <option value="#c9a84c">🟡 Dorado</option>
-              <option value="#52b788">🟢 Verde</option>
-              <option value="#5b8af0">🔵 Azul</option>
-              <option value="#9b7fe0">🟣 Morado</option>
+              <option value="var(--color-acc-gold)">🟡 Dorado</option>
+              <option value="var(--color-acc-green)">🟢 Verde</option>
+              <option value="var(--color-acc-blue)">🔵 Azul</option>
+              <option value="var(--color-acc-purple)">🟣 Morado</option>
             </select>
             <button onClick={() => {
               const g = parseFloat(hGoal)
@@ -697,7 +697,7 @@ function PatrimonioTab() {
               setHName(''); setHGoal(''); setHCurr(''); setHEmoji(''); setHDeadline('')
               toast.show(`✓ Hucha "${hName}" creada`)
             }}
-              style={{ width: '100%', padding: 12, borderRadius: 12, background: '#5b8af0', color: '#fff', border: 'none', fontSize: 14, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>Crear hucha</button>
+              style={{ width: '100%', padding: 12, borderRadius: 12, background: 'var(--color-acc-blue)', color: '#fff', border: 'none', fontSize: 14, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>Crear hucha</button>
           </div>
         </>
       )}
@@ -707,11 +707,11 @@ function PatrimonioTab() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
             <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 12, padding: 14 }}>
               <div style={{ fontSize: 11, color: 'var(--color-dim)', marginBottom: 4 }}>Me deben</div>
-              <div style={{ fontSize: 20, fontWeight: 700, color: '#52b788' }}>{fmt(meDeben)}</div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-acc-green)' }}>{fmt(meDeben)}</div>
             </div>
             <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 12, padding: 14 }}>
               <div style={{ fontSize: 11, color: 'var(--color-dim)', marginBottom: 4 }}>Les debo</div>
-              <div style={{ fontSize: 20, fontWeight: 700, color: '#e05f5f' }}>{fmt(lesDebo)}</div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-red)' }}>{fmt(lesDebo)}</div>
             </div>
           </div>
 
@@ -727,9 +727,9 @@ function PatrimonioTab() {
                     <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>{p.who}</div>
                     <div style={{ fontSize: 11, color: 'var(--color-dim)' }}>{p.reason || ''}</div>
                   </div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: p.dir === 'me_debe' ? '#52b788' : '#e05f5f' }}>{fmt(p.amount)}</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: p.dir === 'me_debe' ? 'var(--color-acc-green)' : 'var(--color-red)' }}>{fmt(p.amount)}</div>
                   <button onClick={() => { setSettleIdx(realIdx); setSettleTarget('none'); setSettleModal(true) }}
-                    style={{ padding: '5px 10px', borderRadius: 8, background: 'rgba(82,183,136,0.1)', color: '#52b788', border: '1px solid rgba(82,183,136,0.2)', fontSize: 11, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>Saldar</button>
+                    style={{ padding: '5px 10px', borderRadius: 8, background: 'rgba(82,183,136,0.1)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.2)', fontSize: 11, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>Saldar</button>
                   <button onClick={() => { removePufo(realIdx); toast.show('Pufo eliminado') }}
                     style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(224,95,95,0.06)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.12)', cursor: 'pointer', fontSize: 11 }}>✕</button>
                 </div>
@@ -743,12 +743,12 @@ function PatrimonioTab() {
               <button onClick={() => setPufoDir('me_debe')}
                 style={{ padding: 10, borderRadius: 10, fontFamily: 'DM Sans,sans-serif', fontSize: 13, fontWeight: 600, cursor: 'pointer', border: '1px solid',
                   background: pufoDir === 'me_debe' ? 'rgba(82,183,136,0.12)' : 'transparent',
-                  color: pufoDir === 'me_debe' ? '#52b788' : 'var(--color-dim)',
+                  color: pufoDir === 'me_debe' ? 'var(--color-acc-green)' : 'var(--color-dim)',
                   borderColor: pufoDir === 'me_debe' ? 'rgba(82,183,136,0.2)' : 'var(--color-border)' }}>Me deben</button>
               <button onClick={() => setPufoDir('le_debo')}
                 style={{ padding: 10, borderRadius: 10, fontFamily: 'DM Sans,sans-serif', fontSize: 13, fontWeight: 600, cursor: 'pointer', border: '1px solid',
                   background: pufoDir === 'le_debo' ? 'rgba(224,95,95,0.1)' : 'transparent',
-                  color: pufoDir === 'le_debo' ? '#e05f5f' : 'var(--color-dim)',
+                  color: pufoDir === 'le_debo' ? 'var(--color-red)' : 'var(--color-dim)',
                   borderColor: pufoDir === 'le_debo' ? 'rgba(224,95,95,0.25)' : 'var(--color-border)' }}>Les debo</button>
             </div>
             <input className="inp" value={pWho} onChange={e => setPWho(e.target.value)} type="text" placeholder="¿Quién?" />
@@ -761,7 +761,7 @@ function PatrimonioTab() {
               toast.show('✓ Pufo registrado')
               setPWho(''); setPAmt(''); setPReason('')
             }}
-              style={{ width: '100%', padding: 12, borderRadius: 12, background: '#5b8af0', color: '#fff', border: 'none', fontSize: 14, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', marginTop: 4 }}>Añadir pufo</button>
+              style={{ width: '100%', padding: 12, borderRadius: 12, background: 'var(--color-acc-blue)', color: '#fff', border: 'none', fontSize: 14, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', marginTop: 4 }}>Añadir pufo</button>
           </div>
         </>
       )}
@@ -913,7 +913,7 @@ function BudgetsTab() {
           toast.show('✓ Transacción recurrente añadida')
           setRConcept(''); setRAmount('')
         }}
-          style={{ width: '100%', padding: 12, borderRadius: 12, background: '#5b8af0', color: '#fff', border: 'none', fontSize: 14, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>Añadir recurrente</button>
+          style={{ width: '100%', padding: 12, borderRadius: 12, background: 'var(--color-acc-blue)', color: '#fff', border: 'none', fontSize: 14, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>Añadir recurrente</button>
       </div>
 
       {recurrentes.length === 0 ? (

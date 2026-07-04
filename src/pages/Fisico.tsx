@@ -507,7 +507,7 @@ function StrengthTab() {
                 </div>
                 <button onClick={() => {
                   startSession(r.nombre, r.ejercicios.map(e => ({
-                    name: e.nombre, group: e.grupo_muscular, color: EXERCISE_COLORS[e.grupo_muscular] || '#e07a5f', sets: e.series, restSeconds: e.descanso_seg
+                    name: e.nombre, group: e.grupo_muscular, color: EXERCISE_COLORS[e.grupo_muscular] || 'var(--color-acc-orange)', sets: e.series, restSeconds: e.descanso_seg
                   })))
                   toast.show('✓ Rutina cargada')
                 }} style={{ width: '100%', padding: 10, borderRadius: 10, background: 'var(--color-acc-orange)', color: '#fff', border: 'none', fontSize: 14, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>▶ Empezar esta rutina</button>

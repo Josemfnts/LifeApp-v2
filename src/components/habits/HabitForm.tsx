@@ -7,11 +7,11 @@ interface HabitFormProps {
 }
 
 const EMOJIS = ['⭐', '💪', '🏃', '📚', '💧', '🧘', '🥗', '😴', '✍️', '🎯', '🚴', '🧠', '❤️', '🌿', '🎸', '💊']
-const COLORS = ['#9b7fe0', '#5b8af0', '#52b788', '#e07a5f', '#c9a84c', '#e05f5f', '#64b5f6']
+const COLORS = ['var(--color-acc-purple)', 'var(--color-acc-blue)', 'var(--color-acc-green)', 'var(--color-acc-orange)', 'var(--color-acc-gold)', 'var(--color-red)', '#64b5f6']
 
 export function HabitForm({ onAdd }: HabitFormProps) {
   const [emoji, setEmoji] = useState('⭐')
-  const [color, setColor] = useState('#9b7fe0')
+  const [color, setColor] = useState('var(--color-acc-purple)')
   const [name, setName] = useState('')
   const [type, setType] = useState<'bool' | 'count' | 'avoid'>('bool')
   const [freq, setFreq] = useState<Habit['freq']>('daily')
@@ -53,7 +53,7 @@ export function HabitForm({ onAdd }: HabitFormProps) {
           <button
             key={e}
             onClick={() => { setEmoji(e); setCustomEmoji('') }}
-            className={`w-10 h-10 rounded-xl text-xl flex items-center justify-center cursor-pointer transition-all border ${e === emoji && !customEmoji ? 'border-[#9b7fe0] bg-[#9b7fe0]/[0.15]' : 'border-transparent bg-[var(--color-s2)]'}`}
+            className={`w-10 h-10 rounded-xl text-xl flex items-center justify-center cursor-pointer transition-all border ${e === emoji && !customEmoji ? 'border-[var(--color-acc-purple)] bg-[var(--color-acc-purple)]/[0.15]' : 'border-transparent bg-[var(--color-s2)]'}`}
           >{e}</button>
         ))}
       </div>
@@ -111,7 +111,7 @@ export function HabitForm({ onAdd }: HabitFormProps) {
               key={d}
               onClick={() => setDays(prev => prev.includes(d) ? prev.filter(x => x !== d) : [...prev, d])}
               className={`flex-1 py-2 rounded-lg text-xs font-semibold font-sans cursor-pointer transition-all border ${
-                days.includes(d) ? 'bg-[#9b7fe0]/[0.15] text-[#9b7fe0] border-[#9b7fe0]/[0.3]' : 'bg-[var(--color-s2)] text-[var(--color-dim)] border-[var(--color-border)]'
+                days.includes(d) ? 'bg-[var(--color-acc-purple)]/[0.15] text-[var(--color-acc-purple)] border-[var(--color-acc-purple)]/[0.3]' : 'bg-[var(--color-s2)] text-[var(--color-dim)] border-[var(--color-border)]'
               }`}
             >{label}</button>
           ))}
@@ -121,7 +121,7 @@ export function HabitForm({ onAdd }: HabitFormProps) {
       <Input value={note} onChange={setNote} placeholder="Nota o recordatorio (opcional)" className="mb-2.5" />
       <button
         onClick={handleSubmit}
-        className="w-full bg-[#9b7fe0] text-white border-none rounded-xl py-3.5 text-[15px] font-semibold font-sans cursor-pointer active:opacity-80"
+        className="w-full bg-[var(--color-acc-purple)] text-white border-none rounded-xl py-3.5 text-[15px] font-semibold font-sans cursor-pointer active:opacity-80"
       >
         Crear hábito
       </button>

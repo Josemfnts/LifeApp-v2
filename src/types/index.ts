@@ -163,10 +163,10 @@ export interface Pufo {
 }
 
 export const AREA_COLORS: Record<AreaStat, string> = {
-  disc: '#5b8af0',
-  fuerza: '#52b788',
-  intel: '#e07a5f',
-  riqueza: '#c9a84c',
+  disc: 'var(--color-acc-blue)',
+  fuerza: 'var(--color-acc-green)',
+  intel: 'var(--color-acc-orange)',
+  riqueza: 'var(--color-acc-gold)',
 }
 
 export const AREA_ICONS: Record<AreaStat, string> = {
@@ -198,11 +198,11 @@ export const DAYS = [
 ]
 
 export const COLOR_HEX: Record<string, string> = {
-  blue: '#5b8af0',
-  red: '#e05f5f',
-  yellow: '#c9a84c',
-  purple: '#9b7fe0',
-  green: '#52b788',
+  blue: 'var(--color-acc-blue)',
+  red: 'var(--color-red)',
+  yellow: 'var(--color-acc-gold)',
+  purple: 'var(--color-acc-purple)',
+  green: 'var(--color-acc-green)',
 }
 
 export const STORAGE_KEYS = {

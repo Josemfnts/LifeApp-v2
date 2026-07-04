@@ -31,7 +31,7 @@ export function SplashScreen() {
         Tu sistema de vida
       </div>
       <div className="w-[120px] h-0.5 bg-white/[0.04] rounded-full overflow-hidden mt-2" style={{ animation: 'sFade 0.5s 0.3s ease both' }}>
-        <div className="h-full bg-gradient-to-r from-[#5b8af0] to-[#52b788] rounded-full"
+        <div className="h-full bg-gradient-to-r from-[var(--color-acc-blue)] to-[var(--color-acc-green)] rounded-full"
           style={{ animation: 'sLoad 1.2s 0.4s ease forwards', width: '0%' }} />
       </div>
       <style>{`

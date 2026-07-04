@@ -8,7 +8,7 @@ interface ProgressBarProps {
   animated?: boolean
 }
 
-export function ProgressBar({ value, color = '#5b8af0', className, height = 4, animated }: ProgressBarProps) {
+export function ProgressBar({ value, color = 'var(--color-acc-blue)', className, height = 4, animated }: ProgressBarProps) {
   const pct = Math.min(100, Math.max(0, value))
   const gradient = `linear-gradient(90deg, #5b8af0, #52b788, #c9a84c)`
 

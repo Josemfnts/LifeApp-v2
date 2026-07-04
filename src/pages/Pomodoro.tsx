@@ -48,7 +48,7 @@ export default function Pomodoro() {
         <div style={{ position: 'relative', marginBottom: 24, marginTop: 20 }}>
           <svg width="200" height="200" style={{ transform: 'rotate(-90deg)' }}>
             <circle cx="100" cy="100" r="90" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="8" />
-            <circle cx="100" cy="100" r="90" fill="none" stroke={running ? (mode === 'focus' ? '#e05f5f' : '#52b788') : 'var(--color-dim)'} strokeWidth="8"
+            <circle cx="100" cy="100" r="90" fill="none" stroke={running ? (mode === 'focus' ? 'var(--color-red)' : 'var(--color-acc-green)') : 'var(--color-dim)'} strokeWidth="8"
               strokeDasharray={2 * Math.PI * 90}
               strokeDashoffset={2 * Math.PI * 90 * (1 - timeLeft / (mode === 'focus' ? 25 * 60 : 5 * 60))}
               strokeLinecap="round" style={{ transition: 'stroke-dashoffset 0.9s linear' }} />
@@ -84,7 +84,7 @@ export default function Pomodoro() {
           </div>
           <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 12, padding: 12, textAlign: 'center' }}>
             <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Modo</div>
-            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 28, color: mode === 'focus' ? 'var(--color-red)' : '#52b788', lineHeight: 1 }}>{mode === 'focus' ? '🎯' : '☕'}</div>
+            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 28, color: mode === 'focus' ? 'var(--color-red)' : 'var(--color-acc-green)', lineHeight: 1 }}>{mode === 'focus' ? '🎯' : '☕'}</div>
           </div>
         </div>
       </div>
