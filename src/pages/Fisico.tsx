@@ -161,26 +161,84 @@ function StrengthTab() {
         )}
 
         {!activeSession ? (
-          <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-4 mb-3">
-            <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-[0.8px] mb-2.5">Iniciar sesión</div>
-            <select
-              value={selRoutine}
-              onChange={e => setSelRoutine(e.target.value)}
-              className="w-full bg-[var(--color-s2)] border border-[var(--color-border)] text-[var(--color-text)] rounded-xl px-3.5 py-2.5 text-sm font-sans mb-2 outline-none cursor-pointer"
-            >
-              <option value="">— Sesión libre —</option>
-              {routines.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-            </select>
-            <div className="grid grid-cols-2 gap-2">
-              <button onClick={() => {
-                const rtn = routines.find(r => r.id === +selRoutine)
-                startSession(rtn?.name || 'Sesión libre', rtn?.exercises || [])
-              }} className="py-2.5 rounded-xl font-semibold text-sm font-sans cursor-pointer bg-[var(--color-acc-blue)] text-white border-[var(--color-acc-blue)] shadow-lg shadow-[var(--color-acc-blue)]/25">
-                ▶ Empezar
-              </button>
-              <button onClick={() => startSession('Sesión libre')} className="py-2.5 rounded-xl font-semibold text-sm font-sans cursor-pointer bg-[var(--color-s2)] text-[var(--color-sub)] border border-[var(--color-border)]">
-                Libre
-              </button>
+          <div style={{ marginBottom: 12 }}>
+            <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 10 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 12 }}>Iniciar sesión</div>
+
+              {/* Quick start from favorites/recent */}
+              <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-sub)', marginBottom: 8 }}>Mis rutinas</div>
+              {routines.length === 0 ? (
+                <div style={{ fontSize: 12, color: 'var(--color-dim)', marginBottom: 10 }}>No tienes rutinas propias todavía.</div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 10 }}>
+                  {routines.slice(0, 4).map(r => (
+                    <button key={r.id} onClick={() => startSession(r.name, r.exercises.map(e => ({ name: e.name, group: e.group, color: e.color, sets: e.sets })))}
+                      style={{ textAlign: 'left', padding: '10px 12px', borderRadius: 10, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-text)', fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span>{r.name}</span>
+                      <span style={{ fontSize: 10, color: 'var(--color-dim)', fontWeight: 500 }}>{r.exercises.length} ejercicios</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Library routines quick pick */}
+              <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-sub)', marginBottom: 8 }}>Biblioteca</div>
+              <select
+                value={selRoutine}
+                onChange={e => setSelRoutine(e.target.value)}
+                className="w-full bg-[var(--color-s2)] border border-[var(--color-border)] text-[var(--color-text)] rounded-xl px-3.5 py-2.5 text-sm font-sans mb-2 outline-none cursor-pointer"
+              >
+                <option value="">— Elige de la biblioteca —</option>
+                {ROUTINES.map(r => <option key={r.id} value={r.id}>{r.nombre} ({r.dias_semana}d, {getNivelLabel(r.nivel)})</option>)}
+              </select>
+              {selRoutine && (() => {
+                const r = ROUTINES.find(r => r.id === selRoutine)
+                if (!r) return null
+                return (
+                  <div style={{ background: 'var(--color-s2)', borderRadius: 10, padding: 10, marginBottom: 8, fontSize: 11, color: 'var(--color-sub)' }}>
+                    <div style={{ marginBottom: 4 }}>{getObjLabel(r.objetivo)} · {getLugarLabel(r.lugar)} · {r.duracion_sesion_min}min</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                      {r.ejercicios.slice(0, 4).map(e => <span key={e.nombre} style={{ padding: '2px 6px', borderRadius: 4, background: 'var(--color-s1)', fontSize: 10 }}>{e.nombre}</span>)}
+                      {r.ejercicios.length > 4 && <span style={{ color: 'var(--color-dim)', fontSize: 10 }}>+{r.ejercicios.length - 4} más</span>}
+                    </div>
+                  </div>
+                )
+              })()}
+
+              <div className="grid grid-cols-2 gap-2">
+                <button onClick={() => {
+                  const rtn = routines.find(r => r.id === +selRoutine)
+                  const lib = ROUTINES.find(r => r.id === selRoutine)
+                  if (rtn) startSession(rtn.name, rtn.exercises.map(e => ({ name: e.name, group: e.group, color: e.color, sets: e.sets })))
+                  else if (lib) startSession(lib.nombre, lib.ejercicios.map(e => ({ name: e.nombre, group: e.grupo_muscular, color: EXERCISE_COLORS[e.grupo_muscular] || '#e07a5f', sets: e.series, restSeconds: e.descanso_seg })))
+                  else startSession('Sesión libre')
+                }}
+                  className="py-2.5 rounded-xl font-semibold text-sm font-sans cursor-pointer bg-[var(--color-acc-blue)] text-white border-[var(--color-acc-blue)] shadow-lg shadow-[var(--color-acc-blue)]/25">
+                  ▶ Empezar
+                </button>
+                <button onClick={() => { const last = sessions[0]; startSession(last?.name || 'Sesión libre', last?.exercises.map(e => ({ name: e.name, group: e.group, color: e.color, sets: e.sets.length }))) }}
+                  className="py-2.5 rounded-xl font-semibold text-sm font-sans cursor-pointer bg-[var(--color-s2)] text-[var(--color-sub)] border border-[var(--color-border)]">
+                  Repetir última
+                </button>
+              </div>
+            </div>
+
+            {/* Quick stats before starting */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 12, padding: 12, textAlign: 'center' }}>
+                <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Este mes</div>
+                <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 24, color: 'var(--color-acc-orange)', lineHeight: 1 }}>
+                  {sessions.filter(s => s.date.startsWith(new Date().toISOString().slice(0, 7))).length}
+                </div>
+                <div style={{ fontSize: 10, color: 'var(--color-dim)', marginTop: 2 }}>sesiones</div>
+              </div>
+              <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 12, padding: 12, textAlign: 'center' }}>
+                <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Última sesión</div>
+                <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 24, color: 'var(--color-acc-blue)', lineHeight: 1 }}>
+                  {sessions[0] ? sessions[0].date.slice(8) + '/' + sessions[0].date.slice(5, 7) : '—'}
+                </div>
+                <div style={{ fontSize: 10, color: 'var(--color-dim)', marginTop: 2 }}>{sessions[0]?.name || 'Sin datos'}</div>
+              </div>
             </div>
           </div>
         ) : (
