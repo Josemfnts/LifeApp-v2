@@ -41,11 +41,10 @@ export default function Nutricion() {
 
 /* ── DIARY TAB ── */
 function DiaryTab() {
-  const { log, addFood, removeFood, goals, water, addWater, favorites, toggleFavorite } = useNutriStore()
+  const { log, addFood, removeFood, goals, favorites, toggleFavorite } = useNutriStore()
   const toast = useToast()
   const today = todayISO()
   const todayFoods = log[today] || []
-  const todayWater = water[today] || 0
   const ringRef = useRef<HTMLCanvasElement>(null)
   const chartRef = useRef<Chart | null>(null)
 
@@ -117,25 +116,6 @@ function DiaryTab() {
           <span style={{ fontSize: 11, color: 'var(--color-dim)', fontWeight: 600 }}>días de racha</span>
         </div>
       )}
-
-      {/* Agua */}
-      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
-        <div className="sec-label" style={{ marginBottom: 8 }}>💧 Agua</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6 }}>
-            {[250, 500].map(ml => (
-              <button key={ml} onClick={() => { addWater(today, ml); toast.show(`+${ml}ml`) }}
-                style={{ flex: 1, padding: '10px 4px', borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid', background: ml === 250 ? 'rgba(91,138,240,0.1)' : 'rgba(91,138,240,0.15)', color: 'var(--color-blue)', borderColor: 'rgba(91,138,240,0.2)' }}>
-                {ml === 250 ? '🥛 250ml' : '🍶 500ml'}
-              </button>
-            ))}
-          </div>
-          <div style={{ textAlign: 'center', flexShrink: 0, minWidth: 48 }}>
-            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 28, color: 'var(--color-blue)', lineHeight: 1 }}>{todayWater}</div>
-            <div style={{ fontSize: 10, color: 'var(--color-dim)', marginTop: 2 }}>ml</div>
-          </div>
-        </div>
-      </div>
 
       {/* Weekly kcal */}
       {(() => {
