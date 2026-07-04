@@ -30,6 +30,15 @@ export function setDisplayName(name: string): void {
   localStorage.setItem('lifeos_username_v1', name)
 }
 
+export function loadFromStorage<T>(key: string, fallback: T): T {
+  try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback } catch { return fallback }
+}
+
+export function saveToStorage(key: string, val: unknown): void {
+  localStorage.setItem(key, JSON.stringify(val))
+  import('./sync').then(m => m.saveToCloud(key, val))
+}
+
 export function getBackupData(): Record<string, unknown> {
   const backup: Record<string, unknown> = {}
   for (let i = 0; i < localStorage.length; i++) {

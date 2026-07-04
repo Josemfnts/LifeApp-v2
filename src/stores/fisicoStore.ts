@@ -1,5 +1,5 @@
+import { saveToStorage, loadFromStorage } from '@/lib/storage'
 import { create } from 'zustand'
-import { saveToCloud } from '@/lib/sync'
 
 export interface SessionSet { setNumber: number; weight: number; reps: number; done: boolean; type?: 'warmup' | 'normal' | 'dropset' | 'failure' }
 export interface SessionExercise { name: string; group: string; color: string; sets: SessionSet[]; notes?: string; restSeconds?: number; supersetWith?: number }
@@ -17,7 +17,6 @@ export interface Program { id: number; name: string; description: string; routin
 function load<T>(key: string, fallback: T): T {
   try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback } catch { return fallback }
 }
-function save(key: string, val: unknown) { localStorage.setItem(key, JSON.stringify(val)); saveToCloud(key, val) }
 
 type WakeLockSentinel = { release: () => Promise<void> }
 let wakeLockSentinel: WakeLockSentinel | null = null
@@ -146,24 +145,24 @@ interface FisicoStore {
 }
 
 export const useFisicoStore = create<FisicoStore>((set, get) => ({
-  sessions: load('fisico_sessions', []),
-  routines: load('fisico_routines', []),
-  customExercises: load('fisico_exercises', []),
+  sessions: loadFromStorage('fisico_sessions', []),
+  routines: loadFromStorage('fisico_routines', []),
+  customExercises: loadFromStorage('fisico_exercises', []),
   activeSession: null,
   activeTimer: null,
-  runs: load('fisico_runs', []),
-  runPlans: load('fisico_run_plans', []),
-  mobRoutines: load('fisico_mob_routines', []),
-  mobExercises: load('fisico_mob_exercises', []),
-  mobSessions: load('fisico_mob_sessions', []),
+  runs: loadFromStorage('fisico_runs', []),
+  runPlans: loadFromStorage('fisico_run_plans', []),
+  mobRoutines: loadFromStorage('fisico_mob_routines', []),
+  mobExercises: loadFromStorage('fisico_mob_exercises', []),
+  mobSessions: loadFromStorage('fisico_mob_sessions', []),
   activeMobSession: null,
-  prs: load('fisico_prs', []),
-  setTemplates: load('fisico_templates', []),
-  programs: load('fisico_programs', []),
+  prs: loadFromStorage('fisico_prs', []),
+  setTemplates: loadFromStorage('fisico_templates', []),
+  programs: loadFromStorage('fisico_programs', []),
   unit: (localStorage.getItem('fisico_unit') as 'kg' | 'lb') || 'kg',
   wakeLock: false,
 
-  loadSessions: () => set({ sessions: load('fisico_sessions', []) }),
+  loadSessions: () => set({ sessions: loadFromStorage('fisico_sessions', []) }),
 
   startSession: (name, exercises) => {
     const exs: SessionExercise[] = (exercises || []).map(e => ({
@@ -249,7 +248,7 @@ export const useFisicoStore = create<FisicoStore>((set, get) => ({
     const duration = ses.startedAt ? Math.floor((Date.now() - ses.startedAt) / 60000) || 30 : 30
     const finished: TrainingSession = { ...ses, totalKg, duration, startedAt: undefined }
     const sessions = [finished, ...get().sessions]
-    save('fisico_sessions', sessions)
+    saveToStorage('fisico_sessions', sessions)
     const newPRs = get().checkPRs()
     set({ sessions, activeSession: null })
     get().setWakeLock(false)
@@ -260,7 +259,7 @@ export const useFisicoStore = create<FisicoStore>((set, get) => ({
 
   deleteSession: (idx) => {
     const sessions = get().sessions.filter((_, i) => i !== idx)
-    save('fisico_sessions', sessions)
+    saveToStorage('fisico_sessions', sessions)
     set({ sessions })
   },
 
@@ -293,7 +292,7 @@ export const useFisicoStore = create<FisicoStore>((set, get) => ({
         }
       })
     })
-    if (newPRs.length > 0) { save('fisico_prs', prs); set({ prs }) }
+    if (newPRs.length > 0) { saveToStorage('fisico_prs', prs); set({ prs }) }
     return newPRs
   },
 
@@ -302,17 +301,17 @@ export const useFisicoStore = create<FisicoStore>((set, get) => ({
   saveRoutine: (name, exercises) => {
     const routine: Routine = { id: Date.now(), name, exercises }
     const routines = [...get().routines, routine]
-    save('fisico_routines', routines)
+    saveToStorage('fisico_routines', routines)
     set({ routines })
   },
   deleteRoutine: (id) => {
     const routines = get().routines.filter(r => r.id !== id)
-    save('fisico_routines', routines)
+    saveToStorage('fisico_routines', routines)
     set({ routines })
   },
   addCustomExercise: (ex) => {
     const customExercises = [...get().customExercises, ex]
-    save('fisico_exercises', customExercises)
+    saveToStorage('fisico_exercises', customExercises)
     set({ customExercises })
   },
 
@@ -326,23 +325,23 @@ export const useFisicoStore = create<FisicoStore>((set, get) => ({
 
   addRun: (run) => {
     const runs = [{ ...run, id: Date.now() }, ...get().runs]
-    save('fisico_runs', runs)
+    saveToStorage('fisico_runs', runs)
     set({ runs })
   },
   saveRunPlan: (plan) => {
     const runPlans = [{ ...plan, id: Date.now() }, ...get().runPlans]
-    save('fisico_run_plans', runPlans)
+    saveToStorage('fisico_run_plans', runPlans)
     set({ runPlans })
   },
   deleteRun: (idx) => {
     const runs = get().runs.filter((_, i) => i !== idx)
-    save('fisico_runs', runs)
+    saveToStorage('fisico_runs', runs)
     set({ runs })
   },
 
   addMobRoutine: (r) => {
     const mobRoutines = [...get().mobRoutines, r]
-    save('fisico_mob_routines', mobRoutines)
+    saveToStorage('fisico_mob_routines', mobRoutines)
     set({ mobRoutines })
   },
   startMobSession: (name, exercises) => set({ activeMobSession: { name, exercises: exercises.map(e => ({ name: e.name, done: false })) } }),
@@ -355,19 +354,19 @@ export const useFisicoStore = create<FisicoStore>((set, get) => ({
   finishMobSession: () => {
     const ses = get().activeMobSession; if (!ses) return
     const mobSessions = [{ id: Date.now(), date: new Date().toISOString().slice(0, 10), routineName: ses.name, exercises: ses.exercises }, ...get().mobSessions]
-    save('fisico_mob_sessions', mobSessions)
+    saveToStorage('fisico_mob_sessions', mobSessions)
     set({ mobSessions, activeMobSession: null })
   },
   cancelMobSession: () => set({ activeMobSession: null }),
 
   addTemplate: (t) => {
     const templates = [...get().setTemplates.filter(x => x.name !== t.name), t]
-    save('fisico_templates', templates)
+    saveToStorage('fisico_templates', templates)
     set({ setTemplates: templates })
   },
   removeTemplate: (name) => {
     const templates = get().setTemplates.filter(x => x.name !== name)
-    save('fisico_templates', templates)
+    saveToStorage('fisico_templates', templates)
     set({ setTemplates: templates })
   },
   toggleUnit: () => {
@@ -389,12 +388,12 @@ export const useFisicoStore = create<FisicoStore>((set, get) => ({
 
   addProgram: (p) => {
     const programs = [...get().programs, p]
-    save('fisico_programs', programs)
+    saveToStorage('fisico_programs', programs)
     set({ programs })
   },
   removeProgram: (id) => {
     const programs = get().programs.filter(p => p.id !== id)
-    save('fisico_programs', programs)
+    saveToStorage('fisico_programs', programs)
     set({ programs })
   },
 

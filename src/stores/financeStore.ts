@@ -1,10 +1,9 @@
+import { saveToStorage, loadFromStorage } from '@/lib/storage'
 import { create } from 'zustand'
-import { saveToCloud } from '@/lib/sync'
 
 function load<T>(key: string, fallback: T): T {
   try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback } catch { return fallback }
 }
-function save(key: string, val: unknown) { localStorage.setItem(key, JSON.stringify(val)); saveToCloud(key, val) }
 
 export interface Tx {
   id?: number
@@ -125,91 +124,91 @@ interface FinanceStore {
 }
 
 export const useFinanceStore = create<FinanceStore>((set, get) => ({
-  txs: load('finances_tx', []),
-  huchas: load('finances_huchas', []),
-  pufos: load('finances_pufos', []),
-  cuentas: load('finances_cuentas', []),
-  presupuestos: load('finances_budgets', []),
-  recurrentes: load('finances_recurring', []),
+  txs: loadFromStorage('finances_tx', []),
+  huchas: loadFromStorage('finances_huchas', []),
+  pufos: loadFromStorage('finances_pufos', []),
+  cuentas: loadFromStorage('finances_cuentas', []),
+  presupuestos: loadFromStorage('finances_budgets', []),
+  recurrentes: loadFromStorage('finances_recurring', []),
 
   addTx: (tx) => {
     const txs = [{ ...tx, id: Date.now() }, ...get().txs]
-    save('finances_tx', txs)
+    saveToStorage('finances_tx', txs)
     set({ txs })
   },
   removeTx: (idx) => {
     const txs = get().txs.filter((_, i) => i !== idx)
-    save('finances_tx', txs)
+    saveToStorage('finances_tx', txs)
     set({ txs })
   },
   updateTx: (idx, partial) => {
     const txs = [...get().txs]
     txs[idx] = { ...txs[idx], ...partial }
-    save('finances_tx', txs)
+    saveToStorage('finances_tx', txs)
     set({ txs })
   },
   addHucha: (h) => {
     const huchas = [...get().huchas, h]
-    save('finances_huchas', huchas)
+    saveToStorage('finances_huchas', huchas)
     set({ huchas })
   },
   aportarHucha: (i, amount) => {
     const huchas = [...get().huchas]
     huchas[i] = { ...huchas[i], current: Math.min(huchas[i].current + amount, huchas[i].goal * 10) }
-    save('finances_huchas', huchas)
+    saveToStorage('finances_huchas', huchas)
     set({ huchas })
   },
   removeHucha: (i) => {
     const huchas = get().huchas.filter((_, idx) => idx !== i)
-    save('finances_huchas', huchas)
+    saveToStorage('finances_huchas', huchas)
     set({ huchas })
   },
   addPufo: (p) => {
     const pufos = [...get().pufos, p]
-    save('finances_pufos', pufos)
+    saveToStorage('finances_pufos', pufos)
     set({ pufos })
   },
   settlePufo: (idx) => {
     const pufos = [...get().pufos]
     pufos[idx] = { ...pufos[idx], settled: true, settledDate: new Date().toISOString().slice(0, 10) }
-    save('finances_pufos', pufos)
+    saveToStorage('finances_pufos', pufos)
     set({ pufos })
   },
   removePufo: (idx) => {
     const pufos = get().pufos.filter((_, i) => i !== idx)
-    save('finances_pufos', pufos)
+    saveToStorage('finances_pufos', pufos)
     set({ pufos })
   },
   saveCuenta: (c, editIdx) => {
     const cuentas = [...get().cuentas]
     if (editIdx != null) cuentas[editIdx] = c
     else cuentas.push(c)
-    save('finances_cuentas', cuentas)
+    saveToStorage('finances_cuentas', cuentas)
     set({ cuentas })
   },
   removeCuenta: (idx) => {
     const cuentas = get().cuentas.filter((_, i) => i !== idx)
-    save('finances_cuentas', cuentas)
+    saveToStorage('finances_cuentas', cuentas)
     set({ cuentas })
   },
   setPresupuesto: (cat, limit) => {
     const presupuestos = [...get().presupuestos.filter(p => p.category !== cat), { category: cat, limit }]
-    save('finances_budgets', presupuestos)
+    saveToStorage('finances_budgets', presupuestos)
     set({ presupuestos })
   },
   removePresupuesto: (cat) => {
     const presupuestos = get().presupuestos.filter(p => p.category !== cat)
-    save('finances_budgets', presupuestos)
+    saveToStorage('finances_budgets', presupuestos)
     set({ presupuestos })
   },
   addRecurrente: (r) => {
     const recurrentes = [...get().recurrentes, r]
-    save('finances_recurring', recurrentes)
+    saveToStorage('finances_recurring', recurrentes)
     set({ recurrentes })
   },
   removeRecurrente: (id) => {
     const recurrentes = get().recurrentes.filter(r => r.id !== id)
-    save('finances_recurring', recurrentes)
+    saveToStorage('finances_recurring', recurrentes)
     set({ recurrentes })
   },
   processRecurrentes: () => {
@@ -243,7 +242,7 @@ export const useFinanceStore = create<FinanceStore>((set, get) => ({
 
     if (newTxs.length > 0) {
       const updated = [...newTxs, ...txs]
-      save('finances_tx', updated)
+      saveToStorage('finances_tx', updated)
       set({ txs: updated })
     }
     return newTxs
