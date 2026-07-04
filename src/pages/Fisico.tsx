@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useFisicoStore, STATIC_EXERCISES, EXERCISE_GROUPS, EQUIPMENT_TYPES, EQUIPMENT_LABELS, EXERCISE_COLORS } from '@/stores/fisicoStore'
 import { Input } from '@/components/ui'
 import { useToast } from '@/stores/toast'
+import { ROUTINES, ROUTINE_OBJECTIVES, ROUTINE_LEVELS, ROUTINE_PLACES, getObjLabel, getNivelLabel, getLugarLabel, filterRoutines } from '@/data/routinesDB'
 import { createPost } from '@/lib/social'
 
 /* ── Timer Hook ── */

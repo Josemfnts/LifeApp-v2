@@ -1,0 +1,2058 @@
+{
+  "version": "1.0",
+  "idioma": "es",
+  "generado": "2026-07-04",
+  "esquema": {
+    "objetivos": [
+      "hipertrofia",
+      "hipertrofia_general",
+      "hipertrofia_fuerza",
+      "fuerza",
+      "perdida_grasa",
+      "salud_movilidad"
+    ],
+    "niveles": [
+      "principiante",
+      "principiante_intermedio",
+      "intermedio",
+      "avanzado",
+      "todos"
+    ],
+    "lugares": [
+      "gimnasio",
+      "casa_material_basico",
+      "peso_corporal"
+    ]
+  },
+  "total_rutinas": 12,
+  "rutinas": [
+    {
+      "id": "gym-fullbody-principiante-3d",
+      "nombre": "Full Body Iniciación",
+      "objetivo": "hipertrofia_general",
+      "nivel": "principiante",
+      "lugar": "gimnasio",
+      "dias_semana": 3,
+      "duracion_sesion_min": 60,
+      "duracion_programa_semanas": 8,
+      "equipamiento": [
+        "barra",
+        "mancuernas",
+        "maquinas",
+        "poleas"
+      ],
+      "descripcion": "Programa de cuerpo completo 3 días alternos (L-X-V). Ideal para aprender los patrones básicos de movimiento y construir base de fuerza y masa muscular.",
+      "progresion": "Doble progresión: cuando alcances el tope del rango de reps en todas las series, sube el peso 2,5 kg (tren superior) o 5 kg (tren inferior).",
+      "sesiones": [
+        {
+          "nombre": "Día A",
+          "ejercicios": [
+            {
+              "nombre": "Sentadilla con barra",
+              "grupo_muscular": "piernas",
+              "series": 3,
+              "repeticiones": "8-10",
+              "descanso_seg": 120,
+              "notas": "Profundidad hasta paralelo, core firme"
+            },
+            {
+              "nombre": "Press de banca",
+              "grupo_muscular": "pecho",
+              "series": 3,
+              "repeticiones": "8-10",
+              "descanso_seg": 120
+            },
+            {
+              "nombre": "Remo en máquina",
+              "grupo_muscular": "espalda",
+              "series": 3,
+              "repeticiones": "10-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Press militar con mancuernas",
+              "grupo_muscular": "hombros",
+              "series": 3,
+              "repeticiones": "10-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Curl de bíceps con barra",
+              "grupo_muscular": "biceps",
+              "series": 2,
+              "repeticiones": "10-12",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Plancha abdominal",
+              "grupo_muscular": "core",
+              "series": 3,
+              "repeticiones": "30-45 seg",
+              "descanso_seg": 60
+            }
+          ]
+        },
+        {
+          "nombre": "Día B",
+          "ejercicios": [
+            {
+              "nombre": "Peso muerto rumano",
+              "grupo_muscular": "femoral_gluteo",
+              "series": 3,
+              "repeticiones": "8-10",
+              "descanso_seg": 120,
+              "notas": "Espalda neutra, bisagra de cadera"
+            },
+            {
+              "nombre": "Press inclinado en máquina",
+              "grupo_muscular": "pecho",
+              "series": 3,
+              "repeticiones": "10-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Jalón al pecho",
+              "grupo_muscular": "espalda",
+              "series": 3,
+              "repeticiones": "10-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Prensa de piernas",
+              "grupo_muscular": "piernas",
+              "series": 3,
+              "repeticiones": "10-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Extensión de tríceps en polea",
+              "grupo_muscular": "triceps",
+              "series": 2,
+              "repeticiones": "12-15",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Elevación de piernas colgado o tumbado",
+              "grupo_muscular": "core",
+              "series": 3,
+              "repeticiones": "10-15",
+              "descanso_seg": 60
+            }
+          ]
+        },
+        {
+          "nombre": "Día C",
+          "ejercicios": [
+            {
+              "nombre": "Zancadas con mancuernas",
+              "grupo_muscular": "piernas",
+              "series": 3,
+              "repeticiones": "10 por pierna",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Press de banca con mancuernas",
+              "grupo_muscular": "pecho",
+              "series": 3,
+              "repeticiones": "10-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Remo con barra",
+              "grupo_muscular": "espalda",
+              "series": 3,
+              "repeticiones": "8-10",
+              "descanso_seg": 120
+            },
+            {
+              "nombre": "Elevaciones laterales",
+              "grupo_muscular": "hombros",
+              "series": 3,
+              "repeticiones": "12-15",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Curl femoral tumbado",
+              "grupo_muscular": "femoral_gluteo",
+              "series": 3,
+              "repeticiones": "12-15",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Crunch en polea",
+              "grupo_muscular": "core",
+              "series": 3,
+              "repeticiones": "12-15",
+              "descanso_seg": 60
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "gym-torso-pierna-4d",
+      "nombre": "Torso-Pierna Hipertrofia",
+      "objetivo": "hipertrofia",
+      "nivel": "intermedio",
+      "lugar": "gimnasio",
+      "dias_semana": 4,
+      "duracion_sesion_min": 70,
+      "duracion_programa_semanas": 10,
+      "equipamiento": [
+        "barra",
+        "mancuernas",
+        "maquinas",
+        "poleas"
+      ],
+      "descripcion": "Split torso-pierna clásico (L-M-J-V). Frecuencia 2 por grupo muscular, el punto óptimo para hipertrofia en intermedios.",
+      "progresion": "Añade 1 serie a los ejercicios rezagados cada 2 semanas hasta la semana 8; semana 9-10 descarga al 70% del volumen.",
+      "sesiones": [
+        {
+          "nombre": "Torso A (fuerza)",
+          "ejercicios": [
+            {
+              "nombre": "Press de banca",
+              "grupo_muscular": "pecho",
+              "series": 4,
+              "repeticiones": "6-8",
+              "descanso_seg": 150
+            },
+            {
+              "nombre": "Remo con barra",
+              "grupo_muscular": "espalda",
+              "series": 4,
+              "repeticiones": "6-8",
+              "descanso_seg": 150
+            },
+            {
+              "nombre": "Press militar de pie",
+              "grupo_muscular": "hombros",
+              "series": 3,
+              "repeticiones": "6-8",
+              "descanso_seg": 120
+            },
+            {
+              "nombre": "Jalón al pecho agarre neutro",
+              "grupo_muscular": "espalda",
+              "series": 3,
+              "repeticiones": "8-10",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Curl con barra",
+              "grupo_muscular": "biceps",
+              "series": 3,
+              "repeticiones": "8-10",
+              "descanso_seg": 75
+            },
+            {
+              "nombre": "Press francés",
+              "grupo_muscular": "triceps",
+              "series": 3,
+              "repeticiones": "8-10",
+              "descanso_seg": 75
+            }
+          ]
+        },
+        {
+          "nombre": "Pierna A (fuerza)",
+          "ejercicios": [
+            {
+              "nombre": "Sentadilla con barra",
+              "grupo_muscular": "piernas",
+              "series": 4,
+              "repeticiones": "6-8",
+              "descanso_seg": 180
+            },
+            {
+              "nombre": "Peso muerto rumano",
+              "grupo_muscular": "femoral_gluteo",
+              "series": 3,
+              "repeticiones": "8-10",
+              "descanso_seg": 150
+            },
+            {
+              "nombre": "Prensa de piernas",
+              "grupo_muscular": "piernas",
+              "series": 3,
+              "repeticiones": "10-12",
+              "descanso_seg": 120
+            },
+            {
+              "nombre": "Curl femoral sentado",
+              "grupo_muscular": "femoral_gluteo",
+              "series": 3,
+              "repeticiones": "10-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Elevación de talones de pie",
+              "grupo_muscular": "gemelos",
+              "series": 4,
+              "repeticiones": "10-12",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Rueda abdominal o plancha con peso",
+              "grupo_muscular": "core",
+              "series": 3,
+              "repeticiones": "8-12",
+              "descanso_seg": 60
+            }
+          ]
+        },
+        {
+          "nombre": "Torso B (volumen)",
+          "ejercicios": [
+            {
+              "nombre": "Press inclinado con mancuernas",
+              "grupo_muscular": "pecho",
+              "series": 4,
+              "repeticiones": "10-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Remo en polea baja",
+              "grupo_muscular": "espalda",
+              "series": 4,
+              "repeticiones": "10-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Aperturas en polea o pec-deck",
+              "grupo_muscular": "pecho",
+              "series": 3,
+              "repeticiones": "12-15",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Face pull",
+              "grupo_muscular": "hombros_posterior",
+              "series": 3,
+              "repeticiones": "15-20",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Elevaciones laterales",
+              "grupo_muscular": "hombros",
+              "series": 4,
+              "repeticiones": "12-15",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Curl inclinado con mancuernas",
+              "grupo_muscular": "biceps",
+              "series": 3,
+              "repeticiones": "10-12",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Extensión de tríceps sobre cabeza en polea",
+              "grupo_muscular": "triceps",
+              "series": 3,
+              "repeticiones": "12-15",
+              "descanso_seg": 60
+            }
+          ]
+        },
+        {
+          "nombre": "Pierna B (volumen)",
+          "ejercicios": [
+            {
+              "nombre": "Sentadilla búlgara",
+              "grupo_muscular": "piernas",
+              "series": 3,
+              "repeticiones": "10 por pierna",
+              "descanso_seg": 120
+            },
+            {
+              "nombre": "Hip thrust con barra",
+              "grupo_muscular": "femoral_gluteo",
+              "series": 4,
+              "repeticiones": "10-12",
+              "descanso_seg": 120
+            },
+            {
+              "nombre": "Extensión de cuádriceps",
+              "grupo_muscular": "piernas",
+              "series": 3,
+              "repeticiones": "12-15",
+              "descanso_seg": 75
+            },
+            {
+              "nombre": "Curl femoral tumbado",
+              "grupo_muscular": "femoral_gluteo",
+              "series": 3,
+              "repeticiones": "12-15",
+              "descanso_seg": 75
+            },
+            {
+              "nombre": "Elevación de talones sentado",
+              "grupo_muscular": "gemelos",
+              "series": 4,
+              "repeticiones": "15-20",
+              "descanso_seg": 45
+            },
+            {
+              "nombre": "Crunch en polea",
+              "grupo_muscular": "core",
+              "series": 3,
+              "repeticiones": "12-15",
+              "descanso_seg": 60
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "gym-ppl-6d",
+      "nombre": "Push Pull Legs Avanzado",
+      "objetivo": "hipertrofia",
+      "nivel": "avanzado",
+      "lugar": "gimnasio",
+      "dias_semana": 6,
+      "duracion_sesion_min": 75,
+      "duracion_programa_semanas": 12,
+      "equipamiento": [
+        "barra",
+        "mancuernas",
+        "maquinas",
+        "poleas"
+      ],
+      "descripcion": "PPL x2 semanal (empuje-tirón-pierna, repetido). Alto volumen y frecuencia 2 para usuarios avanzados con buena capacidad de recuperación.",
+      "progresion": "Progresión ondulada: semanas 1-4 rangos medios, 5-8 sube cargas bajando reps, 9-11 volumen máximo, semana 12 descarga.",
+      "sesiones": [
+        {
+          "nombre": "Empuje A",
+          "ejercicios": [
+            {
+              "nombre": "Press de banca",
+              "grupo_muscular": "pecho",
+              "series": 4,
+              "repeticiones": "6-8",
+              "descanso_seg": 150
+            },
+            {
+              "nombre": "Press inclinado con mancuernas",
+              "grupo_muscular": "pecho",
+              "series": 3,
+              "repeticiones": "8-10",
+              "descanso_seg": 120
+            },
+            {
+              "nombre": "Press militar sentado",
+              "grupo_muscular": "hombros",
+              "series": 3,
+              "repeticiones": "8-10",
+              "descanso_seg": 120
+            },
+            {
+              "nombre": "Elevaciones laterales",
+              "grupo_muscular": "hombros",
+              "series": 4,
+              "repeticiones": "12-15",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Fondos en paralelas lastrados",
+              "grupo_muscular": "triceps",
+              "series": 3,
+              "repeticiones": "8-10",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Extensión de tríceps en polea con cuerda",
+              "grupo_muscular": "triceps",
+              "series": 3,
+              "repeticiones": "12-15",
+              "descanso_seg": 60
+            }
+          ]
+        },
+        {
+          "nombre": "Tirón A",
+          "ejercicios": [
+            {
+              "nombre": "Dominadas lastradas",
+              "grupo_muscular": "espalda",
+              "series": 4,
+              "repeticiones": "6-8",
+              "descanso_seg": 150
+            },
+            {
+              "nombre": "Remo con barra",
+              "grupo_muscular": "espalda",
+              "series": 4,
+              "repeticiones": "8-10",
+              "descanso_seg": 120
+            },
+            {
+              "nombre": "Remo en polea con agarre cerrado",
+              "grupo_muscular": "espalda",
+              "series": 3,
+              "repeticiones": "10-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Face pull",
+              "grupo_muscular": "hombros_posterior",
+              "series": 3,
+              "repeticiones": "15-20",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Curl con barra",
+              "grupo_muscular": "biceps",
+              "series": 3,
+              "repeticiones": "8-10",
+              "descanso_seg": 75
+            },
+            {
+              "nombre": "Curl martillo",
+              "grupo_muscular": "biceps",
+              "series": 3,
+              "repeticiones": "10-12",
+              "descanso_seg": 60
+            }
+          ]
+        },
+        {
+          "nombre": "Pierna A",
+          "ejercicios": [
+            {
+              "nombre": "Sentadilla con barra",
+              "grupo_muscular": "piernas",
+              "series": 4,
+              "repeticiones": "6-8",
+              "descanso_seg": 180
+            },
+            {
+              "nombre": "Peso muerto rumano",
+              "grupo_muscular": "femoral_gluteo",
+              "series": 3,
+              "repeticiones": "8-10",
+              "descanso_seg": 150
+            },
+            {
+              "nombre": "Prensa de piernas",
+              "grupo_muscular": "piernas",
+              "series": 3,
+              "repeticiones": "10-12",
+              "descanso_seg": 120
+            },
+            {
+              "nombre": "Curl femoral tumbado",
+              "grupo_muscular": "femoral_gluteo",
+              "series": 3,
+              "repeticiones": "10-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Elevación de talones de pie",
+              "grupo_muscular": "gemelos",
+              "series": 4,
+              "repeticiones": "10-12",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Plancha con peso",
+              "grupo_muscular": "core",
+              "series": 3,
+              "repeticiones": "45-60 seg",
+              "descanso_seg": 60
+            }
+          ]
+        },
+        {
+          "nombre": "Empuje B",
+          "ejercicios": [
+            {
+              "nombre": "Press inclinado con barra",
+              "grupo_muscular": "pecho",
+              "series": 4,
+              "repeticiones": "8-10",
+              "descanso_seg": 120
+            },
+            {
+              "nombre": "Press en máquina o mancuernas plano",
+              "grupo_muscular": "pecho",
+              "series": 3,
+              "repeticiones": "10-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Aperturas en polea",
+              "grupo_muscular": "pecho",
+              "series": 3,
+              "repeticiones": "12-15",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Press Arnold",
+              "grupo_muscular": "hombros",
+              "series": 3,
+              "repeticiones": "10-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Elevaciones laterales en polea",
+              "grupo_muscular": "hombros",
+              "series": 4,
+              "repeticiones": "12-15",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Press francés con barra Z",
+              "grupo_muscular": "triceps",
+              "series": 3,
+              "repeticiones": "10-12",
+              "descanso_seg": 75
+            }
+          ]
+        },
+        {
+          "nombre": "Tirón B",
+          "ejercicios": [
+            {
+              "nombre": "Peso muerto convencional",
+              "grupo_muscular": "espalda_femoral",
+              "series": 3,
+              "repeticiones": "5-6",
+              "descanso_seg": 180,
+              "notas": "Técnica impecable; no fallar"
+            },
+            {
+              "nombre": "Jalón al pecho",
+              "grupo_muscular": "espalda",
+              "series": 4,
+              "repeticiones": "10-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Remo con mancuerna a una mano",
+              "grupo_muscular": "espalda",
+              "series": 3,
+              "repeticiones": "10-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Encogimientos con mancuernas",
+              "grupo_muscular": "trapecios",
+              "series": 3,
+              "repeticiones": "12-15",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Curl inclinado",
+              "grupo_muscular": "biceps",
+              "series": 3,
+              "repeticiones": "10-12",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Curl en polea",
+              "grupo_muscular": "biceps",
+              "series": 3,
+              "repeticiones": "12-15",
+              "descanso_seg": 60
+            }
+          ]
+        },
+        {
+          "nombre": "Pierna B",
+          "ejercicios": [
+            {
+              "nombre": "Sentadilla frontal",
+              "grupo_muscular": "piernas",
+              "series": 4,
+              "repeticiones": "8-10",
+              "descanso_seg": 150
+            },
+            {
+              "nombre": "Hip thrust con barra",
+              "grupo_muscular": "femoral_gluteo",
+              "series": 4,
+              "repeticiones": "10-12",
+              "descanso_seg": 120
+            },
+            {
+              "nombre": "Zancadas caminando",
+              "grupo_muscular": "piernas",
+              "series": 3,
+              "repeticiones": "12 por pierna",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Extensión de cuádriceps",
+              "grupo_muscular": "piernas",
+              "series": 3,
+              "repeticiones": "12-15",
+              "descanso_seg": 75
+            },
+            {
+              "nombre": "Curl femoral sentado",
+              "grupo_muscular": "femoral_gluteo",
+              "series": 3,
+              "repeticiones": "12-15",
+              "descanso_seg": 75
+            },
+            {
+              "nombre": "Elevación de talones sentado",
+              "grupo_muscular": "gemelos",
+              "series": 4,
+              "repeticiones": "15-20",
+              "descanso_seg": 45
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "gym-fuerza-5x5-3d",
+      "nombre": "Fuerza Base 5x5",
+      "objetivo": "fuerza",
+      "nivel": "principiante_intermedio",
+      "lugar": "gimnasio",
+      "dias_semana": 3,
+      "duracion_sesion_min": 60,
+      "duracion_programa_semanas": 12,
+      "equipamiento": [
+        "barra",
+        "rack",
+        "banco"
+      ],
+      "descripcion": "Programa lineal de fuerza basado en los grandes básicos, alternando sesión A y B (A-B-A, B-A-B). Simple, brutal y eficaz para subir tus marcas.",
+      "progresion": "Lineal: +2,5 kg por sesión en press y remo, +5 kg en sentadilla y peso muerto. Ante 2 fallos seguidos, reduce la carga un 10% y vuelve a subir.",
+      "sesiones": [
+        {
+          "nombre": "Sesión A",
+          "ejercicios": [
+            {
+              "nombre": "Sentadilla con barra",
+              "grupo_muscular": "piernas",
+              "series": 5,
+              "repeticiones": "5",
+              "descanso_seg": 180
+            },
+            {
+              "nombre": "Press de banca",
+              "grupo_muscular": "pecho",
+              "series": 5,
+              "repeticiones": "5",
+              "descanso_seg": 180
+            },
+            {
+              "nombre": "Remo con barra",
+              "grupo_muscular": "espalda",
+              "series": 5,
+              "repeticiones": "5",
+              "descanso_seg": 180
+            },
+            {
+              "nombre": "Plancha abdominal",
+              "grupo_muscular": "core",
+              "series": 3,
+              "repeticiones": "45-60 seg",
+              "descanso_seg": 60
+            }
+          ]
+        },
+        {
+          "nombre": "Sesión B",
+          "ejercicios": [
+            {
+              "nombre": "Sentadilla con barra",
+              "grupo_muscular": "piernas",
+              "series": 5,
+              "repeticiones": "5",
+              "descanso_seg": 180
+            },
+            {
+              "nombre": "Press militar de pie",
+              "grupo_muscular": "hombros",
+              "series": 5,
+              "repeticiones": "5",
+              "descanso_seg": 180
+            },
+            {
+              "nombre": "Peso muerto convencional",
+              "grupo_muscular": "espalda_femoral",
+              "series": 1,
+              "repeticiones": "5",
+              "descanso_seg": 240,
+              "notas": "Solo 1 serie efectiva pesada tras calentamiento"
+            },
+            {
+              "nombre": "Dominadas",
+              "grupo_muscular": "espalda",
+              "series": 3,
+              "repeticiones": "al fallo técnico",
+              "descanso_seg": 120
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "gym-definicion-4d",
+      "nombre": "Definición Híbrida",
+      "objetivo": "perdida_grasa",
+      "nivel": "intermedio",
+      "lugar": "gimnasio",
+      "dias_semana": 4,
+      "duracion_sesion_min": 65,
+      "duracion_programa_semanas": 8,
+      "equipamiento": [
+        "barra",
+        "mancuernas",
+        "maquinas",
+        "poleas",
+        "cinta_o_bici"
+      ],
+      "descripcion": "Pesas para preservar masa muscular en déficit calórico + finishers metabólicos. Estructura torso-pierna con circuitos al final de cada sesión.",
+      "progresion": "Mantén las cargas de los básicos todo lo posible (prioridad nº1 en déficit). Progresa reduciendo descansos en los finishers de 30 a 15 seg.",
+      "sesiones": [
+        {
+          "nombre": "Torso + finisher",
+          "ejercicios": [
+            {
+              "nombre": "Press de banca",
+              "grupo_muscular": "pecho",
+              "series": 4,
+              "repeticiones": "6-8",
+              "descanso_seg": 120
+            },
+            {
+              "nombre": "Remo con barra",
+              "grupo_muscular": "espalda",
+              "series": 4,
+              "repeticiones": "8-10",
+              "descanso_seg": 120
+            },
+            {
+              "nombre": "Press militar con mancuernas",
+              "grupo_muscular": "hombros",
+              "series": 3,
+              "repeticiones": "8-10",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Jalón al pecho",
+              "grupo_muscular": "espalda",
+              "series": 3,
+              "repeticiones": "10-12",
+              "descanso_seg": 75
+            },
+            {
+              "nombre": "Superserie curl bíceps + tríceps en polea",
+              "grupo_muscular": "brazos",
+              "series": 3,
+              "repeticiones": "12+12",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Finisher: 8 min AMRAP burpees + mountain climbers + swing con mancuerna",
+              "grupo_muscular": "cardio_metabolico",
+              "series": 1,
+              "repeticiones": "8 min",
+              "descanso_seg": 0
+            }
+          ]
+        },
+        {
+          "nombre": "Pierna + finisher",
+          "ejercicios": [
+            {
+              "nombre": "Sentadilla con barra",
+              "grupo_muscular": "piernas",
+              "series": 4,
+              "repeticiones": "6-8",
+              "descanso_seg": 150
+            },
+            {
+              "nombre": "Peso muerto rumano",
+              "grupo_muscular": "femoral_gluteo",
+              "series": 3,
+              "repeticiones": "8-10",
+              "descanso_seg": 120
+            },
+            {
+              "nombre": "Zancadas con mancuernas",
+              "grupo_muscular": "piernas",
+              "series": 3,
+              "repeticiones": "12 por pierna",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Curl femoral tumbado",
+              "grupo_muscular": "femoral_gluteo",
+              "series": 3,
+              "repeticiones": "12-15",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Finisher: 10 min sprints en bici (30 seg fuerte / 30 seg suave)",
+              "grupo_muscular": "cardio_metabolico",
+              "series": 1,
+              "repeticiones": "10 min",
+              "descanso_seg": 0
+            }
+          ]
+        },
+        {
+          "nombre": "Torso B + finisher",
+          "ejercicios": [
+            {
+              "nombre": "Press inclinado con mancuernas",
+              "grupo_muscular": "pecho",
+              "series": 4,
+              "repeticiones": "8-10",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Remo en polea baja",
+              "grupo_muscular": "espalda",
+              "series": 4,
+              "repeticiones": "10-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Elevaciones laterales",
+              "grupo_muscular": "hombros",
+              "series": 3,
+              "repeticiones": "12-15",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Face pull",
+              "grupo_muscular": "hombros_posterior",
+              "series": 3,
+              "repeticiones": "15-20",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Finisher: circuito 3 rondas battle rope 30 seg + plancha 30 seg + remo en máquina 250 m",
+              "grupo_muscular": "cardio_metabolico",
+              "series": 3,
+              "repeticiones": "circuito",
+              "descanso_seg": 60
+            }
+          ]
+        },
+        {
+          "nombre": "Pierna B + HIIT",
+          "ejercicios": [
+            {
+              "nombre": "Prensa de piernas",
+              "grupo_muscular": "piernas",
+              "series": 4,
+              "repeticiones": "10-12",
+              "descanso_seg": 120
+            },
+            {
+              "nombre": "Hip thrust con barra",
+              "grupo_muscular": "femoral_gluteo",
+              "series": 4,
+              "repeticiones": "10-12",
+              "descanso_seg": 120
+            },
+            {
+              "nombre": "Extensión de cuádriceps",
+              "grupo_muscular": "piernas",
+              "series": 3,
+              "repeticiones": "12-15",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Elevación de talones",
+              "grupo_muscular": "gemelos",
+              "series": 4,
+              "repeticiones": "12-15",
+              "descanso_seg": 45
+            },
+            {
+              "nombre": "HIIT final: 12 min en cinta (1 min rápido / 1 min andando)",
+              "grupo_muscular": "cardio_metabolico",
+              "series": 1,
+              "repeticiones": "12 min",
+              "descanso_seg": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "casa-fullbody-3d",
+      "nombre": "Full Body en Casa",
+      "objetivo": "hipertrofia_general",
+      "nivel": "principiante",
+      "lugar": "casa_material_basico",
+      "dias_semana": 3,
+      "duracion_sesion_min": 45,
+      "duracion_programa_semanas": 8,
+      "equipamiento": [
+        "mancuernas_ajustables",
+        "banda_elastica",
+        "esterilla"
+      ],
+      "descripcion": "Cuerpo completo 3 días alternos con mancuernas y bandas. Perfecta para empezar a entrenar en casa con poco material.",
+      "progresion": "Doble progresión en reps y luego peso. Si las mancuernas se quedan cortas, ralentiza el tempo (3 seg bajada) o añade pausas.",
+      "sesiones": [
+        {
+          "nombre": "Día A",
+          "ejercicios": [
+            {
+              "nombre": "Sentadilla goblet",
+              "grupo_muscular": "piernas",
+              "series": 3,
+              "repeticiones": "10-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Press de suelo con mancuernas",
+              "grupo_muscular": "pecho",
+              "series": 3,
+              "repeticiones": "10-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Remo con mancuerna a una mano",
+              "grupo_muscular": "espalda",
+              "series": 3,
+              "repeticiones": "10-12 por lado",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Press militar con mancuernas de pie",
+              "grupo_muscular": "hombros",
+              "series": 3,
+              "repeticiones": "10-12",
+              "descanso_seg": 75
+            },
+            {
+              "nombre": "Plancha abdominal",
+              "grupo_muscular": "core",
+              "series": 3,
+              "repeticiones": "30-45 seg",
+              "descanso_seg": 60
+            }
+          ]
+        },
+        {
+          "nombre": "Día B",
+          "ejercicios": [
+            {
+              "nombre": "Peso muerto rumano con mancuernas",
+              "grupo_muscular": "femoral_gluteo",
+              "series": 3,
+              "repeticiones": "10-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Flexiones",
+              "grupo_muscular": "pecho",
+              "series": 3,
+              "repeticiones": "8-15",
+              "descanso_seg": 75,
+              "notas": "Apoya rodillas si es necesario"
+            },
+            {
+              "nombre": "Remo con banda elástica",
+              "grupo_muscular": "espalda",
+              "series": 3,
+              "repeticiones": "12-15",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Zancada estática con mancuernas",
+              "grupo_muscular": "piernas",
+              "series": 3,
+              "repeticiones": "10 por pierna",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Curl de bíceps con mancuernas",
+              "grupo_muscular": "biceps",
+              "series": 2,
+              "repeticiones": "12-15",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Elevación de piernas tumbado",
+              "grupo_muscular": "core",
+              "series": 3,
+              "repeticiones": "10-15",
+              "descanso_seg": 60
+            }
+          ]
+        },
+        {
+          "nombre": "Día C",
+          "ejercicios": [
+            {
+              "nombre": "Sentadilla búlgara con mancuernas",
+              "grupo_muscular": "piernas",
+              "series": 3,
+              "repeticiones": "8-10 por pierna",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Press inclinado con mancuernas (banco o sofá firme)",
+              "grupo_muscular": "pecho",
+              "series": 3,
+              "repeticiones": "10-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Remo invertido bajo mesa o con banda",
+              "grupo_muscular": "espalda",
+              "series": 3,
+              "repeticiones": "8-12",
+              "descanso_seg": 75
+            },
+            {
+              "nombre": "Elevaciones laterales",
+              "grupo_muscular": "hombros",
+              "series": 3,
+              "repeticiones": "12-15",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Puente de glúteo con mancuerna",
+              "grupo_muscular": "femoral_gluteo",
+              "series": 3,
+              "repeticiones": "12-15",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Extensión de tríceps sobre cabeza con mancuerna",
+              "grupo_muscular": "triceps",
+              "series": 2,
+              "repeticiones": "12-15",
+              "descanso_seg": 60
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "casa-torso-pierna-4d",
+      "nombre": "Torso-Pierna en Casa",
+      "objetivo": "hipertrofia",
+      "nivel": "intermedio",
+      "lugar": "casa_material_basico",
+      "dias_semana": 4,
+      "duracion_sesion_min": 55,
+      "duracion_programa_semanas": 10,
+      "equipamiento": [
+        "mancuernas_ajustables",
+        "banda_elastica",
+        "banco_o_superficie",
+        "barra_dominadas_opcional"
+      ],
+      "descripcion": "Split torso-pierna adaptado a material doméstico. Frecuencia 2 por grupo muscular con técnicas de intensidad para compensar cargas limitadas.",
+      "progresion": "Cuando el peso sea insuficiente: tempo 3-1-3, series al fallo, drop sets con banda, o variantes unilaterales.",
+      "sesiones": [
+        {
+          "nombre": "Torso A",
+          "ejercicios": [
+            {
+              "nombre": "Flexiones lastradas (mochila) o declinadas",
+              "grupo_muscular": "pecho",
+              "series": 4,
+              "repeticiones": "8-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Remo con mancuerna a una mano",
+              "grupo_muscular": "espalda",
+              "series": 4,
+              "repeticiones": "10-12 por lado",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Press militar con mancuernas",
+              "grupo_muscular": "hombros",
+              "series": 3,
+              "repeticiones": "10-12",
+              "descanso_seg": 75
+            },
+            {
+              "nombre": "Dominadas o remo con banda pesada",
+              "grupo_muscular": "espalda",
+              "series": 3,
+              "repeticiones": "6-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Curl de bíceps + extensión de tríceps (superserie)",
+              "grupo_muscular": "brazos",
+              "series": 3,
+              "repeticiones": "12+12",
+              "descanso_seg": 60
+            }
+          ]
+        },
+        {
+          "nombre": "Pierna A",
+          "ejercicios": [
+            {
+              "nombre": "Sentadilla goblet pesada",
+              "grupo_muscular": "piernas",
+              "series": 4,
+              "repeticiones": "10-12",
+              "descanso_seg": 120
+            },
+            {
+              "nombre": "Peso muerto rumano con mancuernas",
+              "grupo_muscular": "femoral_gluteo",
+              "series": 4,
+              "repeticiones": "10-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Zancadas caminando con mancuernas",
+              "grupo_muscular": "piernas",
+              "series": 3,
+              "repeticiones": "12 por pierna",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Puente de glúteo a una pierna",
+              "grupo_muscular": "femoral_gluteo",
+              "series": 3,
+              "repeticiones": "10-12 por lado",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Elevación de talones a una pierna",
+              "grupo_muscular": "gemelos",
+              "series": 3,
+              "repeticiones": "15-20",
+              "descanso_seg": 45
+            },
+            {
+              "nombre": "Plancha lateral",
+              "grupo_muscular": "core",
+              "series": 3,
+              "repeticiones": "30 seg por lado",
+              "descanso_seg": 45
+            }
+          ]
+        },
+        {
+          "nombre": "Torso B",
+          "ejercicios": [
+            {
+              "nombre": "Press de suelo con mancuernas",
+              "grupo_muscular": "pecho",
+              "series": 4,
+              "repeticiones": "10-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Remo con banda en bipedestación",
+              "grupo_muscular": "espalda",
+              "series": 4,
+              "repeticiones": "12-15",
+              "descanso_seg": 75
+            },
+            {
+              "nombre": "Aperturas con mancuernas en suelo",
+              "grupo_muscular": "pecho",
+              "series": 3,
+              "repeticiones": "12-15",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Elevaciones laterales",
+              "grupo_muscular": "hombros",
+              "series": 4,
+              "repeticiones": "12-15",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Face pull con banda",
+              "grupo_muscular": "hombros_posterior",
+              "series": 3,
+              "repeticiones": "15-20",
+              "descanso_seg": 45
+            },
+            {
+              "nombre": "Curl martillo",
+              "grupo_muscular": "biceps",
+              "series": 3,
+              "repeticiones": "10-12",
+              "descanso_seg": 60
+            }
+          ]
+        },
+        {
+          "nombre": "Pierna B",
+          "ejercicios": [
+            {
+              "nombre": "Sentadilla búlgara con mancuernas",
+              "grupo_muscular": "piernas",
+              "series": 4,
+              "repeticiones": "8-10 por pierna",
+              "descanso_seg": 120
+            },
+            {
+              "nombre": "Buenos días con banda o mancuerna",
+              "grupo_muscular": "femoral_gluteo",
+              "series": 3,
+              "repeticiones": "12-15",
+              "descanso_seg": 75
+            },
+            {
+              "nombre": "Sentadilla sissy asistida o step-up alto",
+              "grupo_muscular": "piernas",
+              "series": 3,
+              "repeticiones": "10-12",
+              "descanso_seg": 75
+            },
+            {
+              "nombre": "Curl femoral deslizante (toalla/discos)",
+              "grupo_muscular": "femoral_gluteo",
+              "series": 3,
+              "repeticiones": "8-12",
+              "descanso_seg": 75
+            },
+            {
+              "nombre": "Elevación de talones con mancuernas",
+              "grupo_muscular": "gemelos",
+              "series": 4,
+              "repeticiones": "15-20",
+              "descanso_seg": 45
+            },
+            {
+              "nombre": "Crunch con peso",
+              "grupo_muscular": "core",
+              "series": 3,
+              "repeticiones": "12-15",
+              "descanso_seg": 45
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "casa-circuito-quemagrasa-3d",
+      "nombre": "Circuito Quemagrasa en Casa",
+      "objetivo": "perdida_grasa",
+      "nivel": "principiante_intermedio",
+      "lugar": "casa_material_basico",
+      "dias_semana": 3,
+      "duracion_sesion_min": 35,
+      "duracion_programa_semanas": 6,
+      "equipamiento": [
+        "mancuerna_o_kettlebell",
+        "esterilla"
+      ],
+      "descripcion": "Circuitos metabólicos de cuerpo completo: máximo gasto calórico en poco tiempo, preservando músculo. 3-4 rondas por sesión con descanso de 90 seg entre rondas.",
+      "progresion": "Semanas 1-2: 3 rondas. Semanas 3-4: 4 rondas. Semanas 5-6: 4 rondas reduciendo descanso a 60 seg.",
+      "sesiones": [
+        {
+          "nombre": "Circuito A",
+          "ejercicios": [
+            {
+              "nombre": "Sentadilla goblet",
+              "grupo_muscular": "piernas",
+              "series": 1,
+              "repeticiones": "15",
+              "descanso_seg": 0
+            },
+            {
+              "nombre": "Flexiones",
+              "grupo_muscular": "pecho",
+              "series": 1,
+              "repeticiones": "10-15",
+              "descanso_seg": 0
+            },
+            {
+              "nombre": "Swing con mancuerna/kettlebell",
+              "grupo_muscular": "femoral_gluteo",
+              "series": 1,
+              "repeticiones": "15",
+              "descanso_seg": 0
+            },
+            {
+              "nombre": "Remo con mancuerna",
+              "grupo_muscular": "espalda",
+              "series": 1,
+              "repeticiones": "12 por lado",
+              "descanso_seg": 0
+            },
+            {
+              "nombre": "Mountain climbers",
+              "grupo_muscular": "core_cardio",
+              "series": 1,
+              "repeticiones": "30 seg",
+              "descanso_seg": 90,
+              "notas": "Descanso al final de la ronda"
+            }
+          ]
+        },
+        {
+          "nombre": "Circuito B",
+          "ejercicios": [
+            {
+              "nombre": "Zancadas alternas",
+              "grupo_muscular": "piernas",
+              "series": 1,
+              "repeticiones": "10 por pierna",
+              "descanso_seg": 0
+            },
+            {
+              "nombre": "Press militar con mancuernas",
+              "grupo_muscular": "hombros",
+              "series": 1,
+              "repeticiones": "12",
+              "descanso_seg": 0
+            },
+            {
+              "nombre": "Peso muerto rumano con mancuernas",
+              "grupo_muscular": "femoral_gluteo",
+              "series": 1,
+              "repeticiones": "15",
+              "descanso_seg": 0
+            },
+            {
+              "nombre": "Burpees",
+              "grupo_muscular": "cardio_metabolico",
+              "series": 1,
+              "repeticiones": "10",
+              "descanso_seg": 0
+            },
+            {
+              "nombre": "Plancha con toque de hombros",
+              "grupo_muscular": "core",
+              "series": 1,
+              "repeticiones": "30 seg",
+              "descanso_seg": 90
+            }
+          ]
+        },
+        {
+          "nombre": "Circuito C",
+          "ejercicios": [
+            {
+              "nombre": "Sentadilla con salto",
+              "grupo_muscular": "piernas",
+              "series": 1,
+              "repeticiones": "12",
+              "descanso_seg": 0
+            },
+            {
+              "nombre": "Flexiones con apoyo alternado",
+              "grupo_muscular": "pecho",
+              "series": 1,
+              "repeticiones": "10-12",
+              "descanso_seg": 0
+            },
+            {
+              "nombre": "Remo renegado",
+              "grupo_muscular": "espalda_core",
+              "series": 1,
+              "repeticiones": "8 por lado",
+              "descanso_seg": 0
+            },
+            {
+              "nombre": "Escaladores cruzados",
+              "grupo_muscular": "core_cardio",
+              "series": 1,
+              "repeticiones": "30 seg",
+              "descanso_seg": 0
+            },
+            {
+              "nombre": "Jumping jacks",
+              "grupo_muscular": "cardio_metabolico",
+              "series": 1,
+              "repeticiones": "45 seg",
+              "descanso_seg": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "calistenia-principiante-3d",
+      "nombre": "Calistenia desde Cero",
+      "objetivo": "hipertrofia_general",
+      "nivel": "principiante",
+      "lugar": "peso_corporal",
+      "dias_semana": 3,
+      "duracion_sesion_min": 40,
+      "duracion_programa_semanas": 8,
+      "equipamiento": [
+        "ninguno",
+        "barra_dominadas_opcional"
+      ],
+      "descripcion": "Programa de iniciación sin material. Construye fuerza relativa y control corporal con progresiones escalables de cada ejercicio.",
+      "progresion": "Cada ejercicio tiene variantes: p. ej. flexión en pared → inclinada → rodillas → estándar. Sube de variante al dominar el tope de reps.",
+      "sesiones": [
+        {
+          "nombre": "Día A - Empuje dominante",
+          "ejercicios": [
+            {
+              "nombre": "Flexiones (variante según nivel)",
+              "grupo_muscular": "pecho",
+              "series": 3,
+              "repeticiones": "8-15",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Fondos en banco o silla",
+              "grupo_muscular": "triceps",
+              "series": 3,
+              "repeticiones": "8-12",
+              "descanso_seg": 75
+            },
+            {
+              "nombre": "Pike push-up (flexión en pica)",
+              "grupo_muscular": "hombros",
+              "series": 3,
+              "repeticiones": "6-10",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Sentadilla al aire",
+              "grupo_muscular": "piernas",
+              "series": 3,
+              "repeticiones": "15-20",
+              "descanso_seg": 75
+            },
+            {
+              "nombre": "Plancha abdominal",
+              "grupo_muscular": "core",
+              "series": 3,
+              "repeticiones": "30-45 seg",
+              "descanso_seg": 60
+            }
+          ]
+        },
+        {
+          "nombre": "Día B - Tirón dominante",
+          "ejercicios": [
+            {
+              "nombre": "Remo invertido bajo mesa",
+              "grupo_muscular": "espalda",
+              "series": 3,
+              "repeticiones": "8-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Dominadas asistidas o negativas",
+              "grupo_muscular": "espalda",
+              "series": 3,
+              "repeticiones": "4-8",
+              "descanso_seg": 120,
+              "notas": "Sin barra: remo con toalla en puerta"
+            },
+            {
+              "nombre": "Superman en suelo",
+              "grupo_muscular": "espalda_baja",
+              "series": 3,
+              "repeticiones": "12-15",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Zancadas alternas",
+              "grupo_muscular": "piernas",
+              "series": 3,
+              "repeticiones": "10 por pierna",
+              "descanso_seg": 75
+            },
+            {
+              "nombre": "Elevación de piernas tumbado",
+              "grupo_muscular": "core",
+              "series": 3,
+              "repeticiones": "10-15",
+              "descanso_seg": 60
+            }
+          ]
+        },
+        {
+          "nombre": "Día C - Cuerpo completo",
+          "ejercicios": [
+            {
+              "nombre": "Sentadilla con pausa de 3 seg abajo",
+              "grupo_muscular": "piernas",
+              "series": 3,
+              "repeticiones": "12-15",
+              "descanso_seg": 75
+            },
+            {
+              "nombre": "Flexiones diamante o cerradas",
+              "grupo_muscular": "triceps_pecho",
+              "series": 3,
+              "repeticiones": "6-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Puente de glúteo",
+              "grupo_muscular": "femoral_gluteo",
+              "series": 3,
+              "repeticiones": "15-20",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Remo invertido agarre supino",
+              "grupo_muscular": "espalda_biceps",
+              "series": 3,
+              "repeticiones": "8-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Plancha lateral",
+              "grupo_muscular": "core",
+              "series": 3,
+              "repeticiones": "20-30 seg por lado",
+              "descanso_seg": 45
+            },
+            {
+              "nombre": "Elevación de talones",
+              "grupo_muscular": "gemelos",
+              "series": 3,
+              "repeticiones": "20-25",
+              "descanso_seg": 45
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "calistenia-intermedia-4d",
+      "nombre": "Calistenia Intermedia",
+      "objetivo": "hipertrofia_fuerza",
+      "nivel": "intermedio",
+      "lugar": "peso_corporal",
+      "dias_semana": 4,
+      "duracion_sesion_min": 55,
+      "duracion_programa_semanas": 10,
+      "equipamiento": [
+        "barra_dominadas",
+        "paralelas_opcional"
+      ],
+      "descripcion": "Split empuje/tirón para calistenia con barra de dominadas. Trabaja hacia habilidades como fondos estrictos, dominadas lastradas y pino.",
+      "progresion": "Al superar 12-15 reps limpias, avanza a la variante más difícil (lastre con mochila, palancas más largas, unilateral).",
+      "sesiones": [
+        {
+          "nombre": "Empuje A",
+          "ejercicios": [
+            {
+              "nombre": "Flexiones lastradas o arqueras",
+              "grupo_muscular": "pecho",
+              "series": 4,
+              "repeticiones": "8-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Fondos en paralelas",
+              "grupo_muscular": "pecho_triceps",
+              "series": 4,
+              "repeticiones": "8-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Pike push-up elevado o pino asistido",
+              "grupo_muscular": "hombros",
+              "series": 3,
+              "repeticiones": "6-10",
+              "descanso_seg": 120
+            },
+            {
+              "nombre": "Sentadilla pistol asistida",
+              "grupo_muscular": "piernas",
+              "series": 3,
+              "repeticiones": "5-8 por pierna",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Plancha con peso o RKC",
+              "grupo_muscular": "core",
+              "series": 3,
+              "repeticiones": "30-45 seg",
+              "descanso_seg": 60
+            }
+          ]
+        },
+        {
+          "nombre": "Tirón A",
+          "ejercicios": [
+            {
+              "nombre": "Dominadas pronas",
+              "grupo_muscular": "espalda",
+              "series": 4,
+              "repeticiones": "6-10",
+              "descanso_seg": 120
+            },
+            {
+              "nombre": "Remo invertido con pies elevados",
+              "grupo_muscular": "espalda",
+              "series": 4,
+              "repeticiones": "10-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Dominadas supinas (chin-ups)",
+              "grupo_muscular": "biceps_espalda",
+              "series": 3,
+              "repeticiones": "6-10",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Zancada búlgara con mochila",
+              "grupo_muscular": "piernas",
+              "series": 3,
+              "repeticiones": "10 por pierna",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Elevación de piernas colgado",
+              "grupo_muscular": "core",
+              "series": 3,
+              "repeticiones": "8-12",
+              "descanso_seg": 75
+            }
+          ]
+        },
+        {
+          "nombre": "Empuje B",
+          "ejercicios": [
+            {
+              "nombre": "Flexiones declinadas lastradas",
+              "grupo_muscular": "pecho",
+              "series": 4,
+              "repeticiones": "10-12",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Fondos entre bancos con lastre",
+              "grupo_muscular": "triceps",
+              "series": 3,
+              "repeticiones": "10-12",
+              "descanso_seg": 75
+            },
+            {
+              "nombre": "Flexiones pseudo-planche",
+              "grupo_muscular": "hombros_pecho",
+              "series": 3,
+              "repeticiones": "6-10",
+              "descanso_seg": 120
+            },
+            {
+              "nombre": "Sentadilla con salto",
+              "grupo_muscular": "piernas",
+              "series": 3,
+              "repeticiones": "10-12",
+              "descanso_seg": 75
+            },
+            {
+              "nombre": "Ab wheel o plancha extendida",
+              "grupo_muscular": "core",
+              "series": 3,
+              "repeticiones": "8-12",
+              "descanso_seg": 60
+            }
+          ]
+        },
+        {
+          "nombre": "Tirón B",
+          "ejercicios": [
+            {
+              "nombre": "Dominadas lastradas con mochila",
+              "grupo_muscular": "espalda",
+              "series": 4,
+              "repeticiones": "5-8",
+              "descanso_seg": 150
+            },
+            {
+              "nombre": "Remo arquero invertido",
+              "grupo_muscular": "espalda",
+              "series": 3,
+              "repeticiones": "8 por lado",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Curl con toalla en puerta o dominada supina lenta",
+              "grupo_muscular": "biceps",
+              "series": 3,
+              "repeticiones": "8-12",
+              "descanso_seg": 75
+            },
+            {
+              "nombre": "Nordic curl asistido",
+              "grupo_muscular": "femoral_gluteo",
+              "series": 3,
+              "repeticiones": "5-8",
+              "descanso_seg": 90
+            },
+            {
+              "nombre": "Dragon flag negativas o hollow hold",
+              "grupo_muscular": "core",
+              "series": 3,
+              "repeticiones": "6-10",
+              "descanso_seg": 75
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hiit-sin-material-3d",
+      "nombre": "HIIT Express Sin Material",
+      "objetivo": "perdida_grasa",
+      "nivel": "todos",
+      "lugar": "peso_corporal",
+      "dias_semana": 3,
+      "duracion_sesion_min": 25,
+      "duracion_programa_semanas": 6,
+      "equipamiento": [
+        "ninguno"
+      ],
+      "descripcion": "Sesiones cortas de alta intensidad con protocolo intervalos (trabajo/descanso). Ideal para quemar calorías sin material ni tiempo.",
+      "progresion": "Semanas 1-2: 30/30 seg. Semanas 3-4: 40/20 seg. Semanas 5-6: 45/15 seg. Ajusta variantes de ejercicio a tu nivel.",
+      "sesiones": [
+        {
+          "nombre": "HIIT A (4 rondas del circuito)",
+          "ejercicios": [
+            {
+              "nombre": "Burpees",
+              "grupo_muscular": "cardio_metabolico",
+              "series": 4,
+              "repeticiones": "intervalo",
+              "descanso_seg": 0
+            },
+            {
+              "nombre": "Sentadilla con salto",
+              "grupo_muscular": "piernas",
+              "series": 4,
+              "repeticiones": "intervalo",
+              "descanso_seg": 0
+            },
+            {
+              "nombre": "Mountain climbers",
+              "grupo_muscular": "core_cardio",
+              "series": 4,
+              "repeticiones": "intervalo",
+              "descanso_seg": 0
+            },
+            {
+              "nombre": "Flexiones",
+              "grupo_muscular": "pecho",
+              "series": 4,
+              "repeticiones": "intervalo",
+              "descanso_seg": 0
+            },
+            {
+              "nombre": "High knees (rodillas altas)",
+              "grupo_muscular": "cardio_metabolico",
+              "series": 4,
+              "repeticiones": "intervalo",
+              "descanso_seg": 60,
+              "notas": "Descanso 60 seg entre rondas"
+            }
+          ]
+        },
+        {
+          "nombre": "HIIT B (4 rondas)",
+          "ejercicios": [
+            {
+              "nombre": "Jumping jacks",
+              "grupo_muscular": "cardio_metabolico",
+              "series": 4,
+              "repeticiones": "intervalo",
+              "descanso_seg": 0
+            },
+            {
+              "nombre": "Zancadas con salto alternas",
+              "grupo_muscular": "piernas",
+              "series": 4,
+              "repeticiones": "intervalo",
+              "descanso_seg": 0
+            },
+            {
+              "nombre": "Plancha con toque de hombros",
+              "grupo_muscular": "core",
+              "series": 4,
+              "repeticiones": "intervalo",
+              "descanso_seg": 0
+            },
+            {
+              "nombre": "Escaladores cruzados",
+              "grupo_muscular": "core_cardio",
+              "series": 4,
+              "repeticiones": "intervalo",
+              "descanso_seg": 0
+            },
+            {
+              "nombre": "Sprint en el sitio",
+              "grupo_muscular": "cardio_metabolico",
+              "series": 4,
+              "repeticiones": "intervalo",
+              "descanso_seg": 60
+            }
+          ]
+        },
+        {
+          "nombre": "HIIT C - Tabata doble (8x20/10 por bloque)",
+          "ejercicios": [
+            {
+              "nombre": "Bloque 1: burpees + squat jumps alternados",
+              "grupo_muscular": "cardio_metabolico",
+              "series": 8,
+              "repeticiones": "20 seg trabajo / 10 seg descanso",
+              "descanso_seg": 120,
+              "notas": "Descansa 2 min entre bloques"
+            },
+            {
+              "nombre": "Bloque 2: mountain climbers + flexiones alternados",
+              "grupo_muscular": "core_pecho",
+              "series": 8,
+              "repeticiones": "20 seg trabajo / 10 seg descanso",
+              "descanso_seg": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "movilidad-core-3d",
+      "nombre": "Movilidad y Core",
+      "objetivo": "salud_movilidad",
+      "nivel": "todos",
+      "lugar": "peso_corporal",
+      "dias_semana": 3,
+      "duracion_sesion_min": 25,
+      "duracion_programa_semanas": 0,
+      "equipamiento": [
+        "esterilla"
+      ],
+      "descripcion": "Rutina complementaria de movilidad articular y core. Úsala en días de descanso o como añadido post-entreno. Sin fecha de caducidad.",
+      "progresion": "Aumenta rangos de movimiento y tiempos de sostén gradualmente. La constancia importa más que la intensidad.",
+      "sesiones": [
+        {
+          "nombre": "Movilidad general",
+          "ejercicios": [
+            {
+              "nombre": "Gato-camello",
+              "grupo_muscular": "columna",
+              "series": 2,
+              "repeticiones": "10 lentas",
+              "descanso_seg": 30
+            },
+            {
+              "nombre": "Rotación torácica en cuadrupedia",
+              "grupo_muscular": "columna",
+              "series": 2,
+              "repeticiones": "8 por lado",
+              "descanso_seg": 30
+            },
+            {
+              "nombre": "Sentadilla profunda sostenida",
+              "grupo_muscular": "cadera_tobillo",
+              "series": 3,
+              "repeticiones": "30-45 seg",
+              "descanso_seg": 45
+            },
+            {
+              "nombre": "Zancada con rotación (el mejor estiramiento del mundo)",
+              "grupo_muscular": "cadera",
+              "series": 2,
+              "repeticiones": "6 por lado",
+              "descanso_seg": 30
+            },
+            {
+              "nombre": "Perro boca abajo a cobra",
+              "grupo_muscular": "cadena_posterior",
+              "series": 2,
+              "repeticiones": "8 transiciones",
+              "descanso_seg": 30
+            }
+          ]
+        },
+        {
+          "nombre": "Core antiextensión y antirrotación",
+          "ejercicios": [
+            {
+              "nombre": "Plancha frontal",
+              "grupo_muscular": "core",
+              "series": 3,
+              "repeticiones": "30-60 seg",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Dead bug",
+              "grupo_muscular": "core",
+              "series": 3,
+              "repeticiones": "10 por lado",
+              "descanso_seg": 45
+            },
+            {
+              "nombre": "Plancha lateral",
+              "grupo_muscular": "core",
+              "series": 3,
+              "repeticiones": "30 seg por lado",
+              "descanso_seg": 45
+            },
+            {
+              "nombre": "Bird dog",
+              "grupo_muscular": "core_lumbar",
+              "series": 3,
+              "repeticiones": "8 por lado",
+              "descanso_seg": 45
+            },
+            {
+              "nombre": "Hollow hold",
+              "grupo_muscular": "core",
+              "series": 3,
+              "repeticiones": "20-30 seg",
+              "descanso_seg": 60
+            }
+          ]
+        },
+        {
+          "nombre": "Cadera y hombro",
+          "ejercicios": [
+            {
+              "nombre": "90/90 de cadera con transiciones",
+              "grupo_muscular": "cadera",
+              "series": 2,
+              "repeticiones": "8 por lado",
+              "descanso_seg": 30
+            },
+            {
+              "nombre": "Puente de glúteo con marcha",
+              "grupo_muscular": "femoral_gluteo",
+              "series": 3,
+              "repeticiones": "10 por lado",
+              "descanso_seg": 45
+            },
+            {
+              "nombre": "Dislocaciones de hombro con toalla o banda",
+              "grupo_muscular": "hombros",
+              "series": 2,
+              "repeticiones": "10-12",
+              "descanso_seg": 30
+            },
+            {
+              "nombre": "Colgarse de barra (dead hang)",
+              "grupo_muscular": "hombros_espalda",
+              "series": 3,
+              "repeticiones": "20-40 seg",
+              "descanso_seg": 60
+            },
+            {
+              "nombre": "Estiramiento de flexores de cadera en zancada",
+              "grupo_muscular": "cadera",
+              "series": 2,
+              "repeticiones": "30 seg por lado",
+              "descanso_seg": 30
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

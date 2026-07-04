@@ -1,0 +1,5637 @@
+{
+  "version": "2.0",
+  "idioma": "es",
+  "generado": "2026-07-04",
+  "esquema": {
+    "categorias": [
+      "cena",
+      "comida",
+      "desayuno",
+      "postre",
+      "snack"
+    ],
+    "etiquetas": [
+      "alta_fibra",
+      "alta_proteina",
+      "antioxidante",
+      "aprovechamiento",
+      "baja_caloria",
+      "baja_en_carbohidratos",
+      "baja_grasa",
+      "batch_cooking",
+      "clasico_saludable",
+      "confort_saludable",
+      "dulce_saludable",
+      "economica",
+      "grasas_saludables",
+      "nocturno",
+      "omega_3",
+      "para_compartir",
+      "para_llevar",
+      "post_entreno",
+      "pre_entreno",
+      "rapida",
+      "reconfortante",
+      "refrescante",
+      "saciante",
+      "sin_azucar_anadido",
+      "sin_cocinar",
+      "sin_cocinar_pescado_marinado",
+      "sin_gluten",
+      "vegana",
+      "vegana_opcional",
+      "vegetariana",
+      "vegetariana_opcional"
+    ],
+    "dificultades": [
+      "muy_facil",
+      "facil",
+      "media"
+    ],
+    "nota": "macros_por_racion son valores estimados orientativos; los valores reales dependen de marcas y cantidades exactas"
+  },
+  "total_recetas": 100,
+  "recetas": [
+    {
+      "id": "des-tortitas-avena-proteina",
+      "nombre": "Tortitas de avena y claras",
+      "categoria": "desayuno",
+      "etiquetas": [
+        "alta_proteina",
+        "pre_entreno",
+        "sin_azucar_anadido"
+      ],
+      "tiempo_min": 15,
+      "dificultad": "facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 420,
+        "proteina_g": 32,
+        "carbohidratos_g": 52,
+        "grasas_g": 8,
+        "fibra_g": 6
+      },
+      "ingredientes": [
+        {
+          "nombre": "copos de avena",
+          "cantidad": 60,
+          "unidad": "g"
+        },
+        {
+          "nombre": "claras de huevo",
+          "cantidad": 200,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "plátano maduro",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "canela",
+          "cantidad": 1,
+          "unidad": "pizca"
+        },
+        {
+          "nombre": "levadura química",
+          "cantidad": 3,
+          "unidad": "g"
+        },
+        {
+          "nombre": "aceite de oliva para la sartén",
+          "cantidad": 3,
+          "unidad": "ml"
+        }
+      ],
+      "pasos": [
+        "Tritura la avena, las claras, el plátano, la canela y la levadura hasta obtener una masa homogénea.",
+        "Calienta una sartén antiadherente a fuego medio con unas gotas de aceite.",
+        "Vierte porciones pequeñas de masa y cocina 2-3 min por lado hasta que doren.",
+        "Sirve con fruta fresca o un poco de yogur griego por encima."
+      ]
+    },
+    {
+      "id": "des-yogur-griego-bowl",
+      "nombre": "Bowl de yogur griego con frutos rojos",
+      "categoria": "desayuno",
+      "etiquetas": [
+        "alta_proteina",
+        "rapida",
+        "vegetariana",
+        "sin_cocinar"
+      ],
+      "tiempo_min": 5,
+      "dificultad": "muy_facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 380,
+        "proteina_g": 28,
+        "carbohidratos_g": 34,
+        "grasas_g": 14,
+        "fibra_g": 5
+      },
+      "ingredientes": [
+        {
+          "nombre": "yogur griego natural 0-2%",
+          "cantidad": 250,
+          "unidad": "g"
+        },
+        {
+          "nombre": "frutos rojos",
+          "cantidad": 100,
+          "unidad": "g"
+        },
+        {
+          "nombre": "copos de avena o granola sin azúcar",
+          "cantidad": 30,
+          "unidad": "g"
+        },
+        {
+          "nombre": "nueces",
+          "cantidad": 15,
+          "unidad": "g"
+        },
+        {
+          "nombre": "miel (opcional)",
+          "cantidad": 5,
+          "unidad": "g"
+        }
+      ],
+      "pasos": [
+        "Pon el yogur en un bol y añade los frutos rojos.",
+        "Cubre con la avena o granola y las nueces troceadas.",
+        "Termina con un hilo de miel si quieres un toque dulce."
+      ]
+    },
+    {
+      "id": "des-tostada-aguacate-huevo",
+      "nombre": "Tostada integral con aguacate y huevo",
+      "categoria": "desayuno",
+      "etiquetas": [
+        "vegetariana",
+        "grasas_saludables",
+        "rapida"
+      ],
+      "tiempo_min": 10,
+      "dificultad": "facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 410,
+        "proteina_g": 19,
+        "carbohidratos_g": 36,
+        "grasas_g": 21,
+        "fibra_g": 8
+      },
+      "ingredientes": [
+        {
+          "nombre": "pan integral",
+          "cantidad": 2,
+          "unidad": "rebanadas"
+        },
+        {
+          "nombre": "aguacate",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "huevos",
+          "cantidad": 2,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "tomate cherry",
+          "cantidad": 5,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "sal, pimienta y pimentón",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Tuesta el pan y cocina los huevos a la plancha o poché.",
+        "Machaca el aguacate con sal y pimienta y úntalo sobre las tostadas.",
+        "Coloca encima los huevos y los cherry partidos; remata con pimentón."
+      ]
+    },
+    {
+      "id": "des-porridge-proteico",
+      "nombre": "Porridge proteico de avena",
+      "categoria": "desayuno",
+      "etiquetas": [
+        "alta_proteina",
+        "vegetariana",
+        "saciante"
+      ],
+      "tiempo_min": 8,
+      "dificultad": "muy_facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 440,
+        "proteina_g": 35,
+        "carbohidratos_g": 50,
+        "grasas_g": 11,
+        "fibra_g": 7
+      },
+      "ingredientes": [
+        {
+          "nombre": "copos de avena",
+          "cantidad": 60,
+          "unidad": "g"
+        },
+        {
+          "nombre": "leche o bebida vegetal",
+          "cantidad": 250,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "proteína en polvo (sabor a elegir)",
+          "cantidad": 30,
+          "unidad": "g"
+        },
+        {
+          "nombre": "crema de cacahuete",
+          "cantidad": 10,
+          "unidad": "g"
+        },
+        {
+          "nombre": "fruta troceada",
+          "cantidad": 80,
+          "unidad": "g"
+        }
+      ],
+      "pasos": [
+        "Cuece la avena con la leche a fuego medio 4-5 min removiendo.",
+        "Retira del fuego, deja templar 1 min y mezcla la proteína en polvo.",
+        "Sirve con la fruta y la crema de cacahuete por encima."
+      ]
+    },
+    {
+      "id": "com-pollo-boniato-brocoli",
+      "nombre": "Pollo al horno con boniato y brócoli",
+      "categoria": "comida",
+      "etiquetas": [
+        "alta_proteina",
+        "batch_cooking",
+        "sin_gluten"
+      ],
+      "tiempo_min": 45,
+      "dificultad": "facil",
+      "raciones": 4,
+      "macros_por_racion": {
+        "kcal": 480,
+        "proteina_g": 42,
+        "carbohidratos_g": 40,
+        "grasas_g": 15,
+        "fibra_g": 7
+      },
+      "ingredientes": [
+        {
+          "nombre": "pechuga o contramuslo de pollo",
+          "cantidad": 600,
+          "unidad": "g"
+        },
+        {
+          "nombre": "boniato",
+          "cantidad": 600,
+          "unidad": "g"
+        },
+        {
+          "nombre": "brócoli",
+          "cantidad": 400,
+          "unidad": "g"
+        },
+        {
+          "nombre": "aceite de oliva virgen extra",
+          "cantidad": 30,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "pimentón, ajo en polvo, orégano, sal",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Precalienta el horno a 200 °C. Corta el boniato en dados y el brócoli en floretes.",
+        "Mezcla todo con el aceite y las especias en una bandeja.",
+        "Hornea 20 min, añade el pollo salpimentado y hornea 20-25 min más.",
+        "Reparte en 4 táperes: comida lista para varios días."
+      ]
+    },
+    {
+      "id": "com-salteado-ternera-arroz",
+      "nombre": "Salteado de ternera con arroz y verduras",
+      "categoria": "comida",
+      "etiquetas": [
+        "alta_proteina",
+        "post_entreno"
+      ],
+      "tiempo_min": 25,
+      "dificultad": "facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 560,
+        "proteina_g": 38,
+        "carbohidratos_g": 62,
+        "grasas_g": 16,
+        "fibra_g": 4
+      },
+      "ingredientes": [
+        {
+          "nombre": "tiras de ternera magra",
+          "cantidad": 300,
+          "unidad": "g"
+        },
+        {
+          "nombre": "arroz basmati (en crudo)",
+          "cantidad": 140,
+          "unidad": "g"
+        },
+        {
+          "nombre": "pimiento rojo y verde",
+          "cantidad": 200,
+          "unidad": "g"
+        },
+        {
+          "nombre": "cebolla",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "salsa de soja baja en sal",
+          "cantidad": 30,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 15,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "jengibre (opcional)",
+          "cantidad": 5,
+          "unidad": "g"
+        }
+      ],
+      "pasos": [
+        "Cuece el arroz según el paquete y reserva.",
+        "Saltea la ternera a fuego fuerte 2 min y retira.",
+        "Sofríe las verduras en tiras 5-6 min, devuelve la carne y añade la soja.",
+        "Mezcla con el arroz y saltea 1 min más todo junto."
+      ]
+    },
+    {
+      "id": "com-lentejas-verduras-huevo",
+      "nombre": "Lentejas con verduras y huevo cocido",
+      "categoria": "comida",
+      "etiquetas": [
+        "vegetariana",
+        "alta_fibra",
+        "batch_cooking",
+        "economica"
+      ],
+      "tiempo_min": 40,
+      "dificultad": "facil",
+      "raciones": 4,
+      "macros_por_racion": {
+        "kcal": 430,
+        "proteina_g": 25,
+        "carbohidratos_g": 55,
+        "grasas_g": 12,
+        "fibra_g": 14
+      },
+      "ingredientes": [
+        {
+          "nombre": "lentejas pardinas (en crudo)",
+          "cantidad": 320,
+          "unidad": "g"
+        },
+        {
+          "nombre": "zanahoria",
+          "cantidad": 2,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "cebolla",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "pimiento verde",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "tomate triturado",
+          "cantidad": 200,
+          "unidad": "g"
+        },
+        {
+          "nombre": "huevos",
+          "cantidad": 4,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 30,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "pimentón, laurel, comino, sal",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Sofríe la cebolla, el pimiento y la zanahoria picados 8 min.",
+        "Añade el tomate y las especias; cocina 3 min.",
+        "Incorpora las lentejas y cubre con agua o caldo; cuece 25-30 min.",
+        "Sirve cada ración con un huevo cocido troceado por encima."
+      ]
+    },
+    {
+      "id": "com-pasta-atun-tomate",
+      "nombre": "Pasta integral con atún y tomate",
+      "categoria": "comida",
+      "etiquetas": [
+        "rapida",
+        "post_entreno",
+        "economica"
+      ],
+      "tiempo_min": 20,
+      "dificultad": "muy_facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 520,
+        "proteina_g": 34,
+        "carbohidratos_g": 68,
+        "grasas_g": 12,
+        "fibra_g": 8
+      },
+      "ingredientes": [
+        {
+          "nombre": "pasta integral (en crudo)",
+          "cantidad": 160,
+          "unidad": "g"
+        },
+        {
+          "nombre": "atún al natural escurrido",
+          "cantidad": 200,
+          "unidad": "g"
+        },
+        {
+          "nombre": "tomate triturado",
+          "cantidad": 300,
+          "unidad": "g"
+        },
+        {
+          "nombre": "ajo",
+          "cantidad": 2,
+          "unidad": "dientes"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 15,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "orégano y albahaca",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Cuece la pasta al dente según el paquete.",
+        "Dora el ajo laminado en el aceite, añade el tomate y las hierbas; reduce 8 min.",
+        "Incorpora el atún desmigado y la pasta escurrida; mezcla 1 min y sirve."
+      ]
+    },
+    {
+      "id": "com-salmon-quinoa",
+      "nombre": "Salmón al horno con quinoa y espárragos",
+      "categoria": "comida",
+      "etiquetas": [
+        "omega_3",
+        "sin_gluten",
+        "grasas_saludables"
+      ],
+      "tiempo_min": 30,
+      "dificultad": "facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 550,
+        "proteina_g": 38,
+        "carbohidratos_g": 42,
+        "grasas_g": 24,
+        "fibra_g": 6
+      },
+      "ingredientes": [
+        {
+          "nombre": "lomos de salmón",
+          "cantidad": 300,
+          "unidad": "g"
+        },
+        {
+          "nombre": "quinoa (en crudo)",
+          "cantidad": 120,
+          "unidad": "g"
+        },
+        {
+          "nombre": "espárragos verdes",
+          "cantidad": 200,
+          "unidad": "g"
+        },
+        {
+          "nombre": "limón",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 15,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "eneldo, sal y pimienta",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Enjuaga y cuece la quinoa 15 min; reserva.",
+        "Hornea el salmón y los espárragos a 200 °C durante 12-14 min con aceite, limón y eneldo.",
+        "Sirve el salmón sobre la quinoa con los espárragos al lado."
+      ]
+    },
+    {
+      "id": "com-garbanzos-espinacas",
+      "nombre": "Garbanzos especiados con espinacas",
+      "categoria": "comida",
+      "etiquetas": [
+        "vegana",
+        "alta_fibra",
+        "rapida",
+        "economica"
+      ],
+      "tiempo_min": 15,
+      "dificultad": "muy_facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 420,
+        "proteina_g": 18,
+        "carbohidratos_g": 52,
+        "grasas_g": 15,
+        "fibra_g": 13
+      },
+      "ingredientes": [
+        {
+          "nombre": "garbanzos cocidos",
+          "cantidad": 400,
+          "unidad": "g"
+        },
+        {
+          "nombre": "espinacas frescas",
+          "cantidad": 200,
+          "unidad": "g"
+        },
+        {
+          "nombre": "ajo",
+          "cantidad": 2,
+          "unidad": "dientes"
+        },
+        {
+          "nombre": "tomate triturado",
+          "cantidad": 150,
+          "unidad": "g"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 20,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "comino y pimentón",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Dora el ajo en el aceite, añade el tomate y las especias; cocina 3 min.",
+        "Incorpora los garbanzos escurridos y saltea 5 min.",
+        "Añade las espinacas y remueve hasta que se marchiten. Rectifica de sal."
+      ]
+    },
+    {
+      "id": "cen-merluza-patata",
+      "nombre": "Merluza al horno con patata panadera ligera",
+      "categoria": "cena",
+      "etiquetas": [
+        "baja_grasa",
+        "sin_gluten",
+        "alta_proteina"
+      ],
+      "tiempo_min": 35,
+      "dificultad": "facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 400,
+        "proteina_g": 34,
+        "carbohidratos_g": 38,
+        "grasas_g": 12,
+        "fibra_g": 5
+      },
+      "ingredientes": [
+        {
+          "nombre": "lomos de merluza",
+          "cantidad": 300,
+          "unidad": "g"
+        },
+        {
+          "nombre": "patata",
+          "cantidad": 350,
+          "unidad": "g"
+        },
+        {
+          "nombre": "cebolla",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 20,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "ajo y perejil",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "limón",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        }
+      ],
+      "pasos": [
+        "Corta la patata y la cebolla en rodajas finas, mezcla con la mitad del aceite y hornea 20 min a 200 °C.",
+        "Coloca la merluza encima, riega con aceite, ajo, perejil y limón.",
+        "Hornea 10-12 min más hasta que el pescado esté hecho."
+      ]
+    },
+    {
+      "id": "cen-revuelto-pavo-champis",
+      "nombre": "Revuelto de huevos con pavo y champiñones",
+      "categoria": "cena",
+      "etiquetas": [
+        "baja_en_carbohidratos",
+        "alta_proteina",
+        "rapida"
+      ],
+      "tiempo_min": 12,
+      "dificultad": "muy_facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 350,
+        "proteina_g": 33,
+        "carbohidratos_g": 8,
+        "grasas_g": 20,
+        "fibra_g": 2
+      },
+      "ingredientes": [
+        {
+          "nombre": "huevos",
+          "cantidad": 3,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "fiambre de pavo bajo en sal",
+          "cantidad": 60,
+          "unidad": "g"
+        },
+        {
+          "nombre": "champiñones laminados",
+          "cantidad": 150,
+          "unidad": "g"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 10,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "cebollino y pimienta",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Saltea los champiñones a fuego medio-alto hasta dorarlos.",
+        "Añade el pavo en tiras y remueve 1 min.",
+        "Baja el fuego, añade los huevos batidos y cuaja removiendo suavemente. Termina con cebollino."
+      ]
+    },
+    {
+      "id": "cen-tortilla-patata-horno",
+      "nombre": "Tortilla de patata al horno (versión fitness)",
+      "categoria": "cena",
+      "etiquetas": [
+        "vegetariana",
+        "clasico_saludable",
+        "batch_cooking"
+      ],
+      "tiempo_min": 40,
+      "dificultad": "media",
+      "raciones": 4,
+      "macros_por_racion": {
+        "kcal": 320,
+        "proteina_g": 16,
+        "carbohidratos_g": 28,
+        "grasas_g": 16,
+        "fibra_g": 3
+      },
+      "ingredientes": [
+        {
+          "nombre": "patata",
+          "cantidad": 500,
+          "unidad": "g"
+        },
+        {
+          "nombre": "huevos",
+          "cantidad": 6,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "claras de huevo",
+          "cantidad": 100,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "cebolla",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 25,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "sal",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Corta la patata y la cebolla finas, mézclalas con el aceite y hornéalas 25 min a 200 °C hasta que estén tiernas.",
+        "Bate los huevos y las claras, mezcla con la patata y deja reposar 5 min.",
+        "Vierte en un molde y hornea 12-15 min a 180 °C, o cuaja en sartén a fuego suave."
+      ]
+    },
+    {
+      "id": "cen-ensalada-pollo-completa",
+      "nombre": "Ensalada completa de pollo",
+      "categoria": "cena",
+      "etiquetas": [
+        "baja_en_carbohidratos",
+        "rapida",
+        "sin_gluten"
+      ],
+      "tiempo_min": 15,
+      "dificultad": "muy_facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 430,
+        "proteina_g": 40,
+        "carbohidratos_g": 14,
+        "grasas_g": 24,
+        "fibra_g": 6
+      },
+      "ingredientes": [
+        {
+          "nombre": "pechuga de pollo a la plancha",
+          "cantidad": 150,
+          "unidad": "g"
+        },
+        {
+          "nombre": "mezcla de hojas verdes",
+          "cantidad": 100,
+          "unidad": "g"
+        },
+        {
+          "nombre": "tomate",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "aguacate",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "queso feta",
+          "cantidad": 30,
+          "unidad": "g"
+        },
+        {
+          "nombre": "aceite de oliva y vinagre",
+          "cantidad": 15,
+          "unidad": "ml"
+        }
+      ],
+      "pasos": [
+        "Cocina la pechuga a la plancha y córtala en tiras.",
+        "Monta la ensalada con las hojas, el tomate, el aguacate y el feta.",
+        "Añade el pollo, aliña y sirve."
+      ]
+    },
+    {
+      "id": "snk-batido-platano-cacahuete",
+      "nombre": "Batido de proteína, plátano y cacahuete",
+      "categoria": "snack",
+      "etiquetas": [
+        "alta_proteina",
+        "post_entreno",
+        "rapida"
+      ],
+      "tiempo_min": 5,
+      "dificultad": "muy_facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 380,
+        "proteina_g": 32,
+        "carbohidratos_g": 38,
+        "grasas_g": 11,
+        "fibra_g": 4
+      },
+      "ingredientes": [
+        {
+          "nombre": "proteína en polvo",
+          "cantidad": 30,
+          "unidad": "g"
+        },
+        {
+          "nombre": "plátano",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "leche o bebida vegetal",
+          "cantidad": 250,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "crema de cacahuete",
+          "cantidad": 12,
+          "unidad": "g"
+        },
+        {
+          "nombre": "hielo",
+          "cantidad": 4,
+          "unidad": "cubitos"
+        }
+      ],
+      "pasos": [
+        "Tritura todos los ingredientes en batidora hasta que quede cremoso y sirve frío."
+      ]
+    },
+    {
+      "id": "snk-queso-batido-nueces",
+      "nombre": "Queso batido con nueces y canela",
+      "categoria": "snack",
+      "etiquetas": [
+        "alta_proteina",
+        "sin_cocinar",
+        "nocturno"
+      ],
+      "tiempo_min": 3,
+      "dificultad": "muy_facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 260,
+        "proteina_g": 24,
+        "carbohidratos_g": 12,
+        "grasas_g": 12,
+        "fibra_g": 1
+      },
+      "ingredientes": [
+        {
+          "nombre": "queso batido 0%",
+          "cantidad": 250,
+          "unidad": "g"
+        },
+        {
+          "nombre": "nueces",
+          "cantidad": 15,
+          "unidad": "g"
+        },
+        {
+          "nombre": "canela",
+          "cantidad": 1,
+          "unidad": "pizca"
+        },
+        {
+          "nombre": "miel o edulcorante (opcional)",
+          "cantidad": 5,
+          "unidad": "g"
+        }
+      ],
+      "pasos": [
+        "Mezcla el queso batido con la canela, añade las nueces troceadas y endulza al gusto. Ideal como última comida del día por su caseína de absorción lenta."
+      ]
+    },
+    {
+      "id": "snk-muffins-avena-claras",
+      "nombre": "Muffins de avena y claras",
+      "categoria": "snack",
+      "etiquetas": [
+        "alta_proteina",
+        "batch_cooking",
+        "para_llevar"
+      ],
+      "tiempo_min": 30,
+      "dificultad": "facil",
+      "raciones": 6,
+      "macros_por_racion": {
+        "kcal": 150,
+        "proteina_g": 11,
+        "carbohidratos_g": 20,
+        "grasas_g": 3,
+        "fibra_g": 3
+      },
+      "ingredientes": [
+        {
+          "nombre": "copos de avena",
+          "cantidad": 150,
+          "unidad": "g"
+        },
+        {
+          "nombre": "claras de huevo",
+          "cantidad": 300,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "plátano maduro",
+          "cantidad": 2,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "levadura química",
+          "cantidad": 8,
+          "unidad": "g"
+        },
+        {
+          "nombre": "canela y vainilla",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "arándanos (opcional)",
+          "cantidad": 80,
+          "unidad": "g"
+        }
+      ],
+      "pasos": [
+        "Tritura todos los ingredientes menos los arándanos.",
+        "Reparte en moldes de muffin y añade los arándanos por encima.",
+        "Hornea 20-22 min a 180 °C. Aguantan 4 días en nevera: snack perfecto para llevar."
+      ]
+    },
+    {
+      "id": "snk-hummus-crudites",
+      "nombre": "Hummus casero con crudités",
+      "categoria": "snack",
+      "etiquetas": [
+        "vegana",
+        "alta_fibra",
+        "sin_gluten"
+      ],
+      "tiempo_min": 10,
+      "dificultad": "muy_facil",
+      "raciones": 3,
+      "macros_por_racion": {
+        "kcal": 220,
+        "proteina_g": 8,
+        "carbohidratos_g": 22,
+        "grasas_g": 11,
+        "fibra_g": 7
+      },
+      "ingredientes": [
+        {
+          "nombre": "garbanzos cocidos",
+          "cantidad": 250,
+          "unidad": "g"
+        },
+        {
+          "nombre": "tahini",
+          "cantidad": 20,
+          "unidad": "g"
+        },
+        {
+          "nombre": "limón",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "ajo",
+          "cantidad": 1,
+          "unidad": "diente"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 15,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "comino y pimentón",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "zanahoria y pepino en bastones",
+          "cantidad": 250,
+          "unidad": "g"
+        }
+      ],
+      "pasos": [
+        "Tritura los garbanzos con el tahini, el limón, el ajo, el aceite y un poco de agua hasta que quede cremoso.",
+        "Sirve espolvoreado con pimentón junto a los bastones de verdura."
+      ]
+    },
+    {
+      "id": "des-overnight-oats-manzana",
+      "nombre": "Overnight oats de manzana y canela",
+      "categoria": "desayuno",
+      "etiquetas": [
+        "vegetariana",
+        "sin_cocinar",
+        "para_llevar"
+      ],
+      "tiempo_min": 10,
+      "dificultad": "muy_facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 410,
+        "proteina_g": 20,
+        "carbohidratos_g": 58,
+        "grasas_g": 11,
+        "fibra_g": 9
+      },
+      "ingredientes": [
+        {
+          "nombre": "copos de avena",
+          "cantidad": 60,
+          "unidad": "g"
+        },
+        {
+          "nombre": "leche o bebida vegetal",
+          "cantidad": 200,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "yogur griego",
+          "cantidad": 100,
+          "unidad": "g"
+        },
+        {
+          "nombre": "manzana",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "semillas de chia",
+          "cantidad": 10,
+          "unidad": "g"
+        },
+        {
+          "nombre": "canela",
+          "cantidad": 1,
+          "unidad": "pizca"
+        }
+      ],
+      "pasos": [
+        "Mezcla la avena, la leche, el yogur y la chia en un tarro.",
+        "Refrigera toda la noche tapado.",
+        "Sirve por la manana con la manzana en dados y canela."
+      ]
+    },
+    {
+      "id": "des-tortilla-espinacas-queso",
+      "nombre": "Tortilla francesa de espinacas y queso fresco",
+      "categoria": "desayuno",
+      "etiquetas": [
+        "alta_proteina",
+        "baja_en_carbohidratos",
+        "rapida"
+      ],
+      "tiempo_min": 10,
+      "dificultad": "muy_facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 310,
+        "proteina_g": 26,
+        "carbohidratos_g": 6,
+        "grasas_g": 20,
+        "fibra_g": 2
+      },
+      "ingredientes": [
+        {
+          "nombre": "huevos",
+          "cantidad": 3,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "espinacas frescas",
+          "cantidad": 80,
+          "unidad": "g"
+        },
+        {
+          "nombre": "queso fresco batido o de untar light",
+          "cantidad": 40,
+          "unidad": "g"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 8,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "sal y pimienta",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Saltea las espinacas 1-2 min hasta que se marchiten.",
+        "Bate los huevos, mezcla con las espinacas y el queso.",
+        "Cuaja en sarten a fuego medio-bajo doblando la tortilla."
+      ]
+    },
+    {
+      "id": "des-tostada-requeson-miel",
+      "nombre": "Tostada de requeson, miel y nueces",
+      "categoria": "desayuno",
+      "etiquetas": [
+        "vegetariana",
+        "rapida",
+        "alta_proteina"
+      ],
+      "tiempo_min": 7,
+      "dificultad": "muy_facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 360,
+        "proteina_g": 20,
+        "carbohidratos_g": 40,
+        "grasas_g": 13,
+        "fibra_g": 5
+      },
+      "ingredientes": [
+        {
+          "nombre": "pan integral",
+          "cantidad": 2,
+          "unidad": "rebanadas"
+        },
+        {
+          "nombre": "requeson",
+          "cantidad": 120,
+          "unidad": "g"
+        },
+        {
+          "nombre": "miel",
+          "cantidad": 10,
+          "unidad": "g"
+        },
+        {
+          "nombre": "nueces",
+          "cantidad": 12,
+          "unidad": "g"
+        },
+        {
+          "nombre": "canela",
+          "cantidad": 1,
+          "unidad": "pizca"
+        }
+      ],
+      "pasos": [
+        "Tuesta el pan.",
+        "Unta el requeson, riega con miel y anade las nueces troceadas y la canela."
+      ]
+    },
+    {
+      "id": "des-revuelto-salmon",
+      "nombre": "Huevos revueltos con salmon ahumado",
+      "categoria": "desayuno",
+      "etiquetas": [
+        "alta_proteina",
+        "omega_3",
+        "baja_en_carbohidratos"
+      ],
+      "tiempo_min": 10,
+      "dificultad": "facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 340,
+        "proteina_g": 29,
+        "carbohidratos_g": 3,
+        "grasas_g": 23,
+        "fibra_g": 1
+      },
+      "ingredientes": [
+        {
+          "nombre": "huevos",
+          "cantidad": 3,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "salmon ahumado",
+          "cantidad": 60,
+          "unidad": "g"
+        },
+        {
+          "nombre": "cebollino",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 8,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "pimienta negra",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Bate los huevos y cuajalos a fuego suave removiendo constantemente.",
+        "Retira del fuego un punto antes, anade el salmon en tiras y el cebollino."
+      ]
+    },
+    {
+      "id": "des-smoothie-bowl-verde",
+      "nombre": "Smoothie bowl verde proteico",
+      "categoria": "desayuno",
+      "etiquetas": [
+        "vegetariana",
+        "alta_proteina",
+        "sin_cocinar"
+      ],
+      "tiempo_min": 8,
+      "dificultad": "muy_facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 390,
+        "proteina_g": 30,
+        "carbohidratos_g": 48,
+        "grasas_g": 9,
+        "fibra_g": 7
+      },
+      "ingredientes": [
+        {
+          "nombre": "espinacas frescas",
+          "cantidad": 50,
+          "unidad": "g"
+        },
+        {
+          "nombre": "platano congelado",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "proteina en polvo",
+          "cantidad": 30,
+          "unidad": "g"
+        },
+        {
+          "nombre": "bebida vegetal",
+          "cantidad": 150,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "kiwi",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "granola sin azucar",
+          "cantidad": 20,
+          "unidad": "g"
+        }
+      ],
+      "pasos": [
+        "Tritura espinacas, platano, proteina y bebida vegetal hasta textura espesa.",
+        "Sirve en bol con el kiwi laminado y la granola por encima."
+      ]
+    },
+    {
+      "id": "des-pan-tomate-serrano",
+      "nombre": "Pan con tomate y jamon serrano",
+      "categoria": "desayuno",
+      "etiquetas": [
+        "clasico_saludable",
+        "rapida"
+      ],
+      "tiempo_min": 7,
+      "dificultad": "muy_facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 380,
+        "proteina_g": 22,
+        "carbohidratos_g": 42,
+        "grasas_g": 14,
+        "fibra_g": 4
+      },
+      "ingredientes": [
+        {
+          "nombre": "pan integral",
+          "cantidad": 80,
+          "unidad": "g"
+        },
+        {
+          "nombre": "tomate maduro",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "jamon serrano sin grasa visible",
+          "cantidad": 50,
+          "unidad": "g"
+        },
+        {
+          "nombre": "aceite de oliva virgen extra",
+          "cantidad": 10,
+          "unidad": "ml"
+        }
+      ],
+      "pasos": [
+        "Tuesta el pan y frota el tomate rallado o partido.",
+        "Riega con el aceite y corona con el jamon."
+      ]
+    },
+    {
+      "id": "des-crepes-proteicos",
+      "nombre": "Crepes proteicos de claras y avena",
+      "categoria": "desayuno",
+      "etiquetas": [
+        "alta_proteina",
+        "batch_cooking"
+      ],
+      "tiempo_min": 20,
+      "dificultad": "facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 330,
+        "proteina_g": 28,
+        "carbohidratos_g": 40,
+        "grasas_g": 6,
+        "fibra_g": 4
+      },
+      "ingredientes": [
+        {
+          "nombre": "claras de huevo",
+          "cantidad": 250,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "copos de avena",
+          "cantidad": 80,
+          "unidad": "g"
+        },
+        {
+          "nombre": "proteina en polvo",
+          "cantidad": 25,
+          "unidad": "g"
+        },
+        {
+          "nombre": "leche",
+          "cantidad": 100,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "esencia de vainilla",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Tritura todos los ingredientes hasta masa liquida fina.",
+        "Cocina crepes finos en sarten antiadherente 1-2 min por lado.",
+        "Rellena de fruta, yogur o crema de cacahuete."
+      ]
+    },
+    {
+      "id": "des-skyr-mango-chia",
+      "nombre": "Skyr con mango y semillas de chia",
+      "categoria": "desayuno",
+      "etiquetas": [
+        "alta_proteina",
+        "sin_cocinar",
+        "rapida"
+      ],
+      "tiempo_min": 5,
+      "dificultad": "muy_facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 320,
+        "proteina_g": 28,
+        "carbohidratos_g": 38,
+        "grasas_g": 6,
+        "fibra_g": 6
+      },
+      "ingredientes": [
+        {
+          "nombre": "skyr natural",
+          "cantidad": 250,
+          "unidad": "g"
+        },
+        {
+          "nombre": "mango",
+          "cantidad": 120,
+          "unidad": "g"
+        },
+        {
+          "nombre": "semillas de chia",
+          "cantidad": 10,
+          "unidad": "g"
+        },
+        {
+          "nombre": "coco rallado",
+          "cantidad": 5,
+          "unidad": "g"
+        }
+      ],
+      "pasos": [
+        "Sirve el skyr en bol con el mango en dados.",
+        "Espolvorea la chia y el coco."
+      ]
+    },
+    {
+      "id": "des-sandwich-pavo",
+      "nombre": "Sandwich integral de pavo, queso y tomate",
+      "categoria": "desayuno",
+      "etiquetas": [
+        "rapida",
+        "para_llevar"
+      ],
+      "tiempo_min": 7,
+      "dificultad": "muy_facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 350,
+        "proteina_g": 25,
+        "carbohidratos_g": 40,
+        "grasas_g": 10,
+        "fibra_g": 6
+      },
+      "ingredientes": [
+        {
+          "nombre": "pan integral",
+          "cantidad": 2,
+          "unidad": "rebanadas"
+        },
+        {
+          "nombre": "fiambre de pavo",
+          "cantidad": 80,
+          "unidad": "g"
+        },
+        {
+          "nombre": "queso light",
+          "cantidad": 1,
+          "unidad": "loncha"
+        },
+        {
+          "nombre": "tomate",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "hojas verdes",
+          "cantidad": 20,
+          "unidad": "g"
+        }
+      ],
+      "pasos": [
+        "Monta el sandwich con todos los ingredientes.",
+        "Opcional: pasalo por sandwichera o plancha 2 min."
+      ]
+    },
+    {
+      "id": "des-huevos-aguacate-horno",
+      "nombre": "Huevos al horno en aguacate",
+      "categoria": "desayuno",
+      "etiquetas": [
+        "baja_en_carbohidratos",
+        "grasas_saludables",
+        "vegetariana"
+      ],
+      "tiempo_min": 20,
+      "dificultad": "facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 400,
+        "proteina_g": 16,
+        "carbohidratos_g": 12,
+        "grasas_g": 33,
+        "fibra_g": 9
+      },
+      "ingredientes": [
+        {
+          "nombre": "aguacate",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "huevos",
+          "cantidad": 2,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "pimenton y sal",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "cebollino",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Parte el aguacate, retira algo de pulpa y casca un huevo en cada mitad.",
+        "Hornea 12-15 min a 200 C hasta que cuaje la clara.",
+        "Termina con pimenton y cebollino."
+      ]
+    },
+    {
+      "id": "des-bizcocho-avena-platano",
+      "nombre": "Bizcocho de avena y platano",
+      "categoria": "desayuno",
+      "etiquetas": [
+        "batch_cooking",
+        "vegetariana",
+        "sin_azucar_anadido"
+      ],
+      "tiempo_min": 40,
+      "dificultad": "facil",
+      "raciones": 8,
+      "macros_por_racion": {
+        "kcal": 180,
+        "proteina_g": 7,
+        "carbohidratos_g": 28,
+        "grasas_g": 4,
+        "fibra_g": 3
+      },
+      "ingredientes": [
+        {
+          "nombre": "copos de avena",
+          "cantidad": 250,
+          "unidad": "g"
+        },
+        {
+          "nombre": "platano maduro",
+          "cantidad": 3,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "huevos",
+          "cantidad": 3,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "yogur natural",
+          "cantidad": 125,
+          "unidad": "g"
+        },
+        {
+          "nombre": "levadura quimica",
+          "cantidad": 10,
+          "unidad": "g"
+        },
+        {
+          "nombre": "canela",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Tritura todos los ingredientes hasta masa homogenea.",
+        "Vierte en molde forrado y hornea 30-35 min a 180 C.",
+        "Deja enfriar y corta en 8 porciones. Aguanta 4 dias en nevera."
+      ]
+    },
+    {
+      "id": "des-pudin-chia-coco",
+      "nombre": "Pudin de chia con leche de coco y fruta",
+      "categoria": "desayuno",
+      "etiquetas": [
+        "vegana",
+        "sin_cocinar",
+        "alta_fibra"
+      ],
+      "tiempo_min": 10,
+      "dificultad": "muy_facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 330,
+        "proteina_g": 9,
+        "carbohidratos_g": 32,
+        "grasas_g": 19,
+        "fibra_g": 12
+      },
+      "ingredientes": [
+        {
+          "nombre": "semillas de chia",
+          "cantidad": 30,
+          "unidad": "g"
+        },
+        {
+          "nombre": "bebida de coco",
+          "cantidad": 200,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "fruta de temporada",
+          "cantidad": 120,
+          "unidad": "g"
+        },
+        {
+          "nombre": "sirope de agave (opcional)",
+          "cantidad": 5,
+          "unidad": "g"
+        }
+      ],
+      "pasos": [
+        "Mezcla la chia con la bebida de coco y deja reposar en nevera minimo 3 horas.",
+        "Remueve, endulza si quieres y sirve con la fruta troceada."
+      ]
+    },
+    {
+      "id": "des-tortilla-cottage",
+      "nombre": "Tortilla de claras con cottage y tomate",
+      "categoria": "desayuno",
+      "etiquetas": [
+        "alta_proteina",
+        "baja_grasa",
+        "rapida"
+      ],
+      "tiempo_min": 10,
+      "dificultad": "muy_facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 250,
+        "proteina_g": 32,
+        "carbohidratos_g": 8,
+        "grasas_g": 9,
+        "fibra_g": 2
+      },
+      "ingredientes": [
+        {
+          "nombre": "claras de huevo",
+          "cantidad": 250,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "queso cottage",
+          "cantidad": 80,
+          "unidad": "g"
+        },
+        {
+          "nombre": "tomate cherry",
+          "cantidad": 6,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 5,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "oregano",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Cuaja las claras en sarten a fuego medio.",
+        "Anade el cottage y los cherry partidos sobre una mitad, dobla y sirve con oregano."
+      ]
+    },
+    {
+      "id": "des-wrap-huevo-aguacate",
+      "nombre": "Wrap de desayuno con huevo y aguacate",
+      "categoria": "desayuno",
+      "etiquetas": [
+        "para_llevar",
+        "grasas_saludables"
+      ],
+      "tiempo_min": 12,
+      "dificultad": "facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 420,
+        "proteina_g": 20,
+        "carbohidratos_g": 36,
+        "grasas_g": 22,
+        "fibra_g": 8
+      },
+      "ingredientes": [
+        {
+          "nombre": "tortilla integral grande",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "huevos",
+          "cantidad": 2,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "aguacate",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "tomate",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "hojas verdes",
+          "cantidad": 20,
+          "unidad": "g"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 5,
+          "unidad": "ml"
+        }
+      ],
+      "pasos": [
+        "Haz un revuelto con los huevos.",
+        "Unta el aguacate machacado en la tortilla, anade el revuelto, el tomate y las hojas.",
+        "Enrolla apretado y marca 1 min en la sarten."
+      ]
+    },
+    {
+      "id": "des-muesli-casero",
+      "nombre": "Muesli casero con yogur y fruta",
+      "categoria": "desayuno",
+      "etiquetas": [
+        "vegetariana",
+        "alta_fibra",
+        "sin_azucar_anadido"
+      ],
+      "tiempo_min": 8,
+      "dificultad": "muy_facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 400,
+        "proteina_g": 22,
+        "carbohidratos_g": 50,
+        "grasas_g": 12,
+        "fibra_g": 8
+      },
+      "ingredientes": [
+        {
+          "nombre": "copos de avena",
+          "cantidad": 50,
+          "unidad": "g"
+        },
+        {
+          "nombre": "yogur natural",
+          "cantidad": 200,
+          "unidad": "g"
+        },
+        {
+          "nombre": "manzana o pera",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "pasas",
+          "cantidad": 10,
+          "unidad": "g"
+        },
+        {
+          "nombre": "almendras",
+          "cantidad": 12,
+          "unidad": "g"
+        },
+        {
+          "nombre": "canela",
+          "cantidad": 1,
+          "unidad": "pizca"
+        }
+      ],
+      "pasos": [
+        "Mezcla la avena con el yogur.",
+        "Anade la fruta en dados, las pasas, las almendras laminadas y la canela."
+      ]
+    },
+    {
+      "id": "des-tostada-francesa",
+      "nombre": "Tostada francesa proteica",
+      "categoria": "desayuno",
+      "etiquetas": [
+        "alta_proteina",
+        "dulce_saludable"
+      ],
+      "tiempo_min": 12,
+      "dificultad": "facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 380,
+        "proteina_g": 27,
+        "carbohidratos_g": 42,
+        "grasas_g": 10,
+        "fibra_g": 5
+      },
+      "ingredientes": [
+        {
+          "nombre": "pan integral",
+          "cantidad": 2,
+          "unidad": "rebanadas"
+        },
+        {
+          "nombre": "huevos",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "claras de huevo",
+          "cantidad": 100,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "leche",
+          "cantidad": 50,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "canela y vainilla",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "fruta fresca",
+          "cantidad": 80,
+          "unidad": "g"
+        }
+      ],
+      "pasos": [
+        "Bate huevo, claras, leche, canela y vainilla; empapa el pan.",
+        "Dora en sarten antiadherente 2-3 min por lado.",
+        "Sirve con la fruta por encima."
+      ]
+    },
+    {
+      "id": "com-pollo-curry-arroz",
+      "nombre": "Arroz con pollo al curry ligero",
+      "categoria": "comida",
+      "etiquetas": [
+        "alta_proteina",
+        "batch_cooking"
+      ],
+      "tiempo_min": 30,
+      "dificultad": "facil",
+      "raciones": 3,
+      "macros_por_racion": {
+        "kcal": 540,
+        "proteina_g": 40,
+        "carbohidratos_g": 60,
+        "grasas_g": 14,
+        "fibra_g": 4
+      },
+      "ingredientes": [
+        {
+          "nombre": "pechuga de pollo",
+          "cantidad": 450,
+          "unidad": "g"
+        },
+        {
+          "nombre": "arroz basmati (en crudo)",
+          "cantidad": 210,
+          "unidad": "g"
+        },
+        {
+          "nombre": "cebolla",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "curry en polvo",
+          "cantidad": 8,
+          "unidad": "g"
+        },
+        {
+          "nombre": "yogur natural o leche de coco light",
+          "cantidad": 150,
+          "unidad": "g"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 20,
+          "unidad": "ml"
+        }
+      ],
+      "pasos": [
+        "Cuece el arroz y reserva.",
+        "Sofrie la cebolla, anade el pollo en dados y dora.",
+        "Incorpora el curry y el yogur; cocina 8 min a fuego suave y sirve sobre el arroz."
+      ]
+    },
+    {
+      "id": "com-albondigas-pavo",
+      "nombre": "Albondigas de pavo en salsa de tomate con arroz",
+      "categoria": "comida",
+      "etiquetas": [
+        "alta_proteina",
+        "batch_cooking"
+      ],
+      "tiempo_min": 40,
+      "dificultad": "media",
+      "raciones": 4,
+      "macros_por_racion": {
+        "kcal": 510,
+        "proteina_g": 38,
+        "carbohidratos_g": 55,
+        "grasas_g": 13,
+        "fibra_g": 4
+      },
+      "ingredientes": [
+        {
+          "nombre": "carne picada de pavo",
+          "cantidad": 500,
+          "unidad": "g"
+        },
+        {
+          "nombre": "arroz (en crudo)",
+          "cantidad": 240,
+          "unidad": "g"
+        },
+        {
+          "nombre": "tomate triturado",
+          "cantidad": 400,
+          "unidad": "g"
+        },
+        {
+          "nombre": "cebolla",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "huevo",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "pan rallado integral",
+          "cantidad": 30,
+          "unidad": "g"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 25,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "ajo y perejil",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Mezcla la carne con huevo, pan rallado, ajo y perejil; forma albondigas.",
+        "Doralas en sarten y reserva.",
+        "Sofrie cebolla, anade el tomate y cuece 10 min; devuelve las albondigas 10 min mas.",
+        "Sirve con el arroz cocido."
+      ]
+    },
+    {
+      "id": "com-chili-magro",
+      "nombre": "Chili con carne magro",
+      "categoria": "comida",
+      "etiquetas": [
+        "alta_proteina",
+        "alta_fibra",
+        "batch_cooking"
+      ],
+      "tiempo_min": 45,
+      "dificultad": "media",
+      "raciones": 4,
+      "macros_por_racion": {
+        "kcal": 480,
+        "proteina_g": 38,
+        "carbohidratos_g": 42,
+        "grasas_g": 16,
+        "fibra_g": 12
+      },
+      "ingredientes": [
+        {
+          "nombre": "carne picada de ternera magra",
+          "cantidad": 500,
+          "unidad": "g"
+        },
+        {
+          "nombre": "alubias rojas cocidas",
+          "cantidad": 400,
+          "unidad": "g"
+        },
+        {
+          "nombre": "tomate triturado",
+          "cantidad": 400,
+          "unidad": "g"
+        },
+        {
+          "nombre": "cebolla",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "pimiento rojo",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "comino, pimenton y chile",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 20,
+          "unidad": "ml"
+        }
+      ],
+      "pasos": [
+        "Sofrie cebolla y pimiento, anade la carne y dora.",
+        "Incorpora especias, tomate y alubias.",
+        "Cocina a fuego suave 25 min. Mejor de un dia para otro."
+      ]
+    },
+    {
+      "id": "com-poke-atun",
+      "nombre": "Poke bowl de atun",
+      "categoria": "comida",
+      "etiquetas": [
+        "omega_3",
+        "sin_cocinar_pescado_marinado",
+        "alta_proteina"
+      ],
+      "tiempo_min": 25,
+      "dificultad": "facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 560,
+        "proteina_g": 36,
+        "carbohidratos_g": 58,
+        "grasas_g": 20,
+        "fibra_g": 6
+      },
+      "ingredientes": [
+        {
+          "nombre": "atun fresco calidad sashimi",
+          "cantidad": 250,
+          "unidad": "g"
+        },
+        {
+          "nombre": "arroz para sushi (en crudo)",
+          "cantidad": 140,
+          "unidad": "g"
+        },
+        {
+          "nombre": "edamame",
+          "cantidad": 100,
+          "unidad": "g"
+        },
+        {
+          "nombre": "aguacate",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "pepino",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "salsa de soja",
+          "cantidad": 20,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "aceite de sesamo",
+          "cantidad": 8,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "sesamo",
+          "cantidad": 5,
+          "unidad": "g"
+        }
+      ],
+      "pasos": [
+        "Cuece el arroz y deja templar.",
+        "Marina el atun en dados con soja y aceite de sesamo 10 min.",
+        "Monta el bol: arroz, atun, edamame, aguacate y pepino; remata con sesamo."
+      ]
+    },
+    {
+      "id": "com-wok-gambas-noodles",
+      "nombre": "Wok de gambas con noodles integrales",
+      "categoria": "comida",
+      "etiquetas": [
+        "rapida",
+        "alta_proteina"
+      ],
+      "tiempo_min": 20,
+      "dificultad": "facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 490,
+        "proteina_g": 32,
+        "carbohidratos_g": 60,
+        "grasas_g": 12,
+        "fibra_g": 5
+      },
+      "ingredientes": [
+        {
+          "nombre": "gambas peladas",
+          "cantidad": 250,
+          "unidad": "g"
+        },
+        {
+          "nombre": "noodles integrales",
+          "cantidad": 120,
+          "unidad": "g"
+        },
+        {
+          "nombre": "verduras variadas para wok",
+          "cantidad": 300,
+          "unidad": "g"
+        },
+        {
+          "nombre": "salsa de soja",
+          "cantidad": 25,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "ajo y jengibre",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "aceite de oliva o sesamo",
+          "cantidad": 15,
+          "unidad": "ml"
+        }
+      ],
+      "pasos": [
+        "Cuece los noodles segun paquete.",
+        "Saltea ajo y jengibre, anade las verduras 4 min y las gambas 2 min.",
+        "Incorpora noodles y soja; saltea 1 min mas."
+      ]
+    },
+    {
+      "id": "com-pechuga-rellena",
+      "nombre": "Pechuga rellena de espinacas y queso con cuscus",
+      "categoria": "comida",
+      "etiquetas": [
+        "alta_proteina"
+      ],
+      "tiempo_min": 35,
+      "dificultad": "media",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 520,
+        "proteina_g": 45,
+        "carbohidratos_g": 44,
+        "grasas_g": 17,
+        "fibra_g": 5
+      },
+      "ingredientes": [
+        {
+          "nombre": "pechugas de pollo grandes",
+          "cantidad": 2,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "espinacas",
+          "cantidad": 100,
+          "unidad": "g"
+        },
+        {
+          "nombre": "queso light",
+          "cantidad": 2,
+          "unidad": "lonchas"
+        },
+        {
+          "nombre": "cuscus (en crudo)",
+          "cantidad": 120,
+          "unidad": "g"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 15,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "caldo de verduras",
+          "cantidad": 150,
+          "unidad": "ml"
+        }
+      ],
+      "pasos": [
+        "Abre las pechugas en libro, rellena con espinacas salteadas y queso; cierra con palillos.",
+        "Dora por ambos lados y termina en horno 15 min a 190 C.",
+        "Hidrata el cuscus con el caldo caliente y sirve como base."
+      ]
+    },
+    {
+      "id": "com-bacalao-pisto",
+      "nombre": "Bacalao con pisto de verduras",
+      "categoria": "comida",
+      "etiquetas": [
+        "baja_grasa",
+        "sin_gluten",
+        "clasico_saludable"
+      ],
+      "tiempo_min": 40,
+      "dificultad": "media",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 420,
+        "proteina_g": 36,
+        "carbohidratos_g": 28,
+        "grasas_g": 17,
+        "fibra_g": 7
+      },
+      "ingredientes": [
+        {
+          "nombre": "lomos de bacalao desalado",
+          "cantidad": 300,
+          "unidad": "g"
+        },
+        {
+          "nombre": "calabacin",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "berenjena",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "pimiento rojo",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "cebolla",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "tomate triturado",
+          "cantidad": 300,
+          "unidad": "g"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 25,
+          "unidad": "ml"
+        }
+      ],
+      "pasos": [
+        "Sofrie todas las verduras en dados 15 min, anade el tomate y cocina 10 min mas.",
+        "Coloca el bacalao sobre el pisto, tapa y cocina 8-10 min a fuego suave."
+      ]
+    },
+    {
+      "id": "com-quinoa-bowl-med",
+      "nombre": "Bowl mediterraneo de quinoa y pollo",
+      "categoria": "comida",
+      "etiquetas": [
+        "alta_proteina",
+        "para_llevar",
+        "sin_gluten"
+      ],
+      "tiempo_min": 25,
+      "dificultad": "facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 530,
+        "proteina_g": 40,
+        "carbohidratos_g": 48,
+        "grasas_g": 18,
+        "fibra_g": 8
+      },
+      "ingredientes": [
+        {
+          "nombre": "quinoa (en crudo)",
+          "cantidad": 120,
+          "unidad": "g"
+        },
+        {
+          "nombre": "pechuga de pollo",
+          "cantidad": 300,
+          "unidad": "g"
+        },
+        {
+          "nombre": "tomate cherry",
+          "cantidad": 10,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "pepino",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "aceitunas negras",
+          "cantidad": 30,
+          "unidad": "g"
+        },
+        {
+          "nombre": "queso feta",
+          "cantidad": 40,
+          "unidad": "g"
+        },
+        {
+          "nombre": "aceite de oliva y limon",
+          "cantidad": 15,
+          "unidad": "ml"
+        }
+      ],
+      "pasos": [
+        "Cuece la quinoa 15 min y deja templar.",
+        "Cocina el pollo a la plancha en tiras.",
+        "Monta el bol con todos los ingredientes y alina."
+      ]
+    },
+    {
+      "id": "com-fajitas-pollo",
+      "nombre": "Fajitas de pollo con pimientos",
+      "categoria": "comida",
+      "etiquetas": [
+        "para_compartir",
+        "alta_proteina"
+      ],
+      "tiempo_min": 25,
+      "dificultad": "facil",
+      "raciones": 3,
+      "macros_por_racion": {
+        "kcal": 510,
+        "proteina_g": 38,
+        "carbohidratos_g": 50,
+        "grasas_g": 16,
+        "fibra_g": 6
+      },
+      "ingredientes": [
+        {
+          "nombre": "pechuga de pollo en tiras",
+          "cantidad": 450,
+          "unidad": "g"
+        },
+        {
+          "nombre": "tortillas integrales",
+          "cantidad": 6,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "pimiento rojo y verde",
+          "cantidad": 300,
+          "unidad": "g"
+        },
+        {
+          "nombre": "cebolla",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "especias fajitas (comino, pimenton, ajo)",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 20,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "yogur natural para acompanar",
+          "cantidad": 100,
+          "unidad": "g"
+        }
+      ],
+      "pasos": [
+        "Saltea el pollo con las especias y reserva.",
+        "Saltea pimientos y cebolla en tiras hasta que esten tiernos.",
+        "Sirve en las tortillas calientes con un poco de yogur."
+      ]
+    },
+    {
+      "id": "com-estofado-ternera",
+      "nombre": "Estofado de ternera magra con patata",
+      "categoria": "comida",
+      "etiquetas": [
+        "clasico_saludable",
+        "batch_cooking"
+      ],
+      "tiempo_min": 75,
+      "dificultad": "media",
+      "raciones": 4,
+      "macros_por_racion": {
+        "kcal": 490,
+        "proteina_g": 40,
+        "carbohidratos_g": 42,
+        "grasas_g": 16,
+        "fibra_g": 6
+      },
+      "ingredientes": [
+        {
+          "nombre": "ternera magra para guisar",
+          "cantidad": 600,
+          "unidad": "g"
+        },
+        {
+          "nombre": "patata",
+          "cantidad": 500,
+          "unidad": "g"
+        },
+        {
+          "nombre": "zanahoria",
+          "cantidad": 2,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "cebolla",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "vino blanco (opcional)",
+          "cantidad": 50,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "caldo de carne",
+          "cantidad": 400,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 25,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "laurel y pimienta",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Dora la carne y reserva. Sofrie cebolla y zanahoria.",
+        "Devuelve la carne, anade vino, caldo y laurel; cuece tapado 45 min.",
+        "Anade la patata en trozos y cuece 20 min mas."
+      ]
+    },
+    {
+      "id": "com-arroz-tres-delicias",
+      "nombre": "Arroz tres delicias fitness",
+      "categoria": "comida",
+      "etiquetas": [
+        "rapida",
+        "aprovechamiento"
+      ],
+      "tiempo_min": 20,
+      "dificultad": "facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 500,
+        "proteina_g": 28,
+        "carbohidratos_g": 62,
+        "grasas_g": 14,
+        "fibra_g": 4
+      },
+      "ingredientes": [
+        {
+          "nombre": "arroz cocido (mejor del dia anterior)",
+          "cantidad": 300,
+          "unidad": "g"
+        },
+        {
+          "nombre": "huevos",
+          "cantidad": 2,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "fiambre de pavo",
+          "cantidad": 80,
+          "unidad": "g"
+        },
+        {
+          "nombre": "guisantes",
+          "cantidad": 80,
+          "unidad": "g"
+        },
+        {
+          "nombre": "zanahoria",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "gambas peladas",
+          "cantidad": 100,
+          "unidad": "g"
+        },
+        {
+          "nombre": "salsa de soja",
+          "cantidad": 20,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 15,
+          "unidad": "ml"
+        }
+      ],
+      "pasos": [
+        "Haz un revuelto con los huevos y reserva.",
+        "Saltea zanahoria en dados, guisantes, gambas y pavo.",
+        "Anade el arroz y la soja, saltea a fuego fuerte 2 min e incorpora el huevo."
+      ]
+    },
+    {
+      "id": "com-ensalada-pasta-atun",
+      "nombre": "Ensalada de pasta con atun y huevo",
+      "categoria": "comida",
+      "etiquetas": [
+        "para_llevar",
+        "rapida"
+      ],
+      "tiempo_min": 20,
+      "dificultad": "muy_facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 480,
+        "proteina_g": 30,
+        "carbohidratos_g": 58,
+        "grasas_g": 13,
+        "fibra_g": 6
+      },
+      "ingredientes": [
+        {
+          "nombre": "pasta integral (en crudo)",
+          "cantidad": 140,
+          "unidad": "g"
+        },
+        {
+          "nombre": "atun al natural",
+          "cantidad": 160,
+          "unidad": "g"
+        },
+        {
+          "nombre": "huevos cocidos",
+          "cantidad": 2,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "tomate",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "maiz",
+          "cantidad": 60,
+          "unidad": "g"
+        },
+        {
+          "nombre": "aceitunas",
+          "cantidad": 30,
+          "unidad": "g"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 15,
+          "unidad": "ml"
+        }
+      ],
+      "pasos": [
+        "Cuece la pasta, enfria bajo el grifo y escurre.",
+        "Mezcla con atun, huevo troceado, tomate, maiz y aceitunas; alina."
+      ]
+    },
+    {
+      "id": "com-burrito-bowl",
+      "nombre": "Burrito bowl de carne picada",
+      "categoria": "comida",
+      "etiquetas": [
+        "alta_proteina",
+        "para_llevar"
+      ],
+      "tiempo_min": 25,
+      "dificultad": "facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 560,
+        "proteina_g": 40,
+        "carbohidratos_g": 54,
+        "grasas_g": 18,
+        "fibra_g": 10
+      },
+      "ingredientes": [
+        {
+          "nombre": "carne picada magra",
+          "cantidad": 300,
+          "unidad": "g"
+        },
+        {
+          "nombre": "arroz (en crudo)",
+          "cantidad": 120,
+          "unidad": "g"
+        },
+        {
+          "nombre": "alubias negras cocidas",
+          "cantidad": 150,
+          "unidad": "g"
+        },
+        {
+          "nombre": "maiz",
+          "cantidad": 60,
+          "unidad": "g"
+        },
+        {
+          "nombre": "tomate",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "aguacate",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "lima y cilantro",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "comino y pimenton",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Cuece el arroz. Saltea la carne con las especias.",
+        "Monta el bol: arroz, carne, alubias, maiz, tomate y aguacate.",
+        "Termina con lima y cilantro."
+      ]
+    },
+    {
+      "id": "com-lasana-calabacin",
+      "nombre": "Lasana de calabacin y pavo",
+      "categoria": "comida",
+      "etiquetas": [
+        "baja_en_carbohidratos",
+        "alta_proteina"
+      ],
+      "tiempo_min": 50,
+      "dificultad": "media",
+      "raciones": 4,
+      "macros_por_racion": {
+        "kcal": 380,
+        "proteina_g": 35,
+        "carbohidratos_g": 14,
+        "grasas_g": 20,
+        "fibra_g": 4
+      },
+      "ingredientes": [
+        {
+          "nombre": "calabacin grande",
+          "cantidad": 2,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "carne picada de pavo",
+          "cantidad": 500,
+          "unidad": "g"
+        },
+        {
+          "nombre": "tomate triturado",
+          "cantidad": 400,
+          "unidad": "g"
+        },
+        {
+          "nombre": "cebolla",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "queso rallado light",
+          "cantidad": 80,
+          "unidad": "g"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 20,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "oregano",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Corta el calabacin en laminas finas a lo largo y marcalas en plancha.",
+        "Prepara la boloniesa: sofrito de cebolla, pavo y tomate 15 min.",
+        "Monta capas alternas en fuente, cubre con queso y gratina 20 min a 190 C."
+      ]
+    },
+    {
+      "id": "com-pollo-teriyaki",
+      "nombre": "Pollo teriyaki con arroz",
+      "categoria": "comida",
+      "etiquetas": [
+        "alta_proteina",
+        "post_entreno"
+      ],
+      "tiempo_min": 25,
+      "dificultad": "facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 540,
+        "proteina_g": 40,
+        "carbohidratos_g": 62,
+        "grasas_g": 12,
+        "fibra_g": 3
+      },
+      "ingredientes": [
+        {
+          "nombre": "contramuslo de pollo sin piel",
+          "cantidad": 350,
+          "unidad": "g"
+        },
+        {
+          "nombre": "arroz (en crudo)",
+          "cantidad": 140,
+          "unidad": "g"
+        },
+        {
+          "nombre": "salsa de soja",
+          "cantidad": 30,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "miel",
+          "cantidad": 15,
+          "unidad": "g"
+        },
+        {
+          "nombre": "jengibre y ajo",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "sesamo",
+          "cantidad": 5,
+          "unidad": "g"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 10,
+          "unidad": "ml"
+        }
+      ],
+      "pasos": [
+        "Cuece el arroz. Dora el pollo troceado.",
+        "Anade soja, miel, ajo y jengibre; reduce 3-4 min hasta que la salsa espese.",
+        "Sirve sobre el arroz con sesamo."
+      ]
+    },
+    {
+      "id": "com-paella-ligera",
+      "nombre": "Paella ligera de pollo y verduras",
+      "categoria": "comida",
+      "etiquetas": [
+        "clasico_saludable",
+        "para_compartir",
+        "sin_gluten"
+      ],
+      "tiempo_min": 45,
+      "dificultad": "media",
+      "raciones": 4,
+      "macros_por_racion": {
+        "kcal": 520,
+        "proteina_g": 34,
+        "carbohidratos_g": 64,
+        "grasas_g": 14,
+        "fibra_g": 5
+      },
+      "ingredientes": [
+        {
+          "nombre": "arroz redondo",
+          "cantidad": 300,
+          "unidad": "g"
+        },
+        {
+          "nombre": "pechuga y contramuslo de pollo",
+          "cantidad": 400,
+          "unidad": "g"
+        },
+        {
+          "nombre": "judia verde",
+          "cantidad": 150,
+          "unidad": "g"
+        },
+        {
+          "nombre": "pimiento rojo",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "tomate rallado",
+          "cantidad": 100,
+          "unidad": "g"
+        },
+        {
+          "nombre": "caldo de pollo",
+          "cantidad": 800,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "azafran o colorante y pimenton",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 30,
+          "unidad": "ml"
+        }
+      ],
+      "pasos": [
+        "Dora el pollo troceado, anade las verduras y sofrie 5 min.",
+        "Incorpora el tomate y el pimenton, luego el arroz; remueve 1 min.",
+        "Anade el caldo caliente con azafran y cuece 18 min sin remover. Reposa 5 min."
+      ]
+    },
+    {
+      "id": "com-garbanzos-bacalao",
+      "nombre": "Garbanzos con bacalao",
+      "categoria": "comida",
+      "etiquetas": [
+        "alta_fibra",
+        "clasico_saludable",
+        "batch_cooking"
+      ],
+      "tiempo_min": 35,
+      "dificultad": "facil",
+      "raciones": 3,
+      "macros_por_racion": {
+        "kcal": 450,
+        "proteina_g": 32,
+        "carbohidratos_g": 48,
+        "grasas_g": 14,
+        "fibra_g": 11
+      },
+      "ingredientes": [
+        {
+          "nombre": "garbanzos cocidos",
+          "cantidad": 500,
+          "unidad": "g"
+        },
+        {
+          "nombre": "bacalao desalado desmigado",
+          "cantidad": 250,
+          "unidad": "g"
+        },
+        {
+          "nombre": "cebolla",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "tomate triturado",
+          "cantidad": 200,
+          "unidad": "g"
+        },
+        {
+          "nombre": "espinacas",
+          "cantidad": 100,
+          "unidad": "g"
+        },
+        {
+          "nombre": "pimenton",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 25,
+          "unidad": "ml"
+        }
+      ],
+      "pasos": [
+        "Sofrie la cebolla, anade tomate y pimenton; cocina 5 min.",
+        "Incorpora garbanzos y un vaso de agua; cuece 10 min.",
+        "Anade el bacalao y las espinacas; 5 min mas a fuego suave."
+      ]
+    },
+    {
+      "id": "com-pavo-verduras-patata",
+      "nombre": "Pavo salteado con verduras y patata asada",
+      "categoria": "comida",
+      "etiquetas": [
+        "alta_proteina",
+        "baja_grasa"
+      ],
+      "tiempo_min": 35,
+      "dificultad": "facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 470,
+        "proteina_g": 42,
+        "carbohidratos_g": 44,
+        "grasas_g": 13,
+        "fibra_g": 7
+      },
+      "ingredientes": [
+        {
+          "nombre": "pechuga de pavo",
+          "cantidad": 350,
+          "unidad": "g"
+        },
+        {
+          "nombre": "patata",
+          "cantidad": 400,
+          "unidad": "g"
+        },
+        {
+          "nombre": "calabacin",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "pimiento",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 20,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "romero y ajo en polvo",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Asa la patata en gajos con romero 25 min a 210 C.",
+        "Saltea el pavo en tiras a fuego fuerte y reserva.",
+        "Saltea las verduras, devuelve el pavo y mezcla. Sirve con la patata."
+      ]
+    },
+    {
+      "id": "com-risotto-champis-pollo",
+      "nombre": "Risotto ligero de champinones con pollo",
+      "categoria": "comida",
+      "etiquetas": [
+        "confort_saludable"
+      ],
+      "tiempo_min": 35,
+      "dificultad": "media",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 530,
+        "proteina_g": 36,
+        "carbohidratos_g": 60,
+        "grasas_g": 15,
+        "fibra_g": 4
+      },
+      "ingredientes": [
+        {
+          "nombre": "arroz arborio o redondo",
+          "cantidad": 150,
+          "unidad": "g"
+        },
+        {
+          "nombre": "pechuga de pollo",
+          "cantidad": 250,
+          "unidad": "g"
+        },
+        {
+          "nombre": "champinones",
+          "cantidad": 250,
+          "unidad": "g"
+        },
+        {
+          "nombre": "cebolla",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "caldo de pollo",
+          "cantidad": 600,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "queso parmesano",
+          "cantidad": 25,
+          "unidad": "g"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 15,
+          "unidad": "ml"
+        }
+      ],
+      "pasos": [
+        "Dora el pollo en dados y reserva. Sofrie cebolla y champinones.",
+        "Anade el arroz, remueve 1 min e incorpora el caldo caliente poco a poco removiendo 18 min.",
+        "Integra el pollo y el parmesano fuera del fuego."
+      ]
+    },
+    {
+      "id": "com-tacos-pescado",
+      "nombre": "Tacos de pescado con ensalada de col",
+      "categoria": "comida",
+      "etiquetas": [
+        "omega_3",
+        "para_compartir"
+      ],
+      "tiempo_min": 25,
+      "dificultad": "facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 480,
+        "proteina_g": 34,
+        "carbohidratos_g": 46,
+        "grasas_g": 17,
+        "fibra_g": 6
+      },
+      "ingredientes": [
+        {
+          "nombre": "merluza o bacalao fresco",
+          "cantidad": 300,
+          "unidad": "g"
+        },
+        {
+          "nombre": "tortillas de maiz",
+          "cantidad": 4,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "col morada",
+          "cantidad": 100,
+          "unidad": "g"
+        },
+        {
+          "nombre": "yogur natural",
+          "cantidad": 80,
+          "unidad": "g"
+        },
+        {
+          "nombre": "lima",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "comino y pimenton",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 15,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "cilantro",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Adoba el pescado con especias y hazlo a la plancha; desmiga en trozos grandes.",
+        "Mezcla la col con yogur y lima.",
+        "Monta los tacos: tortilla caliente, col, pescado y cilantro."
+      ]
+    },
+    {
+      "id": "com-buddha-bowl-tofu",
+      "nombre": "Buddha bowl de tofu crujiente",
+      "categoria": "comida",
+      "etiquetas": [
+        "vegana",
+        "alta_fibra",
+        "para_llevar"
+      ],
+      "tiempo_min": 30,
+      "dificultad": "facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 510,
+        "proteina_g": 24,
+        "carbohidratos_g": 58,
+        "grasas_g": 20,
+        "fibra_g": 12
+      },
+      "ingredientes": [
+        {
+          "nombre": "tofu firme",
+          "cantidad": 250,
+          "unidad": "g"
+        },
+        {
+          "nombre": "quinoa (en crudo)",
+          "cantidad": 120,
+          "unidad": "g"
+        },
+        {
+          "nombre": "garbanzos cocidos",
+          "cantidad": 150,
+          "unidad": "g"
+        },
+        {
+          "nombre": "zanahoria",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "aguacate",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "salsa de soja",
+          "cantidad": 20,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "tahini",
+          "cantidad": 15,
+          "unidad": "g"
+        },
+        {
+          "nombre": "limon",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        }
+      ],
+      "pasos": [
+        "Cuece la quinoa. Dora el tofu en dados con la soja hasta que quede crujiente.",
+        "Monta el bol con quinoa, tofu, garbanzos, zanahoria rallada y aguacate.",
+        "Alina con salsa de tahini y limon."
+      ]
+    },
+    {
+      "id": "com-espaguetis-bolonesa-lentejas",
+      "nombre": "Espaguetis con bolonesa de lentejas",
+      "categoria": "comida",
+      "etiquetas": [
+        "vegana",
+        "alta_fibra",
+        "economica"
+      ],
+      "tiempo_min": 30,
+      "dificultad": "facil",
+      "raciones": 3,
+      "macros_por_racion": {
+        "kcal": 490,
+        "proteina_g": 22,
+        "carbohidratos_g": 78,
+        "grasas_g": 10,
+        "fibra_g": 13
+      },
+      "ingredientes": [
+        {
+          "nombre": "espaguetis integrales",
+          "cantidad": 210,
+          "unidad": "g"
+        },
+        {
+          "nombre": "lentejas cocidas",
+          "cantidad": 300,
+          "unidad": "g"
+        },
+        {
+          "nombre": "tomate triturado",
+          "cantidad": 400,
+          "unidad": "g"
+        },
+        {
+          "nombre": "cebolla",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "zanahoria",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "ajo",
+          "cantidad": 2,
+          "unidad": "dientes"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 20,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "oregano y albahaca",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Sofrie cebolla, zanahoria y ajo picados 8 min.",
+        "Anade tomate y hierbas, cocina 10 min; incorpora las lentejas 5 min mas.",
+        "Sirve sobre la pasta cocida al dente."
+      ]
+    },
+    {
+      "id": "com-hamburguesa-casera",
+      "nombre": "Hamburguesa casera de ternera con boniato",
+      "categoria": "comida",
+      "etiquetas": [
+        "alta_proteina",
+        "confort_saludable"
+      ],
+      "tiempo_min": 30,
+      "dificultad": "facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 580,
+        "proteina_g": 42,
+        "carbohidratos_g": 52,
+        "grasas_g": 20,
+        "fibra_g": 7
+      },
+      "ingredientes": [
+        {
+          "nombre": "carne picada de ternera magra",
+          "cantidad": 300,
+          "unidad": "g"
+        },
+        {
+          "nombre": "pan integral de hamburguesa",
+          "cantidad": 2,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "boniato",
+          "cantidad": 350,
+          "unidad": "g"
+        },
+        {
+          "nombre": "tomate y lechuga",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "cebolla",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 15,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "sal, pimienta y ajo en polvo",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Asa el boniato en bastones 25 min a 210 C.",
+        "Forma las hamburguesas sazonadas y hazlas a la plancha al punto deseado.",
+        "Monta con pan tostado, vegetales y sirve con el boniato."
+      ]
+    },
+    {
+      "id": "com-curry-garbanzos",
+      "nombre": "Curry de garbanzos con arroz",
+      "categoria": "comida",
+      "etiquetas": [
+        "vegana",
+        "alta_fibra",
+        "batch_cooking"
+      ],
+      "tiempo_min": 30,
+      "dificultad": "facil",
+      "raciones": 3,
+      "macros_por_racion": {
+        "kcal": 510,
+        "proteina_g": 17,
+        "carbohidratos_g": 74,
+        "grasas_g": 16,
+        "fibra_g": 13
+      },
+      "ingredientes": [
+        {
+          "nombre": "garbanzos cocidos",
+          "cantidad": 500,
+          "unidad": "g"
+        },
+        {
+          "nombre": "arroz basmati (en crudo)",
+          "cantidad": 180,
+          "unidad": "g"
+        },
+        {
+          "nombre": "leche de coco light",
+          "cantidad": 200,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "tomate triturado",
+          "cantidad": 200,
+          "unidad": "g"
+        },
+        {
+          "nombre": "cebolla",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "curry y comino",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "espinacas",
+          "cantidad": 100,
+          "unidad": "g"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 20,
+          "unidad": "ml"
+        }
+      ],
+      "pasos": [
+        "Sofrie la cebolla, anade especias y tomate; cocina 5 min.",
+        "Incorpora garbanzos y leche de coco; cuece 12 min.",
+        "Anade espinacas al final y sirve con el arroz."
+      ]
+    },
+    {
+      "id": "com-marmitako",
+      "nombre": "Marmitako ligero de atun",
+      "categoria": "comida",
+      "etiquetas": [
+        "omega_3",
+        "clasico_saludable"
+      ],
+      "tiempo_min": 45,
+      "dificultad": "media",
+      "raciones": 3,
+      "macros_por_racion": {
+        "kcal": 470,
+        "proteina_g": 36,
+        "carbohidratos_g": 44,
+        "grasas_g": 15,
+        "fibra_g": 6
+      },
+      "ingredientes": [
+        {
+          "nombre": "atun fresco en dados",
+          "cantidad": 350,
+          "unidad": "g"
+        },
+        {
+          "nombre": "patata",
+          "cantidad": 500,
+          "unidad": "g"
+        },
+        {
+          "nombre": "pimiento verde",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "cebolla",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "tomate triturado",
+          "cantidad": 200,
+          "unidad": "g"
+        },
+        {
+          "nombre": "pimenton",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "caldo de pescado",
+          "cantidad": 500,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 25,
+          "unidad": "ml"
+        }
+      ],
+      "pasos": [
+        "Sofrie cebolla y pimiento, anade tomate y pimenton.",
+        "Incorpora la patata cascada y el caldo; cuece 20-25 min.",
+        "Apaga el fuego, anade el atun y deja que se haga con el calor residual 3-4 min."
+      ]
+    },
+    {
+      "id": "com-dorada-arroz-verduras",
+      "nombre": "Dorada a la plancha con arroz y verduras",
+      "categoria": "comida",
+      "etiquetas": [
+        "baja_grasa",
+        "sin_gluten"
+      ],
+      "tiempo_min": 30,
+      "dificultad": "facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 480,
+        "proteina_g": 38,
+        "carbohidratos_g": 50,
+        "grasas_g": 13,
+        "fibra_g": 5
+      },
+      "ingredientes": [
+        {
+          "nombre": "lomos de dorada",
+          "cantidad": 300,
+          "unidad": "g"
+        },
+        {
+          "nombre": "arroz integral (en crudo)",
+          "cantidad": 120,
+          "unidad": "g"
+        },
+        {
+          "nombre": "calabacin",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "pimiento",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "limon",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 18,
+          "unidad": "ml"
+        }
+      ],
+      "pasos": [
+        "Cuece el arroz integral (unos 25 min).",
+        "Saltea las verduras en dados.",
+        "Haz la dorada a la plancha 3 min por lado y sirve con limon."
+      ]
+    },
+    {
+      "id": "cen-crema-calabaza",
+      "nombre": "Crema de calabaza con huevo duro",
+      "categoria": "cena",
+      "etiquetas": [
+        "vegetariana",
+        "baja_grasa",
+        "reconfortante"
+      ],
+      "tiempo_min": 35,
+      "dificultad": "facil",
+      "raciones": 3,
+      "macros_por_racion": {
+        "kcal": 280,
+        "proteina_g": 14,
+        "carbohidratos_g": 32,
+        "grasas_g": 11,
+        "fibra_g": 6
+      },
+      "ingredientes": [
+        {
+          "nombre": "calabaza",
+          "cantidad": 600,
+          "unidad": "g"
+        },
+        {
+          "nombre": "patata",
+          "cantidad": 150,
+          "unidad": "g"
+        },
+        {
+          "nombre": "cebolla",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "caldo de verduras",
+          "cantidad": 500,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "huevos",
+          "cantidad": 3,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 20,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "pipas de calabaza",
+          "cantidad": 15,
+          "unidad": "g"
+        }
+      ],
+      "pasos": [
+        "Sofrie la cebolla, anade calabaza y patata en dados y el caldo; cuece 20 min.",
+        "Tritura hasta crema fina.",
+        "Sirve con huevo duro troceado y pipas por encima."
+      ]
+    },
+    {
+      "id": "cen-dorada-horno-verduras",
+      "nombre": "Dorada al horno con verduras",
+      "categoria": "cena",
+      "etiquetas": [
+        "baja_grasa",
+        "sin_gluten",
+        "alta_proteina"
+      ],
+      "tiempo_min": 35,
+      "dificultad": "facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 390,
+        "proteina_g": 36,
+        "carbohidratos_g": 22,
+        "grasas_g": 17,
+        "fibra_g": 5
+      },
+      "ingredientes": [
+        {
+          "nombre": "dorada entera o lomos",
+          "cantidad": 350,
+          "unidad": "g"
+        },
+        {
+          "nombre": "calabacin",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "pimiento rojo",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "cebolla",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "limon",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 20,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "tomillo",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Coloca las verduras en rodajas en la bandeja con la mitad del aceite; hornea 15 min a 200 C.",
+        "Pon la dorada encima con limon y tomillo; hornea 15-18 min mas."
+      ]
+    },
+    {
+      "id": "cen-tortilla-calabacin",
+      "nombre": "Tortilla de calabacin y cebolla",
+      "categoria": "cena",
+      "etiquetas": [
+        "vegetariana",
+        "baja_en_carbohidratos",
+        "economica"
+      ],
+      "tiempo_min": 25,
+      "dificultad": "facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 290,
+        "proteina_g": 18,
+        "carbohidratos_g": 12,
+        "grasas_g": 19,
+        "fibra_g": 3
+      },
+      "ingredientes": [
+        {
+          "nombre": "huevos",
+          "cantidad": 5,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "calabacin",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "cebolla",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 20,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "sal",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Pocha el calabacin y la cebolla en laminas finas a fuego medio 10 min.",
+        "Escurre, mezcla con los huevos batidos y cuaja la tortilla por ambos lados."
+      ]
+    },
+    {
+      "id": "cen-tacos-lechuga-pollo",
+      "nombre": "Tacos de lechuga con pollo",
+      "categoria": "cena",
+      "etiquetas": [
+        "baja_en_carbohidratos",
+        "rapida",
+        "sin_gluten"
+      ],
+      "tiempo_min": 15,
+      "dificultad": "muy_facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 320,
+        "proteina_g": 36,
+        "carbohidratos_g": 10,
+        "grasas_g": 15,
+        "fibra_g": 3
+      },
+      "ingredientes": [
+        {
+          "nombre": "pechuga de pollo picada o en tiras",
+          "cantidad": 300,
+          "unidad": "g"
+        },
+        {
+          "nombre": "hojas de lechuga grandes",
+          "cantidad": 8,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "tomate",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "aguacate",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "lima",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "comino y pimenton",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 10,
+          "unidad": "ml"
+        }
+      ],
+      "pasos": [
+        "Saltea el pollo con las especias.",
+        "Rellena las hojas de lechuga con el pollo, tomate en dados y aguacate; termina con lima."
+      ]
+    },
+    {
+      "id": "cen-salteado-tofu-brocoli",
+      "nombre": "Salteado de tofu y brocoli con sesamo",
+      "categoria": "cena",
+      "etiquetas": [
+        "vegana",
+        "baja_en_carbohidratos"
+      ],
+      "tiempo_min": 20,
+      "dificultad": "facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 340,
+        "proteina_g": 22,
+        "carbohidratos_g": 18,
+        "grasas_g": 21,
+        "fibra_g": 7
+      },
+      "ingredientes": [
+        {
+          "nombre": "tofu firme",
+          "cantidad": 300,
+          "unidad": "g"
+        },
+        {
+          "nombre": "brocoli",
+          "cantidad": 300,
+          "unidad": "g"
+        },
+        {
+          "nombre": "salsa de soja",
+          "cantidad": 25,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "ajo y jengibre",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "aceite de sesamo u oliva",
+          "cantidad": 15,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "sesamo",
+          "cantidad": 8,
+          "unidad": "g"
+        }
+      ],
+      "pasos": [
+        "Dora el tofu en dados hasta que quede crujiente y reserva.",
+        "Saltea el brocoli con ajo y jengibre 5 min (que quede al dente).",
+        "Junta todo con la soja y el sesamo; saltea 1 min."
+      ]
+    },
+    {
+      "id": "cen-sopa-pollo-fideos",
+      "nombre": "Sopa de pollo con fideos",
+      "categoria": "cena",
+      "etiquetas": [
+        "reconfortante",
+        "baja_grasa"
+      ],
+      "tiempo_min": 30,
+      "dificultad": "facil",
+      "raciones": 3,
+      "macros_por_racion": {
+        "kcal": 290,
+        "proteina_g": 26,
+        "carbohidratos_g": 32,
+        "grasas_g": 7,
+        "fibra_g": 3
+      },
+      "ingredientes": [
+        {
+          "nombre": "pechuga de pollo",
+          "cantidad": 300,
+          "unidad": "g"
+        },
+        {
+          "nombre": "fideos finos",
+          "cantidad": 90,
+          "unidad": "g"
+        },
+        {
+          "nombre": "zanahoria",
+          "cantidad": 2,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "puerro",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "caldo de pollo",
+          "cantidad": 900,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 10,
+          "unidad": "ml"
+        }
+      ],
+      "pasos": [
+        "Cuece el pollo en el caldo con la zanahoria y el puerro 15 min; saca y desmenuza.",
+        "Cuece los fideos en el caldo 5 min.",
+        "Devuelve el pollo desmenuzado y sirve caliente."
+      ]
+    },
+    {
+      "id": "cen-pizza-avena",
+      "nombre": "Pizza fitness con base de avena",
+      "categoria": "cena",
+      "etiquetas": [
+        "alta_proteina",
+        "confort_saludable",
+        "vegetariana_opcional"
+      ],
+      "tiempo_min": 30,
+      "dificultad": "media",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 420,
+        "proteina_g": 30,
+        "carbohidratos_g": 42,
+        "grasas_g": 15,
+        "fibra_g": 6
+      },
+      "ingredientes": [
+        {
+          "nombre": "copos de avena",
+          "cantidad": 100,
+          "unidad": "g"
+        },
+        {
+          "nombre": "claras de huevo",
+          "cantidad": 150,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "tomate triturado",
+          "cantidad": 100,
+          "unidad": "g"
+        },
+        {
+          "nombre": "queso mozzarella light",
+          "cantidad": 80,
+          "unidad": "g"
+        },
+        {
+          "nombre": "fiambre de pavo o verduras",
+          "cantidad": 80,
+          "unidad": "g"
+        },
+        {
+          "nombre": "oregano",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Tritura avena y claras; extiende la masa fina en sarten o bandeja y cuaja 5 min por lado.",
+        "Cubre con tomate, queso y toppings.",
+        "Hornea 10-12 min a 200 C hasta gratinar."
+      ]
+    },
+    {
+      "id": "cen-brochetas-pollo",
+      "nombre": "Brochetas de pollo y verduras",
+      "categoria": "cena",
+      "etiquetas": [
+        "alta_proteina",
+        "sin_gluten",
+        "para_compartir"
+      ],
+      "tiempo_min": 25,
+      "dificultad": "facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 360,
+        "proteina_g": 40,
+        "carbohidratos_g": 14,
+        "grasas_g": 16,
+        "fibra_g": 4
+      },
+      "ingredientes": [
+        {
+          "nombre": "pechuga de pollo",
+          "cantidad": 350,
+          "unidad": "g"
+        },
+        {
+          "nombre": "pimiento rojo y verde",
+          "cantidad": 200,
+          "unidad": "g"
+        },
+        {
+          "nombre": "cebolla",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "calabacin",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 15,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "pimenton, ajo y oregano",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Corta pollo y verduras en dados y adoba 10 min con aceite y especias.",
+        "Monta las brochetas y hazlas a la plancha o grill 10-12 min girando."
+      ]
+    },
+    {
+      "id": "cen-calabacin-relleno",
+      "nombre": "Calabacin relleno de carne picada",
+      "categoria": "cena",
+      "etiquetas": [
+        "baja_en_carbohidratos",
+        "alta_proteina"
+      ],
+      "tiempo_min": 40,
+      "dificultad": "media",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 380,
+        "proteina_g": 34,
+        "carbohidratos_g": 16,
+        "grasas_g": 20,
+        "fibra_g": 5
+      },
+      "ingredientes": [
+        {
+          "nombre": "calabacines medianos",
+          "cantidad": 2,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "carne picada magra",
+          "cantidad": 300,
+          "unidad": "g"
+        },
+        {
+          "nombre": "cebolla",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "tomate triturado",
+          "cantidad": 150,
+          "unidad": "g"
+        },
+        {
+          "nombre": "queso rallado light",
+          "cantidad": 40,
+          "unidad": "g"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 15,
+          "unidad": "ml"
+        }
+      ],
+      "pasos": [
+        "Vacia los calabacines a lo largo y hornea las barcas 15 min a 190 C.",
+        "Saltea la carne con cebolla, la pulpa picada y el tomate.",
+        "Rellena, cubre con queso y gratina 10 min."
+      ]
+    },
+    {
+      "id": "cen-ensalada-quinoa-langostinos",
+      "nombre": "Ensalada de quinoa, aguacate y langostinos",
+      "categoria": "cena",
+      "etiquetas": [
+        "alta_proteina",
+        "sin_gluten"
+      ],
+      "tiempo_min": 25,
+      "dificultad": "facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 440,
+        "proteina_g": 30,
+        "carbohidratos_g": 38,
+        "grasas_g": 18,
+        "fibra_g": 8
+      },
+      "ingredientes": [
+        {
+          "nombre": "quinoa (en crudo)",
+          "cantidad": 100,
+          "unidad": "g"
+        },
+        {
+          "nombre": "langostinos pelados",
+          "cantidad": 250,
+          "unidad": "g"
+        },
+        {
+          "nombre": "aguacate",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "tomate cherry",
+          "cantidad": 8,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "rucula",
+          "cantidad": 50,
+          "unidad": "g"
+        },
+        {
+          "nombre": "limon y aceite de oliva",
+          "cantidad": 15,
+          "unidad": "ml"
+        }
+      ],
+      "pasos": [
+        "Cuece la quinoa y deja templar.",
+        "Saltea los langostinos 2 min por lado.",
+        "Mezcla todo y alina con limon y aceite."
+      ]
+    },
+    {
+      "id": "cen-sepia-plancha",
+      "nombre": "Sepia a la plancha con ensalada",
+      "categoria": "cena",
+      "etiquetas": [
+        "baja_grasa",
+        "alta_proteina",
+        "sin_gluten"
+      ],
+      "tiempo_min": 15,
+      "dificultad": "muy_facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 300,
+        "proteina_g": 34,
+        "carbohidratos_g": 10,
+        "grasas_g": 14,
+        "fibra_g": 3
+      },
+      "ingredientes": [
+        {
+          "nombre": "sepia limpia",
+          "cantidad": 400,
+          "unidad": "g"
+        },
+        {
+          "nombre": "mezcla de hojas verdes",
+          "cantidad": 100,
+          "unidad": "g"
+        },
+        {
+          "nombre": "tomate",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "ajo y perejil",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 18,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "limon",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        }
+      ],
+      "pasos": [
+        "Haz la sepia a la plancha fuerte 3-4 min por lado.",
+        "Alina con majado de ajo, perejil, aceite y limon.",
+        "Acompana con la ensalada."
+      ]
+    },
+    {
+      "id": "cen-gazpacho-tortilla",
+      "nombre": "Gazpacho con tortilla francesa",
+      "categoria": "cena",
+      "etiquetas": [
+        "vegetariana",
+        "refrescante",
+        "clasico_saludable"
+      ],
+      "tiempo_min": 15,
+      "dificultad": "muy_facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 330,
+        "proteina_g": 18,
+        "carbohidratos_g": 24,
+        "grasas_g": 18,
+        "fibra_g": 5
+      },
+      "ingredientes": [
+        {
+          "nombre": "tomate maduro",
+          "cantidad": 500,
+          "unidad": "g"
+        },
+        {
+          "nombre": "pepino",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "pimiento verde",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 25,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "vinagre",
+          "cantidad": 10,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "huevos",
+          "cantidad": 4,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "pan (opcional para el gazpacho)",
+          "cantidad": 30,
+          "unidad": "g"
+        }
+      ],
+      "pasos": [
+        "Tritura tomate, pepino, pimiento, aceite, vinagre y sal; enfria.",
+        "Prepara dos tortillas francesas.",
+        "Sirve el gazpacho bien frio junto a la tortilla."
+      ]
+    },
+    {
+      "id": "cen-berenjena-rellena",
+      "nombre": "Berenjena rellena de pavo",
+      "categoria": "cena",
+      "etiquetas": [
+        "alta_proteina",
+        "baja_en_carbohidratos"
+      ],
+      "tiempo_min": 45,
+      "dificultad": "media",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 360,
+        "proteina_g": 32,
+        "carbohidratos_g": 20,
+        "grasas_g": 17,
+        "fibra_g": 8
+      },
+      "ingredientes": [
+        {
+          "nombre": "berenjenas",
+          "cantidad": 2,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "carne picada de pavo",
+          "cantidad": 300,
+          "unidad": "g"
+        },
+        {
+          "nombre": "cebolla",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "tomate triturado",
+          "cantidad": 150,
+          "unidad": "g"
+        },
+        {
+          "nombre": "queso rallado light",
+          "cantidad": 40,
+          "unidad": "g"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 15,
+          "unidad": "ml"
+        }
+      ],
+      "pasos": [
+        "Asa las berenjenas partidas 25 min a 200 C y vacia la pulpa.",
+        "Saltea el pavo con cebolla, la pulpa y el tomate.",
+        "Rellena, cubre con queso y gratina 8-10 min."
+      ]
+    },
+    {
+      "id": "cen-salmon-esparragos",
+      "nombre": "Salmon a la plancha con esparragos",
+      "categoria": "cena",
+      "etiquetas": [
+        "omega_3",
+        "baja_en_carbohidratos",
+        "rapida"
+      ],
+      "tiempo_min": 15,
+      "dificultad": "muy_facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 420,
+        "proteina_g": 35,
+        "carbohidratos_g": 8,
+        "grasas_g": 28,
+        "fibra_g": 4
+      },
+      "ingredientes": [
+        {
+          "nombre": "lomo de salmon",
+          "cantidad": 180,
+          "unidad": "g"
+        },
+        {
+          "nombre": "esparragos verdes",
+          "cantidad": 200,
+          "unidad": "g"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 12,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "limon",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "sal y pimienta",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Haz el salmon a la plancha 3-4 min por lado.",
+        "Saltea los esparragos en la misma sarten.",
+        "Sirve con limon."
+      ]
+    },
+    {
+      "id": "cen-ensalada-garbanzos-bonito",
+      "nombre": "Ensalada templada de garbanzos y bonito",
+      "categoria": "cena",
+      "etiquetas": [
+        "alta_fibra",
+        "rapida",
+        "sin_cocinar"
+      ],
+      "tiempo_min": 10,
+      "dificultad": "muy_facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 410,
+        "proteina_g": 28,
+        "carbohidratos_g": 42,
+        "grasas_g": 15,
+        "fibra_g": 11
+      },
+      "ingredientes": [
+        {
+          "nombre": "garbanzos cocidos",
+          "cantidad": 400,
+          "unidad": "g"
+        },
+        {
+          "nombre": "bonito o atun en conserva al natural",
+          "cantidad": 160,
+          "unidad": "g"
+        },
+        {
+          "nombre": "tomate",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "cebolleta",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "huevo cocido",
+          "cantidad": 2,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "aceite de oliva y vinagre",
+          "cantidad": 18,
+          "unidad": "ml"
+        }
+      ],
+      "pasos": [
+        "Templa los garbanzos 1 min en microondas.",
+        "Mezcla con el bonito, tomate, cebolleta y huevo; alina."
+      ]
+    },
+    {
+      "id": "cen-huevos-rotos-fit",
+      "nombre": "Huevos rotos fitness con patata al horno",
+      "categoria": "cena",
+      "etiquetas": [
+        "confort_saludable",
+        "vegetariana_opcional"
+      ],
+      "tiempo_min": 35,
+      "dificultad": "facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 430,
+        "proteina_g": 22,
+        "carbohidratos_g": 44,
+        "grasas_g": 19,
+        "fibra_g": 5
+      },
+      "ingredientes": [
+        {
+          "nombre": "patata",
+          "cantidad": 450,
+          "unidad": "g"
+        },
+        {
+          "nombre": "huevos",
+          "cantidad": 4,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "jamon serrano (opcional)",
+          "cantidad": 40,
+          "unidad": "g"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 20,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "pimenton",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Asa la patata en bastones con parte del aceite 25-30 min a 210 C.",
+        "Haz los huevos a la plancha con poco aceite.",
+        "Rompe los huevos sobre las patatas y anade el jamon."
+      ]
+    },
+    {
+      "id": "cen-wrap-pollo-yogur",
+      "nombre": "Wrap integral de pollo con salsa de yogur",
+      "categoria": "cena",
+      "etiquetas": [
+        "rapida",
+        "para_llevar"
+      ],
+      "tiempo_min": 15,
+      "dificultad": "muy_facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 440,
+        "proteina_g": 38,
+        "carbohidratos_g": 40,
+        "grasas_g": 14,
+        "fibra_g": 6
+      },
+      "ingredientes": [
+        {
+          "nombre": "tortilla integral",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "pechuga de pollo",
+          "cantidad": 150,
+          "unidad": "g"
+        },
+        {
+          "nombre": "yogur natural",
+          "cantidad": 60,
+          "unidad": "g"
+        },
+        {
+          "nombre": "lechuga y tomate",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "pepino",
+          "cantidad": 0.25,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "ajo en polvo y limon",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Saltea el pollo en tiras.",
+        "Mezcla el yogur con ajo, limon y pepino rallado.",
+        "Monta el wrap con todo y enrolla."
+      ]
+    },
+    {
+      "id": "cen-pavo-pure-coliflor",
+      "nombre": "Pavo a la plancha con pure de coliflor",
+      "categoria": "cena",
+      "etiquetas": [
+        "baja_en_carbohidratos",
+        "alta_proteina",
+        "baja_grasa"
+      ],
+      "tiempo_min": 25,
+      "dificultad": "facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 330,
+        "proteina_g": 40,
+        "carbohidratos_g": 14,
+        "grasas_g": 13,
+        "fibra_g": 6
+      },
+      "ingredientes": [
+        {
+          "nombre": "filetes de pavo",
+          "cantidad": 350,
+          "unidad": "g"
+        },
+        {
+          "nombre": "coliflor",
+          "cantidad": 500,
+          "unidad": "g"
+        },
+        {
+          "nombre": "leche",
+          "cantidad": 50,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 15,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "nuez moscada y pimienta",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Cuece la coliflor 12 min y tritura con la leche, sal y nuez moscada.",
+        "Haz el pavo a la plancha y sirve sobre el pure."
+      ]
+    },
+    {
+      "id": "cen-sopa-verduras-pollo",
+      "nombre": "Sopa de verduras con pollo desmenuzado",
+      "categoria": "cena",
+      "etiquetas": [
+        "baja_grasa",
+        "reconfortante",
+        "sin_gluten"
+      ],
+      "tiempo_min": 35,
+      "dificultad": "facil",
+      "raciones": 3,
+      "macros_por_racion": {
+        "kcal": 240,
+        "proteina_g": 24,
+        "carbohidratos_g": 20,
+        "grasas_g": 8,
+        "fibra_g": 5
+      },
+      "ingredientes": [
+        {
+          "nombre": "pechuga de pollo",
+          "cantidad": 300,
+          "unidad": "g"
+        },
+        {
+          "nombre": "calabacin",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "zanahoria",
+          "cantidad": 2,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "puerro",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "apio",
+          "cantidad": 1,
+          "unidad": "rama"
+        },
+        {
+          "nombre": "caldo de pollo",
+          "cantidad": 1000,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 12,
+          "unidad": "ml"
+        }
+      ],
+      "pasos": [
+        "Cuece el pollo con las verduras troceadas en el caldo 20 min.",
+        "Saca el pollo, desmenuzalo y devuelvelo a la sopa. Rectifica de sal."
+      ]
+    },
+    {
+      "id": "cen-caprese-pollo",
+      "nombre": "Ensalada caprese con pollo",
+      "categoria": "cena",
+      "etiquetas": [
+        "alta_proteina",
+        "rapida",
+        "sin_gluten"
+      ],
+      "tiempo_min": 15,
+      "dificultad": "muy_facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 420,
+        "proteina_g": 42,
+        "carbohidratos_g": 10,
+        "grasas_g": 24,
+        "fibra_g": 3
+      },
+      "ingredientes": [
+        {
+          "nombre": "pechuga de pollo",
+          "cantidad": 150,
+          "unidad": "g"
+        },
+        {
+          "nombre": "mozzarella fresca light",
+          "cantidad": 100,
+          "unidad": "g"
+        },
+        {
+          "nombre": "tomate",
+          "cantidad": 2,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "albahaca fresca",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 12,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "vinagre balsamico",
+          "cantidad": 5,
+          "unidad": "ml"
+        }
+      ],
+      "pasos": [
+        "Haz el pollo a la plancha y cortalo en tiras.",
+        "Alterna rodajas de tomate y mozzarella, anade el pollo y la albahaca; alina."
+      ]
+    },
+    {
+      "id": "cen-tostas-sardinas",
+      "nombre": "Tostas integrales con sardinas y tomate",
+      "categoria": "cena",
+      "etiquetas": [
+        "omega_3",
+        "rapida",
+        "economica"
+      ],
+      "tiempo_min": 10,
+      "dificultad": "muy_facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 390,
+        "proteina_g": 26,
+        "carbohidratos_g": 36,
+        "grasas_g": 16,
+        "fibra_g": 5
+      },
+      "ingredientes": [
+        {
+          "nombre": "pan integral",
+          "cantidad": 2,
+          "unidad": "rebanadas"
+        },
+        {
+          "nombre": "sardinas en conserva en aceite de oliva escurridas",
+          "cantidad": 90,
+          "unidad": "g"
+        },
+        {
+          "nombre": "tomate",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 8,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "oregano",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Tuesta el pan y frota o ralla el tomate encima.",
+        "Coloca las sardinas, un hilo de aceite y oregano."
+      ]
+    },
+    {
+      "id": "cen-revuelto-setas-gambas",
+      "nombre": "Revuelto de setas y gambas",
+      "categoria": "cena",
+      "etiquetas": [
+        "baja_en_carbohidratos",
+        "alta_proteina",
+        "rapida"
+      ],
+      "tiempo_min": 15,
+      "dificultad": "facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 330,
+        "proteina_g": 32,
+        "carbohidratos_g": 6,
+        "grasas_g": 20,
+        "fibra_g": 2
+      },
+      "ingredientes": [
+        {
+          "nombre": "huevos",
+          "cantidad": 3,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "gambas peladas",
+          "cantidad": 120,
+          "unidad": "g"
+        },
+        {
+          "nombre": "setas variadas",
+          "cantidad": 150,
+          "unidad": "g"
+        },
+        {
+          "nombre": "ajo",
+          "cantidad": 1,
+          "unidad": "diente"
+        },
+        {
+          "nombre": "aceite de oliva",
+          "cantidad": 12,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "perejil",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Saltea las setas con el ajo hasta dorar; anade las gambas 2 min.",
+        "Baja el fuego, incorpora los huevos batidos y cuaja removiendo suavemente."
+      ]
+    },
+    {
+      "id": "snk-tortitas-arroz-cacahuete",
+      "nombre": "Tortitas de arroz con crema de cacahuete y platano",
+      "categoria": "snack",
+      "etiquetas": [
+        "rapida",
+        "pre_entreno",
+        "vegana"
+      ],
+      "tiempo_min": 5,
+      "dificultad": "muy_facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 280,
+        "proteina_g": 8,
+        "carbohidratos_g": 38,
+        "grasas_g": 11,
+        "fibra_g": 3
+      },
+      "ingredientes": [
+        {
+          "nombre": "tortitas de arroz",
+          "cantidad": 3,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "crema de cacahuete",
+          "cantidad": 20,
+          "unidad": "g"
+        },
+        {
+          "nombre": "platano",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "canela",
+          "cantidad": 1,
+          "unidad": "pizca"
+        }
+      ],
+      "pasos": [
+        "Unta las tortitas con la crema de cacahuete.",
+        "Cubre con rodajas de platano y canela."
+      ]
+    },
+    {
+      "id": "snk-zanahoria-guacamole",
+      "nombre": "Bastones de zanahoria con guacamole",
+      "categoria": "snack",
+      "etiquetas": [
+        "vegana",
+        "sin_gluten",
+        "grasas_saludables"
+      ],
+      "tiempo_min": 10,
+      "dificultad": "muy_facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 190,
+        "proteina_g": 3,
+        "carbohidratos_g": 16,
+        "grasas_g": 13,
+        "fibra_g": 8
+      },
+      "ingredientes": [
+        {
+          "nombre": "aguacate",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "zanahoria",
+          "cantidad": 3,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "lima",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "tomate",
+          "cantidad": 0.5,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "cebolla",
+          "cantidad": 0.25,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "cilantro y sal",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Machaca el aguacate con lima, tomate y cebolla picados finos.",
+        "Sirve con los bastones de zanahoria."
+      ]
+    },
+    {
+      "id": "snk-bolitas-energeticas",
+      "nombre": "Bolitas energeticas de avena y datiles",
+      "categoria": "snack",
+      "etiquetas": [
+        "vegana",
+        "pre_entreno",
+        "para_llevar",
+        "sin_azucar_anadido"
+      ],
+      "tiempo_min": 15,
+      "dificultad": "facil",
+      "raciones": 6,
+      "macros_por_racion": {
+        "kcal": 140,
+        "proteina_g": 4,
+        "carbohidratos_g": 20,
+        "grasas_g": 5,
+        "fibra_g": 3
+      },
+      "ingredientes": [
+        {
+          "nombre": "datiles sin hueso",
+          "cantidad": 120,
+          "unidad": "g"
+        },
+        {
+          "nombre": "copos de avena",
+          "cantidad": 80,
+          "unidad": "g"
+        },
+        {
+          "nombre": "crema de cacahuete",
+          "cantidad": 30,
+          "unidad": "g"
+        },
+        {
+          "nombre": "cacao puro",
+          "cantidad": 10,
+          "unidad": "g"
+        },
+        {
+          "nombre": "coco rallado",
+          "cantidad": 15,
+          "unidad": "g"
+        }
+      ],
+      "pasos": [
+        "Tritura los datiles con la avena, la crema y el cacao hasta masa pegajosa.",
+        "Forma 12 bolitas (2 por racion) y rebozalas en coco.",
+        "Guarda en nevera hasta 1 semana."
+      ]
+    },
+    {
+      "id": "snk-yogur-helado-fruta",
+      "nombre": "Yogur helado con fruta",
+      "categoria": "snack",
+      "etiquetas": [
+        "vegetariana",
+        "dulce_saludable",
+        "sin_azucar_anadido"
+      ],
+      "tiempo_min": 10,
+      "dificultad": "muy_facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 150,
+        "proteina_g": 10,
+        "carbohidratos_g": 22,
+        "grasas_g": 3,
+        "fibra_g": 3
+      },
+      "ingredientes": [
+        {
+          "nombre": "yogur griego natural",
+          "cantidad": 250,
+          "unidad": "g"
+        },
+        {
+          "nombre": "frutos rojos congelados",
+          "cantidad": 150,
+          "unidad": "g"
+        },
+        {
+          "nombre": "miel (opcional)",
+          "cantidad": 8,
+          "unidad": "g"
+        }
+      ],
+      "pasos": [
+        "Tritura el yogur con la fruta congelada hasta textura de helado suave.",
+        "Sirve inmediatamente o congela 30 min para mas firmeza."
+      ]
+    },
+    {
+      "id": "snk-huevo-fruta",
+      "nombre": "Combo rapido: huevo duro y pieza de fruta",
+      "categoria": "snack",
+      "etiquetas": [
+        "rapida",
+        "para_llevar",
+        "sin_cocinar"
+      ],
+      "tiempo_min": 2,
+      "dificultad": "muy_facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 170,
+        "proteina_g": 9,
+        "carbohidratos_g": 20,
+        "grasas_g": 6,
+        "fibra_g": 3
+      },
+      "ingredientes": [
+        {
+          "nombre": "huevo cocido",
+          "cantidad": 1,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "manzana o platano",
+          "cantidad": 1,
+          "unidad": "unidad"
+        }
+      ],
+      "pasos": [
+        "Combina un huevo duro con una pieza de fruta: snack completo de proteina, fibra e hidratos en 2 minutos."
+      ]
+    },
+    {
+      "id": "snk-edamame",
+      "nombre": "Edamame al vapor con sal en escamas",
+      "categoria": "snack",
+      "etiquetas": [
+        "vegana",
+        "alta_proteina",
+        "sin_gluten"
+      ],
+      "tiempo_min": 8,
+      "dificultad": "muy_facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 140,
+        "proteina_g": 12,
+        "carbohidratos_g": 10,
+        "grasas_g": 5,
+        "fibra_g": 5
+      },
+      "ingredientes": [
+        {
+          "nombre": "edamame congelado",
+          "cantidad": 250,
+          "unidad": "g"
+        },
+        {
+          "nombre": "sal en escamas",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "limon (opcional)",
+          "cantidad": 0.25,
+          "unidad": "unidad"
+        }
+      ],
+      "pasos": [
+        "Cuece o cocina al vapor el edamame 5 min.",
+        "Sirve caliente con sal en escamas y un toque de limon."
+      ]
+    },
+    {
+      "id": "snk-barritas-caseras",
+      "nombre": "Barritas caseras de avena y proteina",
+      "categoria": "snack",
+      "etiquetas": [
+        "alta_proteina",
+        "batch_cooking",
+        "para_llevar"
+      ],
+      "tiempo_min": 25,
+      "dificultad": "facil",
+      "raciones": 8,
+      "macros_por_racion": {
+        "kcal": 190,
+        "proteina_g": 12,
+        "carbohidratos_g": 22,
+        "grasas_g": 6,
+        "fibra_g": 3
+      },
+      "ingredientes": [
+        {
+          "nombre": "copos de avena",
+          "cantidad": 200,
+          "unidad": "g"
+        },
+        {
+          "nombre": "proteina en polvo",
+          "cantidad": 60,
+          "unidad": "g"
+        },
+        {
+          "nombre": "crema de cacahuete",
+          "cantidad": 60,
+          "unidad": "g"
+        },
+        {
+          "nombre": "miel",
+          "cantidad": 40,
+          "unidad": "g"
+        },
+        {
+          "nombre": "leche",
+          "cantidad": 80,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "chips de chocolate negro (opcional)",
+          "cantidad": 20,
+          "unidad": "g"
+        }
+      ],
+      "pasos": [
+        "Mezcla todos los ingredientes hasta masa compacta.",
+        "Presiona en molde forrado y refrigera 2 horas (o hornea 15 min a 180 C para version crujiente).",
+        "Corta en 8 barritas. Aguantan 5 dias en nevera."
+      ]
+    },
+    {
+      "id": "snk-batido-frutos-rojos",
+      "nombre": "Batido de frutos rojos y yogur",
+      "categoria": "snack",
+      "etiquetas": [
+        "vegetariana",
+        "rapida",
+        "antioxidante"
+      ],
+      "tiempo_min": 5,
+      "dificultad": "muy_facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 220,
+        "proteina_g": 15,
+        "carbohidratos_g": 32,
+        "grasas_g": 4,
+        "fibra_g": 5
+      },
+      "ingredientes": [
+        {
+          "nombre": "frutos rojos congelados",
+          "cantidad": 150,
+          "unidad": "g"
+        },
+        {
+          "nombre": "yogur natural",
+          "cantidad": 125,
+          "unidad": "g"
+        },
+        {
+          "nombre": "leche",
+          "cantidad": 150,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "avena",
+          "cantidad": 20,
+          "unidad": "g"
+        },
+        {
+          "nombre": "miel (opcional)",
+          "cantidad": 5,
+          "unidad": "g"
+        }
+      ],
+      "pasos": [
+        "Tritura todo hasta textura cremosa y sirve frio."
+      ]
+    },
+    {
+      "id": "snk-gelatina-proteica",
+      "nombre": "Gelatina proteica con fruta",
+      "categoria": "snack",
+      "etiquetas": [
+        "baja_caloria",
+        "dulce_saludable",
+        "alta_proteina"
+      ],
+      "tiempo_min": 10,
+      "dificultad": "muy_facil",
+      "raciones": 3,
+      "macros_por_racion": {
+        "kcal": 90,
+        "proteina_g": 14,
+        "carbohidratos_g": 8,
+        "grasas_g": 0,
+        "fibra_g": 1
+      },
+      "ingredientes": [
+        {
+          "nombre": "gelatina neutra o de sabor sin azucar",
+          "cantidad": 2,
+          "unidad": "sobres"
+        },
+        {
+          "nombre": "proteina en polvo",
+          "cantidad": 45,
+          "unidad": "g"
+        },
+        {
+          "nombre": "agua",
+          "cantidad": 500,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "fresas o melocoton",
+          "cantidad": 150,
+          "unidad": "g"
+        }
+      ],
+      "pasos": [
+        "Disuelve la gelatina en agua caliente segun paquete y deja templar.",
+        "Mezcla la proteina batiendo bien y anade la fruta troceada.",
+        "Refrigera 3-4 horas hasta cuajar."
+      ]
+    },
+    {
+      "id": "snk-mix-frutos-secos",
+      "nombre": "Mix de frutos secos y fruta deshidratada (porcion)",
+      "categoria": "snack",
+      "etiquetas": [
+        "vegana",
+        "para_llevar",
+        "grasas_saludables"
+      ],
+      "tiempo_min": 2,
+      "dificultad": "muy_facil",
+      "raciones": 1,
+      "macros_por_racion": {
+        "kcal": 210,
+        "proteina_g": 6,
+        "carbohidratos_g": 16,
+        "grasas_g": 14,
+        "fibra_g": 4
+      },
+      "ingredientes": [
+        {
+          "nombre": "almendras y nueces",
+          "cantidad": 25,
+          "unidad": "g"
+        },
+        {
+          "nombre": "anacardos",
+          "cantidad": 10,
+          "unidad": "g"
+        },
+        {
+          "nombre": "pasas u orejones",
+          "cantidad": 15,
+          "unidad": "g"
+        }
+      ],
+      "pasos": [
+        "Mezcla y guarda en porciones individuales de unos 50 g para controlar la cantidad."
+      ]
+    },
+    {
+      "id": "pos-mousse-chocolate-aguacate",
+      "nombre": "Mousse de chocolate y aguacate",
+      "categoria": "postre",
+      "etiquetas": [
+        "vegana",
+        "dulce_saludable",
+        "sin_azucar_anadido"
+      ],
+      "tiempo_min": 10,
+      "dificultad": "muy_facil",
+      "raciones": 3,
+      "macros_por_racion": {
+        "kcal": 210,
+        "proteina_g": 4,
+        "carbohidratos_g": 18,
+        "grasas_g": 15,
+        "fibra_g": 7
+      },
+      "ingredientes": [
+        {
+          "nombre": "aguacate maduro",
+          "cantidad": 2,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "cacao puro en polvo",
+          "cantidad": 25,
+          "unidad": "g"
+        },
+        {
+          "nombre": "datiles o sirope de agave",
+          "cantidad": 40,
+          "unidad": "g"
+        },
+        {
+          "nombre": "bebida vegetal",
+          "cantidad": 50,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "esencia de vainilla",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Tritura todos los ingredientes hasta crema sedosa.",
+        "Refrigera 1 hora y sirve con fruta o virutas de chocolate negro."
+      ]
+    },
+    {
+      "id": "pos-nice-cream",
+      "nombre": "Helado de platano (nice cream)",
+      "categoria": "postre",
+      "etiquetas": [
+        "vegana",
+        "dulce_saludable",
+        "sin_azucar_anadido"
+      ],
+      "tiempo_min": 8,
+      "dificultad": "muy_facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 140,
+        "proteina_g": 2,
+        "carbohidratos_g": 32,
+        "grasas_g": 2,
+        "fibra_g": 3
+      },
+      "ingredientes": [
+        {
+          "nombre": "platano maduro congelado en rodajas",
+          "cantidad": 3,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "cacao puro o canela (opcional)",
+          "cantidad": 5,
+          "unidad": "g"
+        },
+        {
+          "nombre": "bebida vegetal",
+          "cantidad": 30,
+          "unidad": "ml"
+        }
+      ],
+      "pasos": [
+        "Tritura el platano congelado con un chorrito de bebida vegetal hasta textura de helado cremoso.",
+        "Anade cacao o canela al gusto y sirve al momento."
+      ]
+    },
+    {
+      "id": "pos-flan-claras-cafe",
+      "nombre": "Flan de claras y cafe",
+      "categoria": "postre",
+      "etiquetas": [
+        "alta_proteina",
+        "baja_caloria",
+        "baja_grasa"
+      ],
+      "tiempo_min": 45,
+      "dificultad": "media",
+      "raciones": 4,
+      "macros_por_racion": {
+        "kcal": 90,
+        "proteina_g": 12,
+        "carbohidratos_g": 8,
+        "grasas_g": 0,
+        "fibra_g": 0
+      },
+      "ingredientes": [
+        {
+          "nombre": "claras de huevo",
+          "cantidad": 300,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "cafe solo",
+          "cantidad": 150,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "edulcorante",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "esencia de vainilla",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "canela",
+          "cantidad": 1,
+          "unidad": "pizca"
+        }
+      ],
+      "pasos": [
+        "Bate las claras con el cafe, el edulcorante y la vainilla sin montar.",
+        "Reparte en flaneras y cocina al bano maria en horno 30-35 min a 180 C.",
+        "Enfria en nevera minimo 2 horas antes de desmoldar."
+      ]
+    },
+    {
+      "id": "pos-brownie-fit",
+      "nombre": "Brownie fitness de cacao y avena",
+      "categoria": "postre",
+      "etiquetas": [
+        "dulce_saludable",
+        "batch_cooking",
+        "vegetariana"
+      ],
+      "tiempo_min": 35,
+      "dificultad": "facil",
+      "raciones": 9,
+      "macros_por_racion": {
+        "kcal": 160,
+        "proteina_g": 7,
+        "carbohidratos_g": 18,
+        "grasas_g": 7,
+        "fibra_g": 3
+      },
+      "ingredientes": [
+        {
+          "nombre": "copos de avena",
+          "cantidad": 150,
+          "unidad": "g"
+        },
+        {
+          "nombre": "cacao puro",
+          "cantidad": 40,
+          "unidad": "g"
+        },
+        {
+          "nombre": "platano maduro",
+          "cantidad": 2,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "huevos",
+          "cantidad": 2,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "yogur natural",
+          "cantidad": 125,
+          "unidad": "g"
+        },
+        {
+          "nombre": "edulcorante",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "nueces",
+          "cantidad": 30,
+          "unidad": "g"
+        },
+        {
+          "nombre": "levadura quimica",
+          "cantidad": 6,
+          "unidad": "g"
+        }
+      ],
+      "pasos": [
+        "Tritura todo menos las nueces; incorporalas troceadas al final.",
+        "Hornea en molde cuadrado 22-25 min a 180 C.",
+        "Enfria y corta en 9 porciones."
+      ]
+    },
+    {
+      "id": "pos-torrijas-horno",
+      "nombre": "Torrijas ligeras al horno",
+      "categoria": "postre",
+      "etiquetas": [
+        "clasico_saludable",
+        "dulce_saludable"
+      ],
+      "tiempo_min": 30,
+      "dificultad": "facil",
+      "raciones": 4,
+      "macros_por_racion": {
+        "kcal": 220,
+        "proteina_g": 11,
+        "carbohidratos_g": 32,
+        "grasas_g": 6,
+        "fibra_g": 3
+      },
+      "ingredientes": [
+        {
+          "nombre": "pan integral del dia anterior",
+          "cantidad": 200,
+          "unidad": "g"
+        },
+        {
+          "nombre": "leche",
+          "cantidad": 300,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "huevos",
+          "cantidad": 2,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "canela",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "edulcorante o miel",
+          "cantidad": 15,
+          "unidad": "g"
+        },
+        {
+          "nombre": "piel de naranja y limon",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        }
+      ],
+      "pasos": [
+        "Infusiona la leche con canela y pieles citricas; empapa las rebanadas de pan.",
+        "Pasa por huevo batido y coloca en bandeja con papel de horno.",
+        "Hornea 20 min a 200 C girando a mitad. Espolvorea canela."
+      ]
+    },
+    {
+      "id": "pos-cheesecake-fit",
+      "nombre": "Cheesecake fit de queso batido",
+      "categoria": "postre",
+      "etiquetas": [
+        "alta_proteina",
+        "dulce_saludable"
+      ],
+      "tiempo_min": 50,
+      "dificultad": "media",
+      "raciones": 6,
+      "macros_por_racion": {
+        "kcal": 180,
+        "proteina_g": 15,
+        "carbohidratos_g": 16,
+        "grasas_g": 6,
+        "fibra_g": 1
+      },
+      "ingredientes": [
+        {
+          "nombre": "queso batido 0%",
+          "cantidad": 500,
+          "unidad": "g"
+        },
+        {
+          "nombre": "huevos",
+          "cantidad": 3,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "copos de avena triturados (base)",
+          "cantidad": 60,
+          "unidad": "g"
+        },
+        {
+          "nombre": "edulcorante",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "esencia de vainilla",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "mermelada sin azucar (cobertura)",
+          "cantidad": 60,
+          "unidad": "g"
+        }
+      ],
+      "pasos": [
+        "Mezcla la avena triturada con un poco de agua y presiona como base en molde.",
+        "Bate queso, huevos, edulcorante y vainilla; vierte sobre la base.",
+        "Hornea 35-40 min a 170 C, enfria en nevera 4 horas y cubre con la mermelada."
+      ]
+    },
+    {
+      "id": "pos-manzana-asada",
+      "nombre": "Manzana asada con canela y nueces",
+      "categoria": "postre",
+      "etiquetas": [
+        "vegana_opcional",
+        "sin_gluten",
+        "dulce_saludable"
+      ],
+      "tiempo_min": 25,
+      "dificultad": "muy_facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 170,
+        "proteina_g": 2,
+        "carbohidratos_g": 30,
+        "grasas_g": 6,
+        "fibra_g": 5
+      },
+      "ingredientes": [
+        {
+          "nombre": "manzanas",
+          "cantidad": 2,
+          "unidad": "unidad"
+        },
+        {
+          "nombre": "canela",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "nueces",
+          "cantidad": 15,
+          "unidad": "g"
+        },
+        {
+          "nombre": "miel o sirope",
+          "cantidad": 10,
+          "unidad": "g"
+        }
+      ],
+      "pasos": [
+        "Descorazona las manzanas y rellena el hueco con nueces, canela y miel.",
+        "Hornea 20-25 min a 190 C hasta que esten tiernas (o 6-8 min en microondas)."
+      ]
+    },
+    {
+      "id": "pos-natillas-proteicas",
+      "nombre": "Natillas proteicas de vainilla",
+      "categoria": "postre",
+      "etiquetas": [
+        "alta_proteina",
+        "dulce_saludable",
+        "rapida"
+      ],
+      "tiempo_min": 10,
+      "dificultad": "muy_facil",
+      "raciones": 2,
+      "macros_por_racion": {
+        "kcal": 150,
+        "proteina_g": 18,
+        "carbohidratos_g": 12,
+        "grasas_g": 3,
+        "fibra_g": 1
+      },
+      "ingredientes": [
+        {
+          "nombre": "leche",
+          "cantidad": 400,
+          "unidad": "ml"
+        },
+        {
+          "nombre": "proteina en polvo de vainilla",
+          "cantidad": 50,
+          "unidad": "g"
+        },
+        {
+          "nombre": "maicena",
+          "cantidad": 15,
+          "unidad": "g"
+        },
+        {
+          "nombre": "edulcorante",
+          "cantidad": 1,
+          "unidad": "al gusto"
+        },
+        {
+          "nombre": "canela",
+          "cantidad": 1,
+          "unidad": "pizca"
+        }
+      ],
+      "pasos": [
+        "Disuelve la maicena en un poco de leche fria; calienta el resto.",
+        "Anade la mezcla y remueve a fuego suave hasta espesar; retira.",
+        "Templa, incorpora la proteina batiendo, reparte en vasitos y refrigera."
+      ]
+    }
+  ]
+}
