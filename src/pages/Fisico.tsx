@@ -76,6 +76,8 @@ function StrengthTab() {
   const [progRoutineSel, setProgRoutineSel] = useState<number[]>([])
   const [progColor, setProgColor] = useState('#dd7d55')
   const allExercises = [...STATIC_EXERCISES, ...customExercises.map(e => ({ ...e, equipment: '' }))]
+  const [weeklyModal, setWeeklyModal] = useState<string | null>(null)
+  const [weeklyMap, setWeeklyMap] = useState<Record<number, number>>({})
   const todayStr = new Date().toISOString().slice(0, 10)
   const todaySessions = sessions.filter(s => s.date === todayStr)
   const todayKg = todaySessions.reduce((s, x) => s + x.totalKg, 0)
@@ -644,27 +646,9 @@ function StrengthTab() {
                     {r.ejercicios.length > 5 && <span style={{ color: 'var(--color-dim)', fontSize: 10 }}>+{r.ejercicios.length - 5} más</span>}
                   </div>
                 )}
-                <button onClick={() => {
-                  setShowProgForm(true)
-                  // Use addProgram as fallback for "start session" button
-                }} style={{ width: '100%', padding: 10, borderRadius: 10, background: 'var(--color-acc-orange)', color: '#fff', border: 'none', fontSize: 14, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', marginBottom: 4 }}>▶ Empezar esta rutina</button>
+                <button onClick={() => { const session = r.sesiones.length > 0 ? r.sesiones[0] : null; const exs = session ? session.ejercicios : r.ejercicios; const name = session ? `${r.nombre} - ${session.nombre}` : r.nombre; startSession(name, exs.map(e => ({ name: e.nombre, group: e.grupo_muscular, color: EXERCISE_COLORS[e.grupo_muscular] || '#e07a5f', sets: e.series, restSeconds: e.descanso_seg }))) }} style={{ width: '100%', padding: 10, borderRadius: 10, background: 'var(--color-acc-orange)', color: '#fff', border: 'none', fontSize: 14, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', marginBottom: 4 }}>▶ Empezar esta rutina</button>
                 {r.sesiones.length > 1 && (
-                  <button onClick={() => {
-                    const dow = ['L','M','X','J','V','S','D']
-                    let mapping: Record<number, number> = {}
-                    let msg = `Asignar días para "${r.nombre}":\n\n`
-                    r.sesiones.forEach((s, i) => {
-                      const day = prompt(`¿Qué día para "${s.nombre}"? (1-7 = L-D, 0 = saltar)`, String(i + 1))
-                      if (day && parseInt(day) >= 1 && parseInt(day) <= 7) {
-                        mapping[parseInt(day) - 1] = i
-                        msg += `${dow[parseInt(day) - 1]}: ${s.nombre}\n`
-                      }
-                    })
-                    if (Object.keys(mapping).length > 0) {
-                      useFisicoStore.getState().setWeeklyProgram({ routineId: r.id, dayMapping: mapping })
-                      toast.show('✓ Programa semanal activado')
-                    }
-                  }}
+                  <button onClick={() => { setWeeklyModal(r.id); setWeeklyMap({}) }}
                     style={{ width: '100%', padding: 10, borderRadius: 10, background: 'color-mix(in srgb, var(--color-acc-orange) 12%, transparent)', color: 'var(--color-acc-orange)', border: '1px solid color-mix(in srgb, var(--color-acc-orange) 25%, transparent)', fontSize: 14, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>
                     📅 Programar semanal
                   </button>
@@ -776,10 +760,52 @@ function StrengthTab() {
             <div className="text-4xl mb-3">📊</div>
             <div className="font-semibold text-[var(--color-sub)] mb-2">Sin datos todavía</div>
             <div>Registra sesiones de entrenamiento para ver gráficos.</div>
-          </div>
         </div>
-      )
-    }
+        {weeklyModal && <WeeklyModal routineId={weeklyModal} onClose={() => setWeeklyModal(null)} />}
+      </div>
+  )
+}
+
+/* Weekly program modal */
+function WeeklyModal({ routineId, onClose }: { routineId: string; onClose: () => void }) {
+  const r = ROUTINES.find(r => r.id === routineId)
+  const toast = useToast()
+  const [wMap, setWMap] = useState<Record<number, number>>({})
+  if (!r) return null
+  const DOW = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo']
+  return (
+    <div onClick={e => { if (e.target === e.currentTarget) onClose() }}
+      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 9000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 480, padding: '20px 20px 40px', maxHeight: '80dvh', overflowY: 'auto' }}>
+        <div style={{ width: 36, height: 4, background: 'var(--color-border2)', borderRadius: 99, margin: '0 auto 16px' }} />
+        <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 20, marginBottom: 4 }}>Programar semanal</div>
+        <div style={{ fontSize: 13, color: 'var(--color-sub)', marginBottom: 16 }}>{r.nombre} · {r.sesiones.length} sesiones</div>
+        {DOW.map((day, di) => (
+          <div key={di} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text)', minWidth: 80 }}>{day}</span>
+            <select className="inp" value={wMap[di] ?? -1} onChange={e => {
+              const v = parseInt(e.target.value)
+              setWMap(prev => v >= 0 ? { ...prev, [di]: v } : Object.fromEntries(Object.entries(prev).filter(([k]) => +k !== di)))
+            }} style={{ flex: 1, marginBottom: 0 }}>
+              <option value={-1}>— Descanso —</option>
+              {r.sesiones.map((s, si) => <option key={si} value={si}>{s.nombre} ({s.ejercicios.length} ejercicios)</option>)}
+            </select>
+          </div>
+        ))}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 14 }}>
+          <button onClick={onClose} className="btn-ghost" style={{ width: '100%' }}>Cancelar</button>
+          <button onClick={() => {
+            if (Object.keys(wMap).length > 0) {
+              useFisicoStore.getState().setWeeklyProgram({ routineId: r.id, dayMapping: wMap })
+              toast.show('✓ Programa semanal activado')
+            }
+            onClose()
+          }} className="btn-primary" style={{ background: 'var(--color-acc-orange)', width: 'auto' }}>Activar programa</button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
     const last12 = [...sessions].reverse().slice(-12)
     const labels = last12.map(s => {
@@ -1244,7 +1270,7 @@ export default function Fisico() {
         {section === 'strength' && <StrengthTab />}
         {section === 'running' && <RunningTab />}
         {section === 'mobility' && <MobilityTab />}
-      </div>
+        </div>
     </div>
   )
 }
