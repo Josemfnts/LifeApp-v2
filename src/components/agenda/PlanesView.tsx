@@ -1,7 +1,6 @@
-import { saveToStorage, loadFromStorage } from '@/lib/storage'
+import { loadFromStorage as load, saveToStorage as save } from '@/lib/storage'
 import { useState } from 'react'
 import { useToast } from '@/stores/toast'
-import { saveToCloud } from '@/lib/sync'
 
 interface Viaje { id: number; destino: string; cuando: string; tipo: string; nota: string; presupuesto: string }
 interface Actividad { id: number; nombre: string; cuando: string; categoria: string; nota: string }
@@ -36,9 +35,6 @@ export function PlanesView() {
     </div>
   )
 }
-
-function load<T>(k: string, f: T): T { try { const r = localStorage.getItem(k); return r ? JSON.parse(r) : f } catch { return f } }
-function save(k: string, v: unknown) { localStorage.setItem(k, JSON.stringify(v)); saveToCloud(k, v) }
 
 const VIAJES_KEY = 'lifeos_viajes_v1'
 const ACTIVIDADES_KEY = 'lifeos_actividades_v1'

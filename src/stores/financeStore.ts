@@ -1,10 +1,6 @@
 import { saveToStorage, loadFromStorage } from '@/lib/storage'
 import { create } from 'zustand'
 
-function load<T>(key: string, fallback: T): T {
-  try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback } catch { return fallback }
-}
-
 export interface Tx {
   id?: number
   date: string

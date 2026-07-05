@@ -77,7 +77,6 @@ function StrengthTab() {
   const [progColor, setProgColor] = useState('#dd7d55')
   const allExercises = [...STATIC_EXERCISES, ...customExercises.map(e => ({ ...e, equipment: '' }))]
   const [weeklyModal, setWeeklyModal] = useState<string | null>(null)
-  const [weeklyMap, setWeeklyMap] = useState<Record<number, number>>({})
   const todayStr = new Date().toISOString().slice(0, 10)
   const todaySessions = sessions.filter(s => s.date === todayStr)
   const todayKg = todaySessions.reduce((s, x) => s + x.totalKg, 0)
@@ -648,7 +647,7 @@ function StrengthTab() {
                 )}
                 <button onClick={() => { const session = r.sesiones.length > 0 ? r.sesiones[0] : null; const exs = session ? session.ejercicios : r.ejercicios; const name = session ? `${r.nombre} - ${session.nombre}` : r.nombre; startSession(name, exs.map(e => ({ name: e.nombre, group: e.grupo_muscular, color: EXERCISE_COLORS[e.grupo_muscular] || '#e07a5f', sets: e.series, restSeconds: e.descanso_seg }))) }} style={{ width: '100%', padding: 10, borderRadius: 10, background: 'var(--color-acc-orange)', color: '#fff', border: 'none', fontSize: 14, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', marginBottom: 4 }}>▶ Empezar esta rutina</button>
                 {r.sesiones.length > 1 && (
-                  <button onClick={() => { setWeeklyModal(r.id); setWeeklyMap({}) }}
+                  <button onClick={() => { setWeeklyModal(r.id) }}
                     style={{ width: '100%', padding: 10, borderRadius: 10, background: 'color-mix(in srgb, var(--color-acc-orange) 12%, transparent)', color: 'var(--color-acc-orange)', border: '1px solid color-mix(in srgb, var(--color-acc-orange) 25%, transparent)', fontSize: 14, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>
                     📅 Programar semanal
                   </button>

@@ -10,6 +10,8 @@ export const STORE_KEYS = {
   agenda_pending: 'agenda_pending',
   agenda_shifts: 'agenda_shifts',
   agenda_templates: 'agenda_templates',
+  kanban_projects_v1: 'kanban_projects_v1',
+  kanban_cards_v1: 'kanban_cards_v1',
 
   nutri_log: 'nutri_log',
   nutri_dishes: 'nutri_dishes',
@@ -33,6 +35,7 @@ export const STORE_KEYS = {
   fisico_prs: 'fisico_prs',
   fisico_templates: 'fisico_templates',
   fisico_programs: 'fisico_programs',
+  fisico_weekly: 'fisico_weekly',
 
   finances_tx: 'finances_tx',
   finances_huchas: 'finances_huchas',

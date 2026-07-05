@@ -15,10 +15,6 @@ export interface SetTemplate { name: string; sets: number; reps: number; restSec
 export interface Program { id: number; name: string; description: string; routines: number[]; color: string }
 export interface WeeklyProgram { routineId: string; dayMapping: Record<number, number> } // dow -> sessionIndex
 
-function load<T>(key: string, fallback: T): T {
-  try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback } catch { return fallback }
-}
-
 type WakeLockSentinel = { release: () => Promise<void> }
 let wakeLockSentinel: WakeLockSentinel | null = null
 

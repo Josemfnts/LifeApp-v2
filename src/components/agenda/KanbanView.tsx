@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useToast } from '@/stores/toast'
+import { loadFromStorage as load, saveToStorage as save } from '@/lib/storage'
 
 interface KanbanCard {
   id: number
@@ -17,9 +18,6 @@ interface KanbanProject {
   name: string
   color: string
 }
-
-function load<T>(key: string, fallback: T): T { try { const r = localStorage.getItem(key); return r ? JSON.parse(r) : fallback } catch { return fallback } }
-function save(key: string, val: unknown) { localStorage.setItem(key, JSON.stringify(val)) }
 
 const PRIORITY_COLORS = { high: '#e05f5f', medium: '#c9a84c', low: '#52b788' }
 const COLUMNS = [
@@ -109,7 +107,6 @@ export function KanbanView() {
     setEditLabels(card.labels || [])
   }
 
-  const counts = (col: string) => filteredCards.filter(c => c.column === col).length
 
   return (
     <div>

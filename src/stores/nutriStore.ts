@@ -1,10 +1,6 @@
 import { saveToStorage, loadFromStorage } from '@/lib/storage'
 import { create } from 'zustand'
 
-function load<T>(key: string, fallback: T): T {
-  try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback } catch { return fallback }
-}
-
 export interface FoodEntry { name: string; kcal: number; p: number; c: number; f: number; grams: number; meal: string }
 export interface Dish { id: number; name: string; ingredients: { name: string; kcal: number; p: number; c: number; f: number; grams: number }[]; totalKcal: number; totalP: number; totalC: number; totalF: number }
 export interface MenuDay { day: number; meals: { meal: string; dishName: string }[] }
