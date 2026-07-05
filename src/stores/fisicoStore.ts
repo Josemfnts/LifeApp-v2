@@ -13,6 +13,7 @@ export interface MobRoutine { id: number; name: string; focus: string; exercises
 export interface PR { exercise: string; weight: number; reps: number; date: string }
 export interface SetTemplate { name: string; sets: number; reps: number; restSeconds: number }
 export interface Program { id: number; name: string; description: string; routines: number[]; color: string }
+export interface WeeklyProgram { routineId: string; dayMapping: Record<number, number> } // dow -> sessionIndex
 
 function load<T>(key: string, fallback: T): T {
   try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback } catch { return fallback }
@@ -97,6 +98,7 @@ interface FisicoStore {
   prs: PR[]
   setTemplates: SetTemplate[]
   programs: Program[]
+  weeklyProgram: WeeklyProgram | null
   unit: 'kg' | 'lb'
   wakeLock: boolean
 
@@ -138,6 +140,7 @@ interface FisicoStore {
   removeTemplate: (name: string) => void
   addProgram: (p: Program) => void
   removeProgram: (id: number) => void
+  setWeeklyProgram: (wp: WeeklyProgram | null) => void
   getMuscleAnalysis: () => { group: string; sets: number; color: string }[]
   shareSummary: () => string
   toggleUnit: () => void
@@ -159,6 +162,7 @@ export const useFisicoStore = create<FisicoStore>((set, get) => ({
   prs: loadFromStorage('fisico_prs', []),
   setTemplates: loadFromStorage('fisico_templates', []),
   programs: loadFromStorage('fisico_programs', []),
+  weeklyProgram: loadFromStorage('fisico_weekly', null),
   unit: (localStorage.getItem('fisico_unit') as 'kg' | 'lb') || 'kg',
   wakeLock: false,
 
@@ -373,6 +377,10 @@ export const useFisicoStore = create<FisicoStore>((set, get) => ({
     const next = get().unit === 'kg' ? 'lb' : 'kg'
     localStorage.setItem('fisico_unit', next)
     set({ unit: next })
+  },
+  setWeeklyProgram: (wp: WeeklyProgram | null) => {
+    saveToStorage('fisico_weekly', wp)
+    set({ weeklyProgram: wp })
   },
   setWakeLock: (on) => {
     if (on && 'wakeLock' in navigator) {
