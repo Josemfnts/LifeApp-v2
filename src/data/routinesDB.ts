@@ -10,6 +10,11 @@ export interface RoutineExercise {
   notas?: string
 }
 
+export interface RoutineSession {
+  nombre: string
+  ejercicios: RoutineExercise[]
+}
+
 export interface RoutineData {
   id: string
   nombre: string
@@ -21,6 +26,7 @@ export interface RoutineData {
   duracion_programa_semanas: number
   equipamiento: string[]
   ejercicios: RoutineExercise[]
+  sesiones: RoutineSession[]
 }
 
 export interface RoutineSchema {
@@ -30,6 +36,10 @@ export interface RoutineSchema {
 }
 
 function parseRoutine(r: Record<string, unknown>): RoutineData {
+  const sesiones = (r.sesiones as RoutineSession[]) || []
+  const ejercicios = sesiones.length > 0
+    ? sesiones[0].ejercicios  // default to first session
+    : (r.ejercicios as RoutineExercise[]) || []
   return {
     id: r.id as string,
     nombre: r.nombre as string,
@@ -40,7 +50,8 @@ function parseRoutine(r: Record<string, unknown>): RoutineData {
     duracion_sesion_min: r.duracion_sesion_min as number,
     duracion_programa_semanas: r.duracion_programa_semanas as number,
     equipamiento: (r.equipamiento as string[]) || [],
-    ejercicios: (r.ejercicios as RoutineExercise[]) || ((r as { sesiones?: { ejercicios: RoutineExercise[] }[] }).sesiones?.[0]?.ejercicios as RoutineExercise[]) || [],
+    ejercicios,
+    sesiones,
   }
 }
 

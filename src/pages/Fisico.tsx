@@ -196,12 +196,35 @@ function StrengthTab() {
                 if (!r) return null
                 return (
                   <div style={{ background: 'var(--color-s2)', borderRadius: 10, padding: 10, marginBottom: 8, fontSize: 11, color: 'var(--color-sub)' }}>
-                    <div style={{ marginBottom: 4 }}>{getObjLabel(r.objetivo)} · {getLugarLabel(r.lugar)} · {r.duracion_sesion_min}min</div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                      {r.ejercicios.slice(0, 4).map(e => <span key={e.nombre} style={{ padding: '2px 6px', borderRadius: 4, background: 'var(--color-s1)', fontSize: 10 }}>{e.nombre}</span>)}
-                      {r.ejercicios.length > 4 && <span style={{ color: 'var(--color-dim)', fontSize: 10 }}>+{r.ejercicios.length - 4} más</span>}
-                    </div>
+                    <div style={{ marginBottom: 4 }}>{getObjLabel(r.objetivo)} · {getLugarLabel(r.lugar)} · {r.duracion_sesion_min}min · {r.sesiones.length > 0 ? r.sesiones.length + ' sesiones' : r.ejercicios.length + ' ejercicios'}</div>
+                    {r.sesiones.length > 0 ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: 6 }}>
+                        <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 2 }}>Sesiones del programa:</div>
+                        {r.sesiones.map((s, i) => (
+                          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 8px', borderRadius: 6, background: 'var(--color-s1)' }}>
+                            <span style={{ fontWeight: 600 }}>{s.nombre}</span>
+                            <span style={{ color: 'var(--color-dim)' }}>{s.ejercicios.length} ejercicios</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                        {r.ejercicios.slice(0, 4).map(e => <span key={e.nombre} style={{ padding: '2px 6px', borderRadius: 4, background: 'var(--color-s1)', fontSize: 10 }}>{e.nombre}</span>)}
+                        {r.ejercicios.length > 4 && <span style={{ color: 'var(--color-dim)', fontSize: 10 }}>+{r.ejercicios.length - 4} más</span>}
+                      </div>
+                    )}
                   </div>
+                )
+              })()}
+
+              {/* Session selector for multi-session routines */}
+              {selRoutine && (() => {
+                const r = ROUTINES.find(r => r.id === selRoutine)
+                if (!r || r.sesiones.length === 0) return null
+                return (
+                  <select id="session-select" className="inp" style={{ marginBottom: 8 }}>
+                    {r.sesiones.map((s, i) => <option key={i} value={i}>{s.nombre} ({s.ejercicios.length} ejercicios)</option>)}
+                  </select>
                 )
               })()}
 
@@ -210,7 +233,15 @@ function StrengthTab() {
                   const rtn = routines.find(r => r.id === +selRoutine)
                   const lib = ROUTINES.find(r => r.id === selRoutine)
                   if (rtn) startSession(rtn.name, rtn.exercises.map(e => ({ name: e.name, group: e.group, color: e.color, sets: e.sets })))
-                  else if (lib) startSession(lib.nombre, lib.ejercicios.map(e => ({ name: e.nombre, group: e.grupo_muscular, color: EXERCISE_COLORS[e.grupo_muscular] || '#e07a5f', sets: e.series, restSeconds: e.descanso_seg })))
+                  else if (lib) {
+                    // Get selected session or default to first
+                    const sel = document.getElementById('session-select') as HTMLSelectElement
+                    const sessionIdx = sel ? parseInt(sel.value) : 0
+                    const session = lib.sesiones.length > 0 ? lib.sesiones[sessionIdx] : null
+                    const exs = session ? session.ejercicios : lib.ejercicios
+                    const name = session ? `${lib.nombre} - ${session.nombre}` : lib.nombre
+                    startSession(name, exs.map(e => ({ name: e.nombre, group: e.grupo_muscular, color: EXERCISE_COLORS[e.grupo_muscular] || '#e07a5f', sets: e.series, restSeconds: e.descanso_seg })))
+                  }
                   else startSession('Sesión libre')
                 }}
                   className="py-2.5 rounded-xl font-semibold text-sm font-sans cursor-pointer bg-[var(--color-acc-blue)] text-white border-[var(--color-acc-blue)] shadow-lg shadow-[var(--color-acc-blue)]/25">
@@ -558,15 +589,27 @@ function StrengthTab() {
                 </div>
                 <div style={{ fontSize: 11, color: 'var(--color-sub)', marginBottom: 8 }}>
                   {getLugarLabel(r.lugar)} · {r.dias_semana}d/sem · {r.duracion_sesion_min}min · {r.duracion_programa_semanas}semanas
+                  {r.sesiones.length > 1 && <span style={{ marginLeft: 6, fontWeight: 600, color: 'var(--color-acc-orange)' }}>· {r.sesiones.length} sesiones</span>}
                 </div>
-                <div style={{ fontSize: 11, color: 'var(--color-dim)', marginBottom: 8, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                  {r.ejercicios.slice(0, 5).map(e => <span key={e.nombre} style={{ padding: '2px 6px', borderRadius: 4, background: 'var(--color-s2)' }}>{e.nombre} {e.series}x{e.repeticiones}</span>)}
-                  {r.ejercicios.length > 5 && <span style={{ color: 'var(--color-dim)', fontSize: 10 }}>+{r.ejercicios.length - 5} más</span>}
-                </div>
+                {r.sesiones.length > 1 ? (
+                  <div style={{ marginBottom: 8 }}>
+                    {r.sesiones.map((s, i) => (
+                      <div key={i} style={{ fontSize: 11, color: 'var(--color-dim)', marginBottom: 2, display: 'flex', gap: 4, alignItems: 'flex-start' }}>
+                        <span style={{ fontWeight: 600, color: 'var(--color-sub)', minWidth: 48, flexShrink: 0 }}>{s.nombre}:</span>
+                        <span>{s.ejercicios.slice(0, 3).map(e => e.nombre).join(' · ')}{s.ejercicios.length > 3 ? ` +${s.ejercicios.length - 3} más` : ''}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ fontSize: 11, color: 'var(--color-dim)', marginBottom: 8, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                    {r.ejercicios.slice(0, 5).map(e => <span key={e.nombre} style={{ padding: '2px 6px', borderRadius: 4, background: 'var(--color-s2)' }}>{e.nombre} {e.series}x{e.repeticiones}</span>)}
+                    {r.ejercicios.length > 5 && <span style={{ color: 'var(--color-dim)', fontSize: 10 }}>+{r.ejercicios.length - 5} más</span>}
+                  </div>
+                )}
                 <button onClick={() => {
-                  startSession(r.nombre, r.ejercicios.map(e => ({
-                    name: e.nombre, group: e.grupo_muscular, color: EXERCISE_COLORS[e.grupo_muscular] || 'var(--color-acc-orange)', sets: e.series, restSeconds: e.descanso_seg
-                  })))
+                  const session = r.sesiones.length > 0 ? r.sesiones[0] : null
+                  const exs = session ? session.ejercicios : r.ejercicios
+                  const name = session ? `${r.nombre} - ${session.nombre}` : r.nombre
                   toast.show('✓ Rutina cargada')
                 }} style={{ width: '100%', padding: 10, borderRadius: 10, background: 'var(--color-acc-orange)', color: '#fff', border: 'none', fontSize: 14, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>▶ Empezar esta rutina</button>
               </div>
