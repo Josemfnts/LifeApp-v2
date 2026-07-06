@@ -75,6 +75,37 @@ export default function App() {
     const handler = () => setShowLogin(true)
     window.addEventListener('show-login', handler)
 
+    // iOS Shortcut: auto-add Kanban card via URL param
+    const params = new URLSearchParams(window.location.search)
+    const kanbanText = params.get('kanban')
+    if (kanbanText) {
+      const priority = params.get('priority') || 'medium'
+      const project = params.get('project') || ''
+      const cards = JSON.parse(localStorage.getItem('kanban_cards_v1') || '[]')
+      const projects = JSON.parse(localStorage.getItem('kanban_projects_v1') || '[]')
+
+      let projectId = projects[0]?.id
+      if (project && projects.length > 0) {
+        const found = projects.find((p: { name: string }) => p.name.toLowerCase().includes(project.toLowerCase()))
+        if (found) projectId = found.id
+      }
+      if (!projectId) {
+        projectId = Date.now()
+        projects.push({ id: projectId, name: project || 'Rápido', color: '#5b8af0' })
+        localStorage.setItem('kanban_projects_v1', JSON.stringify(projects))
+      }
+
+      cards.push({
+        id: Date.now(), text: decodeURIComponent(kanbanText), column: 'todo',
+        priority, dueDate: '', labels: [], description: '',
+        projectId,
+      })
+      localStorage.setItem('kanban_cards_v1', JSON.stringify(cards))
+
+      // Clean URL
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+
     return () => {
       subscription.unsubscribe()
       window.removeEventListener('show-login', handler)
