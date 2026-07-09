@@ -53,15 +53,15 @@ function ViajesTab() {
     <div>
       <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, marginBottom: 14 }}>
         <div className="sec-label" style={{ marginBottom: 10 }}>Añadir viaje</div>
-        <input className="inp" value={d} onChange={e => setD(e.target.value)} placeholder="Destino (ej: Pirineos, Roma...)" />
+        <input className="inp" value={d} onChange={e => setD(e.target.value)} placeholder="Destino" />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
-          <input className="inp" value={c} onChange={e => setC(e.target.value)} placeholder="Cuándo (ej: verano 26)" style={{ marginBottom: 0 }} />
+          <input className="inp" value={c} onChange={e => setC(e.target.value)} placeholder="Cuándo" style={{ marginBottom: 0 }} />
           <select className="inp" value={t} onChange={e => setT(e.target.value)} style={{ marginBottom: 0 }}>
             {['city','nature','beach','culture','gastro','adventure'].map(o => <option key={o} value={o}>{{city:'🏙 Ciudad',nature:'🏔 Naturaleza',beach:'🏖 Playa',culture:'🏛 Cultura',gastro:'🍽 Gastronómico',adventure:'🧗 Aventura'}[o]}</option>)}
           </select>
         </div>
-        <input className="inp" value={p} onChange={e => setP(e.target.value)} placeholder="Presupuesto (opcional)" />
-        <input className="inp" value={n} onChange={e => setN(e.target.value)} placeholder="Nota (quién lo recomendó, qué ver...)" />
+        <input className="inp" value={p} onChange={e => setP(e.target.value)} placeholder="Presupuesto" />
+        <input className="inp" value={n} onChange={e => setN(e.target.value)} placeholder="Nota" />
         <button onClick={add} className="btn-primary">+ Añadir viaje</button>
       </div>
       {viajes.map(v => (
@@ -188,8 +188,7 @@ function ProyectosTab() {
   const [projs, setProjs] = useState<Proyecto[]>(() => load(PROYECTOS_KEY, []))
   const toast = useToast()
   const [name, setName] = useState('')
-  const [color, setColor] = useState('var(--color-acc-blue)')
-  function add() { if (!name.trim()) return; setProjs(p => { const np = [...p, { id: Date.now(), nombre: name.trim(), tareas: [], color }]; save(PROYECTOS_KEY, np); return np }); setName(''); toast.show('✓ Proyecto creado') }
+  function add() { if (!name.trim()) return; setProjs(p => { const np = [...p, { id: Date.now(), nombre: name.trim(), tareas: [], color: 'var(--color-acc-blue)' }]; save(PROYECTOS_KEY, np); return np }); setName(''); toast.show('✓ Proyecto creado') }
   function addTarea(pid: number, text: string) {
     setProjs(p => { const np = p.map(x => x.id === pid ? { ...x, tareas: [...x.tareas, { text, done: false }] } : x); save(PROYECTOS_KEY, np); return np })
   }
@@ -203,11 +202,6 @@ function ProyectosTab() {
         <div className="sec-label" style={{ marginBottom: 10 }}>Nuevo proyecto</div>
         <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
           <input className="inp" value={name} onChange={e => setName(e.target.value)} placeholder="Nombre del proyecto..." style={{ flex: 1, marginBottom: 0 }} />
-          <div style={{ display: 'flex', gap: 4 }}>
-            {['var(--color-acc-blue)','var(--color-acc-green)','var(--color-acc-orange)','var(--color-acc-gold)','var(--color-acc-purple)'].map(c => (
-              <button key={c} onClick={() => setColor(c)} style={{ width: 24, height: 24, borderRadius: '50%', border: color === c ? '2.5px solid var(--color-text)' : '2.5px solid transparent', background: c, cursor: 'pointer' }} />
-            ))}
-          </div>
           <button onClick={add} className="btn-ghost" style={{ width: 'auto', padding: '10px 16px', background: 'var(--color-acc-blue)', color: '#fff', border: 'none', borderRadius: 10 }}>Crear</button>
         </div>
       </div>
@@ -217,7 +211,6 @@ function ProyectosTab() {
         return (
           <div key={p.id} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, overflow: 'hidden', marginBottom: 10 }}>
             <div style={{ padding: '12px 14px', borderBottom: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 8, height: 8, borderRadius: '50%', background: p.color, flexShrink: 0 }} />
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>{p.nombre}</div>
                 <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 2 }}>{p.tareas.length} tareas · {pct}%</div>

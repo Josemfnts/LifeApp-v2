@@ -23,7 +23,7 @@ interface KanbanProject {
 const PRIORITY_COLORS = { high: '#e05f5f', medium: '#c9a84c', low: '#52b788' }
 const COLUMNS = [
   { key: 'todo' as const, label: 'Por hacer', color: '#5b8af0' },
-  { key: 'doing' as const, label: 'En progreso', color: '#c9a84c' },
+  { key: 'doing' as const, label: 'En curso', color: '#c9a84c' },
   { key: 'review' as const, label: 'Revisar', color: '#9b7fe0' },
   { key: 'done' as const, label: 'Hecho', color: '#52b788' },
 ]
@@ -154,8 +154,8 @@ export function KanbanView() {
           {/* Quick add */}
           <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
             <input className="inp" value={newCardText} onChange={e => setNewCardText(e.target.value)} placeholder="+ Nueva tarea..." style={{ flex: 1, marginBottom: 0 }} onKeyDown={e => { if (e.key === 'Enter') addCard() }} />
-            <select className="inp" value={newPriority} onChange={e => setNewPriority(e.target.value as 'low' | 'medium' | 'high')} style={{ width: 100, marginBottom: 0 }}>
-              <option value="low">🟢 Baja</option><option value="medium">🟡 Media</option><option value="high">🔴 Alta</option>
+            <select className="inp" value={newPriority} onChange={e => setNewPriority(e.target.value as 'low' | 'medium' | 'high')} style={{ width: 54, marginBottom: 0, textAlign: 'center' }} title="Prioridad">
+              <option value="low">🟢</option><option value="medium">🟡</option><option value="high">🔴</option>
             </select>
             <button onClick={addCard} className="btn-ghost" style={{ width: 'auto', padding: '10px 20px' }}>Añadir</button>
           </div>
@@ -166,10 +166,10 @@ export function KanbanView() {
               const colCards = filteredCards.filter(c => c.column === col.key)
               return (
                 <div key={col.key}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: col.color, textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: col.color }} />
-                    {col.label}
-                    <span style={{ color: 'var(--color-dim)', fontWeight: 500 }}>({colCards.length})</span>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: col.color, letterSpacing: '0.2px', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap', overflow: 'hidden' }}>
+                    <div style={{ width: 7, height: 7, borderRadius: '50%', background: col.color, flexShrink: 0 }} />
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{col.label}</span>
+                    <span style={{ color: 'var(--color-dim)', fontWeight: 500, flexShrink: 0 }}>{colCards.length}</span>
                   </div>
                   {colCards.map(card => (
                     <div key={card.id}
