@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, type ReactNode } from 'react'
 import { useAgendaStore, DAYS, MONTHS, COLOR_HEX, SHIFT_COLORS, SHIFT_LABELS, PRIORITY_COLORS } from '@/stores/agendaStore'
 import { useToast } from '@/stores/toast'
 import { Input } from '@/components/ui'
@@ -10,6 +10,8 @@ import Pomodoro from '@/pages/Pomodoro'
 export default function Agenda() {
   const [tab, setTab] = useState<'month' | 'week' | 'day' | 'shifts' | 'stats' | 'kanban' | 'planes' | 'notas' | 'pomodoro' | 'diario'>('month')
   const [selDate, setSelDate] = useState(new Date())
+  const [openTurnos, setOpenTurnos] = useState(false)
+  const [openSemana, setOpenSemana] = useState(false)
   const rollover = useAgendaStore(s => s.rollover)
   useEffect(() => { rollover() }, [])
   useEffect(() => {
@@ -36,8 +38,12 @@ export default function Agenda() {
         {tab === 'month' && (
           <>
             <CalendarView onPick={(d: Date) => { setSelDate(d); setTab('day') }} />
-            <div style={{ marginTop: 22 }}><ShiftsView /></div>
-            <div style={{ marginTop: 22 }}><WeekView /></div>
+            <CollapsibleRow title="Turnos" hint={openTurnos ? 'Cerrar' : 'Editar'} open={openTurnos} onToggle={() => setOpenTurnos(v => !v)}>
+              <ShiftsView />
+            </CollapsibleRow>
+            <CollapsibleRow title="Semana" hint={openSemana ? 'Cerrar' : 'Ver'} open={openSemana} onToggle={() => setOpenSemana(v => !v)}>
+              <WeekView />
+            </CollapsibleRow>
           </>
         )}
         {tab === 'day' && <DayView date={selDate} />}
@@ -47,6 +53,19 @@ export default function Agenda() {
         {tab === 'notas' && <NotasView />}
         {tab === 'pomodoro' && <Pomodoro />}
       </div>
+    </div>
+  )
+}
+
+/* ── Fila plegable (Turnos / Semana dentro de Mes) ── */
+function CollapsibleRow({ title, hint, open, onToggle, children }: { title: string; hint?: string; open: boolean; onToggle: () => void; children: ReactNode }) {
+  return (
+    <div style={{ marginTop: 12 }}>
+      <button onClick={onToggle} style={{ width: '100%', padding: '13px 16px', borderRadius: 12, background: 'var(--color-s1)', border: '1px solid var(--color-border)', color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', fontFamily: 'DM Sans,sans-serif' }}>
+        <span style={{ fontSize: 14, fontWeight: 600 }}>{title}</span>
+        <span style={{ fontSize: 12, color: 'var(--color-acc-blue)', fontWeight: 600 }}>{hint}{open ? ' ▴' : ' ▾'}</span>
+      </button>
+      {open && <div style={{ marginTop: 12 }}>{children}</div>}
     </div>
   )
 }
