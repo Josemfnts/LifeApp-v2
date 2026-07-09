@@ -4,11 +4,11 @@ import { useToast } from '@/stores/toast'
 import { Input } from '@/components/ui'
 import { KanbanView } from '@/components/agenda/KanbanView'
 import { PlanesView } from '@/components/agenda/PlanesView'
+import { NotasView } from '@/components/agenda/NotasView'
 import Pomodoro from '@/pages/Pomodoro'
-import Diario from '@/pages/Diario'
 
 export default function Agenda() {
-  const [tab, setTab] = useState<'month' | 'week' | 'day' | 'shifts' | 'stats' | 'kanban' | 'planes' | 'pomodoro' | 'diario'>('month')
+  const [tab, setTab] = useState<'month' | 'week' | 'day' | 'shifts' | 'stats' | 'kanban' | 'planes' | 'notas' | 'pomodoro' | 'diario'>('month')
   const [selDate, setSelDate] = useState(new Date())
   const rollover = useAgendaStore(s => s.rollover)
   useEffect(() => { rollover() }, [])
@@ -20,26 +20,32 @@ export default function Agenda() {
   return (
     <div>
       <div className="page-header">
-        <div className="page-module" style={{ color: 'var(--color-acc-blue)' }}>Agenda</div>
         <div className="page-title">Planificación</div>
         <div className="tab-bar">
-          {(['month','week','day','shifts','stats','kanban','planes','pomodoro','diario'] as const).map(t => (
+          {/* 'day' se abre tocando un día del calendario (sin pestaña). Turnos y Semana viven
+              dentro de 'Mes'. Diario vive dentro de Notas. 'pomodoro' desactivado: el componente
+              y el render siguen abajo para reactivarlo fácil. */}
+          {(['month','stats','kanban','planes','notas'] as const).map(t => (
             <button key={t} onClick={() => setTab(t)} className={`tab-btn${tab === t ? ' active' : ''}`}>
-              {{month:'Mes',week:'Semana',day:'Día',shifts:'Turnos',stats:'Stats',kanban:'Kanban',planes:'Planes',pomodoro:'🍅',diario:'📝'}[t]}
+              {{month:'Mes',week:'Semana',day:'Día',shifts:'Turnos',stats:'Stats',kanban:'Kanban',planes:'Planes',notas:'Notas',pomodoro:'🍅',diario:'📝'}[t]}
             </button>
           ))}
         </div>
       </div>
       <div style={{ padding: 16 }}>
-        {tab === 'month' && <CalendarView onPick={(d: Date) => { setSelDate(d); setTab('day') }} />}
-        {tab === 'week' && <WeekView />}
+        {tab === 'month' && (
+          <>
+            <CalendarView onPick={(d: Date) => { setSelDate(d); setTab('day') }} />
+            <div style={{ marginTop: 22 }}><ShiftsView /></div>
+            <div style={{ marginTop: 22 }}><WeekView /></div>
+          </>
+        )}
         {tab === 'day' && <DayView date={selDate} />}
-        {tab === 'shifts' && <ShiftsView />}
         {tab === 'stats' && <StatsView />}
         {tab === 'kanban' && <KanbanView />}
         {tab === 'planes' && <PlanesView />}
+        {tab === 'notas' && <NotasView />}
         {tab === 'pomodoro' && <Pomodoro />}
-        {tab === 'diario' && <Diario />}
       </div>
     </div>
   )
@@ -308,23 +314,23 @@ function DayView({ date }: { date: Date }) {
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
         <button onClick={() => { const d = new Date(date); d.setDate(d.getDate() - 1); window.dispatchEvent(new CustomEvent('agenda-pick-day', { detail: d })) }} style={{ width: 34, height: 34, borderRadius: 10, background: 'var(--color-s1)', border: '1px solid var(--color-border)', color: 'var(--color-sub)', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>‹</button>
-        <div><div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 18, color: 'var(--color-text)' }}>{DAYS[date.getDay()]}, {date.getDate()} {MONTHS[date.getMonth()]}</div><div style={{ fontSize: 11, color: 'var(--color-sub)', textAlign: 'center' }}>{date.getFullYear()}</div></div>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 18, color: 'var(--color-text)' }}>{DAYS[date.getDay()]}, {date.getDate()} {MONTHS[date.getMonth()]}</div>
+          <div style={{ fontSize: 11, color: 'var(--color-sub)' }}>
+            {date.getFullYear()}
+            {shift && <span style={{ marginLeft: 8, color: SHIFT_COLORS[shift], fontWeight: 700 }}>· {SHIFT_LABELS[shift]}</span>}
+          </div>
+        </div>
         <button onClick={() => { const d = new Date(date); d.setDate(d.getDate() + 1); window.dispatchEvent(new CustomEvent('agenda-pick-day', { detail: d })) }} style={{ width: 34, height: 34, borderRadius: 10, background: 'var(--color-s1)', border: '1px solid var(--color-border)', color: 'var(--color-sub)', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>›</button>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10, background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 12, padding: '10px 14px' }}>
-          <span style={{ fontSize: 16 }}>🏭</span>
-          <div><div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Turno</div><div style={{ fontSize: 14, fontWeight: 600, color: shift ? SHIFT_COLORS[shift] : 'var(--color-dim)' }}>{shift ? SHIFT_LABELS[shift] : '—'}</div></div>
+      {total > 0 && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 12, padding: '10px 14px' }}>
+          <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-sub)' }}>{done}/{total}</span>
+          <div style={{ flex: 1, height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 99, overflow: 'hidden' }}><div style={{ height: '100%', background: 'var(--color-acc-blue)', borderRadius: 99, transition: 'width 0.4s', width: `${pct}%` }} /></div>
+          <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-acc-blue)' }}>{pct}%</span>
         </div>
-        {total > 0 && (
-          <div style={{ flex: 2, display: 'flex', alignItems: 'center', gap: 10, background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 12, padding: '10px 14px' }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-sub)' }}>{done}/{total}</span>
-            <div style={{ flex: 1, height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 99, overflow: 'hidden' }}><div style={{ height: '100%', background: 'var(--color-acc-blue)', borderRadius: 99, transition: 'width 0.4s', width: `${pct}%` }} /></div>
-            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-acc-blue)' }}>{pct}%</span>
-          </div>
-        )}
-      </div>
+      )}
 
       {!showForm ? (
         <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>

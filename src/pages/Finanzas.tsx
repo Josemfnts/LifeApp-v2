@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useFinanceStore, CAT_META, CUENTA_TYPE, fmt, fmtShort } from '@/stores/financeStore'
 import { useToast } from '@/stores/toast'
 import Chart from 'chart.js/auto'
+import { NotesFor } from '@/components/notes/NotesFor'
 
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
 const MONTHS_SH = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
@@ -37,8 +38,7 @@ export default function Finanzas() {
   return (
     <div>
       <div className="page-header">
-        <div className="page-module" style={{ color: 'var(--color-acc-gold)' }}>Finanzas</div>
-        <div className="page-title">Dinero</div>
+        <div className="page-title">Finanzas</div>
         <div className="tab-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', overflowX: 'auto', overflowY: 'hidden', minWidth: 0 }}>
             {(['summary','moves','analysis','patrimonio','budgets'] as const).map(t => (
@@ -604,6 +604,7 @@ function PatrimonioTab() {
               </div>
             </div>
           )}
+          <NotesFor entityType="finance" entityId="patrimonio" defaultTitle="Notas financieras" />
         </>
       )}
 
