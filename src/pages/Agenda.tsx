@@ -4,7 +4,7 @@ import { useToast } from '@/stores/toast'
 import { Input } from '@/components/ui'
 import { KanbanView } from '@/components/agenda/KanbanView'
 import { PlanesView } from '@/components/agenda/PlanesView'
-import { NotasView } from '@/components/agenda/NotasView'
+import { useNavigate } from 'react-router-dom'
 import Pomodoro from '@/pages/Pomodoro'
 
 export default function Agenda() {
@@ -12,6 +12,7 @@ export default function Agenda() {
   const [selDate, setSelDate] = useState(new Date())
   const [openTurnos, setOpenTurnos] = useState(false)
   const [openSemana, setOpenSemana] = useState(false)
+  const navigate = useNavigate()
   const rollover = useAgendaStore(s => s.rollover)
   useEffect(() => { rollover() }, [])
   useEffect(() => {
@@ -28,7 +29,7 @@ export default function Agenda() {
               dentro de 'Mes'. Diario vive dentro de Notas. 'pomodoro' desactivado: el componente
               y el render siguen abajo para reactivarlo fácil. */}
           {(['month','stats','kanban','planes','notas'] as const).map(t => (
-            <button key={t} onClick={() => setTab(t)} className={`tab-btn${tab === t ? ' active' : ''}`}>
+            <button key={t} onClick={() => t === 'notas' ? navigate('/notas') : setTab(t)} className={`tab-btn${tab === t ? ' active' : ''}`}>
               {{month:'Mes',week:'Semana',day:'Día',shifts:'Turnos',stats:'Stats',kanban:'Kanban',planes:'Planes',notas:'Notas',pomodoro:'🍅',diario:'📝'}[t]}
             </button>
           ))}
@@ -50,7 +51,6 @@ export default function Agenda() {
         {tab === 'stats' && <StatsView />}
         {tab === 'kanban' && <KanbanView />}
         {tab === 'planes' && <PlanesView />}
-        {tab === 'notas' && <NotasView />}
         {tab === 'pomodoro' && <Pomodoro />}
       </div>
     </div>

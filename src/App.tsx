@@ -47,6 +47,7 @@ const Finanzas = lazy(() => import('@/pages/Finanzas'))
 const Pomodoro = lazy(() => import('@/pages/Pomodoro'))
 const Diario = lazy(() => import('@/pages/Diario'))
 const Comunidad = lazy(() => import('@/pages/Comunidad'))
+const Notas = lazy(() => import('@/pages/Notas'))
 const Login = lazy(() => import('@/pages/Login'))
 
 const queryClient = new QueryClient()
@@ -144,6 +145,8 @@ export default function App() {
                   <Route path="/diario" element={<Diario />} />
                   <Route path="/comunidad" element={<Comunidad />} />
                 </Route>
+                {/* Notas: pantalla completa, fuera del Shell (sin barra inferior) */}
+                <Route path="/notas" element={<Notas />} />
               </Routes>
             </Suspense>
           </BrowserRouter>
