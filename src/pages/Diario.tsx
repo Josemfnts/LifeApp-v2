@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { NotesFor } from '@/components/notes/NotesFor'
 import { useToast } from '@/stores/toast'
 
 export default function Diario() {
@@ -54,6 +55,8 @@ export default function Diario() {
         <button onClick={save} className="btn-primary" style={{ background: 'var(--color-acc-purple)', marginBottom: 20 }}>
           {editingDate === today ? 'Guardar entrada' : 'Actualizar entrada'}
         </button>
+
+        <NotesFor entityType="day" entityId={editingDate} defaultTitle={`Notas · ${editingDate}`} />
 
         {pastEntries.length > 0 && (
           <>

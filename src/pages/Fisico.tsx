@@ -4,6 +4,7 @@ import { Input } from '@/components/ui'
 import { useToast } from '@/stores/toast'
 import { ROUTINES, ROUTINE_OBJECTIVES, ROUTINE_LEVELS, ROUTINE_PLACES, getObjLabel, getNivelLabel, getLugarLabel, filterRoutines } from '@/data/routinesDB'
 import { createPost } from '@/lib/social'
+import { NotesFor } from '@/components/notes/NotesFor'
 
 /* ── Timer Hook ── */
 function useTimer() {
@@ -532,6 +533,9 @@ function StrengthTab() {
                   } catch (e) { toast.show(e instanceof Error ? e.message : 'No se pudo compartir') }
                 }} className="w-7 h-7 rounded-lg bg-[var(--color-acc-purple)]/[0.1] text-[var(--color-acc-purple)] border border-[var(--color-acc-purple)]/20 text-[12px] flex items-center justify-center cursor-pointer">↗</button>
                 <button onClick={() => deleteSession(i)} className="w-7 h-7 rounded-lg bg-red-500/[0.08] text-[var(--color-red)] border border-red-500/[0.15] text-[11px] font-bold flex items-center justify-center cursor-pointer">✕</button>
+              </div>
+              <div className="px-4 pb-3">
+                <NotesFor entityType="workout" entityId={String(s.id ?? s.date)} defaultTitle={`Notas · ${s.name}`} />
               </div>
             </div>
           ))
@@ -1243,8 +1247,7 @@ export default function Fisico() {
   return (
     <div>
       <div className="page-header">
-        <div className="page-module" style={{ color: 'var(--color-acc-orange)' }}>Físico</div>
-        <div className="page-title">Fuerza</div>
+        <div className="page-title">Físico</div>
         <div style={{ display: 'flex', gap: 8, marginTop: 2 }}>
           {([
             { k: 'strength' as const, l: '💪 Fuerza', c: 'var(--color-acc-orange)' },

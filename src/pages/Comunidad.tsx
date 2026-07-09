@@ -62,8 +62,7 @@ export default function Comunidad() {
   return (
     <div>
       <div className="page-header">
-        <div className="page-module" style={{ color: 'var(--color-acc-purple)' }}>Comunidad</div>
-        <div className="page-title">Feed</div>
+        <div className="page-title">Comunidad</div>
         <div style={{ height: 14 }} />
       </div>
 

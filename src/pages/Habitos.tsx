@@ -31,8 +31,7 @@ export default function Habitos() {
   return (
     <div>
       <div className="page-header">
-        <div className="page-module" style={{ color: 'var(--color-acc-purple)' }}>Hábitos</div>
-        <div className="page-title">Mis hábitos</div>
+        <div className="page-title">Hábitos</div>
         <div className="tab-bar">
           {([
             { k: 'today' as const, l: 'Hoy' },

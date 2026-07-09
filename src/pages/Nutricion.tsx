@@ -17,8 +17,7 @@ export default function Nutricion() {
   return (
     <div>
       <div className="page-header">
-        <div className="page-module" style={{ color: 'var(--color-acc-green)' }}>Nutrición</div>
-        <div className="page-title">Alimentación</div>
+        <div className="page-title">Nutrición</div>
         <div className="tab-bar">
           {(['diary','dishes','search','goals','menu','tools'] as const).map(t => (
             <button key={t} onClick={() => setTab(t)} className={`tab-btn tab-green${tab === t ? ' active' : ''}`}>

@@ -20,10 +20,9 @@ export function SplashScreen() {
 
   return (
     <div className="fixed inset-0 z-[99999] bg-[#0e1014] flex flex-col items-center justify-center gap-4">
-      <div className="w-[72px] h-[72px] rounded-[20px] bg-gradient-to-br from-[#1e2430] to-[#252b38] border border-white/[0.1] flex items-center justify-center text-[32px] shadow-2xl"
-        style={{ animation: 'sPop 0.6s cubic-bezier(0.34,1.56,0.64,1) both' }}>
-        ⚡
-      </div>
+      <img src="/icon-192.png" alt="Life OS" width={72} height={72}
+        className="rounded-[20px] border border-white/[0.1] shadow-2xl"
+        style={{ animation: 'sPop 0.6s cubic-bezier(0.34,1.56,0.64,1) both' }} />
       <div className="font-serif text-[28px] text-[#e8e9ee]" style={{ animation: 'sFade 0.5s 0.15s ease both' }}>
         Life OS
       </div>

@@ -1,6 +1,7 @@
 import { loadFromStorage as load, saveToStorage as save } from '@/lib/storage'
 import { useState } from 'react'
 import { useToast } from '@/stores/toast'
+import { NotesFor } from '@/components/notes/NotesFor'
 
 interface Viaje { id: number; destino: string; cuando: string; tipo: string; nota: string; presupuesto: string }
 interface Actividad { id: number; nombre: string; cuando: string; categoria: string; nota: string }
@@ -64,15 +65,18 @@ function ViajesTab() {
         <button onClick={add} className="btn-primary">+ Añadir viaje</button>
       </div>
       {viajes.map(v => (
-        <div key={v.id} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 12, padding: 12, marginBottom: 8, display: 'flex', gap: 12, alignItems: 'center' }}>
-          <span style={{ fontSize: 24, flexShrink: 0 }}>{{city:'🏙',nature:'🏔',beach:'🏖',culture:'🏛',gastro:'🍽',adventure:'🧗'}[v.tipo]}</span>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>{v.destino}</div>
-            <div style={{ fontSize: 11, color: 'var(--color-sub)' }}>{v.cuando}{v.presupuesto ? ' · ' + v.presupuesto + '€' : ''}</div>
-            {v.nota && <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 2 }}>{v.nota}</div>}
+        <div key={v.id} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 12, padding: 12, marginBottom: 8 }}>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+            <span style={{ fontSize: 24, flexShrink: 0 }}>{{city:'🏙',nature:'🏔',beach:'🏖',culture:'🏛',gastro:'🍽',adventure:'🧗'}[v.tipo]}</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>{v.destino}</div>
+              <div style={{ fontSize: 11, color: 'var(--color-sub)' }}>{v.cuando}{v.presupuesto ? ' · ' + v.presupuesto + '€' : ''}</div>
+              {v.nota && <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 2 }}>{v.nota}</div>}
+            </div>
+            <button onClick={() => { setViajes(vs => { const n = vs.filter(x => x.id !== v.id); save(VIAJES_KEY, n); return n }); toast.show('Eliminado') }}
+              style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(224,95,95,0.08)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.15)', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>✕</button>
           </div>
-          <button onClick={() => { setViajes(vs => { const n = vs.filter(x => x.id !== v.id); save(VIAJES_KEY, n); return n }); toast.show('Eliminado') }}
-            style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(224,95,95,0.08)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.15)', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>✕</button>
+          <NotesFor entityType="trip" entityId={v.id} defaultTitle={`Notas · ${v.destino}`} />
         </div>
       ))}
     </div>
@@ -100,14 +104,17 @@ function ActividadesTab() {
         <button onClick={add} className="btn-primary" style={{ background: 'var(--color-acc-blue)' }}>+ Añadir actividad</button>
       </div>
       {acts.map(a => (
-        <div key={a.id} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 12, padding: 12, marginBottom: 8, display: 'flex', gap: 12, alignItems: 'center' }}>
-          <span style={{ fontSize: 20, flexShrink: 0 }}>{{sport:'🏃',culture:'🎭',food:'🍽',music:'🎵',learn:'📚',social:'👥',other:'✨'}[a.categoria]}</span>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>{a.nombre}</div>
-            <div style={{ fontSize: 11, color: 'var(--color-sub)' }}>{a.cuando}{a.nota ? ' · ' + a.nota : ''}</div>
+        <div key={a.id} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 12, padding: 12, marginBottom: 8 }}>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+            <span style={{ fontSize: 20, flexShrink: 0 }}>{{sport:'🏃',culture:'🎭',food:'🍽',music:'🎵',learn:'📚',social:'👥',other:'✨'}[a.categoria]}</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>{a.nombre}</div>
+              <div style={{ fontSize: 11, color: 'var(--color-sub)' }}>{a.cuando}{a.nota ? ' · ' + a.nota : ''}</div>
+            </div>
+            <button onClick={() => { setActs(as => { const n = as.filter(x => x.id !== a.id); save(ACTIVIDADES_KEY, n); return n }); toast.show('Eliminado') }}
+              style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(224,95,95,0.08)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.15)', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>✕</button>
           </div>
-          <button onClick={() => { setActs(as => { const n = as.filter(x => x.id !== a.id); save(ACTIVIDADES_KEY, n); return n }); toast.show('Eliminado') }}
-            style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(224,95,95,0.08)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.15)', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>✕</button>
+          <NotesFor entityType="activity" entityId={a.id} defaultTitle={`Notas · ${a.nombre}`} />
         </div>
       ))}
     </div>
@@ -230,6 +237,9 @@ function ProyectosTab() {
             )}
             <div style={{ padding: '8px 14px', borderTop: '1px solid rgba(255,255,255,0.03)', background: 'var(--color-s2)', display: 'flex', gap: 6 }}>
               <input className="inp" placeholder="Nueva tarea..." style={{ flex: 1, marginBottom: 0, padding: '6px 10px', fontSize: 12 }} onKeyDown={e => { if (e.key === 'Enter') { addTarea(p.id, (e.target as HTMLInputElement).value); (e.target as HTMLInputElement).value = '' } }} />
+            </div>
+            <div style={{ padding: '0 14px 12px' }}>
+              <NotesFor entityType="plan-project" entityId={p.id} defaultTitle={`Notas · ${p.nombre}`} />
             </div>
           </div>
         )
