@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useToast } from '@/stores/toast'
 import { loadFromStorage as load, saveToStorage as save } from '@/lib/storage'
+import { NotesFor } from '@/components/notes/NotesFor'
 
 interface KanbanCard {
   id: number
@@ -209,6 +210,7 @@ export function KanbanView() {
               )
             })}
           </div>
+          <NotesFor entityType="project" entityId={activeProject} defaultTitle={`Notas · ${projects.find(p => p.id === activeProject)?.name ?? 'Proyecto'}`} />
         </>
       )}
 
