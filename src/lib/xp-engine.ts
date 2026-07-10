@@ -5,6 +5,10 @@ export function xpForLevel(l: number): number {
 }
 
 export function calcLevel(total: number): LevelInfo {
+  // Si el dato de storage llega corrupto (NaN/Infinity/negativo), el while de
+  // abajo no terminaría nunca y colgaría la pestaña entera. Saneamos y acotamos.
+  if (!Number.isFinite(total) || total < 0) total = 0
+  total = Math.min(total, 1e9)
   let level = 1
   let current = 0
   while (total >= current + xpForLevel(level)) {

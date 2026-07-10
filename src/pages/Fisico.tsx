@@ -428,6 +428,7 @@ function StrengthTab() {
                         const unit2 = useFisicoStore.getState().unit === 'kg' ? [25,20,15,10,5,2.5,1.25] : [45,35,25,10,5,2.5]
                         const barWeight = useFisicoStore.getState().unit === 'kg' ? 20 : 45
                         const perSide = (w - barWeight) / 2
+                        if (!Number.isFinite(perSide) || perSide > 500) { toast.show('Peso fuera de rango'); return }
                         let remaining = perSide; const result: number[] = []
                         for (const p of unit2) { while (remaining >= p) { result.push(p); remaining = Math.round((remaining - p) * 100) / 100 } }
                         toast.show(`Barra: ${perSide.toFixed(1)}${unit}/lado → ${result.map(p => p + unit).join(' + ')}`)
