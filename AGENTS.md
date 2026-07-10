@@ -80,7 +80,9 @@ Zustand usan las claves de `storageKeys.ts` directamente. El módulo **Comunidad
 aparte (`src/lib/social.ts`, migración `005_social.sql`).
 
 Migraciones: `001` esquema inicial (ya en desuso), `002` tabla `store_data`, **`003` multi-tenant + grants**,
-`004` borra el esquema muerto, `005` social/comunidad, **`006` notas** (`pages` + `page_links`, RLS `auth.uid()`).
+`004` borra el esquema muerto, `005` social/comunidad, **`006` notas** (`pages` + `page_links`, RLS `auth.uid()`),
+**`007` comunidad v2** (perfiles, seguidores, comentarios, reposts, notificaciones y nuevos tipos de post:
+rutina/receta/dieta/objetivo/progreso).
 
 **Excepción al patrón local-first — módulo Notas** (`src/modules/notes/`): NO usa `store_data`; tiene tablas
 propias `pages` (documento BlockNote en `content` jsonb, jerarquía `parent_id`, papelera `deleted_at`) y
