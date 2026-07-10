@@ -2,6 +2,8 @@ import type { SocialPost } from '@/types/social'
 import { Avatar } from './Avatar'
 import { PostContent } from './PostContent'
 import { typeMeta, timeAgo } from './helpers'
+import { importLabel, importPost } from '@/lib/socialImport'
+import { useToast } from '@/stores/toast'
 
 interface Props {
   post: SocialPost
@@ -39,8 +41,21 @@ function InnerPost({ post, embedded }: { post: SocialPost; embedded?: boolean })
 
 export function PostCard({ post, onLike, onComment, onRepost, onDelete, onOpenProfile }: Props) {
   const meta = typeMeta(post.type)
+  const toast = useToast()
   const isRepost = post.repost_of != null && !!post.data?.original
   const original = post.data?.original
+
+  // "Usar esta rutina/receta/menú": importa el contenido a mis datos. En un
+  // repost se importa el original embebido. No se ofrece sobre posts propios.
+  const impType = isRepost && original ? original.type : post.type
+  const impData = isRepost && original ? original.data : post.data
+  const impTitle = isRepost && original ? original.title : post.title
+  const impLabel = !post.mine ? importLabel(impType, impData) : null
+
+  function handleImport() {
+    try { toast.show(importPost(impType, impTitle, impData ?? {})) }
+    catch (e) { toast.show(e instanceof Error ? e.message : 'No se pudo importar') }
+  }
 
   return (
     <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, overflow: 'hidden', marginBottom: 12 }}>
@@ -74,6 +89,18 @@ export function PostCard({ post, onLike, onComment, onRepost, onDelete, onOpenPr
         </>
       ) : (
         <InnerPost post={post} />
+      )}
+
+      {impLabel && (
+        <div style={{ padding: '0 14px 12px' }}>
+          <button onClick={handleImport} style={{
+            width: '100%', padding: '9px 12px', borderRadius: 10, cursor: 'pointer',
+            fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif',
+            background: 'color-mix(in srgb, var(--color-acc-green) 10%, transparent)',
+            color: 'var(--color-acc-green)',
+            border: '1px solid color-mix(in srgb, var(--color-acc-green) 25%, transparent)',
+          }}>⤓ {impLabel}</button>
+        </div>
       )}
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 10px', borderTop: '1px solid var(--color-border)' }}>
