@@ -132,6 +132,11 @@ La auditoría del 1-jul ya está mayormente resuelta:
   safe-area (sin franja muerta). **Notas más práctico**: pantalla de inicio (Diario de hoy / Nueva página /
   Favoritos / Recientes), emoji por página (UI del `pages.icon` que ya existía), breadcrumbs clicables y
   editor BlockNote en español (`dictionary: locales.es`). Todo E2E-verificado; en `main`.
+- **Compartir desde toda la app (estilo Hevy)**: `src/lib/socialShare.ts` = mapeadores entidad→post
+  estructurado (entreno/rutina/PR/carrera/plato/menú/peso) y `ShareSheet` (components/social) = hoja
+  reutilizable con vista previa real (mismo `PostContent` del feed) + gate de sesión. Botones ↗ en Físico
+  (fin de entreno automático, historial, rutinas, PRs, carreras) y Nutrición (platos, menú, progreso).
+  Para añadir un punto de compartir nuevo: mapeador en socialShare.ts + estado local + `<ShareSheet/>`.
 
 ## Gotchas
 - `.env` (`VITE_SUPABASE_URL` + anon key) **ya NO está versionado** (gitignored desde `255b781`). La anon key
