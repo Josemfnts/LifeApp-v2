@@ -93,6 +93,11 @@ Requiere sesión (RLS): en modo invitado el gate lo oculta. Cablea notas a entid
 
 ## Convenciones y patrones
 - **Páginas lazy**: cada página se importa con `lazy()` y se envuelve en `Suspense` (`App.tsx`).
+- **Red de seguridad anti-cuelgue** (`main.tsx` + `components/ErrorBoundary.tsx`): tras un deploy, la PWA
+  autoUpdate deja la pestaña abierta con chunks viejos ya purgados de Vercel → el import lazy da 404. El
+  listener `vite:preloadError` recarga UNA vez (guarda anti-bucle en sessionStorage) y el `ErrorBoundary`
+  global captura cualquier otro crash de render. **No quites ninguno de los dos**; sin ellos la app se
+  quedaba en pantalla negra hasta recargar a mano.
 - **Notas a pantalla completa**: la ruta `/notas` va **fuera** del `<Route element={<Shell/>}>` (por eso no
   tiene barra inferior ni header de Agenda). `src/pages/Notas.tsx` = gate de sesión + `NotesPanel` con barra
   propia (‹ volver · ☰ árbol-drawer · título · +) y editor inmersivo. La pestaña "Notas" de Agenda **navega**
