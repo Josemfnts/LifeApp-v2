@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { searchUsers, type Profile } from '@/lib/social'
 import { Avatar } from './Avatar'
 
@@ -7,14 +7,21 @@ export function UserSearch({ onOpenProfile }: { onOpenProfile: (userId: string) 
   const [results, setResults] = useState<Profile[]>([])
   const [loading, setLoading] = useState(false)
   const [searched, setSearched] = useState(false)
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  async function run(q: string) {
+  useEffect(() => () => { if (timer.current) clearTimeout(timer.current) }, [])
+
+  // Debounce: no lanzamos una consulta por cada tecla, esperamos a que pare de escribir.
+  function run(q: string) {
     setQuery(q)
-    if (!q.trim()) { setResults([]); setSearched(false); return }
+    if (timer.current) clearTimeout(timer.current)
+    if (!q.trim()) { setResults([]); setSearched(false); setLoading(false); return }
     setLoading(true)
-    try { setResults(await searchUsers(q)); setSearched(true) }
-    catch { setResults([]) }
-    finally { setLoading(false) }
+    timer.current = setTimeout(async () => {
+      try { setResults(await searchUsers(q)); setSearched(true) }
+      catch { setResults([]) }
+      finally { setLoading(false) }
+    }, 300)
   }
 
   return (

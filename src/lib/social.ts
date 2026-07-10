@@ -117,7 +117,9 @@ export async function getProfile(opts: { userId?: string; username?: string }): 
 }
 
 export async function searchUsers(query: string): Promise<Profile[]> {
-  const q = query.trim()
+  // Neutraliza los metacaracteres del filtro PostgREST `.or()` (coma, paréntesis,
+  // comodines y backslash); sin esto una coma en la búsqueda rompe el filtro (400).
+  const q = query.trim().replace(/[,()\\%*]/g, ' ').replace(/\s+/g, ' ').trim()
   if (!q) return []
   const { data, error } = await supabase
     .from('social_profiles')

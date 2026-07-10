@@ -5,6 +5,7 @@ import {
   type SocialPost, type PostType, type FeedMode, type ProfileStats,
 } from '@/lib/social'
 import { useToast } from '@/stores/toast'
+import { STORE_KEYS } from '@/lib/storageKeys'
 import { typeMeta } from '@/components/social/helpers'
 import { PostCard } from '@/components/social/PostCard'
 import { Composer } from '@/components/social/Composer'
@@ -22,11 +23,11 @@ type View = 'feed' | 'search' | 'profile'
 function computeStats(): ProfileStats {
   const stats: ProfileStats = {}
   try {
-    const sessions = JSON.parse(localStorage.getItem('fisico_sessions') || '[]')
+    const sessions = JSON.parse(localStorage.getItem(STORE_KEYS.fisico_sessions) || '[]')
     if (Array.isArray(sessions)) stats.workouts = sessions.length
   } catch { /* noop */ }
   try {
-    const xp = JSON.parse(localStorage.getItem('lifeos_xp') || '{}')
+    const xp = JSON.parse(localStorage.getItem(STORE_KEYS.lifeos_xp) || '{}')
     if (xp && typeof xp === 'object') {
       if (typeof xp.level === 'number') stats.level = xp.level
       if (typeof xp.xp === 'number') stats.xp = xp.xp
