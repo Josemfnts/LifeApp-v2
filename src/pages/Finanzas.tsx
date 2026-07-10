@@ -209,14 +209,14 @@ function SummaryTab() {
 
 /* ── MOVES TAB ── */
 function MovesTab() {
-  const { txs, addTx } = useFinanceStore()
+  const { txs, addTx, cuentas } = useFinanceStore()
   const toast = useToast()
   const [type, setType] = useState<'income' | 'expense'>('income')
   const [concept, setConcept] = useState('')
   const [amount, setAmount] = useState('')
   const [category, setCategory] = useState('Nómina')
   const [date, setDate] = useState(todayISO())
-  const [note, setNote] = useState('')
+  const [cuenta, setCuenta] = useState('')
   const [filter, setFilter] = useState('Todos')
   const [search, setSearch] = useState('')
 
@@ -227,9 +227,9 @@ function MovesTab() {
   function handleAdd() {
     const a = parseFloat(amount)
     if (!a || a <= 0) { toast.show('Introduce un importe'); return }
-    addTx({ concept: concept.trim() || category, amount: a, category, date, note: note.trim(), type })
+    addTx({ concept: concept.trim() || category, amount: a, category, date, note: '', cuenta, type })
     toast.show(type === 'income' ? `✓ Ingreso de ${fmt(a)} añadido` : `✓ Gasto de ${fmt(a)} añadido`)
-    setConcept(''); setAmount(''); setNote('')
+    setConcept(''); setAmount('')
   }
 
   const allCats = ['Todos', ...new Set(txs.map(t => t.category))]
@@ -237,7 +237,8 @@ function MovesTab() {
   if (filter !== 'Todos') filtered = filtered.filter(t => t.category === filter)
   if (search.trim()) filtered = filtered.filter(t =>
     t.concept.toLowerCase().includes(search.toLowerCase()) ||
-    t.note.toLowerCase().includes(search.toLowerCase()) ||
+    (t.note || '').toLowerCase().includes(search.toLowerCase()) ||
+    (t.cuenta || '').toLowerCase().includes(search.toLowerCase()) ||
     t.category.toLowerCase().includes(search.toLowerCase())
   )
   filtered.sort((a, b) => b.date.localeCompare(a.date))
@@ -260,14 +261,17 @@ function MovesTab() {
               color: type === 'expense' ? 'var(--color-red)' : 'var(--color-dim)',
               borderColor: type === 'expense' ? 'rgba(224,95,95,0.25)' : 'var(--color-border)' }}>↓ Gasto</button>
         </div>
-        <input className="inp" value={concept} onChange={e => setConcept(e.target.value)} type="text" placeholder="Concepto (ej: Nómina, Supermercado...)" />
+        <input className="inp" value={concept} onChange={e => setConcept(e.target.value)} type="text" placeholder="Concepto" />
         <input className="inp" value={amount} onChange={e => setAmount(e.target.value)} type="number" step="0.01" placeholder="Importe en €" />
         <select className="inp" value={category} onChange={e => setCategory(e.target.value)}>
           {cats.map(c => <option key={c} value={c}>{CAT_META[c]?.icon || '•'} {c}</option>)}
         </select>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
           <input className="inp" value={date} onChange={e => setDate(e.target.value)} type="date" style={{ marginBottom: 0, fontSize: 13 }} />
-          <input className="inp" value={note} onChange={e => setNote(e.target.value)} type="text" placeholder="Nota..." style={{ marginBottom: 0 }} />
+          <select className="inp" value={cuenta} onChange={e => setCuenta(e.target.value)} style={{ marginBottom: 0, fontSize: 13 }}>
+            <option value="">Cuenta…</option>
+            {cuentas.map(cu => <option key={cu.name} value={cu.name}>{cu.name}</option>)}
+          </select>
         </div>
         <button onClick={handleAdd} style={{ width: '100%', background: 'var(--color-acc-gold)', color: '#111', border: 'none', fontFamily: 'DM Sans,sans-serif', fontSize: 14, fontWeight: 700, padding: 11, borderRadius: 10, cursor: 'pointer', boxShadow: '0 2px 12px rgba(201,168,76,0.25)' }}>
           {type === 'income' ? 'Añadir ingreso' : 'Añadir gasto'}
@@ -307,7 +311,7 @@ function MovesTab() {
   )
 }
 
-function TxRow({ tx }: { tx: { id?: number; concept: string; category: string; amount: number; type: string; note: string } }) {
+function TxRow({ tx }: { tx: { id?: number; concept: string; category: string; amount: number; type: string; note: string; cuenta?: string } }) {
   const { removeTx, txs } = useFinanceStore()
   const idx = txs.findIndex(t => t.id === tx.id)
   const meta = CAT_META[tx.category] || { icon: '📤', color: '#8a8d96' }
@@ -317,7 +321,7 @@ function TxRow({ tx }: { tx: { id?: number; concept: string; category: string; a
       <div style={{ width: 38, height: 38, borderRadius: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17, flexShrink: 0, background: meta.color + '18', border: '1px solid ' + meta.color + '30' }}>{meta.icon}</div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{tx.concept}</div>
-        <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 2 }}>{tx.category}{tx.note ? ' · ' + tx.note : ''}</div>
+        <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 2 }}>{tx.category}{tx.cuenta ? ' · ' + tx.cuenta : tx.note ? ' · ' + tx.note : ''}</div>
       </div>
       <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 20, fontWeight: 400, flexShrink: 0, color: tx.type === 'income' ? 'var(--color-acc-green)' : 'var(--color-red)' }}>
         {sign}{fmt(tx.amount)}
@@ -587,7 +591,7 @@ function PatrimonioTab() {
                 <div style={{ width: 36, height: 4, background: 'var(--color-border2)', borderRadius: 99, margin: '0 auto 16px' }} />
                 <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 20, marginBottom: 16 }}>{editIdx != null ? 'Editar cuenta' : 'Nueva cuenta'}</div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
-                  <input className="inp" value={cName} onChange={e => setCName(e.target.value)} type="text" placeholder="Nombre (ej: Cuenta ING)" />
+                  <input className="inp" value={cName} onChange={e => setCName(e.target.value)} type="text" placeholder="Nombre" />
                   <select className="inp" value={cType} onChange={e => setCType(e.target.value)}>
                     {Object.entries(CUENTA_TYPE).map(([k, v]) => <option key={k} value={k}>{v.icon} {v.label}</option>)}
                   </select>
@@ -684,13 +688,15 @@ function PatrimonioTab() {
               <input className="inp" value={hGoal} onChange={e => setHGoal(e.target.value)} type="number" placeholder="Objetivo €" style={{ flex: 1, margin: 0 }} />
               <input className="inp" value={hCurr} onChange={e => setHCurr(e.target.value)} type="number" placeholder="Tengo ya €" style={{ flex: 1, margin: 0 }} />
             </div>
-            <input className="inp" value={hDeadline} onChange={e => setHDeadline(e.target.value)} type="date" style={{ marginBottom: 8, fontSize: 13 }} />
-            <select className="inp" value={hColor} onChange={e => setHColor(e.target.value)} style={{ marginBottom: 12 }}>
-              <option value="var(--color-acc-gold)">🟡 Dorado</option>
-              <option value="var(--color-acc-green)">🟢 Verde</option>
-              <option value="var(--color-acc-blue)">🔵 Azul</option>
-              <option value="var(--color-acc-purple)">🟣 Morado</option>
-            </select>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+              <input className="inp" value={hDeadline} onChange={e => setHDeadline(e.target.value)} type="date" style={{ flex: 1, minWidth: 0, margin: 0, fontSize: 13 }} />
+              <select className="inp" value={hColor} onChange={e => setHColor(e.target.value)} style={{ flex: 1, minWidth: 0, margin: 0 }}>
+                <option value="var(--color-acc-gold)">🟡 Dorado</option>
+                <option value="var(--color-acc-green)">🟢 Verde</option>
+                <option value="var(--color-acc-blue)">🔵 Azul</option>
+                <option value="var(--color-acc-purple)">🟣 Morado</option>
+              </select>
+            </div>
             <button onClick={() => {
               const g = parseFloat(hGoal)
               if (!hName.trim() || !g || g <= 0) { toast.show('Introduce nombre y objetivo'); return }
@@ -842,15 +848,15 @@ function BudgetsTab() {
     <div>
       <div className="sec-label">Presupuestos mensuales</div>
       <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, marginBottom: 14 }}>
-        <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-          <select className="inp" value={cat} onChange={e => setCat(e.target.value)} style={{ flex: 1, marginBottom: 0 }}>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'stretch' }}>
+          <select className="inp" value={cat} onChange={e => setCat(e.target.value)} style={{ flex: 2, minWidth: 0, marginBottom: 0 }}>
             {['Vivienda','Alimentación','Transporte','Salud','Ocio','Ropa','Suscripciones','Deporte','Restaurantes','Viajes','Educación','Otros gastos'].map(c => (
               <option key={c} value={c}>{CAT_META[c]?.icon || '•'} {c}</option>
             ))}
           </select>
-          <input className="inp" value={limit} onChange={e => setLimit(e.target.value)} type="number" placeholder="Límite €" style={{ flex: 1, marginBottom: 0 }} />
+          <input className="inp" value={limit} onChange={e => setLimit(e.target.value)} type="number" placeholder="Límite €" style={{ width: 82, flexShrink: 0, marginBottom: 0 }} />
           <button onClick={() => { const l = parseFloat(limit); if (l > 0) { setPresupuesto(cat, l); setLimit(''); toast.show(`✓ Presupuesto para ${cat}: ${fmt(l)}`) } }}
-            style={{ padding: '10px 16px', borderRadius: 10, background: 'var(--color-acc-gold)', color: '#111', border: 'none', fontSize: 13, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', whiteSpace: 'nowrap' }}>Añadir</button>
+            style={{ padding: '0 14px', flexShrink: 0, borderRadius: 10, background: 'var(--color-acc-gold)', color: '#111', border: 'none', fontSize: 13, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', whiteSpace: 'nowrap' }}>Añadir</button>
         </div>
       </div>
 

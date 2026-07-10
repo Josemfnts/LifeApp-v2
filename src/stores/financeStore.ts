@@ -9,6 +9,7 @@ export interface Tx {
   category: string
   concept: string
   note: string
+  cuenta?: string
 }
 export interface Hucha {
   name: string
