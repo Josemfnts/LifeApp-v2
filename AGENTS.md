@@ -127,6 +127,11 @@ La auditoría del 1-jul ya está mayormente resuelta:
   Día se abre tocando el calendario (sin pestaña); Diario → "Diario de hoy" dentro de Notas; Pomodoro desactivado.
   **Notas rediseñado a pantalla completa** (ruta `/notas` fuera del Shell, barra propia + árbol en drawer + editor
   inmersivo). **Icono nuevo** en todo (PWA/favicon/apple-touch/splash/login). Verificado E2E; en `main`.
+- **2026-07-10**: Comunidad v2 revisada+migrada+certificada (007 aplicada). Red de seguridad anti-cuelgue
+  (ErrorBoundary + vite:preloadError). Saldo de cuenta ligado a movimientos (financeStore). Nav-bar con
+  safe-area (sin franja muerta). **Notas más práctico**: pantalla de inicio (Diario de hoy / Nueva página /
+  Favoritos / Recientes), emoji por página (UI del `pages.icon` que ya existía), breadcrumbs clicables y
+  editor BlockNote en español (`dictionary: locales.es`). Todo E2E-verificado; en `main`.
 
 ## Gotchas
 - `.env` (`VITE_SUPABASE_URL` + anon key) **ya NO está versionado** (gitignored desde `255b781`). La anon key
