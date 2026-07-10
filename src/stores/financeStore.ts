@@ -120,6 +120,23 @@ interface FinanceStore {
   processRecurrentes: () => Tx[]
 }
 
+// Ajusta el saldo de la cuenta referenciada por un movimiento. dir=1 lo aplica
+// (al añadir), dir=-1 lo revierte (al borrar). Si el movimiento no tiene cuenta
+// o la cuenta ya no existe (p.ej. renombrada), devuelve null y no se toca nada.
+function cuentasConMovimiento(cuentas: Cuenta[], tx: Tx, dir: 1 | -1): Cuenta[] | null {
+  if (!tx.cuenta) return null
+  const i = cuentas.findIndex(c => c.name === tx.cuenta)
+  if (i < 0) return null
+  const delta = (tx.type === 'income' ? tx.amount : -tx.amount) * dir
+  const next = [...cuentas]
+  next[i] = {
+    ...next[i],
+    balance: Math.round((next[i].balance + delta) * 100) / 100,
+    updatedAt: new Date().toISOString().slice(0, 10),
+  }
+  return next
+}
+
 export const useFinanceStore = create<FinanceStore>((set, get) => ({
   txs: loadFromStorage('finances_tx', []),
   huchas: loadFromStorage('finances_huchas', []),
@@ -131,18 +148,31 @@ export const useFinanceStore = create<FinanceStore>((set, get) => ({
   addTx: (tx) => {
     const txs = [{ ...tx, id: Date.now() }, ...get().txs]
     saveToStorage('finances_tx', txs)
-    set({ txs })
+    const cuentas = cuentasConMovimiento(get().cuentas, tx, 1)
+    if (cuentas) saveToStorage('finances_cuentas', cuentas)
+    set(cuentas ? { txs, cuentas } : { txs })
   },
   removeTx: (idx) => {
+    const borrada = get().txs[idx]
     const txs = get().txs.filter((_, i) => i !== idx)
     saveToStorage('finances_tx', txs)
-    set({ txs })
+    const cuentas = borrada ? cuentasConMovimiento(get().cuentas, borrada, -1) : null
+    if (cuentas) saveToStorage('finances_cuentas', cuentas)
+    set(cuentas ? { txs, cuentas } : { txs })
   },
   updateTx: (idx, partial) => {
     const txs = [...get().txs]
+    const antes = txs[idx]
     txs[idx] = { ...txs[idx], ...partial }
     saveToStorage('finances_tx', txs)
-    set({ txs })
+    // Si cambia importe/tipo/cuenta, revierte el efecto anterior y aplica el nuevo.
+    let cuentas = get().cuentas
+    const c1 = antes ? cuentasConMovimiento(cuentas, antes, -1) : null
+    if (c1) cuentas = c1
+    const c2 = cuentasConMovimiento(cuentas, txs[idx], 1)
+    if (c2) cuentas = c2
+    if (c1 || c2) { saveToStorage('finances_cuentas', cuentas); set({ txs, cuentas }) }
+    else set({ txs })
   },
   addHucha: (h) => {
     const huchas = [...get().huchas, h]

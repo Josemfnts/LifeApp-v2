@@ -228,7 +228,9 @@ function MovesTab() {
     const a = parseFloat(amount)
     if (!a || a <= 0) { toast.show('Introduce un importe'); return }
     addTx({ concept: concept.trim() || category, amount: a, category, date, note: '', cuenta, type })
-    toast.show(type === 'income' ? `✓ Ingreso de ${fmt(a)} añadido` : `✓ Gasto de ${fmt(a)} añadido`)
+    const cu = useFinanceStore.getState().cuentas.find(c => c.name === cuenta)
+    const saldo = cu ? ` · ${cu.name}: ${fmt(cu.balance)}` : ''
+    toast.show((type === 'income' ? `✓ Ingreso de ${fmt(a)} añadido` : `✓ Gasto de ${fmt(a)} añadido`) + saldo)
     setConcept(''); setAmount('')
   }
 
