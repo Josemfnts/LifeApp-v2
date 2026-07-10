@@ -3,7 +3,9 @@ import { useFisicoStore, STATIC_EXERCISES, EXERCISE_GROUPS, EQUIPMENT_TYPES, EQU
 import { Input } from '@/components/ui'
 import { useToast } from '@/stores/toast'
 import { ROUTINES, ROUTINE_OBJECTIVES, ROUTINE_LEVELS, ROUTINE_PLACES, getObjLabel, getNivelLabel, getLugarLabel, filterRoutines } from '@/data/routinesDB'
-import { createPost } from '@/lib/social'
+import type { NewPost } from '@/lib/social'
+import { ShareSheet } from '@/components/social/ShareSheet'
+import { sessionToPost, routineToPost, prToPost, runToPost } from '@/lib/socialShare'
 import { NotesFor } from '@/components/notes/NotesFor'
 
 /* ── Timer Hook ── */
@@ -58,6 +60,7 @@ function StrengthTab() {
   const startTimer = useFisicoStore(s => s.startTimer)
   const stopTimer = useFisicoStore(s => s.stopTimer)
   const t = useTimer()
+  const [sharePost, setSharePost] = useState<NewPost | null>(null)
 
   const [rtnName, setRtnName] = useState('')
   const [builderExs, setBuilderExs] = useState<{ name: string; group: string; color: string; sets: number }[]>([])
@@ -83,7 +86,11 @@ function StrengthTab() {
   const todayKg = todaySessions.reduce((s, x) => s + x.totalKg, 0)
   const todaySets = todaySessions.reduce((s, x) => s + x.exercises.reduce((ss, ex) => ss + ex.sets.length, 0), 0)
 
+  // La hoja de compartir vive dentro de subBar para estar disponible en todas
+  // las sub-pestañas (cada rama del render incluye {subBar}).
   const subBar = (
+    <>
+    {sharePost && <ShareSheet post={sharePost} onClose={() => setSharePost(null)} />}
     <div style={{ display: 'flex', gap: 6, marginBottom: 14, overflowX: 'auto' }}>
       {(['today','history','routines','library','progress'] as const).map(k => (
         <button key={k} onClick={() => setSub(k)}
@@ -98,6 +105,7 @@ function StrengthTab() {
         >{{today:'Hoy',history:'Historial',routines:'Rutinas',library:'Ejercicios',progress:'Progreso'}[k]}</button>
       ))}
     </div>
+    </>
   )
 
   /* ── TODAY / ACTIVE SESSION ── */
@@ -327,7 +335,13 @@ function StrengthTab() {
                   style={{ padding: '8px 12px', borderRadius: 10, fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid', background: wakeLock ? 'color-mix(in srgb, var(--color-acc-green) 12%, transparent)' : 'var(--color-s2)', color: wakeLock ? 'var(--color-acc-green)' : 'var(--color-dim)', borderColor: wakeLock ? 'color-mix(in srgb, var(--color-acc-green) 22%, transparent)' : 'var(--color-border)' }}>
                   {wakeLock ? 'Activa' : 'Pantalla'}
                 </button>
-                <button onClick={() => { const prs = finishSession(); if (prs.length) toast.show(`${prs.length} récord${prs.length > 1 ? 's' : ''} batido${prs.length > 1 ? 's' : ''}`) }}
+                <button onClick={() => {
+                  const prs = finishSession()
+                  if (prs.length) toast.show(`${prs.length} récord${prs.length > 1 ? 's' : ''} batido${prs.length > 1 ? 's' : ''}`)
+                  // Ofrece compartir el entreno recién terminado (queda en sessions[0])
+                  const done = useFisicoStore.getState().sessions[0]
+                  if (done) setSharePost(sessionToPost(done, unit))
+                }}
                   style={{ padding: '8px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: 'none', background: 'var(--color-acc-green)', color: '#fff' }}>
                   Finalizar
                 </button>
@@ -527,12 +541,7 @@ function StrengthTab() {
                   <div className="text-xs text-[var(--color-sub)] mt-1">{s.duration} min · {s.exercises.length} ejercicios</div>
                 </div>
                 <div className="font-serif text-[22px] text-[var(--color-acc-orange)] italic">{Math.round(s.totalKg)} {unit}</div>
-                <button title="Compartir en comunidad" onClick={async () => {
-                  try {
-                    await createPost({ type: 'workout', title: s.name, body: '', data: { totalKg: Math.round(s.totalKg), exercises: s.exercises.length, duration: s.duration, unit } })
-                    toast.show('✓ Entreno compartido en la comunidad')
-                  } catch (e) { toast.show(e instanceof Error ? e.message : 'No se pudo compartir') }
-                }} className="w-7 h-7 rounded-lg bg-[var(--color-acc-purple)]/[0.1] text-[var(--color-acc-purple)] border border-[var(--color-acc-purple)]/20 text-[12px] flex items-center justify-center cursor-pointer">↗</button>
+                <button title="Compartir en comunidad" onClick={() => setSharePost(sessionToPost(s, unit))} className="w-7 h-7 rounded-lg bg-[var(--color-acc-purple)]/[0.1] text-[var(--color-acc-purple)] border border-[var(--color-acc-purple)]/20 text-[12px] flex items-center justify-center cursor-pointer">↗</button>
                 <button onClick={() => deleteSession(i)} className="w-7 h-7 rounded-lg bg-red-500/[0.08] text-[var(--color-red)] border border-red-500/[0.15] text-[11px] font-bold flex items-center justify-center cursor-pointer">✕</button>
               </div>
               <div className="px-4 pb-3">
@@ -675,6 +684,7 @@ function StrengthTab() {
                 <div className="text-xs text-[var(--color-sub)] mt-0.5">{r.exercises.length} ejercicios</div>
               </div>
               <button onClick={() => startSession(r.name, r.exercises)} className="px-4 py-2 rounded-xl bg-[var(--color-acc-orange)] text-white text-[13px] font-semibold font-sans cursor-pointer shadow-lg shadow-[var(--color-acc-orange)]/25">▶</button>
+              <button title="Compartir en comunidad" onClick={() => setSharePost(routineToPost(r))} className="w-7 h-7 rounded-lg bg-[var(--color-acc-purple)]/[0.1] text-[var(--color-acc-purple)] border border-[var(--color-acc-purple)]/20 text-[12px] flex items-center justify-center cursor-pointer">↗</button>
               <button onClick={() => deleteRoutine(r.id)} className="w-7 h-7 rounded-lg bg-red-500/[0.08] text-[var(--color-red)] border border-red-500/[0.15] text-[11px] font-bold flex items-center justify-center cursor-pointer">✕</button>
             </div>
           </div>
@@ -933,6 +943,7 @@ function WeeklyModal({ routineId, onClose }: { routineId: string; onClose: () =>
                   <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 20, color: 'var(--color-acc-gold)' }}>{pr.weight} kg</div>
                   <div style={{ fontSize: 10, color: 'var(--color-dim)' }}>{pr.reps} reps</div>
                 </div>
+                <button title="Compartir en comunidad" onClick={() => setSharePost(prToPost(pr, unit))} style={{ width: 26, height: 26, borderRadius: 8, flexShrink: 0, background: 'color-mix(in srgb, var(--color-acc-purple) 10%, transparent)', color: 'var(--color-acc-purple)', border: '1px solid color-mix(in srgb, var(--color-acc-purple) 20%, transparent)', fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>↗</button>
               </div>
             ))}
           </div>
@@ -974,6 +985,7 @@ function RunningTab() {
   const [runElev, setRunElev] = useState('')
   const [runType, setRunType] = useState('easy')
   const [runNotes, setRunNotes] = useState('')
+  const [sharePost, setSharePost] = useState<NewPost | null>(null)
 
   const totalKm = runs.reduce((s, r) => s + r.distance, 0)
   const totalRuns = runs.length
@@ -1037,6 +1049,7 @@ function RunningTab() {
         <button onClick={handleAdd} className="w-full py-2.5 rounded-xl bg-[var(--color-acc-blue)] text-white text-sm font-semibold font-sans cursor-pointer shadow-lg shadow-[var(--color-acc-blue)]/25">Guardar carrera</button>
       </div>
 
+      {sharePost && <ShareSheet post={sharePost} onClose={() => setSharePost(null)} />}
       <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-[0.8px] mb-2.5">Historial</div>
       {runs.length === 0 ? (
         <div className="text-center py-8 text-[13px] text-[var(--color-dim)]">Sin carreras registradas.</div>
@@ -1052,6 +1065,7 @@ function RunningTab() {
                 <div className="text-sm font-semibold text-[var(--color-text)]">{r.distance} km · {formatTime(r.timeSeconds)}</div>
                 <div className="text-xs text-[var(--color-sub)] mt-0.5">{r.type} {r.hr ? '· ' + r.hr + ' bpm' : ''}{r.elevation ? ' · +' + r.elevation + 'm' : ''}</div>
               </div>
+              <button title="Compartir en comunidad" onClick={() => setSharePost(runToPost(r))} className="w-7 h-7 rounded-lg bg-[var(--color-acc-purple)]/[0.1] text-[var(--color-acc-purple)] border border-[var(--color-acc-purple)]/20 text-[12px] flex items-center justify-center cursor-pointer">↗</button>
               <button onClick={() => deleteRun(i)} className="w-7 h-7 rounded-lg bg-red-500/[0.08] text-[var(--color-red)] border border-red-500/[0.15] text-[11px] font-bold flex items-center justify-center cursor-pointer">✕</button>
             </div>
           </div>

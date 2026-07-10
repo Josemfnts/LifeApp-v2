@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNutriStore } from '@/stores/nutriStore'
-import { createPost } from '@/lib/social'
+import type { NewPost } from '@/lib/social'
+import { ShareSheet } from '@/components/social/ShareSheet'
+import { dishToPost, menuToPost, bodyProgressToPost } from '@/lib/socialShare'
 import { FOODS_DB } from '@/data/foods'
 import { RECIPES, RECIPE_CATEGORIES, RECIPE_TAGS, RECIPE_DIFFICULTIES, filterRecipes } from '@/data/recipesDB'
 import { useToast } from '@/stores/toast'
@@ -300,6 +302,7 @@ function DiaryTab() {
 function DishesTab() {
   const { dishes, addDish, removeDish, addFood } = useNutriStore()
   const toast = useToast()
+  const [sharePost, setSharePost] = useState<NewPost | null>(null)
   const [showCreator, setShowCreator] = useState(false)
   const [dName, setDName] = useState('')
   const [ingName, setIngName] = useState('')
@@ -469,18 +472,14 @@ function DishesTab() {
               toast.show(`✓ "${d.name}" añadido al diario`)
             }}
               style={{ flex: 1, padding: 8, borderRadius: 10, background: 'rgba(82,183,136,0.1)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.2)', fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>Usar en diario</button>
-            <button title="Compartir en comunidad" onClick={async () => {
-              try {
-                await createPost({ type: 'recipe', title: d.name, body: `${d.totalKcal} kcal · P:${d.totalP}g C:${d.totalC}g G:${d.totalF}g`, data: { kcal: d.totalKcal, p: d.totalP, c: d.totalC, f: d.totalF } })
-                toast.show(`✓ "${d.name}" compartido en la comunidad`)
-              } catch (e) { toast.show(e instanceof Error ? e.message : 'No se pudo compartir') }
-            }}
+            <button title="Compartir en comunidad" onClick={() => setSharePost(dishToPost(d))}
               style={{ width: 36, borderRadius: 10, background: 'color-mix(in srgb, var(--color-acc-purple) 12%, transparent)', color: 'var(--color-acc-purple)', border: '1px solid color-mix(in srgb, var(--color-acc-purple) 22%, transparent)', fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>↗</button>
             <button onClick={() => { removeDish(d.id); toast.show('Plato eliminado') }}
               style={{ width: 36, borderRadius: 10, background: 'rgba(224,95,95,0.08)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.15)', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
           </div>
         </div>
       ))}
+      {sharePost && <ShareSheet post={sharePost} onClose={() => setSharePost(null)} />}
     </div>
   )
 }
@@ -693,6 +692,7 @@ function MenuTab() {
   const { menu, setMenuDay, dishes } = useNutriStore()
   const toast = useToast()
   const [viewDay, setViewDay] = useState(0)
+  const [sharePost, setSharePost] = useState<NewPost | null>(null)
 
   const curDay = menu.find(m => m.day === viewDay)
   const curMeals = curDay?.meals || []
@@ -741,7 +741,18 @@ function MenuTab() {
         ))}
       </div>
 
-      <div className="sec-label">{['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'][viewDay]}</div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className="sec-label">{['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'][viewDay]}</div>
+        <button onClick={() => {
+          const post = menuToPost(menu)
+          if (!post) { toast.show('Añade platos al menú primero'); return }
+          setSharePost(post)
+        }}
+          style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 8, background: 'color-mix(in srgb, var(--color-acc-purple) 10%, transparent)', color: 'var(--color-acc-purple)', border: '1px solid color-mix(in srgb, var(--color-acc-purple) 20%, transparent)', cursor: 'pointer', fontFamily: 'DM Sans,sans-serif' }}>
+          ↗ Compartir semana
+        </button>
+      </div>
+      {sharePost && <ShareSheet post={sharePost} onClose={() => setSharePost(null)} />}
 
       {MEAL_TYPES.map(meal => (
         <div key={meal} style={{ marginBottom: 12 }}>
@@ -798,6 +809,7 @@ function MenuTab() {
 /* ── TOOLS: ayuno, peso, comparador ── */
 function ToolsTab() {
   const { fasting, startFast, endFast, bodyMetrics, addBodyMetric, macroCalc } = useNutriStore()
+  const [sharePost, setSharePost] = useState<NewPost | null>(null)
   const toast = useToast()
   const [w, setW] = useState('')
   const [fat, setFat] = useState('')
@@ -897,6 +909,16 @@ function ToolsTab() {
           className="btn-ghost" style={{ border: '1px solid rgba(82,183,136,0.2)', color: 'var(--color-acc-green)', background: 'rgba(82,183,136,0.1)' }}>
           Guardar
         </button>
+        {bodyMetrics.length > 0 && (
+          <button onClick={() => {
+            const post = bodyProgressToPost(bodyMetrics)
+            if (post) setSharePost(post)
+          }}
+            className="btn-ghost" style={{ marginTop: 6, border: '1px solid color-mix(in srgb, var(--color-acc-purple) 20%, transparent)', color: 'var(--color-acc-purple)', background: 'color-mix(in srgb, var(--color-acc-purple) 10%, transparent)' }}>
+            ↗ Compartir progreso
+          </button>
+        )}
+        {sharePost && <ShareSheet post={sharePost} onClose={() => setSharePost(null)} />}
         {bodyMetrics.length >= 2 && (
           <div style={{ marginTop: 12 }}>
             <div style={{ position: 'relative', height: 100 }}><canvas ref={barRef} /></div>

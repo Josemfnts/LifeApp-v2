@@ -51,7 +51,7 @@ function RoutineBody({ d }: { d: PostData }) {
         <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: i < p.exercises.length - 1 ? '1px solid var(--color-border)' : 'none' }}>
           <span style={{ fontSize: 13.5, color: 'var(--color-text)' }}>{e.name}</span>
           <span style={{ fontSize: 12.5, color: 'var(--color-dim)', fontVariantNumeric: 'tabular-nums' }}>
-            {e.sets}×{e.reps}{e.restSeconds ? ` · ${e.restSeconds}s` : ''}
+            {e.reps ? `${e.sets}×${e.reps}` : `${e.sets} series`}{e.restSeconds ? ` · ${e.restSeconds}s` : ''}
           </span>
         </div>
       ))}
