@@ -54,7 +54,10 @@ body { background:var(--color-bg); color:var(--color-text); font-family:var(--fo
 .s5{animation:up 0.45s 0.30s cubic-bezier(0.22,1,0.36,1) both}
 
 #shell{display:flex;flex-direction:column;height:100%;overflow:hidden}
-#sw{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:100px;-webkit-overflow-scrolling:touch}
+/* Colchón inferior = alto real de la nav-bar (72px + safe-area) + 12px de aire.
+   Un valor fijo dejaba ~28px de banda muerta sobre la barra (y en iPhone, al
+   crecer la barra con la safe-area, se quedaba corto y tapaba contenido). */
+#sw{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px));-webkit-overflow-scrolling:touch}
 
 .page-header{padding:24px 20px 0;background:var(--color-bg);border-bottom:1px solid var(--color-border);flex-shrink:0}
 .page-module{font-size:11px;font-weight:600;letter-spacing:0.3px;margin-bottom:3px}
@@ -76,7 +79,7 @@ body { background:var(--color-bg); color:var(--color-text); font-family:var(--fo
 
 /* El colchón inferior solo debe existir en dispositivos con barra home (safe area);
    el padding fijo de antes (28px) dejaba una franja vacía bajo los iconos en el resto. */
-.nav-bar{position:fixed;bottom:0;width:100%;background:var(--color-glass);border-top:1px solid var(--color-border);padding:10px 0 calc(10px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6);z-index:1000}
+.nav-bar{position:fixed;bottom:0;width:100%;background:var(--color-glass);border-top:1px solid var(--color-border);padding:10px 0 max(10px, env(safe-area-inset-bottom,0px));display:flex;align-items:center;backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6);z-index:1000}
 .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;color:var(--color-dim);transition:color 0.2s;padding:2px 0;font-size:8px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;text-decoration:none}
 .nav-item.active{color:var(--color-acc-blue)}
 .nav-item:active{opacity:0.6}
@@ -181,7 +184,7 @@ select.inp option{background:#1f2229;color:#e8e9ee}
 @media (orientation:landscape) and (max-height:600px) {
   .page-header{padding-top:12px}
   .page-title{font-size:20px;margin-bottom:8px}
-  .nav-bar{padding:6px 0 calc(6px + env(safe-area-inset-bottom,0px))}
+  .nav-bar{padding:6px 0 max(6px, env(safe-area-inset-bottom,0px))}
   .nav-home{width:40px;height:40px;font-size:18px}
   .nav-center{margin-top:-12px;flex:0 0 48px}
   .section{padding:12px 16px 0}

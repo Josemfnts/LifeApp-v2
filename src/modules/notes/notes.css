@@ -124,7 +124,8 @@
 .notes-editor-wrap {
   max-width: 720px;
   margin: 0 auto;
-  padding: 28px 22px 96px;
+  /* sin nav-bar en /notas: solo la safe-area + aire de lectura */
+  padding: 28px 22px calc(48px + env(safe-area-inset-bottom, 0px));
 }
 
 /* Escritorio: cajón fijado en el flujo (no overlay), colapsable con ☰ */
@@ -494,7 +495,7 @@ button.notes-crumbs__item:hover { background: color-mix(in srgb, var(--_fg) 7%, 
 .notes-home {
   max-width: 720px;
   margin: 0 auto;
-  padding: 32px 22px 96px;
+  padding: 32px 22px calc(48px + env(safe-area-inset-bottom, 0px));
 }
 .notes-home__title {
   font-family: 'DM Serif Display', serif;
