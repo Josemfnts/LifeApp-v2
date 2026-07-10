@@ -82,7 +82,8 @@ aparte (`src/lib/social.ts`, migración `005_social.sql`).
 Migraciones: `001` esquema inicial (ya en desuso), `002` tabla `store_data`, **`003` multi-tenant + grants**,
 `004` borra el esquema muerto, `005` social/comunidad, **`006` notas** (`pages` + `page_links`, RLS `auth.uid()`),
 **`007` comunidad v2** (perfiles, seguidores, comentarios, reposts, notificaciones y nuevos tipos de post:
-rutina/receta/dieta/objetivo/progreso).
+rutina/receta/dieta/objetivo/progreso) — **APLICADA y verificada E2E el 2026-07-10**. Nota: los `GRANT` de
+005/007 son a `anon, authenticated` (no a `service_role`): la service_role no puede leer estas tablas por PostgREST.
 
 **Excepción al patrón local-first — módulo Notas** (`src/modules/notes/`): NO usa `store_data`; tiene tablas
 propias `pages` (documento BlockNote en `content` jsonb, jerarquía `parent_id`, papelera `deleted_at`) y
@@ -123,8 +124,9 @@ La auditoría del 1-jul ya está mayormente resuelta:
   inmersivo). **Icono nuevo** en todo (PWA/favicon/apple-touch/splash/login). Verificado E2E; en `main`.
 
 ## Gotchas
-- `.env` (anon key de Supabase) está versionado. La anon key es **pública por diseño** — ok. **Nunca**
-  metas una `service_role` key en el cliente ni en `.env`.
+- `.env` (`VITE_SUPABASE_URL` + anon key) **ya NO está versionado** (gitignored desde `255b781`). La anon key
+  es **pública por diseño**; es recuperable del historial (`git show f6f3a0b:.env`) para correr en local.
+  **Nunca** metas una `service_role` key en el cliente ni en `.env`.
 - Antes de dar por bueno un cambio de datos, comprueba que la clave existe en `storageKeys.ts` y que
   Dashboard/backup la contemplan — es el punto exacto donde esta app se rompió antes.
 - El build **es** el typecheck (`tsc -b && vite build`): un error de tipos tira el build entero.
