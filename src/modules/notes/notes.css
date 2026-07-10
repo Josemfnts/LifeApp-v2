@@ -330,8 +330,8 @@
 /* ---- Editor ---- */
 .lifeos-notes-editor__head {
   display: flex;
-  align-items: baseline;
-  gap: 10px;
+  align-items: center;
+  gap: 6px;
   margin-bottom: 6px;
 }
 .lifeos-notes-editor__title {
@@ -454,4 +454,188 @@
   .lifeos-entity-notes__item {
     transition: background 120ms ease;
   }
+}
+
+/* ============================================================
+   Miga de pan (breadcrumbs) sobre el editor
+   ============================================================ */
+.notes-crumbs {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 14px 22px 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
+  font-size: 12.5px;
+}
+.notes-crumbs__seg { display: inline-flex; align-items: center; gap: 2px; min-width: 0; }
+.notes-crumbs__sep { color: var(--_muted); padding: 0 2px; }
+.notes-crumbs__item {
+  background: none;
+  border: none;
+  color: var(--_muted);
+  font-family: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+  padding: 3px 6px;
+  border-radius: 6px;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+button.notes-crumbs__item:hover { background: color-mix(in srgb, var(--_fg) 7%, transparent); color: var(--_fg); }
+.notes-crumbs__item--current { color: var(--_fg); cursor: default; }
+
+/* ============================================================
+   Pantalla de inicio de Notas (sin página seleccionada)
+   ============================================================ */
+.notes-home {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 22px 96px;
+}
+.notes-home__title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 26px;
+  margin-bottom: 20px;
+}
+.notes-home__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 26px;
+}
+.notes-home__action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 12px;
+  border-radius: var(--_radius);
+  background: var(--_bg);
+  border: 1px solid var(--_border);
+  color: var(--_fg);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 120ms ease, transform 120ms ease;
+}
+.notes-home__action:hover { border-color: var(--_accent); }
+.notes-home__action:active { transform: scale(0.97); }
+.notes-home__action-icon { font-size: 28px; }
+.notes-home__section {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--_muted);
+  margin: 18px 0 8px;
+}
+.notes-home__list { display: flex; flex-direction: column; }
+.notes-home__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px;
+  border: none;
+  border-bottom: 1px solid var(--_border);
+  background: none;
+  color: var(--_fg);
+  font-family: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 8px;
+}
+.notes-home__row:hover { background: color-mix(in srgb, var(--_fg) 6%, transparent); }
+.notes-home__row-icon { flex-shrink: 0; }
+.notes-home__row-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.notes-home__row-date { flex-shrink: 0; font-size: 11px; color: var(--_muted); font-variant-numeric: tabular-nums; }
+.notes-home__hint {
+  margin-top: 28px;
+  font-size: 12.5px;
+  color: var(--_muted);
+  line-height: 1.6;
+  text-align: center;
+}
+.notes-home__hint kbd,
+.lifeos-notes-editor__hint kbd {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 5px;
+  border: 1px solid var(--_border);
+  background: var(--_bg);
+  font-family: inherit;
+  font-size: 11.5px;
+}
+
+/* ============================================================
+   Selector de icono (emoji) de página
+   ============================================================ */
+.lifeos-notes-icon { position: relative; flex-shrink: 0; }
+.lifeos-notes-icon__btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  border: none;
+  background: none;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lifeos-notes-icon__btn:hover { background: color-mix(in srgb, var(--_fg) 7%, transparent); }
+.lifeos-notes-icon__backdrop { position: fixed; inset: 0; z-index: 40; }
+.lifeos-notes-icon__pop {
+  position: absolute;
+  top: 46px;
+  left: 0;
+  z-index: 41;
+  background: var(--_bg);
+  border: 1px solid var(--_border);
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  width: 296px;
+  max-width: calc(100vw - 32px);
+}
+.lifeos-notes-icon__grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
+}
+.lifeos-notes-icon__cell {
+  border: none;
+  background: none;
+  font-size: 19px;
+  padding: 5px 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.lifeos-notes-icon__cell:hover { background: color-mix(in srgb, var(--_fg) 8%, transparent); }
+.lifeos-notes-icon__cell--on { background: color-mix(in srgb, var(--_accent) 18%, transparent); }
+.lifeos-notes-icon__clear {
+  width: 100%;
+  margin-top: 8px;
+  padding: 7px;
+  border-radius: 8px;
+  border: 1px solid var(--_border);
+  background: none;
+  color: var(--_muted);
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.lifeos-notes-icon__clear:hover { color: var(--_fg); }
+
+/* Pista de documento vacío bajo el título */
+.lifeos-notes-editor__hint {
+  padding: 0 2px 10px;
+  font-size: 12.5px;
+  color: var(--_muted);
 }

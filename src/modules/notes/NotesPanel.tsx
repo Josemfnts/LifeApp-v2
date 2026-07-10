@@ -61,8 +61,29 @@ export function NotesPanel({ supabase, theme = "dark", onBack }: NotesPanelProps
   const favorites = useMemo(() => pages.filter((p) => p.is_favorite), [pages]);
   const activeTitle = useMemo(() => {
     if (!pageId) return "Notas";
-    return pages.find((p) => p.id === pageId)?.title || "Sin título";
+    const p = pages.find((x) => x.id === pageId);
+    return p ? `${p.icon ? p.icon + " " : ""}${p.title || "Sin título"}` : "Sin título";
   }, [pages, pageId]);
+
+  // Miga de pan: cadena de ancestros de la página activa (raíz primero).
+  const crumbs = useMemo(() => {
+    if (!pageId) return [];
+    const byId = new Map(pages.map((p) => [p.id, p]));
+    const chain: PageMeta[] = [];
+    let cur = byId.get(pageId);
+    let guard = 0;
+    while (cur && guard++ < 20) {
+      chain.unshift(cur);
+      cur = cur.parent_id ? byId.get(cur.parent_id) : undefined;
+    }
+    return chain;
+  }, [pages, pageId]);
+
+  // Recientes para la pantalla de inicio (últimas editadas).
+  const recents = useMemo(
+    () => [...pages].sort((a, b) => (b.updated_at || "").localeCompare(a.updated_at || "")).slice(0, 6),
+    [pages]
+  );
 
   const handleCreate = async (parentId: string | null) => {
     const page = await createPage(parentId);
@@ -217,9 +238,85 @@ export function NotesPanel({ supabase, theme = "dark", onBack }: NotesPanelProps
           </aside>
 
           <main className="notes-main">
-            <div className="notes-editor-wrap">
-              <PageEditor api={api} pageId={pageId} theme={theme} onTitleChange={(id, title) => patchLocal(id, { title })} />
-            </div>
+            {pageId ? (
+              <>
+                {crumbs.length > 0 && (
+                  <nav className="notes-crumbs" aria-label="Ruta">
+                    <button className="notes-crumbs__item" onClick={() => selectPage(null)}>Notas</button>
+                    {crumbs.map((c, i) => (
+                      <span key={c.id} className="notes-crumbs__seg">
+                        <span className="notes-crumbs__sep">›</span>
+                        {i < crumbs.length - 1 ? (
+                          <button className="notes-crumbs__item" onClick={() => selectPage(c.id)}>
+                            {c.icon ? c.icon + " " : ""}{c.title || "Sin título"}
+                          </button>
+                        ) : (
+                          <span className="notes-crumbs__item notes-crumbs__item--current">
+                            {c.icon ? c.icon + " " : ""}{c.title || "Sin título"}
+                          </span>
+                        )}
+                      </span>
+                    ))}
+                  </nav>
+                )}
+                <div className="notes-editor-wrap">
+                  <PageEditor
+                    api={api}
+                    pageId={pageId}
+                    theme={theme}
+                    onTitleChange={(id, title) => patchLocal(id, { title })}
+                    onIconChange={(id, icon) => patchLocal(id, { icon })}
+                  />
+                </div>
+              </>
+            ) : (
+              /* Pantalla de inicio: acciones claras en vez de un editor vacío. */
+              <div className="notes-home">
+                <div className="notes-home__title">📚 Tus notas</div>
+                <div className="notes-home__actions">
+                  <button className="notes-home__action" onClick={openDiaryToday}>
+                    <span className="notes-home__action-icon">📓</span>
+                    <span>Diario de hoy</span>
+                  </button>
+                  <button className="notes-home__action" onClick={() => handleCreate(null)}>
+                    <span className="notes-home__action-icon">＋</span>
+                    <span>Nueva página</span>
+                  </button>
+                </div>
+                {favorites.length > 0 && (
+                  <>
+                    <div className="notes-home__section">★ Favoritos</div>
+                    <div className="notes-home__list">
+                      {favorites.slice(0, 8).map((f) => (
+                        <button key={f.id} className="notes-home__row" onClick={() => selectPage(f.id)}>
+                          <span className="notes-home__row-icon">{f.icon ?? "📄"}</span>
+                          <span className="notes-home__row-title">{f.title || "Sin título"}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+                {recents.length > 0 && (
+                  <>
+                    <div className="notes-home__section">Recientes</div>
+                    <div className="notes-home__list">
+                      {recents.map((r) => (
+                        <button key={r.id} className="notes-home__row" onClick={() => selectPage(r.id)}>
+                          <span className="notes-home__row-icon">{r.icon ?? "📄"}</span>
+                          <span className="notes-home__row-title">{r.title || "Sin título"}</span>
+                          <span className="notes-home__row-date">
+                            {(r.updated_at || "").slice(0, 10)}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+                <div className="notes-home__hint">
+                  ☰ abre todas tus páginas · dentro de una nota, pulsa <kbd>/</kbd> para títulos, listas, tablas…
+                </div>
+              </div>
+            )}
           </main>
         </div>
       )}
