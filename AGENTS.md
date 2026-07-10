@@ -137,6 +137,8 @@ La auditoría del 1-jul ya está mayormente resuelta:
   reutilizable con vista previa real (mismo `PostContent` del feed) + gate de sesión. Botones ↗ en Físico
   (fin de entreno automático, historial, rutinas, PRs, carreras) y Nutrición (platos, menú, progreso).
   Para añadir un punto de compartir nuevo: mapeador en socialShare.ts + estado local + `<ShareSheet/>`.
+  El viaje de vuelta es `src/lib/socialImport.ts` (botón verde en `PostCard`): rutina/entreno → mis rutinas,
+  receta → mis platos (parsea "Nombre — 200 g"), menú → mi menú semanal (días por nombre; 0=Domingo).
 
 ## Gotchas
 - `.env` (`VITE_SUPABASE_URL` + anon key) **ya NO está versionado** (gitignored desde `255b781`). La anon key
