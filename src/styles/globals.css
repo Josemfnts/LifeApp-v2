@@ -36,7 +36,10 @@
    El preflight de Tailwind ya resetea los márgenes por defecto del navegador. */
 *, *::before, *::after { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html, body, #root { height:100%; overflow:hidden; }
-html { padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+/* La safe-area inferior NO se pone aquí: la nav-bar (fixed) la cubre con su
+   propio padding y el #sw con el suyo. Ponerla también en html la contaba doble
+   y dejaba una banda vacía sobre la barra en iPhone (safe-area ~34px). */
+html { padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left); }
 body { background:var(--color-bg); color:var(--color-text); font-family:var(--font-sans); -webkit-user-select:none; user-select:none; font-size:15px; line-height:1.5; touch-action:manipulation; }
 ::-webkit-scrollbar { display:none; }
 
@@ -54,10 +57,10 @@ body { background:var(--color-bg); color:var(--color-text); font-family:var(--fo
 .s5{animation:up 0.45s 0.30s cubic-bezier(0.22,1,0.36,1) both}
 
 #shell{display:flex;flex-direction:column;height:100%;overflow:hidden}
-/* Colchón inferior = alto real de la nav-bar (72px + safe-area) + 12px de aire.
-   Un valor fijo dejaba ~28px de banda muerta sobre la barra (y en iPhone, al
-   crecer la barra con la safe-area, se quedaba corto y tapaba contenido). */
-#sw{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px));-webkit-overflow-scrolling:touch}
+/* Colchón inferior = alto estructural de la nav-bar (~72px) + safe-area (para
+   librar la zona del home indicator que la barra reserva) + un poco de aire.
+   Como html ya NO añade safe-area abajo, aquí sí toca sumarla una vez. */
+#sw{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(80px + env(safe-area-inset-bottom,0px));-webkit-overflow-scrolling:touch}
 
 .page-header{padding:24px 20px 0;background:var(--color-bg);border-bottom:1px solid var(--color-border);flex-shrink:0}
 .page-module{font-size:11px;font-weight:600;letter-spacing:0.3px;margin-bottom:3px}
