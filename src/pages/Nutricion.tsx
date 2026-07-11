@@ -4,7 +4,7 @@ import type { NewPost } from '@/lib/social'
 import { ShareSheet } from '@/components/social/ShareSheet'
 import { dishToPost, menuToPost, bodyProgressToPost } from '@/lib/socialShare'
 import { FOODS_DB } from '@/data/foods'
-import { RECIPES, RECIPE_CATEGORIES, RECIPE_TAGS, RECIPE_DIFFICULTIES, filterRecipes } from '@/data/recipesDB'
+import { RECIPES, RECIPE_CATEGORIES, RECIPE_TAGS, RECIPE_DIFFICULTIES, filterRecipes, difficultyLabel } from '@/data/recipesDB'
 import { useToast } from '@/stores/toast'
 import { Input } from '@/components/ui'
 import Chart from 'chart.js/auto'
@@ -399,7 +399,7 @@ function DishesTab() {
           </select>
           <select className="inp" value={difFilter} onChange={e => setDifFilter(e.target.value)} style={{ width: 100, marginBottom: 0, fontSize: 12 }}>
             <option value="">Dificultad</option>
-            {RECIPE_DIFFICULTIES.map(d => <option key={d} value={d}>{d}</option>)}
+            {RECIPE_DIFFICULTIES.map(d => <option key={d} value={d}>{difficultyLabel(d)}</option>)}
           </select>
           <input className="inp" value={maxTimeFilter} onChange={e => setMaxTimeFilter(e.target.value)} type="number" placeholder="Max min" style={{ width: 70, marginBottom: 0 }} />
         </div>
@@ -424,7 +424,7 @@ function DishesTab() {
             </div>
           </div>
           <div style={{ fontSize: 12, color: 'var(--color-sub)', marginBottom: 8 }}>
-            ⏱ {r.tiempo_min}min · {r.dificultad} · {r.raciones} ración · {r.macros_por_racion.kcal}kcal | P:{r.macros_por_racion.proteina_g}g C:{r.macros_por_racion.carbohidratos_g}g G:{r.macros_por_racion.grasas_g}g
+            ⏱ {r.tiempo_min}min · {difficultyLabel(r.dificultad)} · {r.raciones} ración · {r.macros_por_racion.kcal}kcal | P:{r.macros_por_racion.proteina_g}g C:{r.macros_por_racion.carbohidratos_g}g G:{r.macros_por_racion.grasas_g}g
           </div>
           <div style={{ fontSize: 11, color: 'var(--color-dim)', marginBottom: 10 }}>
             {r.ingredientes.slice(0, 6).map(i => `${i.nombre} (${i.cantidad}${i.unidad})`).join(' · ')}

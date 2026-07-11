@@ -60,6 +60,18 @@ allRecipes.forEach(r => seen.set(r.id, r))
 
 export const RECIPES = [...seen.values()]
 export const RECIPE_DIFFICULTIES = [...new Set(RECIPES.map(r => r.dificultad))]
+
+export const DIFFICULTY_LABELS: Record<string, string> = {
+  muy_facil: 'Muy fácil',
+  facil: 'Fácil',
+  media: 'Media',
+  dificil: 'Difícil',
+  muy_dificil: 'Muy difícil',
+}
+
+export function difficultyLabel(x: string): string {
+  return DIFFICULTY_LABELS[x] ?? x.replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase())
+}
 export const RECIPE_CATEGORIES = [...new Set(RECIPES.map(r => r.categoria))]
 export const RECIPE_TAGS = [...new Set(RECIPES.flatMap(r => r.etiquetas))]
 
