@@ -8,6 +8,7 @@ const VERB: Record<Notification['type'], string> = {
   comment: 'comentó tu publicación',
   follow: 'empezó a seguirte',
   repost: 'compartió tu publicación',
+  use: 'guardó tu contenido para usarlo',
 }
 
 export function NotificationsSheet({ onClose, onRead }: { onClose: () => void; onRead: () => void }) {

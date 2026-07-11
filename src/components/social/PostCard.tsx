@@ -3,6 +3,7 @@ import { Avatar } from './Avatar'
 import { PostContent } from './PostContent'
 import { typeMeta, timeAgo } from './helpers'
 import { importLabel, importPost } from '@/lib/socialImport'
+import { markPostUsed } from '@/lib/social'
 import { useToast } from '@/stores/toast'
 
 interface Props {
@@ -53,8 +54,11 @@ export function PostCard({ post, onLike, onComment, onRepost, onDelete, onOpenPr
   const impLabel = !post.mine ? importLabel(impType, impData) : null
 
   function handleImport() {
-    try { toast.show(importPost(impType, impTitle, impData ?? {})) }
-    catch (e) { toast.show(e instanceof Error ? e.message : 'No se pudo importar') }
+    try {
+      toast.show(importPost(impType, impTitle, impData ?? {}))
+      // Notifica al autor (y suma al contador) sin bloquear ni molestar si falla.
+      if (!post.mine) markPostUsed(post.id).catch(() => {})
+    } catch (e) { toast.show(e instanceof Error ? e.message : 'No se pudo importar') }
   }
 
   return (
@@ -100,6 +104,11 @@ export function PostCard({ post, onLike, onComment, onRepost, onDelete, onOpenPr
             color: 'var(--color-acc-green)',
             border: '1px solid color-mix(in srgb, var(--color-acc-green) 25%, transparent)',
           }}>⤓ {impLabel}</button>
+          {!!post.use_count && post.use_count > 0 && (
+            <div style={{ fontSize: 11, color: 'var(--color-dim)', textAlign: 'center', marginTop: 5 }}>
+              {post.use_count} {post.use_count === 1 ? 'persona lo ha usado' : 'personas lo han usado'}
+            </div>
+          )}
         </div>
       )}
 

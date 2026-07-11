@@ -122,6 +122,7 @@ export interface SocialPost {
   likes: number
   comment_count: number
   repost_count: number
+  use_count?: number
   repost_of: number | null
   created_at: string
   // derivados en cliente
@@ -164,7 +165,7 @@ export interface Comment {
   mine?: boolean
 }
 
-export type NotificationType = 'like' | 'comment' | 'follow' | 'repost'
+export type NotificationType = 'like' | 'comment' | 'follow' | 'repost' | 'use'
 
 export interface Notification {
   id: number

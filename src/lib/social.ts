@@ -182,9 +182,14 @@ async function decorate(posts: SocialPost[], userId?: string): Promise<SocialPos
   }))
 }
 
-export async function fetchFeed(mode: FeedMode = 'explore', filter?: PostType): Promise<SocialPost[]> {
+export const FEED_PAGE = 20
+
+// offset permite paginar ("cargar más"); trae FEED_PAGE posts por página.
+export async function fetchFeed(mode: FeedMode = 'explore', filter?: PostType, offset = 0): Promise<SocialPost[]> {
   const user = await currentUser()
-  let query = supabase.from('social_posts').select('*').order('created_at', { ascending: false }).limit(100)
+  let query = supabase.from('social_posts').select('*')
+    .order('created_at', { ascending: false })
+    .range(offset, offset + FEED_PAGE - 1)
   if (filter) query = query.eq('type', filter)
 
   if (mode === 'following' && user) {
@@ -247,6 +252,15 @@ export async function repost(original: SocialPost, comment = ''): Promise<void> 
 export async function deletePost(id: number): Promise<void> {
   const { error } = await supabase.from('social_posts').delete().eq('id', id)
   if (error) throw error
+}
+
+// Registra que el usuario actual "usó" (importó) un post. Dispara la
+// notificación al autor por trigger (migración 008). Silencioso: si no hay
+// sesión o ya lo había usado (PK duplicada), no hace nada visible.
+export async function markPostUsed(postId: number): Promise<void> {
+  const user = await currentUser()
+  if (!user) return
+  await supabase.from('social_uses').insert({ post_id: postId, user_id: user.id })
 }
 
 // --- Likes -------------------------------------------------------------------
@@ -334,7 +348,16 @@ export function compressImage(file: File, maxSize = 1000, quality = 0.72): Promi
         const ctx = canvas.getContext('2d')
         if (!ctx) { reject(new Error('Canvas no disponible')); return }
         ctx.drawImage(img, 0, 0, width, height)
-        resolve(canvas.toDataURL('image/jpeg', quality))
+        // Tope duro de tamaño: si el data URL sale muy grande (fotos densas),
+        // rebaja la calidad hasta ~280 KB para no meter blobs enormes en la fila
+        // ni inflar el feed. v1 sin Supabase Storage.
+        let out = canvas.toDataURL('image/jpeg', quality)
+        let q = quality
+        while (out.length > 380_000 && q > 0.35) {
+          q -= 0.12
+          out = canvas.toDataURL('image/jpeg', q)
+        }
+        resolve(out)
       }
       img.src = reader.result as string
     }

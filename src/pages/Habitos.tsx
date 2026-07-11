@@ -1,15 +1,25 @@
 import { useState } from 'react'
-import { useHabits } from '@/hooks/useHabits'
+import { useHabits, calcStreak } from '@/hooks/useHabits'
 import { useToast } from '@/stores/toast'
 import { WeeklyStrip } from '@/components/habits/WeeklyStrip'
 import { HabitTodayCard } from '@/components/habits/HabitTodayCard'
 import { HabitForm } from '@/components/habits/HabitForm'
 import { HabitStats } from '@/components/habits/HabitStats'
+import { ShareSheet } from '@/components/social/ShareSheet'
+import { habitStreakToPost } from '@/lib/socialShare'
+import type { NewPost } from '@/lib/social'
 
 export default function Habitos() {
   const { habits, log, getLogValue, activeToday, doneToday, pctToday, today, addHabit, removeHabit, setLogValue } = useHabits()
   const toast = useToast()
   const [tab, setTab] = useState<'today' | 'manage' | 'stats'>('today')
+  const [sharePost, setSharePost] = useState<NewPost | null>(null)
+
+  // Mejor racha actual entre los hábitos, para el botón de compartir.
+  const bestStreak = habits.reduce((best, h) => {
+    const s = calcStreak(h, log, new Date())
+    return s > best.streak ? { streak: s, name: h.name } : best
+  }, { streak: 0, name: '' })
 
   const todayDate = new Date()
   const dateLabel = ['D','L','M','X','J','V','S'][todayDate.getDay()]+' '+todayDate.getDate()+' '+['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][todayDate.getMonth()]
@@ -66,6 +76,12 @@ export default function Habitos() {
               </div>
             </div>
             {habits.length > 0 && <WeeklyStrip habits={habits} getLogValue={getLogValue} />}
+            {bestStreak.streak >= 2 && (
+              <button onClick={() => setSharePost(habitStreakToPost(bestStreak.name, bestStreak.streak))}
+                style={{ width: '100%', marginTop: 4, marginBottom: 12, padding: '9px 12px', borderRadius: 10, cursor: 'pointer', fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', background: 'color-mix(in srgb, var(--color-acc-purple) 10%, transparent)', color: 'var(--color-acc-purple)', border: '1px solid color-mix(in srgb, var(--color-acc-purple) 25%, transparent)' }}>
+                🔥 Compartir racha ({bestStreak.streak} días)
+              </button>
+            )}
             {activeToday.length === 0 ? (
               <div className="empty-state">
                 <div style={{ fontSize: 40, marginBottom: 12 }}>✨</div>
@@ -108,6 +124,7 @@ export default function Habitos() {
         )}
         {tab === 'stats' && <HabitStats habits={habits} log={log} />}
       </div>
+      {sharePost && <ShareSheet post={sharePost} onClose={() => setSharePost(null)} />}
     </div>
   )
 }

@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import {
-  fetchFeed, toggleLike, deletePost, repost, isSignedIn, ensureMyProfile,
+  fetchFeed, FEED_PAGE, toggleLike, deletePost, repost, isSignedIn, ensureMyProfile,
   publishStats, unreadNotificationCount, supabaseUserId,
   type SocialPost, type PostType, type FeedMode, type ProfileStats,
 } from '@/lib/social'
 import { useToast } from '@/stores/toast'
+import { ConfirmDialog } from '@/components/ui'
 import { STORE_KEYS } from '@/lib/storageKeys'
 import { typeMeta } from '@/components/social/helpers'
 import { PostCard } from '@/components/social/PostCard'
@@ -53,16 +54,31 @@ export default function Comunidad() {
   const [repostPost, setRepostPost] = useState<SocialPost | null>(null)
   const [notifOpen, setNotifOpen] = useState(false)
   const [unread, setUnread] = useState(0)
+  const [deleteId, setDeleteId] = useState<number | null>(null)
+  const [hasMore, setHasMore] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
   const toast = useToast()
 
   const loadFeed = useCallback(async () => {
     setLoading(true); setError('')
     try {
-      setPosts(await fetchFeed(mode, filter ?? undefined))
+      const first = await fetchFeed(mode, filter ?? undefined, 0)
+      setPosts(first)
+      setHasMore(first.length === FEED_PAGE)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'No se pudo cargar el feed')
     } finally { setLoading(false) }
   }, [mode, filter])
+
+  const loadMore = useCallback(async () => {
+    setLoadingMore(true)
+    try {
+      const next = await fetchFeed(mode, filter ?? undefined, posts.length)
+      setPosts(prev => [...prev, ...next])
+      setHasMore(next.length === FEED_PAGE)
+    } catch { /* se mantiene lo cargado */ }
+    finally { setLoadingMore(false) }
+  }, [mode, filter, posts.length])
 
   const init = useCallback(async () => {
     const ok = await isSignedIn()
@@ -87,7 +103,6 @@ export default function Comunidad() {
   }
 
   async function handleDelete(id: number) {
-    if (!confirm('¿Eliminar esta publicación?')) return
     setPosts(prev => prev.filter(x => x.id !== id))
     try { await deletePost(id); toast.show('Publicación eliminada') }
     catch { toast.show('No se pudo eliminar'); loadFeed() }
@@ -171,9 +186,16 @@ export default function Comunidad() {
               <div>{mode === 'following' ? 'Sigue a otros usuarios o explora para descubrir contenido.' : 'Sé el primero en compartir algo.'}</div>
             </div>
           ) : (
-            posts.map(p => (
-              <PostCard key={p.id} post={p} onLike={handleLike} onComment={setCommentsPost} onRepost={setRepostPost} onDelete={handleDelete} onOpenProfile={openProfile} />
-            ))
+            <>
+              {posts.map(p => (
+                <PostCard key={p.id} post={p} onLike={handleLike} onComment={setCommentsPost} onRepost={setRepostPost} onDelete={setDeleteId} onOpenProfile={openProfile} />
+              ))}
+              {hasMore && (
+                <button onClick={loadMore} disabled={loadingMore} className="btn-ghost" style={{ width: '100%', marginTop: 4, opacity: loadingMore ? 0.6 : 1 }}>
+                  {loadingMore ? 'Cargando…' : 'Cargar más'}
+                </button>
+              )}
+            </>
           )}
         </div>
       )}
@@ -187,6 +209,14 @@ export default function Comunidad() {
       {commentsPost && <CommentsSheet post={commentsPost} onClose={() => setCommentsPost(null)} onChanged={() => { if (view === 'feed') loadFeed() }} />}
       {repostPost && <RepostSheet post={repostPost} onClose={() => setRepostPost(null)} onDone={() => { setRepostPost(null); if (view === 'feed') loadFeed() }} />}
       {notifOpen && <NotificationsSheet onClose={() => setNotifOpen(false)} onRead={() => setUnread(0)} />}
+      <ConfirmDialog
+        open={deleteId != null}
+        title="¿Eliminar esta publicación?"
+        confirmLabel="Eliminar"
+        danger
+        onConfirm={() => { if (deleteId != null) handleDelete(deleteId) }}
+        onClose={() => setDeleteId(null)}
+      />
     </div>
   )
 }

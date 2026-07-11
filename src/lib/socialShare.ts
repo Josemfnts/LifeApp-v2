@@ -100,6 +100,17 @@ export function menuToPost(menu: MenuDay[], title = 'Mi menú semanal'): NewPost
   return { type: 'diet', title, body: '', data: data as unknown as NewPost['data'] }
 }
 
+/** Racha de hábitos → post 'progress' con los días de racha. */
+export function habitStreakToPost(habitName: string, streak: number): NewPost {
+  const data: ProgressPayload = { metric: 'Racha', value: streak, unit: streak === 1 ? 'día' : 'días' }
+  return {
+    type: 'progress',
+    title: `🔥 ${streak} ${streak === 1 ? 'día' : 'días'} de racha`,
+    body: habitName ? `Hábito: ${habitName}` : '',
+    data: data as unknown as NewPost['data'],
+  }
+}
+
 /** Última medición corporal → post 'progress' con delta vs anterior. */
 export function bodyProgressToPost(metrics: { date: string; weight: number }[]): NewPost | null {
   if (!metrics.length) return null
