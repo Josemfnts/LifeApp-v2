@@ -83,7 +83,8 @@ Migraciones: `001` esquema inicial (ya en desuso), `002` tabla `store_data`, **`
 `004` borra el esquema muerto, `005` social/comunidad, **`006` notas** (`pages` + `page_links`, RLS `auth.uid()`),
 **`007` comunidad v2** (perfiles, seguidores, comentarios, reposts, notificaciones y nuevos tipos de post:
 rutina/receta/dieta/objetivo/progreso), **`008` social_uses** ("han usado tu contenido": tabla `social_uses` +
-`use_count` + trigger que notifica al autor al importar del feed) — todas **APLICADAS y verificadas E2E**.
+`use_count` + trigger que notifica al autor al importar del feed), **`009` storage** (bucket `social` público +
+policies en `storage.objects`: subir a `social/{uid}/`, lectura pública) — todas **APLICADAS y verificadas E2E**.
 Nota: los `GRANT` de 005/007/008 son a `anon, authenticated` (no a `service_role`): la service_role no puede leer
 estas tablas por PostgREST. Al aplicar una migración con tablas nuevas, tras el POST hacer
 `NOTIFY pgrst, 'reload schema';` (si no, PostgREST da 404 hasta que refresca el cache del esquema).
@@ -143,8 +144,9 @@ La auditoría del 1-jul ya está mayormente resuelta:
   El viaje de vuelta es `src/lib/socialImport.ts` (botón verde en `PostCard`): rutina/entreno → mis rutinas,
   receta → mis platos (parsea "Nombre — 200 g"), menú → mi menú semanal (días por nombre; 0=Domingo). Al
   importar, `markPostUsed` registra el uso (migración 008) → el autor recibe aviso. Compartir también desde
-  Hábitos (racha). Feed paginado (`FEED_PAGE=20`, `.range()`, "Cargar más"); imágenes acotadas a ~380KB en
-  `compressImage`. **Pendiente grande NO hecho**: mover imágenes a Supabase Storage (hoy data URL en la fila).
+  Hábitos (racha). Feed paginado (`FEED_PAGE=20`, `.range()`, "Cargar más"). **Imágenes en Supabase Storage**
+  (`uploadImage` en social.ts → bucket `social`, URL pública; cae a data URL `compressImage` si no hay sesión/red).
+  Las imágenes antiguas (data URL) siguen renderizando. `compressImage`/`uploadImage` comparten `withCanvas`.
 - **Confirmaciones**: usa `<ConfirmDialog>` (components/ui), no `confirm()` nativo — quedan 0 en el código.
 
 ## Gotchas
