@@ -108,7 +108,11 @@ export function createNotesApi(supabase: SupabaseClient) {
 
     /** Buscador simple: título + texto plano del contenido */
     async search(term: string): Promise<PageMeta[]> {
-      const q = `%${term}%`;
+      // Neutraliza los metacaracteres del filtro PostgREST `.or()` (coma,
+      // paréntesis, comodines, backslash); sin esto una coma rompe el filtro (400).
+      const clean = term.trim().replace(/[,()\\%*]/g, " ").replace(/\s+/g, " ").trim();
+      if (!clean) return [];
+      const q = `%${clean}%`;
       const { data, error } = await supabase
         .from("pages")
         .select(META_COLS)

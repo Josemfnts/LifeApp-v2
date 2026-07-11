@@ -8,6 +8,7 @@ import { getGlobalLevel, calcCombinedStreak } from '@/lib/xp-engine'
 import { supabase, signOut } from '@/lib/supabase'
 import { requestPermission } from '@/lib/notifications'
 import { ALL_STORAGE_KEYS, STORAGE_LABELS } from '@/lib/storageKeys'
+import { ConfirmDialog } from '@/components/ui'
 
 export function TopBar() {
   const { xp } = useXP()
@@ -24,6 +25,7 @@ export function TopBar() {
   const grandTotal = Object.values(xp).reduce((s, a) => s + a.total, 0)
   const [storageInfo, setStorageInfo] = useState<{ n: number; label: string }[]>([])
   const [storageTotalKb, setStorageTotalKb] = useState(0)
+  const [confirmClear, setConfirmClear] = useState(false)
 
   function calcStorage(): { lines: { n: number; label: string }[]; totalKb: number } {
     const lines: { n: number; label: string }[] = []
@@ -73,7 +75,6 @@ export function TopBar() {
   }
 
   function clearAllData() {
-    if (!confirm('¿Seguro? Se borrarán TODOS los datos de la app.')) return
     ALL_STORAGE_KEYS.forEach(k => localStorage.removeItem(k))
     setSettingsOpen(false)
     toast.show('Datos borrados. Recargando...')
@@ -258,12 +259,21 @@ export function TopBar() {
               <div style={{ background: 'rgba(224,95,95,0.05)', border: '1px solid rgba(224,95,95,0.15)', borderRadius: 14, padding: 14 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)', marginBottom: 4 }}>Borrar todos los datos</div>
                 <div style={{ fontSize: 12, color: 'var(--color-sub)', marginBottom: 12 }}>Esta acción es irreversible.</div>
-                <button onClick={clearAllData} style={{ width: '100%', background: 'rgba(224,95,95,0.1)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.2)', fontFamily: 'DM Sans,sans-serif', fontSize: 14, fontWeight: 600, padding: 11, borderRadius: 10, cursor: 'pointer' }}>🗑 Borrar todo</button>
+                <button onClick={() => setConfirmClear(true)} style={{ width: '100%', background: 'rgba(224,95,95,0.1)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.2)', fontFamily: 'DM Sans,sans-serif', fontSize: 14, fontWeight: 600, padding: 11, borderRadius: 10, cursor: 'pointer' }}>🗑 Borrar todo</button>
               </div>
             </div>
           </div>
         </div>
       )}
+      <ConfirmDialog
+        open={confirmClear}
+        title="¿Borrar todos los datos?"
+        message="Se eliminarán TODOS los datos de la app en este dispositivo. Esta acción no se puede deshacer."
+        confirmLabel="Borrar todo"
+        danger
+        onConfirm={clearAllData}
+        onClose={() => setConfirmClear(false)}
+      />
     </>
   )
 }

@@ -4,6 +4,7 @@ import {
   toggleLike, deletePost, type Profile, type SocialPost,
 } from '@/lib/social'
 import { useToast } from '@/stores/toast'
+import { ConfirmDialog } from '@/components/ui'
 import { Avatar } from './Avatar'
 import { PostCard } from './PostCard'
 
@@ -30,6 +31,7 @@ export function ProfileView(props: Props) {
   const [posts, setPosts] = useState<SocialPost[]>([])
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
+  const [deleteId, setDeleteId] = useState<number | null>(null)
   const toast = useToast()
 
   const load = useCallback(async () => {
@@ -62,7 +64,6 @@ export function ProfileView(props: Props) {
   }
 
   async function handleDelete(id: number) {
-    if (!confirm('¿Eliminar esta publicación?')) return
     setPosts(prev => prev.filter(x => x.id !== id))
     try { await deletePost(id); toast.show('Publicación eliminada') }
     catch { toast.show('No se pudo eliminar'); load() }
@@ -120,10 +121,18 @@ export function ProfileView(props: Props) {
       {posts.length === 0 ? (
         <div className="empty-state">Sin publicaciones todavía</div>
       ) : posts.map(p => (
-        <PostCard key={p.id} post={p} onLike={handleLike} onComment={props.onComment} onRepost={props.onRepost} onDelete={handleDelete} onOpenProfile={props.onOpenProfile} />
+        <PostCard key={p.id} post={p} onLike={handleLike} onComment={props.onComment} onRepost={props.onRepost} onDelete={setDeleteId} onOpenProfile={props.onOpenProfile} />
       ))}
 
       {editing && <EditProfile profile={profile} onClose={() => setEditing(false)} onSaved={() => { setEditing(false); load() }} />}
+      <ConfirmDialog
+        open={deleteId != null}
+        title="¿Eliminar esta publicación?"
+        confirmLabel="Eliminar"
+        danger
+        onConfirm={() => { if (deleteId != null) handleDelete(deleteId) }}
+        onClose={() => setDeleteId(null)}
+      />
     </div>
   )
 }
