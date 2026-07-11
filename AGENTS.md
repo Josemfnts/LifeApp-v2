@@ -162,3 +162,8 @@ La auditoría del 1-jul ya está mayormente resuelta:
   (placeholders Email/Contraseña, botón "Entrar") y **bórralo al final** (`DELETE .../admin/users/{id}`, cascada
   a `pages`/`page_links`). Ref del proyecto: `plgwbctxseuuujuepmfe`.
 - La Management API (`.../database/query`) da **403 Cloudflare 1010** con User-Agent de urllib → usa `User-Agent: Mozilla/5.0`.
+- **iOS + hojas bottom-sheet**: NO pongas `-webkit-overflow-scrolling:touch` en contenedores de scroll que tengan
+  hojas `position:fixed` dentro (como `#sw`): en iOS Safari atrapa los fixed y los deja detrás de la nav-bar
+  (botones cortados). Las hojas nuevas: portal a `document.body` + `padding-bottom` con `env(safe-area-inset-bottom)`.
+- **Safe-area del pie**: la maneja la `.nav-bar` (fixed, `max(10px, safe)`) y `#sw` (`calc(80px + safe)`).
+  `html` NO añade `padding-bottom` de safe-area (se contaba doble). No lo reintroduzcas.
