@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from 'react'
-import { useNutriStore } from '@/stores/nutriStore'
+import { useState, useRef, useEffect, useMemo } from 'react'
+import { useNutriStore, computeMacros, type MacroCalc } from '@/stores/nutriStore'
 import type { NewPost } from '@/lib/social'
 import { ShareSheet } from '@/components/social/ShareSheet'
 import { dishToPost, menuToPost, bodyProgressToPost } from '@/lib/socialShare'
@@ -498,6 +498,11 @@ function SearchTab() {
   const videoRef = useRef<HTMLVideoElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
 
+  // Suelta la cámara si el usuario sale de la pestaña con el escáner abierto.
+  useEffect(() => () => {
+    if (streamRef.current) { streamRef.current.getTracks().forEach(t => t.stop()); streamRef.current = null }
+  }, [])
+
   const localResults = query.trim()
     ? FOODS_DB.filter(f => f.name.toLowerCase().includes(query.toLowerCase())).slice(0, 20)
     : []
@@ -508,7 +513,21 @@ function SearchTab() {
     toast.show(`✓ ${f.name} añadido (${f.kcal} kcal)`)
   }
 
-  // Real barcode scanner with camera
+  // Lector de código de barras con la cámara. Usa BarcodeDetector nativo si
+  // existe (Chrome/Android) y cae a un ponyfill (barcode-detector, zxing-wasm)
+  // cuando no — el caso de iOS Safari, donde el nativo NO existe. Mismo bucle.
+  const FORMATS = ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39']
+  type Detector = { detect: (el: HTMLVideoElement) => Promise<{ rawValue: string }[]> }
+
+  async function getDetector(): Promise<Detector | null> {
+    const native = (window as unknown as { BarcodeDetector?: new (o: { formats: string[] }) => Detector }).BarcodeDetector
+    if (native) return new native({ formats: FORMATS })
+    try {
+      const mod = await import('barcode-detector/ponyfill')
+      return new mod.BarcodeDetector({ formats: FORMATS as never }) as unknown as Detector
+    } catch { return null }
+  }
+
   async function startCameraScan() {
     setScanning(true)
     try {
@@ -516,27 +535,25 @@ function SearchTab() {
       streamRef.current = stream
       if (videoRef.current) {
         videoRef.current.srcObject = stream
-        videoRef.current.play()
+        // iOS exige playsInline + play() dentro del gesto del usuario.
+        videoRef.current.setAttribute('playsinline', 'true')
+        await videoRef.current.play().catch(() => {})
       }
-      // Use BarcodeDetector API if available
-      if ('BarcodeDetector' in window) {
-        const detector = new (window as unknown as { BarcodeDetector: new (opts: { formats: string[] }) => { detect: (el: HTMLVideoElement) => Promise<{ rawValue: string }[]> } }).BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39'] })
-        const scan = async () => {
-          if (!videoRef.current || !streamRef.current) return
-          try {
-            const barcodes = await detector.detect(videoRef.current)
-            if (barcodes.length > 0) {
-              stopCamera()
-              fetchProduct(barcodes[0].rawValue)
-              return
-            }
-          } catch {}
-          if (streamRef.current) requestAnimationFrame(scan)
-        }
-        requestAnimationFrame(scan)
-      } else {
-        toast.show('BarcodeDetector no soportado. Introduce el código manualmente.')
+      const detector = await getDetector()
+      if (!detector) { toast.show('Escáner no disponible. Introduce el código a mano.'); stopCamera(); return }
+      const scan = async () => {
+        if (!videoRef.current || !streamRef.current) return
+        try {
+          const barcodes = await detector.detect(videoRef.current)
+          if (barcodes.length > 0) {
+            stopCamera()
+            fetchProduct(barcodes[0].rawValue)
+            return
+          }
+        } catch { /* frame sin código, seguimos */ }
+        if (streamRef.current) requestAnimationFrame(scan)
       }
+      requestAnimationFrame(scan)
     } catch { toast.show('No se pudo acceder a la cámara'); setScanning(false) }
   }
 
@@ -546,21 +563,25 @@ function SearchTab() {
   }
 
   async function fetchProduct(code: string) {
+    const clean = code.replace(/\D/g, '')
+    if (!clean) { toast.show('Código no válido'); return }
     setLoading(true)
     try {
-      const r = await fetch(`https://world.openfoodfacts.org/api/v0/product/${code}.json`)
+      const r = await fetch(`https://world.openfoodfacts.org/api/v0/product/${clean}.json`)
       const d = await r.json()
       if (d.status === 1 && d.product) {
         const p = d.product; const n = p.nutriments || {}
-        addFound({ name: p.product_name || code, kcal: Math.round(n['energy-kcal_100g'] || 0), p: Math.round(n.proteins_100g || 0), c: Math.round(n.carbohydrates_100g || 0), f: Math.round(n.fat_100g || 0) })
+        const name = p.product_name_es || p.product_name || p.generic_name || p.brands || `Producto ${clean}`
+        const kcal = Math.round(n['energy-kcal_100g'] || (n['energy-kj_100g'] ? n['energy-kj_100g'] / 4.184 : 0))
+        addFound({ name, kcal, p: Math.round(n.proteins_100g || 0), c: Math.round(n.carbohydrates_100g || 0), f: Math.round(n.fat_100g || 0) })
       } else { toast.show('Producto no encontrado') }
     } catch { toast.show('Error al buscar') }
     finally { setLoading(false) }
   }
 
   async function scanBarcode() {
-    const bc = barcode.trim()
-    if (!bc) return
+    const bc = barcode.replace(/\D/g, '')
+    if (!bc) { toast.show('Introduce un código numérico'); return }
     await fetchProduct(bc)
     setBarcode('')
   }
@@ -618,7 +639,7 @@ function SearchTab() {
       )}
 
       {!query.trim() && onlineResults.length === 0 && (
-        <div style={{ textAlign: 'center', padding: 32, fontSize: 13, color: 'var(--color-dim)' }}>Busca entre 54 alimentos o en OpenFoodFacts.</div>
+        <div style={{ textAlign: 'center', padding: 32, fontSize: 13, color: 'var(--color-dim)' }}>Busca entre {FOODS_DB.length} alimentos o en OpenFoodFacts.</div>
       )}
 
       {allResults.map(f => (
@@ -645,12 +666,43 @@ function SearchTab() {
 
 /* ── GOALS TAB ── */
 function GoalsTab() {
-  const { goals, setGoals } = useNutriStore()
+  const { goals, setGoals, macroCalc, setMacroCalc } = useNutriStore()
   const toast = useToast()
   const [kcal, setKcal] = useState(String(goals.kcal))
   const [p, setP] = useState(String(goals.p))
   const [c, setC] = useState(String(goals.c))
   const [f, setF] = useState(String(goals.f))
+
+  // Calculadora de macros (parámetros iniciales del store)
+  const [mcWeight, setMcWeight] = useState(String(macroCalc.weight))
+  const [mcHeight, setMcHeight] = useState(String(macroCalc.height))
+  const [mcAge, setMcAge] = useState(String(macroCalc.age))
+  const [mcGender, setMcGender] = useState<'male' | 'female'>(macroCalc.gender)
+  const [mcActivity, setMcActivity] = useState(macroCalc.activity)
+  const [mcGoal, setMcGoal] = useState<'cut' | 'maintain' | 'bulk'>(macroCalc.goal)
+
+  const calcParams: MacroCalc = {
+    weight: parseFloat(mcWeight) || 0,
+    height: parseFloat(mcHeight) || 0,
+    age: parseInt(mcAge) || 0,
+    gender: mcGender,
+    activity: mcActivity,
+    goal: mcGoal,
+  }
+  const est = computeMacros(calcParams)
+  // (TDEE − kcal objetivo) · 7 días / 7700 kcal por kg de grasa.
+  const kgPerWeek = (est.tdee - est.kcal) * 7 / 7700
+  const kgLabel = kgPerWeek > 0
+    ? `≈ −${kgPerWeek.toFixed(2)} kg/semana`
+    : kgPerWeek < 0
+      ? `≈ +${Math.abs(kgPerWeek).toFixed(2)} kg/semana`
+      : '≈ 0 kg/semana (mantenimiento)'
+
+  function applyCalc() {
+    setMacroCalc(calcParams)
+    setKcal(String(est.kcal)); setP(String(est.p)); setC(String(est.c)); setF(String(est.f))
+    toast.show('✓ Macros aplicados a tus metas')
+  }
 
   function save() {
     const g = {
@@ -663,8 +715,64 @@ function GoalsTab() {
     toast.show('✓ Metas actualizadas')
   }
 
+  const ACTIVITIES = ['Sedentario', 'Ligero (1-2 días)', 'Moderado (3-4 días)', 'Activo (5-6 días)', 'Muy activo (atleta)']
+
   return (
     <div>
+      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
+        <div className="sec-label">🧮 Calculadora de macros</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 8 }}>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4 }}>Peso (kg)</div>
+            <input className="inp" value={mcWeight} onChange={e => setMcWeight(e.target.value)} type="number" style={{ marginBottom: 0 }} />
+          </div>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4 }}>Altura (cm)</div>
+            <input className="inp" value={mcHeight} onChange={e => setMcHeight(e.target.value)} type="number" style={{ marginBottom: 0 }} />
+          </div>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4 }}>Edad</div>
+            <input className="inp" value={mcAge} onChange={e => setMcAge(e.target.value)} type="number" style={{ marginBottom: 0 }} />
+          </div>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4 }}>Sexo</div>
+            <select className="inp" value={mcGender} onChange={e => setMcGender(e.target.value as 'male' | 'female')} style={{ marginBottom: 0 }}>
+              <option value="male">Hombre</option>
+              <option value="female">Mujer</option>
+            </select>
+          </div>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4 }}>Objetivo</div>
+            <select className="inp" value={mcGoal} onChange={e => setMcGoal(e.target.value as 'cut' | 'maintain' | 'bulk')} style={{ marginBottom: 0 }}>
+              <option value="cut">Perder grasa</option>
+              <option value="maintain">Mantener</option>
+              <option value="bulk">Ganar músculo</option>
+            </select>
+          </div>
+        </div>
+        <div style={{ marginBottom: 10 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4 }}>Actividad</div>
+          <select className="inp" value={mcActivity} onChange={e => setMcActivity(parseInt(e.target.value))} style={{ marginBottom: 0 }}>
+            {ACTIVITIES.map((a, i) => <option key={i} value={i}>{a}</option>)}
+          </select>
+        </div>
+        <div style={{ background: 'var(--color-s2)', borderRadius: 12, padding: 12, marginBottom: 10 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
+            <span style={{ fontSize: 12, color: 'var(--color-dim)' }}>Gasto (TDEE) {est.tdee} kcal</span>
+            <span style={{ fontFamily: 'DM Serif Display,serif', fontSize: 24, color: 'var(--color-acc-green)' }}>{est.kcal} kcal</span>
+          </div>
+          <div style={{ display: 'flex', gap: 12, fontSize: 12, color: 'var(--color-sub)' }}>
+            <span style={{ color: 'var(--color-acc-blue)', fontWeight: 600 }}>P {est.p}g</span>
+            <span style={{ color: 'var(--color-acc-gold)', fontWeight: 600 }}>C {est.c}g</span>
+            <span style={{ color: 'var(--color-acc-orange)', fontWeight: 600 }}>G {est.f}g</span>
+          </div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text)', marginTop: 8 }}>{kgLabel}</div>
+        </div>
+        <button onClick={applyCalc} className="btn-ghost" style={{ border: '1px solid rgba(82,183,136,0.2)', color: 'var(--color-acc-green)', background: 'rgba(82,183,136,0.1)' }}>Aplicar a mis metas</button>
+      </div>
+
       <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
         <div className="sec-label">Metas diarias</div>
         {[
@@ -689,13 +797,37 @@ function GoalsTab() {
 
 /* ── MENU TAB ── */
 function MenuTab() {
-  const { menu, setMenuDay, dishes } = useNutriStore()
+  const { menu, setMenuDay, dishes, goals } = useNutriStore()
   const toast = useToast()
   const [viewDay, setViewDay] = useState(0)
   const [sharePost, setSharePost] = useState<NewPost | null>(null)
+  const [dishFilter, setDishFilter] = useState('')
 
   const curDay = menu.find(m => m.day === viewDay)
   const curMeals = curDay?.meals || []
+
+  // Fuente unificada de platos para el picker: mis platos (nutri_dishes, que ya
+  // incluye las recetas guardadas de la comunidad) + recetas de la biblioteca.
+  type MenuDish = { name: string; totalKcal: number; totalP: number; totalC: number; totalF: number; ingredients: { name: string; grams: number }[] }
+  const allDishes = useMemo<MenuDish[]>(() => {
+    const own: MenuDish[] = dishes.map(d => ({
+      name: d.name, totalKcal: d.totalKcal, totalP: d.totalP, totalC: d.totalC, totalF: d.totalF,
+      ingredients: d.ingredients.map(i => ({ name: i.name, grams: i.grams })),
+    }))
+    const lib: MenuDish[] = RECIPES.map(r => ({
+      name: r.nombre,
+      totalKcal: r.macros_por_racion.kcal,
+      totalP: r.macros_por_racion.proteina_g,
+      totalC: r.macros_por_racion.carbohidratos_g,
+      totalF: r.macros_por_racion.grasas_g,
+      ingredients: r.ingredientes.map(i => ({ name: i.nombre, grams: i.cantidad })),
+    }))
+    // Dedup por nombre: mis platos ganan sobre la biblioteca.
+    const map = new Map<string, MenuDish>()
+    lib.forEach(d => map.set(d.name, d))
+    own.forEach(d => map.set(d.name, d))
+    return [...map.values()]
+  }, [dishes])
 
   function toggleDish(mealType: string, dishName: string) {
     const existing = curMeals.find(m => m.meal === mealType && m.dishName === dishName)
@@ -706,13 +838,51 @@ function MenuTab() {
     toast.show(existing ? 'Quitado del menú' : '✓ Añadido al menú')
   }
 
+  // Día aleatorio: combina platos (Desayuno/Comida/Cena/Snack) para acercarse a
+  // las metas de kcal (y proteína) dentro de ±5%. Reintenta y se queda con lo mejor.
+  function randomDay() {
+    if (allDishes.length === 0) { toast.show('Añade o crea platos primero'); return }
+    const goalKcal = goals.kcal || 2000
+    const goalP = goals.p || 0
+    const rnd = () => allDishes[Math.floor(Math.random() * allDishes.length)]
+    let best: { meal: string; dish: MenuDish }[] = []
+    let bestScore = Infinity
+    for (let attempt = 0; attempt < 400; attempt++) {
+      // 3 comidas al azar + snack que mejor rellene lo que falta de kcal.
+      const first3 = ['Desayuno', 'Comida', 'Cena'].map(m => ({ meal: m, dish: rnd() }))
+      const base = first3.reduce((s, x) => s + x.dish.totalKcal, 0)
+      const remaining = goalKcal - base
+      let snack = allDishes[0]
+      let snackDiff = Infinity
+      for (const d of allDishes) {
+        const diff = Math.abs(d.totalKcal - remaining)
+        if (diff < snackDiff) { snackDiff = diff; snack = d }
+      }
+      const picks = [...first3, { meal: 'Snack', dish: snack }]
+      const kcal = picks.reduce((s, x) => s + x.dish.totalKcal, 0)
+      const prot = picks.reduce((s, x) => s + x.dish.totalP, 0)
+      const kcalErr = Math.abs(kcal - goalKcal) / goalKcal
+      const protErr = goalP > 0 ? Math.abs(prot - goalP) / goalP : 0
+      const score = kcalErr + protErr * 0.5
+      if (score < bestScore) { bestScore = score; best = picks }
+      if (kcalErr <= 0.05 && protErr <= 0.05) break
+    }
+    const mealsToSave = best.map(x => ({ meal: x.meal, dishName: x.dish.name }))
+    setMenuDay(viewDay, mealsToSave)
+    const totalKcal = best.reduce((s, x) => s + x.dish.totalKcal, 0)
+    const within = Math.abs(totalKcal - goalKcal) / goalKcal <= 0.05
+    toast.show(within
+      ? `🎲 Día generado · ${totalKcal} kcal (meta ${goalKcal})`
+      : `🎲 Mejor aproximación · ${totalKcal} kcal (no logré ±5% de ${goalKcal})`)
+  }
+
   const shoppingList = (() => {
     const items: Record<string, { totalGrams: number; dishes: Set<string> }> = {}
     for (let day = 0; day < 7; day++) {
       const dayMenu = menu.find(m => m.day === day)
       if (!dayMenu) continue
       dayMenu.meals.forEach(mealEntry => {
-        const dish = dishes.find(d => d.name === mealEntry.dishName)
+        const dish = allDishes.find(d => d.name === mealEntry.dishName)
         if (!dish) return
         dish.ingredients.forEach(ing => {
           if (!items[ing.name]) items[ing.name] = { totalGrams: 0, dishes: new Set() }
@@ -743,43 +913,57 @@ function MenuTab() {
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div className="sec-label">{['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'][viewDay]}</div>
-        <button onClick={() => {
-          const post = menuToPost(menu)
-          if (!post) { toast.show('Añade platos al menú primero'); return }
-          setSharePost(post)
-        }}
-          style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 8, background: 'color-mix(in srgb, var(--color-acc-purple) 10%, transparent)', color: 'var(--color-acc-purple)', border: '1px solid color-mix(in srgb, var(--color-acc-purple) 20%, transparent)', cursor: 'pointer', fontFamily: 'DM Sans,sans-serif' }}>
-          ↗ Compartir semana
-        </button>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <button onClick={randomDay}
+            style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 8, background: 'rgba(82,183,136,0.1)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.2)', cursor: 'pointer', fontFamily: 'DM Sans,sans-serif' }}>
+            🎲 Día aleatorio
+          </button>
+          <button onClick={() => {
+            const post = menuToPost(menu)
+            if (!post) { toast.show('Añade platos al menú primero'); return }
+            setSharePost(post)
+          }}
+            style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 8, background: 'color-mix(in srgb, var(--color-acc-purple) 10%, transparent)', color: 'var(--color-acc-purple)', border: '1px solid color-mix(in srgb, var(--color-acc-purple) 20%, transparent)', cursor: 'pointer', fontFamily: 'DM Sans,sans-serif' }}>
+            ↗ Compartir semana
+          </button>
+        </div>
       </div>
       {sharePost && <ShareSheet post={sharePost} onClose={() => setSharePost(null)} />}
 
-      {MEAL_TYPES.map(meal => (
-        <div key={meal} style={{ marginBottom: 12 }}>
-          <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>{meal}</div>
-          <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 12, overflow: 'hidden' }}>
-            {dishes.length === 0 ? (
-              <div style={{ padding: 12, fontSize: 12, color: 'var(--color-dim)' }}>Sin platos. Crea uno en la pestaña Platos.</div>
-            ) : dishes.map(d => {
-              const isSelected = curMeals.some(m => m.meal === meal && m.dishName === d.name)
-              return (
-                <div key={d.id} onClick={() => toggleDish(meal, d.name)}
-                  style={{
-                    padding: '10px 14px', borderBottom: '1px solid rgba(255,255,255,0.03)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    cursor: 'pointer', background: isSelected ? 'rgba(82,183,136,0.08)' : 'transparent',
-                  }}>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: isSelected ? 'var(--color-acc-green)' : 'var(--color-text)' }}>{d.name}</div>
-                    <div style={{ fontSize: 11, color: 'var(--color-dim)' }}>{d.totalKcal} kcal</div>
+      <input className="inp" value={dishFilter} onChange={e => setDishFilter(e.target.value)} placeholder={`🔍 Buscar entre ${allDishes.length} platos (propios + biblioteca)…`} style={{ marginTop: 8, marginBottom: 12 }} />
+
+      {(() => {
+        const q = dishFilter.trim().toLowerCase()
+        const shown = q ? allDishes.filter(d => d.name.toLowerCase().includes(q)) : allDishes
+        return MEAL_TYPES.map(meal => (
+          <div key={meal} style={{ marginBottom: 12 }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>{meal}</div>
+            <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 12, overflow: 'hidden', maxHeight: 260, overflowY: 'auto' }}>
+              {allDishes.length === 0 ? (
+                <div style={{ padding: 12, fontSize: 12, color: 'var(--color-dim)' }}>Sin platos. Crea uno en la pestaña Platos o usa la biblioteca.</div>
+              ) : shown.length === 0 ? (
+                <div style={{ padding: 12, fontSize: 12, color: 'var(--color-dim)' }}>Sin coincidencias.</div>
+              ) : shown.map(d => {
+                const isSelected = curMeals.some(m => m.meal === meal && m.dishName === d.name)
+                return (
+                  <div key={d.name} onClick={() => toggleDish(meal, d.name)}
+                    style={{
+                      padding: '10px 14px', borderBottom: '1px solid rgba(255,255,255,0.03)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      cursor: 'pointer', background: isSelected ? 'rgba(82,183,136,0.08)' : 'transparent',
+                    }}>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: isSelected ? 'var(--color-acc-green)' : 'var(--color-text)' }}>{d.name}</div>
+                      <div style={{ fontSize: 11, color: 'var(--color-dim)' }}>{d.totalKcal} kcal · P{d.totalP} C{d.totalC} G{d.totalF}</div>
+                    </div>
+                    <div style={{ fontSize: 16 }}>{isSelected ? '✅' : '⬜'}</div>
                   </div>
-                  <div style={{ fontSize: 16 }}>{isSelected ? '✅' : '⬜'}</div>
-                </div>
-              )
-            })}
+                )
+              })}
+            </div>
           </div>
-        </div>
-      ))}
+        ))
+      })()}
 
       {shoppingList.length > 0 && (
         <div style={{ marginTop: 20 }}>

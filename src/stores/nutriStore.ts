@@ -34,6 +34,20 @@ interface NutriStore {
 
 const M_TPCTS = { Desayuno: 25, Comida: 35, Cena: 25, Snack: 10, 'Post-entreno': 5 }
 
+// Cálculo puro de TDEE + macros (Mifflin-St Jeor). Fuente única de verdad:
+// lo usan tanto setMacroCalc (Herramientas) como la calculadora de Metas.
+export function computeMacros(m: MacroCalc): { tdee: number; kcal: number; p: number; c: number; f: number } {
+  const bmr = m.gender === 'male'
+    ? 10 * m.weight + 6.25 * m.height - 5 * m.age + 5
+    : 10 * m.weight + 6.25 * m.height - 5 * m.age - 161
+  const tdee = bmr * [1.2, 1.375, 1.55, 1.725, 1.9][m.activity]
+  const kcal = m.goal === 'cut' ? Math.round(tdee - 500) : m.goal === 'bulk' ? Math.round(tdee + 300) : Math.round(tdee)
+  const p = m.goal === 'cut' ? Math.round(m.weight * 2.2) : Math.round(m.weight * 1.8)
+  const f = Math.round(kcal * 0.25 / 9)
+  const c = Math.round((kcal - p * 4 - f * 9) / 4)
+  return { tdee: Math.round(tdee), kcal, p, c, f }
+}
+
 export const useNutriStore = create<NutriStore>((set, get) => ({
   log: loadFromStorage('nutri_log', {}),
   dishes: loadFromStorage('nutri_dishes', []),
@@ -65,12 +79,7 @@ export const useNutriStore = create<NutriStore>((set, get) => ({
     saveToStorage('nutri_favs', f); return { favorites: f }
   }),
   setMacroCalc: (m) => { saveToStorage('nutri_macro_calc', m); set({ macroCalc: m })
-    const bmr = m.gender === 'male' ? 10 * m.weight + 6.25 * m.height - 5 * m.age + 5 : 10 * m.weight + 6.25 * m.height - 5 * m.age - 161
-    const tdee = bmr * [1.2, 1.375, 1.55, 1.725, 1.9][m.activity]
-    const kcal = m.goal === 'cut' ? Math.round(tdee - 500) : m.goal === 'bulk' ? Math.round(tdee + 300) : Math.round(tdee)
-    const p = m.goal === 'cut' ? Math.round(m.weight * 2.2) : Math.round(m.weight * 1.8)
-    const f = Math.round(kcal * 0.25 / 9)
-    const c = Math.round((kcal - p * 4 - f * 9) / 4)
+    const { kcal, p, c, f } = computeMacros(m)
     const goals = { kcal, p, c, f, mealPcts: get().goals.mealPcts }
     saveToStorage('nutri_goals', goals); set({ goals })
   },
