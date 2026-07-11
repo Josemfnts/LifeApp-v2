@@ -1,3 +1,5 @@
+import { createPortal } from 'react-dom'
+
 interface ConfirmDialogProps {
   open: boolean
   title: string
@@ -19,10 +21,10 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   if (!open) return null
   const accent = danger ? 'var(--color-red)' : 'var(--color-acc-blue)'
-  return (
+  return createPortal(
     <div onClick={e => { if (e.target === e.currentTarget) onClose() }}
       style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 9500, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
-      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 480, padding: '20px 20px 40px' }}>
+      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 480, padding: '20px 20px calc(28px + env(safe-area-inset-bottom,0px))' }}>
         <div style={{ width: 36, height: 4, background: 'var(--color-border2)', borderRadius: 99, margin: '0 auto 16px' }} />
         <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 19, marginBottom: message ? 8 : 16 }}>{title}</div>
         {message && <div style={{ fontSize: 13.5, color: 'var(--color-sub)', lineHeight: 1.5, marginBottom: 18 }}>{message}</div>}
@@ -31,6 +33,7 @@ export function ConfirmDialog({
           <button onClick={() => { onConfirm(); onClose() }} className="btn-primary" style={{ width: '100%', minWidth: 0, background: accent }}>{confirmLabel}</button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

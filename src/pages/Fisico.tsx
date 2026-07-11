@@ -43,7 +43,6 @@ function StrengthTab() {
   const generateWarmupSets = useFisicoStore(s => s.generateWarmupSets)
   const getLastExerciseData = useFisicoStore(s => s.getLastExerciseData)
   const unit = useFisicoStore(s => s.unit)
-  const toggleUnit = useFisicoStore(s => s.toggleUnit)
   const programs = useFisicoStore(s => s.programs)
   const addProgram = useFisicoStore(s => s.addProgram)
   const removeProgram = useFisicoStore(s => s.removeProgram)
@@ -113,12 +112,6 @@ function StrengthTab() {
     return (
       <div className="animate-tab">
         {subBar}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
-          <button onClick={toggleUnit}
-            style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', borderRadius: 8, fontSize: 11, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid var(--color-border)', background: 'var(--color-s2)', color: 'var(--color-sub)' }}>
-            Unidad: <span style={{ color: 'var(--color-acc-orange)', fontWeight: 700 }}>{unit.toUpperCase()}</span>
-          </button>
-        </div>
         <div className="grid grid-cols-3 gap-2 mb-3">
           <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-3.5 text-center relative overflow-hidden">
             <div className="absolute top-0 left-[10%] right-[10%] h-0.5 rounded-b-sm bg-[var(--color-acc-orange)]" />
@@ -204,7 +197,7 @@ function StrengthTab() {
                     })))
                   }}
                     style={{ width: '100%', padding: 12, borderRadius: 10, background: 'var(--color-acc-orange)', color: '#fff', border: 'none', fontSize: 14, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>
-                    ▶ Empezar sesión de hoy
+                    Empezar sesión de hoy
                   </button>
                 </div>
               )
@@ -293,7 +286,7 @@ function StrengthTab() {
                   else startSession('Sesión libre')
                 }}
                   className="py-2.5 rounded-xl font-semibold text-sm font-sans cursor-pointer bg-[var(--color-acc-blue)] text-white border-[var(--color-acc-blue)] shadow-lg shadow-[var(--color-acc-blue)]/25">
-                  ▶ Empezar
+                  Empezar
                 </button>
                 <button onClick={() => { const last = sessions[0]; startSession(last?.name || 'Sesión libre', last?.exercises.map(e => ({ name: e.name, group: e.group, color: e.color, sets: e.sets.length }))) }}
                   className="py-2.5 rounded-xl font-semibold text-sm font-sans cursor-pointer bg-[var(--color-s2)] text-[var(--color-sub)] border border-[var(--color-border)]">
@@ -659,7 +652,7 @@ function StrengthTab() {
                     {r.ejercicios.length > 5 && <span style={{ color: 'var(--color-dim)', fontSize: 10 }}>+{r.ejercicios.length - 5} más</span>}
                   </div>
                 )}
-                <button onClick={() => { const session = r.sesiones.length > 0 ? r.sesiones[0] : null; const exs = session ? session.ejercicios : r.ejercicios; const name = session ? `${r.nombre} - ${session.nombre}` : r.nombre; startSession(name, exs.map(e => ({ name: e.nombre, group: e.grupo_muscular, color: EXERCISE_COLORS[e.grupo_muscular] || '#e07a5f', sets: e.series, restSeconds: e.descanso_seg }))) }} style={{ width: '100%', padding: 10, borderRadius: 10, background: 'var(--color-acc-orange)', color: '#fff', border: 'none', fontSize: 14, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', marginBottom: 4 }}>▶ Empezar esta rutina</button>
+                <button onClick={() => { const session = r.sesiones.length > 0 ? r.sesiones[0] : null; const exs = session ? session.ejercicios : r.ejercicios; const name = session ? `${r.nombre} - ${session.nombre}` : r.nombre; startSession(name, exs.map(e => ({ name: e.nombre, group: e.grupo_muscular, color: EXERCISE_COLORS[e.grupo_muscular] || '#e07a5f', sets: e.series, restSeconds: e.descanso_seg }))) }} style={{ width: '100%', padding: 10, borderRadius: 10, background: 'var(--color-acc-orange)', color: '#fff', border: 'none', fontSize: 14, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', marginBottom: 4 }}>Empezar esta rutina</button>
                 {r.sesiones.length > 1 && (
                   <button onClick={() => { setWeeklyModal(r.id) }}
                     style={{ width: '100%', padding: 10, borderRadius: 10, background: 'color-mix(in srgb, var(--color-acc-orange) 12%, transparent)', color: 'var(--color-acc-orange)', border: '1px solid color-mix(in srgb, var(--color-acc-orange) 25%, transparent)', fontSize: 14, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>
@@ -1263,7 +1256,7 @@ export default function Fisico() {
     <div>
       <div className="page-header">
         <div className="page-title">Físico</div>
-        <div style={{ display: 'flex', gap: 8, marginTop: 2 }}>
+        <div style={{ display: 'flex', gap: 8, marginTop: 2, paddingBottom: 6 }}>
           {([
             { k: 'strength' as const, l: '💪 Fuerza', c: 'var(--color-acc-orange)' },
             { k: 'running' as const, l: '🏃 Running', c: 'var(--color-acc-blue)' },

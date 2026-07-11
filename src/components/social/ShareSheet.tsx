@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { createPost, isSignedIn, type NewPost } from '@/lib/social'
 import type { SocialPost } from '@/types/social'
 import { useToast } from '@/stores/toast'
@@ -43,9 +44,9 @@ export function ShareSheet({ post, onClose, onShared }: {
     } finally { setBusy(false) }
   }
 
-  return (
+  return createPortal(
     <div onClick={e => { if (e.target === e.currentTarget) onClose() }} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 9000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
-      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 480, padding: '20px 20px 40px', maxHeight: '90dvh', overflowY: 'auto' }}>
+      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 480, padding: '20px 20px calc(28px + env(safe-area-inset-bottom,0px))', maxHeight: '90dvh', overflowY: 'auto' }}>
         <div style={{ width: 36, height: 4, background: 'var(--color-border2)', borderRadius: 99, margin: '0 auto 16px' }} />
         <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 20, marginBottom: 4 }}>Compartir en la comunidad</div>
         <div style={{ fontSize: 12.5, color: 'var(--color-dim)', marginBottom: 14 }}>Así lo verán los demás:</div>
@@ -85,6 +86,7 @@ export function ShareSheet({ post, onClose, onShared }: {
           </>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
