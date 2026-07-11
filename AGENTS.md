@@ -82,8 +82,11 @@ aparte (`src/lib/social.ts`, migración `005_social.sql`).
 Migraciones: `001` esquema inicial (ya en desuso), `002` tabla `store_data`, **`003` multi-tenant + grants**,
 `004` borra el esquema muerto, `005` social/comunidad, **`006` notas** (`pages` + `page_links`, RLS `auth.uid()`),
 **`007` comunidad v2** (perfiles, seguidores, comentarios, reposts, notificaciones y nuevos tipos de post:
-rutina/receta/dieta/objetivo/progreso) — **APLICADA y verificada E2E el 2026-07-10**. Nota: los `GRANT` de
-005/007 son a `anon, authenticated` (no a `service_role`): la service_role no puede leer estas tablas por PostgREST.
+rutina/receta/dieta/objetivo/progreso), **`008` social_uses** ("han usado tu contenido": tabla `social_uses` +
+`use_count` + trigger que notifica al autor al importar del feed) — todas **APLICADAS y verificadas E2E**.
+Nota: los `GRANT` de 005/007/008 son a `anon, authenticated` (no a `service_role`): la service_role no puede leer
+estas tablas por PostgREST. Al aplicar una migración con tablas nuevas, tras el POST hacer
+`NOTIFY pgrst, 'reload schema';` (si no, PostgREST da 404 hasta que refresca el cache del esquema).
 
 **Excepción al patrón local-first — módulo Notas** (`src/modules/notes/`): NO usa `store_data`; tiene tablas
 propias `pages` (documento BlockNote en `content` jsonb, jerarquía `parent_id`, papelera `deleted_at`) y
@@ -138,7 +141,11 @@ La auditoría del 1-jul ya está mayormente resuelta:
   (fin de entreno automático, historial, rutinas, PRs, carreras) y Nutrición (platos, menú, progreso).
   Para añadir un punto de compartir nuevo: mapeador en socialShare.ts + estado local + `<ShareSheet/>`.
   El viaje de vuelta es `src/lib/socialImport.ts` (botón verde en `PostCard`): rutina/entreno → mis rutinas,
-  receta → mis platos (parsea "Nombre — 200 g"), menú → mi menú semanal (días por nombre; 0=Domingo).
+  receta → mis platos (parsea "Nombre — 200 g"), menú → mi menú semanal (días por nombre; 0=Domingo). Al
+  importar, `markPostUsed` registra el uso (migración 008) → el autor recibe aviso. Compartir también desde
+  Hábitos (racha). Feed paginado (`FEED_PAGE=20`, `.range()`, "Cargar más"); imágenes acotadas a ~380KB en
+  `compressImage`. **Pendiente grande NO hecho**: mover imágenes a Supabase Storage (hoy data URL en la fila).
+- **Confirmaciones**: usa `<ConfirmDialog>` (components/ui), no `confirm()` nativo — quedan 0 en el código.
 
 ## Gotchas
 - `.env` (`VITE_SUPABASE_URL` + anon key) **ya NO está versionado** (gitignored desde `255b781`). La anon key
