@@ -37,7 +37,10 @@ export default function Agenda() {
       </div>
       <div style={{ padding: 16 }}>
         {tab === 'month' && (
-          <>
+          // Columna que llena el alto disponible para que el calendario ocupe el
+          // hueco en vez de dejar un vacío abajo (contenido corto). 210px ≈ header
+          // + tab-bar + padding; si sobra, el calendario crece.
+          <div style={{ display: 'flex', flexDirection: 'column', minHeight: 'calc(100dvh - 340px)' }}>
             <CalendarView onPick={(d: Date) => { setSelDate(d); setTab('day') }} />
             <CollapsibleRow title="Turnos" hint={openTurnos ? 'Cerrar' : 'Editar'} open={openTurnos} onToggle={() => setOpenTurnos(v => !v)}>
               <ShiftsView />
@@ -45,7 +48,7 @@ export default function Agenda() {
             <CollapsibleRow title="Semana" hint={openSemana ? 'Cerrar' : 'Ver'} open={openSemana} onToggle={() => setOpenSemana(v => !v)}>
               <WeekView />
             </CollapsibleRow>
-          </>
+          </div>
         )}
         {tab === 'day' && <DayView date={selDate} />}
         {tab === 'stats' && <StatsView />}
@@ -92,7 +95,7 @@ function CalendarView({ onPick }: { onPick: (d: Date) => void }) {
     days.push({ d, dStr, isToday: dStr === today, dotColors: [...new Set(cols)], shift: shifts[dStr] || null, taskCount: (tasks[dStr] || []).length })
   }
   return (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
         <button onClick={() => setViewDate(p => new Date(p.getFullYear(), p.getMonth() - 1, 1))} style={{ width: 34, height: 34, borderRadius: 10, background: 'var(--color-s1)', border: '1px solid var(--color-border)', color: 'var(--color-sub)', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>‹</button>
         <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 20, color: 'var(--color-text)' }}>{MONTHS[m]} {y}</div>
@@ -101,12 +104,13 @@ function CalendarView({ onPick }: { onPick: (d: Date) => void }) {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', marginBottom: 6 }}>
         {['L','M','X','J','V','S','D'].map(d => <div key={d} style={{ textAlign: 'center', fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', padding: '4px 0' }}>{d}</div>)}
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 2 }}>
-        {Array.from({ length: start }, (_, i) => <div key={`e${i}`} style={{ aspectRatio: '1' }} />)}
+      {/* El grid crece para llenar el hueco: filas a 1fr con altura mínima. */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gridAutoRows: 'minmax(46px, 1fr)', gap: 2, flex: 1, marginBottom: 8 }}>
+        {Array.from({ length: start }, (_, i) => <div key={`e${i}`} />)}
         {days.map(({ d, dStr, isToday, dotColors, shift, taskCount }) => (
           <button key={d} onClick={() => onPick(new Date(y, m, d, 12))}
             style={{
-              aspectRatio: '1', width: '100%', borderRadius: 10, border: isToday ? '2px solid var(--color-acc-blue)' : '1px solid var(--color-border)',
+              width: '100%', height: '100%', borderRadius: 10, border: isToday ? '2px solid var(--color-acc-blue)' : '1px solid var(--color-border)',
               background: isToday ? 'rgba(91,138,240,0.1)' : 'var(--color-s1)', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
               fontSize: 13, fontWeight: isToday ? 700 : 500, color: isToday ? 'var(--color-acc-blue)' : 'var(--color-sub)',
               transition: 'all 0.15s', position: 'relative',
