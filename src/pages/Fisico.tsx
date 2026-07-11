@@ -68,8 +68,11 @@ function StrengthTab() {
   const [notes, setNotes] = useState('')
   const [cexName, setCexName] = useState('')
   const [cexGroup, setCexGroup] = useState('Pecho')
+  const [cexEquip, setCexEquip] = useState('')
+  const [showAddEx, setShowAddEx] = useState(false)
   const [selRoutine, setSelRoutine] = useState('')
   const [equipFilter, setEquipFilter] = useState('')
+  const [libGroup, setLibGroup] = useState('')  // filtro de grupo muscular en la pestaña Ejercicios
   const [dbObj, setDbObj] = useState('')
   const [dbNivel, setDbNivel] = useState('')
   const [dbLugar, setDbLugar] = useState('')
@@ -725,13 +728,47 @@ function StrengthTab() {
     return (
       <div className="animate-tab">
         {subBar}
+
+        {/* Añadir ejercicio propio: plegable, arriba del todo para encontrarlo fácil */}
+        <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl overflow-hidden mb-3">
+          <button onClick={() => setShowAddEx(v => !v)}
+            className="w-full flex items-center justify-between px-4 py-3 cursor-pointer bg-transparent border-none">
+            <span className="text-sm font-semibold text-[var(--color-acc-orange)]">+ Añadir ejercicio propio</span>
+            <span className="text-[var(--color-dim)] text-xs">{showAddEx ? '▲' : '▼'}</span>
+          </button>
+          {showAddEx && (
+            <div className="px-4 pb-4 pt-1 border-t border-[var(--color-border)]">
+              <Input value={cexName} onChange={setCexName} placeholder="Nombre del ejercicio" className="mb-2" />
+              <div className="grid grid-cols-2 gap-2 mb-2.5">
+                <select value={cexGroup} onChange={e => setCexGroup(e.target.value)} className="bg-[var(--color-s2)] border border-[var(--color-border)] text-[var(--color-text)] rounded-xl px-3 py-2.5 text-sm font-sans outline-none cursor-pointer">
+                  {EXERCISE_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
+                </select>
+                <select value={cexEquip} onChange={e => setCexEquip(e.target.value)} className="bg-[var(--color-s2)] border border-[var(--color-border)] text-[var(--color-text)] rounded-xl px-3 py-2.5 text-sm font-sans outline-none cursor-pointer">
+                  <option value="">Material…</option>
+                  {EQUIPMENT_TYPES.map(eq => <option key={eq} value={eq}>{EQUIPMENT_LABELS[eq]}</option>)}
+                </select>
+              </div>
+              <button onClick={() => { if (cexName.trim()) { addCustomExercise({ name: cexName.trim(), group: cexGroup, equipment: cexEquip || undefined }); setCexName(''); setCexEquip(''); toast.show('✓ Ejercicio añadido'); setShowAddEx(false) } }}
+                className="w-full py-2.5 rounded-xl bg-[var(--color-acc-orange)] text-white text-sm font-semibold font-sans cursor-pointer shadow-lg shadow-[var(--color-acc-orange)]/25">Guardar ejercicio</button>
+            </div>
+          )}
+        </div>
+
         <div className="flex gap-1.5 overflow-x-auto mb-3.5 pb-0.5">
+          <button onClick={() => setLibGroup('')}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border cursor-pointer whitespace-nowrap flex-shrink-0 ${libGroup === '' ? 'bg-[var(--color-acc-orange)]/[0.14] border-[var(--color-acc-orange)]/40 text-[var(--color-acc-orange)]' : 'bg-[var(--color-s1)] border-[var(--color-border)] text-[var(--color-sub)]'}`}>Todos</button>
           {EXERCISE_GROUPS.map(g => (
-            <button key={g} className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[var(--color-s1)] border border-[var(--color-border)] text-[var(--color-sub)] cursor-pointer whitespace-nowrap flex-shrink-0">{g}</button>
+            <button key={g} onClick={() => setLibGroup(g === libGroup ? '' : g)}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border cursor-pointer whitespace-nowrap flex-shrink-0 ${libGroup === g ? 'bg-[var(--color-acc-orange)]/[0.14] border-[var(--color-acc-orange)]/40 text-[var(--color-acc-orange)]' : 'bg-[var(--color-s1)] border-[var(--color-border)] text-[var(--color-sub)]'}`}>{g}</button>
           ))}
         </div>
+        {(() => {
+          const libExercises = allExercises.filter(ex => !libGroup || ex.group === libGroup)
+          return (
         <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl overflow-hidden">
-          {allExercises.map(ex => (
+          {libExercises.length === 0 ? (
+            <div className="text-center py-8 text-[13px] text-[var(--color-dim)]">Sin ejercicios de {libGroup}.</div>
+          ) : libExercises.map(ex => (
             <div key={ex.name} className="flex items-center gap-3 px-4 py-3 border-b border-white/[0.03] last:border-b-0">
               <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: EXERCISE_COLORS[ex.group] || 'var(--color-acc-orange)' }} />
               <div className="flex-1">
@@ -741,16 +778,8 @@ function StrengthTab() {
             </div>
           ))}
         </div>
-
-        <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-4 mt-3">
-          <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-[0.8px] mb-2.5">Añadir ejercicio propio</div>
-          <Input value={cexName} onChange={setCexName} placeholder="Nombre del ejercicio" className="mb-2" />
-          <select value={cexGroup} onChange={e => setCexGroup(e.target.value)} className="w-full bg-[var(--color-s2)] border border-[var(--color-border)] text-[var(--color-text)] rounded-xl px-3.5 py-2.5 text-sm font-sans mb-2.5 outline-none cursor-pointer">
-            {EXERCISE_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
-          </select>
-          <button onClick={() => { if (cexName.trim()) { addCustomExercise({ name: cexName.trim(), group: cexGroup }); setCexName('') } }}
-            className="w-full py-2.5 rounded-xl bg-[var(--color-acc-orange)] text-white text-sm font-semibold font-sans cursor-pointer shadow-lg shadow-[var(--color-acc-orange)]/25">Guardar ejercicio</button>
-        </div>
+          )
+        })()}
       </div>
     )
   }
