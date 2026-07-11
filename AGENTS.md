@@ -19,6 +19,9 @@ cuenta — **excepto Notas y Comunidad**, que hablan con Supabase directamente y
 - **Supabase JS 2** — Auth + una tabla de datos (`store_data`). Backend serverless, sin API propia.
 - **Tailwind CSS 4** (via `@tailwindcss/vite`) + theming por **CSS variables** (`var(--color-*)`).
 - **chart.js 4** + react-chartjs-2 (gráficas). **lucide-react** (iconos). **vite-plugin-pwa** (PWA/offline).
+- **barcode-detector** (ponyfill de `BarcodeDetector` sobre zxing-wasm) — escáner de código de barras en
+  Nutrición. Se importa **lazy** (`import('barcode-detector/ponyfill')`) solo cuando el navegador no trae
+  `BarcodeDetector` nativo (caso iOS Safari). NO lo metas en el bundle principal.
 - **BlockNote 0.51** (`@blocknote/core|react|mantine`) — editor de bloques del módulo Notas. Compatible
   con React 19; carga en un **chunk lazy** propio (~270kB js / ~225kB css), nunca en los chunks de página.
 - Lint: **oxlint** (no ESLint). Formato: prettier. Deploy: **Vercel** (`vercel.json`).
