@@ -130,7 +130,17 @@ export async function searchUsers(query: string): Promise<Profile[]> {
   return (data ?? []) as Profile[]
 }
 
-// --- Seguir ------------------------------------------------------------------
+// Lista todos los perfiles registrados (más nuevos primero) para mostrarlos
+// nada más abrir el buscador, antes de que el usuario escriba.
+export async function listAllUsers(limit = 50): Promise<Profile[]> {
+  const { data, error } = await supabase
+    .from('social_profiles')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(limit)
+  if (error) throw error
+  return (data ?? []) as Profile[]
+}
 
 export async function follow(targetId: string): Promise<void> {
   const user = await currentUser()

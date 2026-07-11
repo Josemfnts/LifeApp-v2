@@ -48,9 +48,8 @@ export default function Login({ onDone }: LoginProps) {
       background: 'var(--color-bg)',
     }}>
       <div style={{ textAlign: 'center', marginBottom: 32 }}>
-        <img src="/icon-192.png" alt="Life OS" width={64} height={64} style={{ borderRadius: 16, marginBottom: 12, border: '1px solid rgba(255,255,255,0.08)' }} />
-        <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 28, color: 'var(--color-text)', marginBottom: 4 }}>Life OS</div>
-        <div style={{ fontSize: 13, color: 'var(--color-sub)' }}>Tu sistema de vida</div>
+        <img src="/icon-512.png" alt="Life OS" width={176} height={176} style={{ display: 'block', margin: '0 auto 16px', background: 'transparent' }} />
+        <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 30, color: 'var(--color-text)' }}>Life OS</div>
       </div>
 
       <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: 360 }}>

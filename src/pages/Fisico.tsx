@@ -1054,12 +1054,13 @@ function RunningTab() {
           <Input value={dist} onChange={setDist} type="number" step="0.01" placeholder="Distancia (km)" />
           <Input value={time} onChange={setTime} placeholder="Tiempo (mm:ss)" />
         </div>
-        <Input value={runDate} onChange={setRunDate} type="date" className="mb-1.5" />
         <div className="grid grid-cols-2 gap-2 mb-1.5">
           <Input value={runHr} onChange={setRunHr} type="number" placeholder="FC media (bpm)" />
           <Input value={runElev} onChange={setRunElev} type="number" placeholder="Desnivel + (m)" />
         </div>
-        <select value={runType} onChange={e => setRunType(e.target.value)} className="w-full bg-[var(--color-s2)] border border-[var(--color-border)] text-[var(--color-text)] rounded-xl px-3.5 py-2.5 text-sm font-sans mb-2 outline-none cursor-pointer">
+        <div className="grid grid-cols-2 gap-2 mb-2">
+          <Input value={runDate} onChange={setRunDate} type="date" />
+          <select value={runType} onChange={e => setRunType(e.target.value)} className="w-full bg-[var(--color-s2)] border border-[var(--color-border)] text-[var(--color-text)] rounded-xl px-3.5 py-2.5 text-sm font-sans outline-none cursor-pointer">
           <option value="easy">🟢 Rodaje suave</option>
           <option value="tempo">🔵 Tempo / Umbral</option>
           <option value="interval">🟡 Series / Intervalos</option>
@@ -1067,6 +1068,7 @@ function RunningTab() {
           <option value="race">🔴 Competición</option>
           <option value="trail">🟤 Trail / montaña</option>
         </select>
+        </div>
         <Input value={runNotes} onChange={setRunNotes} placeholder="Notas (sensaciones, ruta...)" className="mb-2" />
         <button onClick={handleAdd} className="w-full py-2.5 rounded-xl bg-[var(--color-acc-blue)] text-white text-sm font-semibold font-sans cursor-pointer shadow-lg shadow-[var(--color-acc-blue)]/25">Guardar carrera</button>
       </div>
