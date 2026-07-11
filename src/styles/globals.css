@@ -60,7 +60,11 @@ body { background:var(--color-bg); color:var(--color-text); font-family:var(--fo
 /* Colchón inferior = alto estructural de la nav-bar (~72px) + safe-area (para
    librar la zona del home indicator que la barra reserva) + un poco de aire.
    Como html ya NO añade safe-area abajo, aquí sí toca sumarla una vez. */
-#sw{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(80px + env(safe-area-inset-bottom,0px));-webkit-overflow-scrolling:touch}
+/* NO usar -webkit-overflow-scrolling:touch aquí: en iOS Safari atrapa los
+   position:fixed hijos (hojas/modales) dentro del scroll y los deja detrás de la
+   barra inferior (botones cortados). En iOS moderno el scroll con inercia ya es
+   el de por defecto, así que no hace falta. */
+#sw{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(80px + env(safe-area-inset-bottom,0px))}
 
 .page-header{padding:24px 20px 0;background:var(--color-bg);border-bottom:1px solid var(--color-border);flex-shrink:0}
 .page-module{font-size:11px;font-weight:600;letter-spacing:0.3px;margin-bottom:3px}
