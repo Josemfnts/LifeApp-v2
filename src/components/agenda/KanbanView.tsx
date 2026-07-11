@@ -39,7 +39,6 @@ export function KanbanView() {
   const [activeProject, setActiveProject] = useState<number | null>(projects[0]?.id || null)
   const [showProjForm, setShowProjForm] = useState(false)
   const [projName, setProjName] = useState('')
-  const [projColor, setProjColor] = useState('#5b8af0')
   const [newCardText, setNewCardText] = useState('')
   const [newPriority, setNewPriority] = useState<'low' | 'medium' | 'high'>('medium')
   const [editingCard, setEditingCard] = useState<KanbanCard | null>(null)
@@ -51,9 +50,14 @@ export function KanbanView() {
 
   const filteredCards = activeProject ? cards.filter(c => c.projectId === activeProject) : cards
 
+  // Paleta de colores de proyecto; se asigna automáticamente por orden de
+  // creación (antes había un selector manual que se cortaba en móvil).
+  const PROJECT_PALETTE = ['#5b8af0', '#52b788', '#e07a5f', '#c9a84c', '#9b7fe0', '#e05f5f']
+
   function addProject() {
     if (!projName.trim()) return
-    const p: KanbanProject = { id: Date.now(), name: projName.trim(), color: projColor }
+    const color = PROJECT_PALETTE[projects.length % PROJECT_PALETTE.length]
+    const p: KanbanProject = { id: Date.now(), name: projName.trim(), color }
     const next = [...projects, p]
     setProjects(next); save(PROJECTS_KEY, next)
     setActiveProject(p.id); setProjName(''); setShowProjForm(false)
@@ -133,13 +137,8 @@ export function KanbanView() {
 
       {showProjForm && (
         <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 12, padding: 12, marginBottom: 12, display: 'flex', gap: 8, alignItems: 'center' }}>
-          <input className="inp" value={projName} onChange={e => setProjName(e.target.value)} placeholder="Nombre del proyecto..." style={{ flex: 1, marginBottom: 0 }} onKeyDown={e => { if (e.key === 'Enter') addProject() }} />
-          <div style={{ display: 'flex', gap: 4 }}>
-            {['#5b8af0','#52b788','#e07a5f','#c9a84c','#9b7fe0','#e05f5f'].map(c => (
-              <button key={c} onClick={() => setProjColor(c)} style={{ width: 20, height: 20, borderRadius: '50%', border: projColor === c ? '2px solid var(--color-text)' : '2px solid transparent', background: c, cursor: 'pointer' }} />
-            ))}
-          </div>
-          <button onClick={addProject} className="btn-ghost" style={{ width: 'auto', padding: '8px 16px' }}>Crear</button>
+          <input className="inp" value={projName} onChange={e => setProjName(e.target.value)} placeholder="Nombre del proyecto..." style={{ flex: 1, minWidth: 0, marginBottom: 0 }} onKeyDown={e => { if (e.key === 'Enter') addProject() }} autoFocus />
+          <button onClick={addProject} className="btn-ghost" style={{ width: 'auto', flexShrink: 0, padding: '8px 16px' }}>Crear</button>
         </div>
       )}
 
@@ -224,14 +223,16 @@ export function KanbanView() {
             <input className="inp" value={editText} onChange={e => setEditText(e.target.value)} placeholder="Título de la tarea" />
             <textarea className="inp" value={editDesc} onChange={e => setEditDesc(e.target.value)} placeholder="Descripción..." style={{ height: 80, resize: 'vertical', fontFamily: 'DM Sans,sans-serif', fontSize: 14 }} />
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
-              <input className="inp" value={editDate} onChange={e => setEditDate(e.target.value)} type="date" style={{ marginBottom: 0 }} />
-              <select className="inp" value={editPriority} onChange={e => setEditPriority(e.target.value as 'low' | 'medium' | 'high')} style={{ marginBottom: 0 }}>
-                <option value="low">🟢 Baja</option><option value="medium">🟡 Media</option><option value="high">🔴 Alta</option>
-              </select>
-            </div>
+            {/* Fecha y prioridad en filas independientes: el input date nativo de
+                iOS es ancho y, en rejilla, se solapaba con el selector. */}
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 6 }}>Fecha límite</div>
+            <input className="inp" value={editDate} onChange={e => setEditDate(e.target.value)} type="date" style={{ display: 'block', width: '100%', minWidth: 0 }} />
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 6 }}>Prioridad</div>
+            <select className="inp" value={editPriority} onChange={e => setEditPriority(e.target.value as 'low' | 'medium' | 'high')} style={{ width: '100%', minWidth: 0, marginBottom: 8 }}>
+              <option value="low">🟢 Baja</option><option value="medium">🟡 Media</option><option value="high">🔴 Alta</option>
+            </select>
 
-            {/* Priority color visual */}
+            {/* Barra de color de la prioridad */}
             <div style={{ height: 4, borderRadius: 99, marginBottom: 10, background: PRIORITY_COLORS[editPriority] }} />
 
             {/* Labels */}
@@ -261,8 +262,8 @@ export function KanbanView() {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-              <button onClick={() => setEditingCard(null)} className="btn-ghost" style={{ width: '100%' }}>Cancelar</button>
-              <button onClick={saveCardEdit} className="btn-primary" style={{ background: 'var(--color-acc-blue)', width: 'auto' }}>Guardar</button>
+              <button onClick={() => setEditingCard(null)} className="btn-ghost" style={{ width: '100%', minWidth: 0 }}>Cancelar</button>
+              <button onClick={saveCardEdit} className="btn-primary" style={{ background: 'var(--color-acc-blue)', width: '100%', minWidth: 0 }}>Guardar</button>
             </div>
             <button onClick={() => deleteCard(editingCard.id)} style={{ width: '100%', marginTop: 10, padding: 10, borderRadius: 10, background: 'rgba(224,95,95,0.08)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.15)', fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>
               🗑 Eliminar tarea
