@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import {
-  getProfile, fetchUserPosts, follow, unfollow, updateMyProfile, compressImage,
+  getProfile, fetchUserPosts, follow, unfollow, updateMyProfile, uploadImage,
   toggleLike, deletePost, type Profile, type SocialPost,
 } from '@/lib/social'
 import { useToast } from '@/stores/toast'
@@ -147,7 +147,7 @@ function EditProfile({ profile, onClose, onSaved }: { profile: Profile; onClose:
   const toast = useToast()
 
   async function pickAvatar(file: File) {
-    try { setAvatar(await compressImage(file, 400, 0.8)) }
+    try { setAvatar(await uploadImage(file, 400, 0.8)) }
     catch { toast.show('No se pudo procesar la imagen') }
   }
 

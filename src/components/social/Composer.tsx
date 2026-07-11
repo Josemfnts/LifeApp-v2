@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { createPost, compressImage, type NewPost } from '@/lib/social'
+import { createPost, uploadImage, type NewPost } from '@/lib/social'
 import type {
   PostType, PostData, RoutineExercise, DietDay, GoalMilestone, WorkoutExerciseSummary,
 } from '@/types/social'
@@ -44,11 +44,14 @@ export function Composer({ onClose, onPosted }: { onClose: () => void; onPosted:
   const [workout, setWorkout] = useState({ routineName: '', totalKg: '', exercises: '', maxWeight: '', durationMin: '', exerciseList: '' })
   const [progress, setProgress] = useState({ metric: '', value: '', unit: '', delta: '' })
 
+  const [uploading, setUploading] = useState(false)
   async function pickImage(file: File) {
+    setUploading(true)
     try {
-      setImage(await compressImage(file))
+      setImage(await uploadImage(file))
       if (type === 'text') setType('photo')
     } catch { toast.show('No se pudo procesar la imagen') }
+    finally { setUploading(false) }
   }
 
   function num(v: string): number { return Number(v) || 0 }
@@ -272,14 +275,14 @@ export function Composer({ onClose, onPosted }: { onClose: () => void; onPosted:
               <button onClick={() => setImage(null)} style={{ position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: '50%', border: 'none', background: 'rgba(0,0,0,0.6)', color: '#fff', cursor: 'pointer', fontSize: 13 }}>✕</button>
             </div>
           ) : (
-            <button onClick={() => fileRef.current?.click()} style={{ width: '100%', padding: 14, borderRadius: 12, marginBottom: 12, border: '1px dashed var(--color-border2)', background: 'var(--color-s2)', color: 'var(--color-sub)', fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>Añadir foto</button>
+            <button onClick={() => fileRef.current?.click()} disabled={uploading} style={{ width: '100%', padding: 14, borderRadius: 12, marginBottom: 12, border: '1px dashed var(--color-border2)', background: 'var(--color-s2)', color: 'var(--color-sub)', fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', opacity: uploading ? 0.6 : 1 }}>{uploading ? 'Subiendo foto…' : 'Añadir foto'}</button>
           )
         )}
         <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={e => { const f = e.target.files?.[0]; if (f) pickImage(f) }} />
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 4 }}>
           <button onClick={onClose} className="btn-ghost">Cancelar</button>
-          <button onClick={submit} disabled={busy} className="btn-primary" style={{ background: 'var(--color-acc-purple)', opacity: busy ? 0.6 : 1 }}>{busy ? 'Publicando…' : 'Publicar'}</button>
+          <button onClick={submit} disabled={busy || uploading} className="btn-primary" style={{ background: 'var(--color-acc-purple)', opacity: busy || uploading ? 0.6 : 1 }}>{busy ? 'Publicando…' : 'Publicar'}</button>
         </div>
       </div>
     </div>

@@ -330,9 +330,9 @@ export async function markNotificationsRead(): Promise<void> {
 
 // --- Imágenes ----------------------------------------------------------------
 
-// Comprime una imagen a data URL (JPEG, lado máx ~1000px) para no meter blobs
-// enormes en la columna. v1 sin Supabase Storage.
-export function compressImage(file: File, maxSize = 1000, quality = 0.72): Promise<string> {
+// Reescala una imagen en un canvas (lado máx `maxSize`) y la ejecuta callback
+// con el canvas listo. Base común de compressImage y uploadImage.
+function withCanvas(file: File, maxSize: number): Promise<HTMLCanvasElement> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.onerror = () => reject(new Error('No se pudo leer la imagen'))
@@ -348,19 +348,48 @@ export function compressImage(file: File, maxSize = 1000, quality = 0.72): Promi
         const ctx = canvas.getContext('2d')
         if (!ctx) { reject(new Error('Canvas no disponible')); return }
         ctx.drawImage(img, 0, 0, width, height)
-        // Tope duro de tamaño: si el data URL sale muy grande (fotos densas),
-        // rebaja la calidad hasta ~280 KB para no meter blobs enormes en la fila
-        // ni inflar el feed. v1 sin Supabase Storage.
-        let out = canvas.toDataURL('image/jpeg', quality)
-        let q = quality
-        while (out.length > 380_000 && q > 0.35) {
-          q -= 0.12
-          out = canvas.toDataURL('image/jpeg', q)
-        }
-        resolve(out)
+        resolve(canvas)
       }
       img.src = reader.result as string
     }
     reader.readAsDataURL(file)
   })
+}
+
+// Comprime una imagen a data URL (JPEG). Se conserva para retrocompatibilidad;
+// las imágenes nuevas usan uploadImage (Storage), pero un data URL sigue siendo
+// válido como image_url/avatar_url si Storage no estuviera disponible.
+export async function compressImage(file: File, maxSize = 1000, quality = 0.72): Promise<string> {
+  const canvas = await withCanvas(file, maxSize)
+  let out = canvas.toDataURL('image/jpeg', quality)
+  let q = quality
+  while (out.length > 380_000 && q > 0.35) {
+    q -= 0.12
+    out = canvas.toDataURL('image/jpeg', q)
+  }
+  return out
+}
+
+// Sube una imagen comprimida al bucket `social` y devuelve su URL pública.
+// Ruta: social/{uid}/{timestamp}.jpg (la carpeta {uid} la exige la RLS de
+// storage). Requiere sesión. Si falla, cae a data URL (compressImage) para no
+// perder la publicación.
+export async function uploadImage(file: File, maxSize = 1000, quality = 0.72): Promise<string> {
+  const user = await currentUser()
+  if (!user) return compressImage(file, maxSize, quality)
+  try {
+    const canvas = await withCanvas(file, maxSize)
+    const blob: Blob = await new Promise((res, rej) =>
+      canvas.toBlob(b => (b ? res(b) : rej(new Error('No se pudo procesar la imagen'))), 'image/jpeg', quality)
+    )
+    const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`
+    const { error } = await supabase.storage.from('social').upload(path, blob, {
+      contentType: 'image/jpeg', cacheControl: '31536000', upsert: false,
+    })
+    if (error) throw error
+    return supabase.storage.from('social').getPublicUrl(path).data.publicUrl
+  } catch {
+    // Red caída o Storage no disponible: no perdemos la imagen.
+    return compressImage(file, maxSize, quality)
+  }
 }
