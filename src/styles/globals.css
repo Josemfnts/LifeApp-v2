@@ -35,7 +35,10 @@
    sobre las utilidades de Tailwind (p-4, gap-2, mb-3…) y las anularía a 0.
    El preflight de Tailwind ya resetea los márgenes por defecto del navegador. */
 *, *::before, *::after { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-html, body, #root { height:100%; overflow:hidden; }
+/* height:100% NO cubría la zona del home indicator en la PWA instalada de iOS
+   → la app (y la barra fixed bottom:0) terminaban por encima del borde real,
+   dejando una franja negra abajo. 100vh/100dvh sí ocupa la pantalla completa. */
+html, body, #root { height:100vh; height:100dvh; overflow:hidden; }
 /* La safe-area inferior NO se pone aquí: la nav-bar (fixed) la cubre con su
    propio padding y el #sw con el suyo. Ponerla también en html la contaba doble
    y dejaba una banda vacía sobre la barra en iPhone (safe-area ~34px). */
@@ -56,12 +59,12 @@ body { background:var(--color-bg); color:var(--color-text); font-family:var(--fo
 .s4{animation:up 0.45s 0.24s cubic-bezier(0.22,1,0.36,1) both}
 .s5{animation:up 0.45s 0.30s cubic-bezier(0.22,1,0.36,1) both}
 
-#shell{display:flex;flex-direction:column;height:100%;overflow:hidden}
+#shell{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
 
-/* --nav-inset = espacio reservado bajo los iconos de la barra para librar la
-   barrita home del iPhone. La safe-area del iPhone (~34px) dejaba demasiada
-   franja negra abajo; la recortamos ~20px para que la barra hugee el fondo. */
-:root{--nav-inset:max(6px, calc(env(safe-area-inset-bottom, 0px) - 20px))}
+/* --nav-inset = espacio bajo los iconos de la barra para librar la barrita home.
+   Ahora que la barra SÍ llega al borde (height:100dvh), usamos la safe-area
+   completa: las etiquetas quedan justo encima del home indicator, como nativo. */
+:root{--nav-inset:max(8px, env(safe-area-inset-bottom, 0px))}
 
 /* NO usar -webkit-overflow-scrolling:touch aquí: en iOS Safari atrapa los
    position:fixed hijos (hojas/modales) dentro del scroll y los deja detrás de la
