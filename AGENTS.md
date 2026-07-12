@@ -151,6 +151,14 @@ La auditoría del 1-jul ya está mayormente resuelta:
   (`uploadImage` en social.ts → bucket `social`, URL pública; cae a data URL `compressImage` si no hay sesión/red).
   Las imágenes antiguas (data URL) siguen renderizando. `compressImage`/`uploadImage` comparten `withCanvas`.
 - **Confirmaciones**: usa `<ConfirmDialog>` (components/ui), no `confirm()` nativo — quedan 0 en el código.
+- **2026-07-12 — Salud (relojes) fase 1**: pestaña **❤️ Salud** en Físico (`src/components/fisico/HealthTab.tsx`
+  + `src/lib/health.ts`) que lee la tabla nueva **`health_metrics`** (migración **010, APLICADA**: fila por
+  `(user_id, date, metric)`, RLS `auth.uid()`, grants a anon/authenticated **y service_role** — la Edge Function
+  del webhook escribirá con service_role). Módulo conectado tipo Notas/Comunidad: requiere sesión, NO pasa por
+  `store_data` ni localStorage. Métricas canónicas y formato en `METRICS` (health.ts). El botón "Conectar reloj"
+  es aún un placeholder informativo: falta la fase 2 (cuenta en agregador Terra/Vital + Supabase Edge Function
+  del webhook) — plan completo en la memoria del proyecto `lifeapp-wearables-plan.md`. **NO implementar la
+  conexión sin las credenciales del agregador** (las aporta Josema).
 
 ## Gotchas
 - `.env` (`VITE_SUPABASE_URL` + anon key) **ya NO está versionado** (gitignored desde `255b781`). La anon key

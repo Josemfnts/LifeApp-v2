@@ -8,6 +8,7 @@ import type { NewPost } from '@/lib/social'
 import { ShareSheet } from '@/components/social/ShareSheet'
 import { sessionToPost, routineToPost, prToPost, runToPost } from '@/lib/socialShare'
 import { NotesFor } from '@/components/notes/NotesFor'
+import { HealthTab } from '@/components/fisico/HealthTab'
 
 /* ── Timer Hook ── */
 function useTimer() {
@@ -1417,22 +1418,23 @@ function MobilityTab() {
 
 /* ── MAIN FÍSICO PAGE ── */
 export default function Fisico() {
-  const [section, setSection] = useState<'strength' | 'running' | 'mobility'>('strength')
+  const [section, setSection] = useState<'strength' | 'running' | 'mobility' | 'health'>('strength')
 
   return (
     <div>
       <div className="page-header">
         <div className="page-title">Físico</div>
-        <div style={{ display: 'flex', gap: 8, marginTop: 2, paddingBottom: 6 }}>
+        <div style={{ display: 'flex', gap: 8, marginTop: 2, paddingBottom: 6, overflowX: 'auto' }}>
           {([
             { k: 'strength' as const, l: '💪 Fuerza', c: 'var(--color-acc-orange)' },
             { k: 'running' as const, l: '🏃 Running', c: 'var(--color-acc-blue)' },
             { k: 'mobility' as const, l: '🧘 Movilidad', c: 'var(--color-acc-purple)' },
+            { k: 'health' as const, l: '❤️ Salud', c: 'var(--color-red)' },
           ]).map(s => (
             <button key={s.k} onClick={() => setSection(s.k)}
               style={{
                 flex: 1, padding: '9px 4px', borderRadius: 12, fontSize: 13, fontWeight: 700,
-                fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid',
+                fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid', whiteSpace: 'nowrap',
                 background: section === s.k ? s.c + '26' : 'transparent',
                 color: section === s.k ? s.c : 'var(--color-dim)',
                 borderColor: section === s.k ? s.c + '4d' : 'var(--color-border)',
@@ -1447,6 +1449,7 @@ export default function Fisico() {
         {section === 'strength' && <StrengthTab />}
         {section === 'running' && <RunningTab />}
         {section === 'mobility' && <MobilityTab />}
+        {section === 'health' && <HealthTab />}
         </div>
     </div>
   )
