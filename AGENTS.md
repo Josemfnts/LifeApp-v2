@@ -170,3 +170,12 @@ La auditoría del 1-jul ya está mayormente resuelta:
   (botones cortados). Las hojas nuevas: portal a `document.body` + `padding-bottom` con `env(safe-area-inset-bottom)`.
 - **Safe-area del pie**: la maneja la `.nav-bar` (fixed, `max(10px, safe)`) y `#sw` (`calc(80px + safe)`).
   `html` NO añade `padding-bottom` de safe-area (se contaba doble). No lo reintroduzcas.
+
+## Trabajo a dos manos (regla para CUALQUIER agente en este repo)
+Este repo lo editan dos vías: Josema con Claude Code, y CompAI→OpenCode (dev-mcp hace
+pull de origin antes de cada job). **GitHub es el punto de encuentro**: trabajo no
+pusheado no existe para la otra vía. Reglas: (1) no descartes cambios sin commitear que
+no sean tuyos — pueden ser de la otra vía; pregunta; (2) commit por tarea lógica y push
+al terminar; (3) si cambias arquitectura, esquema o decisiones, actualiza este AGENTS.md
+en el mismo cambio; (4) si tocas el esquema de Supabase o formatos que CompAI consume en
+runtime, dilo explícitamente en tu resumen final.
