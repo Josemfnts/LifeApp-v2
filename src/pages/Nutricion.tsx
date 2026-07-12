@@ -508,9 +508,17 @@ function SearchTab() {
     : []
   const allResults = [...localResults, ...onlineResults.filter(o => !localResults.some(l => l.name === o.name))]
 
-  function addFound(f: { name: string; kcal: number; p: number; c: number; f: number }) {
-    addFood(todayISO(), { name: f.name, kcal: f.kcal, p: f.p, c: f.c, f: f.f, grams: 100, meal })
-    toast.show(`✓ ${f.name} añadido (${f.kcal} kcal)`)
+  // Los macros de los resultados son por 100 g; al añadir escalamos por la
+  // ración elegida y guardamos ya los valores consumidos (como hace "Usar en diario").
+  function addFound(f: { name: string; kcal: number; p: number; c: number; f: number }, grams = 100) {
+    const g = grams || 100
+    const k = Math.round(f.kcal * g / 100)
+    addFood(todayISO(), {
+      name: f.name, kcal: k,
+      p: +(f.p * g / 100).toFixed(1), c: +(f.c * g / 100).toFixed(1), f: +(f.f * g / 100).toFixed(1),
+      grams: g, meal,
+    })
+    toast.show(`✓ ${f.name} · ${g}g (${k} kcal)`)
   }
 
   // Lector de código de barras con la cámara. Usa BarcodeDetector nativo si
@@ -643,23 +651,46 @@ function SearchTab() {
       )}
 
       {allResults.map(f => (
-        <div key={f.name} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, marginBottom: 8 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)', marginBottom: 3 }}>{f.name}</div>
-            <button onClick={() => { toggleFavorite(f.name); toast.show(favorites.includes(f.name) ? 'Quitado' : '★ Favorito') }}
-              style={{ background: 'none', border: 'none', fontSize: 16, cursor: 'pointer', color: favorites.includes(f.name) ? 'var(--color-acc-gold)' : 'var(--color-dim)' }}>
-              {favorites.includes(f.name) ? '★' : '☆'}
-            </button>
-          </div>
-          <div style={{ fontSize: 12, color: 'var(--color-sub)', marginBottom: 10 }}>100g: {f.kcal} kcal | P:{f.p}g C:{f.c}g G:{f.f}g</div>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 20, fontStyle: 'italic', color: 'var(--color-acc-green)' }}>{f.kcal} kcal</div>
-            <div style={{ fontSize: 12, color: 'var(--color-dim)', flex: 1 }}>/100g</div>
-            <button onClick={() => addFound(f)}
-              style={{ padding: '7px 18px', borderRadius: 10, background: 'rgba(82,183,136,0.1)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.2)', fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>Añadir</button>
-          </div>
-        </div>
+        <FoodResultRow key={f.name} food={f} isFav={favorites.includes(f.name)}
+          onToggleFav={() => { toggleFavorite(f.name); toast.show(favorites.includes(f.name) ? 'Quitado' : '★ Favorito') }}
+          onAdd={(g) => addFound(f, g)} />
       ))}
+    </div>
+  )
+}
+
+// Fila de resultado de alimento con ración ajustable en gramos. Los macros que
+// muestra y añade se escalan en vivo desde los valores por 100 g.
+function FoodResultRow({ food, isFav, onToggleFav, onAdd }: {
+  food: { name: string; kcal: number; p: number; c: number; f: number }
+  isFav: boolean
+  onToggleFav: () => void
+  onAdd: (grams: number) => void
+}) {
+  const [grams, setGrams] = useState('100')
+  const g = parseFloat(grams) || 0
+  const k = Math.round(food.kcal * g / 100)
+  return (
+    <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, marginBottom: 8 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)', marginBottom: 3 }}>{food.name}</div>
+        <button onClick={onToggleFav}
+          style={{ background: 'none', border: 'none', fontSize: 16, cursor: 'pointer', color: isFav ? 'var(--color-acc-gold)' : 'var(--color-dim)' }}>
+          {isFav ? '★' : '☆'}
+        </button>
+      </div>
+      <div style={{ fontSize: 12, color: 'var(--color-sub)', marginBottom: 10 }}>100g: {food.kcal} kcal | P:{food.p}g C:{food.c}g G:{food.f}g</div>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <input value={grams} onChange={e => setGrams(e.target.value)} type="number" inputMode="numeric"
+          style={{ width: 70, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-text)', borderRadius: 10, padding: '8px 10px', fontSize: 14, fontFamily: 'DM Sans,sans-serif', outline: 'none', textAlign: 'center' }} />
+        <span style={{ fontSize: 12, color: 'var(--color-dim)' }}>g</span>
+        <div style={{ flex: 1, textAlign: 'right' }}>
+          <span style={{ fontFamily: 'DM Serif Display,serif', fontSize: 20, fontStyle: 'italic', color: 'var(--color-acc-green)' }}>{k}</span>
+          <span style={{ fontSize: 12, color: 'var(--color-dim)' }}> kcal</span>
+        </div>
+        <button onClick={() => onAdd(g || 100)}
+          style={{ padding: '8px 18px', borderRadius: 10, background: 'rgba(82,183,136,0.1)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.2)', fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>Añadir</button>
+      </div>
     </div>
   )
 }
@@ -802,6 +833,7 @@ function MenuTab() {
   const [viewDay, setViewDay] = useState(0)
   const [sharePost, setSharePost] = useState<NewPost | null>(null)
   const [dishFilter, setDishFilter] = useState('')
+  const [activeMeal, setActiveMeal] = useState(MEAL_TYPES[0])  // pestaña de comida activa en el picker
 
   const curDay = menu.find(m => m.day === viewDay)
   const curMeals = curDay?.meals || []
@@ -838,26 +870,22 @@ function MenuTab() {
     toast.show(existing ? 'Quitado del menú' : '✓ Añadido al menú')
   }
 
-  // Día aleatorio: combina platos (Desayuno/Comida/Cena/Snack) para acercarse a
-  // las metas de kcal (y proteína) dentro de ±5%. Reintenta y se queda con lo mejor.
-  function randomDay() {
-    if (allDishes.length === 0) { toast.show('Añade o crea platos primero'); return }
+  // Genera las comidas de UN día combinando platos (Desayuno/Comida/Cena +
+  // Snack de relleno) para acercarse a las metas de kcal y proteína ±5%.
+  // Reintenta y se queda con la mejor aproximación. Reutilizado por día y semana.
+  function genDayMeals(): { meal: string; dishName: string }[] | null {
+    if (allDishes.length === 0) return null
     const goalKcal = goals.kcal || 2000
     const goalP = goals.p || 0
     const rnd = () => allDishes[Math.floor(Math.random() * allDishes.length)]
     let best: { meal: string; dish: MenuDish }[] = []
     let bestScore = Infinity
     for (let attempt = 0; attempt < 400; attempt++) {
-      // 3 comidas al azar + snack que mejor rellene lo que falta de kcal.
       const first3 = ['Desayuno', 'Comida', 'Cena'].map(m => ({ meal: m, dish: rnd() }))
       const base = first3.reduce((s, x) => s + x.dish.totalKcal, 0)
       const remaining = goalKcal - base
-      let snack = allDishes[0]
-      let snackDiff = Infinity
-      for (const d of allDishes) {
-        const diff = Math.abs(d.totalKcal - remaining)
-        if (diff < snackDiff) { snackDiff = diff; snack = d }
-      }
+      let snack = allDishes[0]; let snackDiff = Infinity
+      for (const d of allDishes) { const diff = Math.abs(d.totalKcal - remaining); if (diff < snackDiff) { snackDiff = diff; snack = d } }
       const picks = [...first3, { meal: 'Snack', dish: snack }]
       const kcal = picks.reduce((s, x) => s + x.dish.totalKcal, 0)
       const prot = picks.reduce((s, x) => s + x.dish.totalP, 0)
@@ -867,13 +895,34 @@ function MenuTab() {
       if (score < bestScore) { bestScore = score; best = picks }
       if (kcalErr <= 0.05 && protErr <= 0.05) break
     }
-    const mealsToSave = best.map(x => ({ meal: x.meal, dishName: x.dish.name }))
-    setMenuDay(viewDay, mealsToSave)
-    const totalKcal = best.reduce((s, x) => s + x.dish.totalKcal, 0)
-    const within = Math.abs(totalKcal - goalKcal) / goalKcal <= 0.05
-    toast.show(within
-      ? `🎲 Día generado · ${totalKcal} kcal (meta ${goalKcal})`
-      : `🎲 Mejor aproximación · ${totalKcal} kcal (no logré ±5% de ${goalKcal})`)
+    return best.map(x => ({ meal: x.meal, dishName: x.dish.name }))
+  }
+
+  const dayKcal = (meals: { dishName: string }[]) =>
+    meals.reduce((s, m) => s + (allDishes.find(d => d.name === m.dishName)?.totalKcal || 0), 0)
+
+  function randomDay() {
+    const meals = genDayMeals()
+    if (!meals) { toast.show('Añade o crea platos primero'); return }
+    setMenuDay(viewDay, meals)
+    const goalKcal = goals.kcal || 2000
+    const total = dayKcal(meals)
+    toast.show(Math.abs(total - goalKcal) / goalKcal <= 0.05
+      ? `🎲 Día generado · ${total} kcal (meta ${goalKcal})`
+      : `🎲 Mejor aproximación · ${total} kcal (no logré ±5% de ${goalKcal})`)
+  }
+
+  function randomWeek() {
+    if (allDishes.length === 0) { toast.show('Añade o crea platos primero'); return }
+    const goalKcal = goals.kcal || 2000
+    let ok = 0
+    for (let d = 0; d < 7; d++) {
+      const meals = genDayMeals()
+      if (!meals) return
+      setMenuDay(d, meals)
+      if (Math.abs(dayKcal(meals) - goalKcal) / goalKcal <= 0.05) ok++
+    }
+    toast.show(`🎲 Semana generada · ${ok}/7 días dentro de ±5%`)
   }
 
   const shoppingList = (() => {
@@ -916,7 +965,11 @@ function MenuTab() {
         <div style={{ display: 'flex', gap: 6 }}>
           <button onClick={randomDay}
             style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 8, background: 'rgba(82,183,136,0.1)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.2)', cursor: 'pointer', fontFamily: 'DM Sans,sans-serif' }}>
-            🎲 Día aleatorio
+            🎲 Día
+          </button>
+          <button onClick={randomWeek}
+            style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 8, background: 'rgba(82,183,136,0.1)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.2)', cursor: 'pointer', fontFamily: 'DM Sans,sans-serif' }}>
+            🎲 Semana
           </button>
           <button onClick={() => {
             const post = menuToPost(menu)
@@ -930,39 +983,52 @@ function MenuTab() {
       </div>
       {sharePost && <ShareSheet post={sharePost} onClose={() => setSharePost(null)} />}
 
-      <input className="inp" value={dishFilter} onChange={e => setDishFilter(e.target.value)} placeholder={`🔍 Buscar entre ${allDishes.length} platos (propios + biblioteca)…`} style={{ marginTop: 8, marginBottom: 12 }} />
+      {/* Pestañas de comida: solo se renderiza la lista de la comida activa (antes
+          se pintaban las 5 listas × ~100 platos = cientos de filas de golpe). */}
+      <div style={{ display: 'flex', gap: 4, overflowX: 'auto', marginTop: 8, marginBottom: 8, paddingBottom: 2 }}>
+        {MEAL_TYPES.map(m => {
+          const n = curMeals.filter(x => x.meal === m).length
+          return (
+            <button key={m} onClick={() => setActiveMeal(m)}
+              style={{ flexShrink: 0, padding: '6px 12px', borderRadius: 99, fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid', whiteSpace: 'nowrap',
+                background: activeMeal === m ? 'rgba(82,183,136,0.15)' : 'var(--color-s2)',
+                color: activeMeal === m ? 'var(--color-acc-green)' : 'var(--color-dim)',
+                borderColor: activeMeal === m ? 'rgba(82,183,136,0.3)' : 'var(--color-border)' }}>
+              {m}{n > 0 ? ` · ${n}` : ''}
+            </button>
+          )
+        })}
+      </div>
+      <input className="inp" value={dishFilter} onChange={e => setDishFilter(e.target.value)} placeholder={`🔍 Buscar entre ${allDishes.length} platos (propios + biblioteca)…`} style={{ marginBottom: 12 }} />
 
       {(() => {
         const q = dishFilter.trim().toLowerCase()
         const shown = q ? allDishes.filter(d => d.name.toLowerCase().includes(q)) : allDishes
-        return MEAL_TYPES.map(meal => (
-          <div key={meal} style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>{meal}</div>
-            <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 12, overflow: 'hidden', maxHeight: 260, overflowY: 'auto' }}>
-              {allDishes.length === 0 ? (
-                <div style={{ padding: 12, fontSize: 12, color: 'var(--color-dim)' }}>Sin platos. Crea uno en la pestaña Platos o usa la biblioteca.</div>
-              ) : shown.length === 0 ? (
-                <div style={{ padding: 12, fontSize: 12, color: 'var(--color-dim)' }}>Sin coincidencias.</div>
-              ) : shown.map(d => {
-                const isSelected = curMeals.some(m => m.meal === meal && m.dishName === d.name)
-                return (
-                  <div key={d.name} onClick={() => toggleDish(meal, d.name)}
-                    style={{
-                      padding: '10px 14px', borderBottom: '1px solid rgba(255,255,255,0.03)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      cursor: 'pointer', background: isSelected ? 'rgba(82,183,136,0.08)' : 'transparent',
-                    }}>
-                    <div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: isSelected ? 'var(--color-acc-green)' : 'var(--color-text)' }}>{d.name}</div>
-                      <div style={{ fontSize: 11, color: 'var(--color-dim)' }}>{d.totalKcal} kcal · P{d.totalP} C{d.totalC} G{d.totalF}</div>
-                    </div>
-                    <div style={{ fontSize: 16 }}>{isSelected ? '✅' : '⬜'}</div>
+        return (
+          <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 12, overflow: 'hidden', maxHeight: 420, overflowY: 'auto', marginBottom: 12 }}>
+            {allDishes.length === 0 ? (
+              <div style={{ padding: 12, fontSize: 12, color: 'var(--color-dim)' }}>Sin platos. Crea uno en la pestaña Platos o usa la biblioteca.</div>
+            ) : shown.length === 0 ? (
+              <div style={{ padding: 12, fontSize: 12, color: 'var(--color-dim)' }}>Sin coincidencias.</div>
+            ) : shown.map(d => {
+              const isSelected = curMeals.some(m => m.meal === activeMeal && m.dishName === d.name)
+              return (
+                <div key={d.name} onClick={() => toggleDish(activeMeal, d.name)}
+                  style={{
+                    padding: '10px 14px', borderBottom: '1px solid rgba(255,255,255,0.03)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    cursor: 'pointer', background: isSelected ? 'rgba(82,183,136,0.08)' : 'transparent',
+                  }}>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: isSelected ? 'var(--color-acc-green)' : 'var(--color-text)' }}>{d.name}</div>
+                    <div style={{ fontSize: 11, color: 'var(--color-dim)' }}>{d.totalKcal} kcal · P{d.totalP} C{d.totalC} G{d.totalF}</div>
                   </div>
-                )
-              })}
-            </div>
+                  <div style={{ fontSize: 16 }}>{isSelected ? '✅' : '⬜'}</div>
+                </div>
+              )
+            })}
           </div>
-        ))
+        )
       })()}
 
       {shoppingList.length > 0 && (
