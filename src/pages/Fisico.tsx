@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useFisicoStore, STATIC_EXERCISES, EXERCISE_GROUPS, EQUIPMENT_TYPES, EQUIPMENT_LABELS, EXERCISE_COLORS } from '@/stores/fisicoStore'
-import { Input } from '@/components/ui'
+import { Input, Modal } from '@/components/ui'
 import { useToast } from '@/stores/toast'
+import { parseActivity, toRunRecord, isDuplicateRun, type ParsedActivity } from '@/lib/activityImport'
 import { ROUTINES, ROUTINE_OBJECTIVES, ROUTINE_LEVELS, ROUTINE_PLACES, getObjLabel, getNivelLabel, getLugarLabel, filterRoutines } from '@/data/routinesDB'
 import type { NewPost } from '@/lib/social'
 import { ShareSheet } from '@/components/social/ShareSheet'
@@ -1054,6 +1055,7 @@ function RunningTab() {
   const runs = useFisicoStore(s => s.runs)
   const addRun = useFisicoStore(s => s.addRun)
   const deleteRun = useFisicoStore(s => s.deleteRun)
+  const toast = useToast()
 
   const [dist, setDist] = useState('')
   const [time, setTime] = useState('')
@@ -1063,6 +1065,8 @@ function RunningTab() {
   const [runType, setRunType] = useState('easy')
   const [runNotes, setRunNotes] = useState('')
   const [sharePost, setSharePost] = useState<NewPost | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [preview, setPreview] = useState<ParsedActivity | null>(null)
 
   const totalKm = runs.reduce((s, r) => s + r.distance, 0)
   const totalRuns = runs.length
@@ -1087,6 +1091,48 @@ function RunningTab() {
     addRun({ date: runDate, distance: parseFloat(dist), timeSeconds: parseTime(time), hr: runHr ? parseInt(runHr) : undefined, elevation: runElev ? parseInt(runElev) : undefined, type: runType, notes: runNotes })
     setDist(''); setTime(''); setRunHr(''); setRunElev(''); setRunNotes('')
   }
+
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = '' // permitir reimportar el mismo fichero
+    if (!file) return
+    if (/\.fit$/i.test(file.name)) {
+      toast.show('Los .fit no se pueden leer. Exporta como GPX o TCX.')
+      return
+    }
+    if (!/\.(gpx|tcx|xml)$/i.test(file.name)) {
+      toast.show('Formato no soportado. Usa un fichero GPX o TCX.')
+      return
+    }
+    try {
+      const text = await file.text()
+      const parsed = parseActivity(text)
+      if (!parsed) {
+        toast.show('No se pudo leer la actividad del fichero.')
+        return
+      }
+      setPreview(parsed)
+    } catch {
+      toast.show('No se pudo leer el fichero.')
+    }
+  }
+
+  function confirmImport() {
+    if (!preview) return
+    const record = toRunRecord(preview)
+    if (isDuplicateRun(runs, record)) {
+      toast.show('Ya tienes una carrera con esa fecha y distancia.')
+      setPreview(null)
+      return
+    }
+    addRun(record)
+    setPreview(null)
+    toast.show('Actividad importada')
+  }
+
+  const previewPace = preview && preview.distanceKm > 0
+    ? (() => { const s = preview.timeSeconds / preview.distanceKm; return `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')} /km` })()
+    : '—'
 
   return (
     <div className="animate-tab">
@@ -1126,7 +1172,42 @@ function RunningTab() {
         </div>
         <Input value={runNotes} onChange={setRunNotes} placeholder="Notas (sensaciones, ruta...)" className="mb-2" />
         <button onClick={handleAdd} className="w-full py-2.5 rounded-xl bg-[var(--color-acc-blue)] text-white text-sm font-semibold font-sans cursor-pointer shadow-lg shadow-[var(--color-acc-blue)]/25">Guardar carrera</button>
+        <input ref={fileInputRef} type="file" accept=".gpx,.tcx" onChange={handleFile} className="hidden" />
+        <button onClick={() => fileInputRef.current?.click()} className="w-full mt-2 py-2.5 rounded-xl bg-[var(--color-acc-blue)]/[0.1] text-[var(--color-acc-blue)] border border-[var(--color-acc-blue)]/30 text-sm font-semibold font-sans cursor-pointer">📁 Importar actividad (GPX/TCX)</button>
       </div>
+
+      <Modal open={!!preview} onClose={() => setPreview(null)} title="Importar actividad">
+        {preview && (
+          <div className="px-5 pb-1">
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              <div className="bg-[var(--color-s2)] border border-[var(--color-border)] rounded-2xl p-3.5">
+                <div className="text-[10px] font-semibold text-[var(--color-dim)] uppercase tracking-wider mb-1.5">Distancia</div>
+                <div className="font-serif text-[26px] text-[var(--color-acc-blue)] leading-none">{(Math.round(preview.distanceKm * 10) / 10).toFixed(1)}<span className="text-sm text-[var(--color-dim)]"> km</span></div>
+              </div>
+              <div className="bg-[var(--color-s2)] border border-[var(--color-border)] rounded-2xl p-3.5">
+                <div className="text-[10px] font-semibold text-[var(--color-dim)] uppercase tracking-wider mb-1.5">Tiempo</div>
+                <div className="font-serif text-[26px] text-[var(--color-acc-green)] leading-none">{formatTime(preview.timeSeconds)}</div>
+              </div>
+              <div className="bg-[var(--color-s2)] border border-[var(--color-border)] rounded-2xl p-3.5">
+                <div className="text-[10px] font-semibold text-[var(--color-dim)] uppercase tracking-wider mb-1.5">Ritmo</div>
+                <div className="font-serif text-[22px] text-[var(--color-text)] leading-none">{previewPace}</div>
+              </div>
+              <div className="bg-[var(--color-s2)] border border-[var(--color-border)] rounded-2xl p-3.5">
+                <div className="text-[10px] font-semibold text-[var(--color-dim)] uppercase tracking-wider mb-1.5">FC media</div>
+                <div className="font-serif text-[22px] text-[var(--color-text)] leading-none">{preview.hr ? `${preview.hr}` : '—'}<span className="text-sm text-[var(--color-dim)]">{preview.hr ? ' bpm' : ''}</span></div>
+              </div>
+            </div>
+            <div className="text-xs text-[var(--color-sub)] mb-3">
+              {new Date(preview.date + 'T12:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
+              {preview.elevation ? ` · +${preview.elevation} m desnivel` : ''} · {preview.points} puntos
+            </div>
+            <div className="flex gap-2">
+              <button onClick={() => setPreview(null)} className="flex-1 py-2.5 rounded-xl bg-[var(--color-s2)] text-[var(--color-dim)] border border-[var(--color-border)] text-sm font-semibold font-sans cursor-pointer">Cancelar</button>
+              <button onClick={confirmImport} className="flex-1 py-2.5 rounded-xl bg-[var(--color-acc-blue)] text-white text-sm font-semibold font-sans cursor-pointer">Guardar carrera</button>
+            </div>
+          </div>
+        )}
+      </Modal>
 
       {sharePost && <ShareSheet post={sharePost} onClose={() => setSharePost(null)} />}
       <div className="text-[11px] font-semibold text-[var(--color-dim)] uppercase tracking-[0.8px] mb-2.5">Historial</div>
