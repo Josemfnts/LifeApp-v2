@@ -1131,7 +1131,7 @@ function RunningTab() {
   }
 
   const previewPace = preview && preview.distanceKm > 0
-    ? (() => { const s = preview.timeSeconds / preview.distanceKm; return `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')} /km` })()
+    ? (() => { const t = Math.round(preview.timeSeconds / preview.distanceKm); return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')} /km` })()
     : '—'
 
   return (

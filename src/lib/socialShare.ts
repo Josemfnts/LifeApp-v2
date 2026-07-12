@@ -67,8 +67,8 @@ export function prToPost(pr: PR, unit: 'kg' | 'lb' = 'kg'): NewPost {
 
 /** Carrera → post 'progress' con distancia, tiempo y ritmo. */
 export function runToPost(r: RunRecord): NewPost {
-  const paceSec = r.distance > 0 ? r.timeSeconds / r.distance : 0
-  const pace = paceSec ? `${Math.floor(paceSec / 60)}:${String(Math.round(paceSec % 60)).padStart(2, '0')} /km` : ''
+  const paceSec = r.distance > 0 ? Math.round(r.timeSeconds / r.distance) : 0
+  const pace = paceSec ? `${Math.floor(paceSec / 60)}:${String(paceSec % 60).padStart(2, '0')} /km` : ''
   const data: ProgressPayload = { metric: 'Carrera', value: r.distance, unit: 'km' }
   const extras = [fmtTime(r.timeSeconds), pace, r.hr ? `${r.hr} bpm` : '', r.elevation ? `+${r.elevation}m` : '']
     .filter(Boolean).join(' · ')
