@@ -260,8 +260,19 @@ export async function repost(original: SocialPost, comment = ''): Promise<void> 
 }
 
 export async function deletePost(id: number): Promise<void> {
+  // Antes de borrar la fila, recupera la imagen para limpiarla del bucket si
+  // era de Storage (no un data URL antiguo) y NO es un repost (en un repost la
+  // image_url apunta a la del original, que no es nuestra: la RLS lo impediría).
+  const { data: post } = await supabase.from('social_posts')
+    .select('image_url, repost_of').eq('id', id).maybeSingle()
   const { error } = await supabase.from('social_posts').delete().eq('id', id)
   if (error) throw error
+  const p = post as { image_url?: string | null; repost_of?: number | null } | null
+  const marker = '/storage/v1/object/public/social/'
+  if (p && !p.repost_of && p.image_url && p.image_url.includes(marker)) {
+    const path = decodeURIComponent(p.image_url.split(marker)[1] || '')
+    if (path) { try { await supabase.storage.from('social').remove([path]) } catch { /* best-effort */ } }
+  }
 }
 
 // Registra que el usuario actual "usó" (importó) un post. Dispara la

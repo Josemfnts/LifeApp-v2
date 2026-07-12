@@ -94,7 +94,13 @@ export default function Comunidad() {
   }, [loadFeed])
 
   useEffect(() => { init() }, [init])
-  useEffect(() => { if (signed && view === 'feed') loadFeed() }, [signed, view, loadFeed])
+  // Al volver al feed (o cambiar de vista) refrescamos el contador de no leídas
+  // para que la campana refleje avisos nuevos sin tener que recargar la página.
+  useEffect(() => {
+    if (!signed) return
+    if (view === 'feed') loadFeed()
+    unreadNotificationCount().then(setUnread).catch(() => {})
+  }, [signed, view, loadFeed])
 
   async function handleLike(p: SocialPost) {
     setPosts(prev => prev.map(x => x.id === p.id ? { ...x, liked: !x.liked, likes: x.likes + (x.liked ? -1 : 1) } : x))
