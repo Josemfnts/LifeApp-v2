@@ -159,6 +159,19 @@ La auditoría del 1-jul ya está mayormente resuelta:
   es aún un placeholder informativo: falta la fase 2 (cuenta en agregador Terra/Vital + Supabase Edge Function
   del webhook) — plan completo en la memoria del proyecto `lifeapp-wearables-plan.md`. **NO implementar la
   conexión sin las credenciales del agregador** (las aporta Josema).
+- **2026-07-12 — Salud (relojes) fase 2, DECISIÓN NUEVA**: descartados los agregadores (Terra $399/mes, Vital
+  $300/mes; Google Fit REST muerto en 2026; Garmin Health API solo-empresas). Josema quiere que **cada usuario
+  registre su reloj DENTRO de la app** metiendo las credenciales de su cuenta Garmin/Zepp. Implementado el lado
+  web + BD: tabla **`wearable_accounts`** (migración **011, APLICADA**: `(user_id,provider)` PK, `email/secret/
+  status/error/last_sync/sync_requested_at`, RLS `auth.uid()`). La hoja "Conectar reloj" de HealthTab ahora es
+  real: alta con email+contraseña del proveedor, estados (Conectando/Conectado/Error), Desconectar, y botón
+  **⟳ Actualizar** (pone `sync_requested_at=now()`, guarda de 10 min). Helpers en `health.ts`
+  (`fetch/save/deleteWearableAccount`, `requestWearableSync`). **Seguridad**: solo RLS por usuario — se descartó
+  el privilegio-por-columna para `secret` porque PostgREST necesita SELECT de tabla para el upsert (incompatible);
+  riesgo asumido (dueño releyendo su propia contraseña). **Falta**: el **conector del mini PC** (servicio Python,
+  NO va en la app: adaptadores `garminconnect` + API Huami/Zepp, lee `wearable_accounts` con service_role, escribe
+  `health_metrics`, sincroniza 2×/día + cuando ve `sync_requested_at`). Especificado en `ORDENES-OPENCODE.md`
+  (tanda 4, carpeta `connector/`) → lo implementa OpenCode.
 
 ## Gotchas
 - `.env` (`VITE_SUPABASE_URL` + anon key) **ya NO está versionado** (gitignored desde `255b781`). La anon key
