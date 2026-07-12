@@ -73,6 +73,7 @@ function StrengthTab() {
   const [selRoutine, setSelRoutine] = useState('')
   const [equipFilter, setEquipFilter] = useState('')
   const [libGroup, setLibGroup] = useState('')  // filtro de grupo muscular en la pestaña Ejercicios
+  const [progEx, setProgEx] = useState('')      // ejercicio seleccionado en Progreso por ejercicio
   const [dbObj, setDbObj] = useState('')
   const [dbNivel, setDbNivel] = useState('')
   const [dbLugar, setDbLugar] = useState('')
@@ -888,6 +889,60 @@ function WeeklyModal({ routineId, onClose }: { routineId: string; onClose: () =>
           style={{ width: '100%', padding: 12, borderRadius: 12, marginBottom: 12, border: '1px solid color-mix(in srgb, var(--color-acc-orange) 25%, transparent)', background: 'color-mix(in srgb, var(--color-acc-orange) 10%, transparent)', color: 'var(--color-acc-orange)', fontSize: 13, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>
           Compartir resumen de fuerza
         </button>
+
+        {/* Progreso por ejercicio: peso máximo por sesión a lo largo del tiempo */}
+        {(() => {
+          const exNames = [...new Set(sessions.flatMap(s => s.exercises.map(e => e.name)))].sort()
+          if (exNames.length === 0) return null
+          const sel = progEx && exNames.includes(progEx) ? progEx : exNames[0]
+          const points = [...sessions].reverse()
+            .map(s => {
+              const ex = s.exercises.find(e => e.name === sel)
+              if (!ex) return null
+              const maxW = Math.max(0, ...ex.sets.filter(st => st.done && st.type !== 'warmup').map(st => st.weight))
+              return maxW > 0 ? { date: s.date, w: maxW } : null
+            })
+            .filter((x): x is { date: string; w: number } => x !== null)
+          const W = 300, H = 80, PAD = 6
+          const maxW = Math.max(...points.map(p => p.w), 1)
+          const minW = Math.min(...points.map(p => p.w), maxW)
+          const span = maxW - minW || 1
+          const xy = points.map((p, i) => {
+            const x = points.length === 1 ? W / 2 : PAD + i * (W - PAD * 2) / (points.length - 1)
+            const y = H - PAD - (p.w - minW) / span * (H - PAD * 2)
+            return { x, y, w: p.w }
+          })
+          const line = xy.map(p => `${p.x},${p.y}`).join(' ')
+          const best = Math.max(...points.map(p => p.w), 0)
+          return (
+            <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, gap: 8 }}>
+                <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-sub)', letterSpacing: '0.3px' }}>📈 Progreso por ejercicio</span>
+                <select value={sel} onChange={e => setProgEx(e.target.value)}
+                  style={{ background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-text)', borderRadius: 8, padding: '5px 8px', fontSize: 12, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', maxWidth: 180 }}>
+                  {exNames.map(n => <option key={n} value={n}>{n}</option>)}
+                </select>
+              </div>
+              {points.length < 2 ? (
+                <div style={{ fontSize: 12, color: 'var(--color-dim)', padding: '12px 0', textAlign: 'center' }}>
+                  {points.length === 1 ? `Un registro (${points[0].w} ${unit}). Entrena más para ver la evolución.` : 'Sin registros con peso para este ejercicio.'}
+                </div>
+              ) : (
+                <>
+                  <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 90, display: 'block' }} preserveAspectRatio="none">
+                    <polyline points={line} fill="none" stroke="var(--color-acc-orange)" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+                    {xy.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r="2.5" fill="var(--color-acc-orange)" />)}
+                  </svg>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--color-dim)', marginTop: 6 }}>
+                    <span>Primer: {points[0].w} {unit}</span>
+                    <span style={{ color: 'var(--color-acc-gold)', fontWeight: 700 }}>Máx: {best} {unit}</span>
+                    <span>Último: {points[points.length - 1].w} {unit}</span>
+                  </div>
+                </>
+              )}
+            </div>
+          )
+        })()}
 
         {/* Análisis por músculo */}
         {(() => {
