@@ -430,11 +430,12 @@ interface DayTargets {
   f: number
 }
 
-// Escala una ración entre 0.5x y 2x para acercarse al objetivo de kcal del slot.
+// Escala una ración entre 0.5x y 3x para acercarse al objetivo de kcal del slot.
+// (Hasta 3x para que los slots con % alto no se queden tan cortos de kcal.)
 function bestServings(dishKcal: number, targetKcal: number): number {
   if (dishKcal <= 0) return 1
   const raw = targetKcal / dishKcal
-  const clamped = Math.max(0.5, Math.min(2, raw))
+  const clamped = Math.max(0.5, Math.min(3, raw))
   return Math.round(clamped * 4) / 4 // pasos de 0.25
 }
 
@@ -451,11 +452,15 @@ export function pickDishForSlot(
   opts: { exclude?: string[]; preferCarbs?: boolean; random?: boolean } = {},
 ): { dish: PlanDish; servings: number } | null {
   const allowed = MOMENT_ALLOWS[slot.moment]
-  let candidates = pool.filter(
-    d => d.moments.some(m => allowed.includes(m)) && !(opts.exclude || []).includes(d.name),
-  )
+  const notExcluded = (d: PlanDish) => !(opts.exclude || []).includes(d.name)
+  let candidates = pool.filter(d => d.moments.some(m => allowed.includes(m)) && notExcluded(d))
   if (candidates.length === 0) {
-    candidates = pool.filter(d => !(opts.exclude || []).includes(d.name))
+    // Fallback sin romper el realismo: en el DESAYUNO no degradar nunca a platos
+    // contundentes (solo comida/cena) — preferir platos ligeros (desayuno/snack).
+    if (slot.moment === 'desayuno') {
+      candidates = pool.filter(d => notExcluded(d) && (d.moments.includes('desayuno') || d.moments.includes('snack')))
+    }
+    if (candidates.length === 0) candidates = pool.filter(notExcluded)
   }
   if (candidates.length === 0) return null
 

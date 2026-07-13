@@ -1017,8 +1017,13 @@ function FastingTimeline({ startHour, windowHours }: { startHour: number; window
 /* ── PLAN TAB: creador de dietas visual, realista y configurable ── */
 const DOW_LONG = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
 
+// Momento del plato (Plan) → tipo de comida del Menú/Diario (MEAL_TYPES).
+const MOMENT_TO_MEAL: Record<string, string> = {
+  desayuno: 'Desayuno', comida: 'Comida', cena: 'Cena', snack: 'Snack',
+}
+
 function PlanTab() {
-  const { dishes, goals, macroCalc, dietConfig, setDietConfig } = useNutriStore()
+  const { dishes, goals, macroCalc, dietConfig, setDietConfig, setMenuDay, addFood } = useNutriStore()
   const toast = useToast()
 
   // Pool de platos candidatos: mis platos + biblioteca de recetas, clasificados
@@ -1094,6 +1099,28 @@ function PlanTab() {
     meals[idx] = buildMeal(slot, day.meals[idx].time, day.meals[idx].targetKcal, pick.dish, pick.servings)
     setDay(summarizeDay(day.profile, meals, day.goalKcal))
     toast.show(`↺ ${pick.dish.name}`)
+  }
+
+  // Guardar el día generado en el Menú semanal (día = viewDay). Mapea el momento
+  // de cada plato a un tipo de comida del Menú para que se vea en esa pestaña.
+  function saveToMenu() {
+    if (!day) return
+    const meals = day.meals.map(m => ({ meal: MOMENT_TO_MEAL[m.moment] || 'Comida', dishName: m.dishName }))
+    setMenuDay(viewDay, meals)
+    toast.show(`✓ Guardado en el Menú del ${DOW_LONG[viewDay]}`)
+  }
+
+  // Volcar el plan al Diario de HOY con los macros ya escalados por ración.
+  function applyToDiary() {
+    if (!day) return
+    const today = todayISO()
+    day.meals.forEach(m => addFood(today, {
+      name: m.servings !== 1 ? `${m.dishName} ×${m.servings}` : m.dishName,
+      kcal: m.kcal, p: m.p, c: m.c, f: m.f,
+      grams: Math.round(100 * m.servings),
+      meal: MOMENT_TO_MEAL[m.moment] || 'Comida',
+    }))
+    toast.show('✓ Añadido al Diario de hoy')
   }
 
   // Editar % de contundencia manualmente. Fija el slot movido y reparte el resto
@@ -1213,7 +1240,21 @@ function PlanTab() {
         🎲 Generar plan del {DOW_LONG[viewDay]} ({profile === 'training' ? 'entreno' : 'descanso'})
       </button>
 
-      {day && <PlanDayView day={day} onRegen={regenMeal} onSub={subMeal} />}
+      {day && (
+        <>
+          <PlanDayView day={day} onRegen={regenMeal} onSub={subMeal} />
+          <div style={{ display: 'flex', gap: 8, marginTop: 4, marginBottom: 12 }}>
+            <button onClick={saveToMenu}
+              style={{ flex: 1, padding: '11px 0', borderRadius: 12, background: 'rgba(82,183,136,0.12)', border: '1px solid rgba(82,183,136,0.3)', color: 'var(--color-acc-green)', fontSize: 13, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>
+              📅 Guardar en Menú
+            </button>
+            <button onClick={applyToDiary}
+              style={{ flex: 1, padding: '11px 0', borderRadius: 12, background: 'rgba(91,138,240,0.1)', border: '1px solid rgba(91,138,240,0.25)', color: 'var(--color-blue)', fontSize: 13, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>
+              ➕ Volcar al Diario
+            </button>
+          </div>
+        </>
+      )}
       {!day && (
         <div style={{ textAlign: 'center', padding: 32, fontSize: 13, color: 'var(--color-dim)' }}>
           Configura y pulsa «Generar plan» para ver las comidas del día.
