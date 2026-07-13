@@ -983,6 +983,59 @@ function MenuTab() {
       </div>
       {sharePost && <ShareSheet post={sharePost} onClose={() => setSharePost(null)} />}
 
+      {/* Resumen del día montado: ver el menú COMO menú (qué hay en cada comida,
+          kcal por plato, total vs meta y macros). Antes solo había checkboxes
+          sueltos en las pestañas → el menú creado quedaba invisible. */}
+      {(() => {
+        const goalKcal = goals.kcal || 2000
+        const groups = MEAL_TYPES
+          .map(mt => ({ meal: mt, items: curMeals.filter(m => m.meal === mt) }))
+          .filter(g => g.items.length > 0)
+        const tot = curMeals.reduce((a, m) => {
+          const d = allDishes.find(x => x.name === m.dishName)
+          if (d) { a.kcal += d.totalKcal; a.p += d.totalP; a.c += d.totalC; a.f += d.totalF }
+          return a
+        }, { kcal: 0, p: 0, c: 0, f: 0 })
+        const near = goalKcal > 0 && Math.abs(tot.kcal - goalKcal) / goalKcal <= 0.05
+        return (
+          <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, overflow: 'hidden', marginTop: 8, marginBottom: 12 }}>
+            <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text)' }}>Menú del {['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'][viewDay]}</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: near ? 'var(--color-acc-green)' : 'var(--color-dim)' }}>{tot.kcal} / {goalKcal} kcal</span>
+            </div>
+            {groups.length === 0 ? (
+              <div style={{ padding: 14, fontSize: 12, color: 'var(--color-dim)', textAlign: 'center' }}>
+                Aún no hay platos en este día. Elígelos abajo o pulsa 🎲 Día.
+              </div>
+            ) : (
+              <>
+                {groups.map(g => (
+                  <div key={g.meal} style={{ padding: '8px 14px', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>{g.meal}</div>
+                    {g.items.map((it, i) => {
+                      const d = allDishes.find(x => x.name === it.dishName)
+                      return (
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, padding: '3px 0' }}>
+                          <span style={{ fontSize: 13, color: 'var(--color-text)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{it.dishName}</span>
+                          <span style={{ fontSize: 11, color: 'var(--color-dim)', flexShrink: 0 }}>{d ? `${d.totalKcal} kcal` : '—'}</span>
+                          <button onClick={() => toggleDish(g.meal, it.dishName)} title="Quitar del menú"
+                            style={{ flexShrink: 0, width: 22, height: 22, borderRadius: 6, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-dim)', cursor: 'pointer', fontSize: 12, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+                        </div>
+                      )
+                    })}
+                  </div>
+                ))}
+                <div style={{ padding: '8px 14px', display: 'flex', gap: 14, fontSize: 11, color: 'var(--color-dim)' }}>
+                  <span>Proteína <b style={{ color: 'var(--color-text)' }}>{Math.round(tot.p)}g</b></span>
+                  <span>Carbs <b style={{ color: 'var(--color-text)' }}>{Math.round(tot.c)}g</b></span>
+                  <span>Grasa <b style={{ color: 'var(--color-text)' }}>{Math.round(tot.f)}g</b></span>
+                </div>
+              </>
+            )}
+          </div>
+        )
+      })()}
+
       {/* Pestañas de comida: solo se renderiza la lista de la comida activa (antes
           se pintaban las 5 listas × ~100 platos = cientos de filas de golpe). */}
       <div style={{ display: 'flex', gap: 4, overflowX: 'auto', marginTop: 8, marginBottom: 8, paddingBottom: 2 }}>
