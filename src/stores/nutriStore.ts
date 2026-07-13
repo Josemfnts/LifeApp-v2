@@ -1,11 +1,50 @@
 import { saveToStorage, loadFromStorage } from '@/lib/storage'
 import { create } from 'zustand'
+import type { DistribucionPreset, FastingPreset } from '@/lib/dietPlanner'
 
 export interface FoodEntry { name: string; kcal: number; p: number; c: number; f: number; grams: number; meal: string }
 export interface Dish { id: number; name: string; ingredients: { name: string; kcal: number; p: number; c: number; f: number; grams: number }[]; totalKcal: number; totalP: number; totalC: number; totalF: number }
 export interface MenuDay { day: number; meals: { meal: string; dishName: string }[] }
 export interface BodyMetric { date: string; weight: number; fat: number; muscle: number }
 export interface MacroCalc { weight: number; height: number; age: number; gender: 'male' | 'female'; activity: number; goal: 'cut' | 'maintain' | 'bulk' }
+
+// Configuración persistente del plan de dieta (mejoras 1–4). Todo opcional con
+// defaults razonables para no romper datos existentes.
+export interface DietConfig {
+  // 1) Déficit guiado por kg a perder.
+  kgObjetivo: number
+  semanas: number
+  deficitCalculado: number
+  // 2) Macros personalizables.
+  proteinPerKg: number   // g proteína / kg peso (1.2–3.0)
+  fatPct: number         // % kcal de grasa (15–40)
+  // 3) Ayuno intermitente (ventana de comidas).
+  fastingPreset: FastingPreset
+  fastingStartHour: number
+  fastingWindowHours: number
+  // 4) Creador de dietas.
+  numMeals: number
+  distribucion: DistribucionPreset
+  mealPcts: number[]     // % kcal por slot (vacío = derivar de distribucion)
+  trainingHour: number
+  trainingDays: number[] // días de entreno (0=Domingo … 6=Sábado)
+}
+
+export const DEFAULT_DIET_CONFIG: DietConfig = {
+  kgObjetivo: 5,
+  semanas: 10,
+  deficitCalculado: 500,
+  proteinPerKg: 2,
+  fatPct: 25,
+  fastingPreset: '16:8',
+  fastingStartHour: 12,
+  fastingWindowHours: 8,
+  numMeals: 4,
+  distribucion: 'equilibrado',
+  mealPcts: [],
+  trainingHour: 18,
+  trainingDays: [1, 3, 5],
+}
 
 interface NutriStore {
   log: Record<string, FoodEntry[]>
@@ -18,6 +57,7 @@ interface NutriStore {
   favorites: string[]
   fasting: { startTime: string | null; targetHours: number; history: { date: string; hours: number }[] }
   macroCalc: MacroCalc
+  dietConfig: DietConfig
   addFood: (date: string, entry: FoodEntry) => void
   removeFood: (date: string, idx: number) => void
   addDish: (dish: Dish) => void
@@ -28,6 +68,7 @@ interface NutriStore {
   addWater: (date: string, ml: number) => void
   toggleFavorite: (name: string) => void
   setMacroCalc: (m: MacroCalc) => void
+  setDietConfig: (c: Partial<DietConfig>) => void
   startFast: () => void
   endFast: () => void
 }
@@ -59,6 +100,7 @@ export const useNutriStore = create<NutriStore>((set, get) => ({
   favorites: loadFromStorage('nutri_favs', []),
   fasting: loadFromStorage('nutri_fasting', { startTime: null, targetHours: 16, history: [] }),
   macroCalc: loadFromStorage('nutri_macro_calc', { weight: 75, height: 175, age: 30, gender: 'male', activity: 3, goal: 'maintain' }),
+  dietConfig: { ...DEFAULT_DIET_CONFIG, ...loadFromStorage('nutri_diet_config', {}) },
 
   addFood: (date, entry) => set(s => {
     const next = { ...s.log }; if (!next[date]) next[date] = []; next[date] = [...next[date], entry]
@@ -83,6 +125,11 @@ export const useNutriStore = create<NutriStore>((set, get) => ({
     const goals = { kcal, p, c, f, mealPcts: get().goals.mealPcts }
     saveToStorage('nutri_goals', goals); set({ goals })
   },
+  setDietConfig: (c) => set(s => {
+    const next = { ...s.dietConfig, ...c }
+    saveToStorage('nutri_diet_config', next)
+    return { dietConfig: next }
+  }),
   startFast: () => set(s => {
     const now = new Date().toISOString()
     saveToStorage('nutri_fasting', { ...s.fasting, startTime: now })

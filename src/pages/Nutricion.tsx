@@ -1,5 +1,12 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { useNutriStore, computeMacros, type MacroCalc } from '@/stores/nutriStore'
+import {
+  computeDeficit, RITMO_META,
+  computeMacroSplit, FASTING_PRESETS, windowHoursForPreset,
+  slotsForMeals, distribucionPorSlots, DISTRIBUCION_LABELS, roundTo100,
+  makePlanDish, dayTargets, generateDay, pickDishForSlot, substituteDish, buildMeal, summarizeDay,
+  type PlanDish, type PlanConfig, type DayProfile, type GeneratedDay, type DistribucionPreset,
+} from '@/lib/dietPlanner'
 import type { NewPost } from '@/lib/social'
 import { ShareSheet } from '@/components/social/ShareSheet'
 import { dishToPost, menuToPost, bodyProgressToPost } from '@/lib/socialShare'
@@ -15,15 +22,15 @@ const DOW_S = ['D', 'L', 'M', 'X', 'J', 'V', 'S']
 function todayISO() { return new Date().toISOString().slice(0, 10) }
 
 export default function Nutricion() {
-  const [tab, setTab] = useState<'diary' | 'dishes' | 'search' | 'goals' | 'menu' | 'tools'>('diary')
+  const [tab, setTab] = useState<'diary' | 'dishes' | 'search' | 'goals' | 'plan' | 'menu' | 'tools'>('diary')
   return (
     <div>
       <div className="page-header">
         <div className="page-title">Nutrición</div>
         <div className="tab-bar">
-          {(['diary','dishes','search','goals','menu','tools'] as const).map(t => (
+          {(['diary','dishes','search','goals','plan','menu','tools'] as const).map(t => (
             <button key={t} onClick={() => setTab(t)} className={`tab-btn tab-green${tab === t ? ' active' : ''}`}>
-              {{diary:'Diario',dishes:'Platos',search:'Buscar',goals:'Metas',menu:'Menú',tools:'Herram.'}[t]}
+              {{diary:'Diario',dishes:'Platos',search:'Buscar',goals:'Metas',plan:'Plan',menu:'Menú',tools:'Herram.'}[t]}
             </button>
           ))}
         </div>
@@ -33,6 +40,7 @@ export default function Nutricion() {
         {tab === 'dishes' && <DishesTab />}
         {tab === 'search' && <SearchTab />}
         {tab === 'goals' && <GoalsTab />}
+        {tab === 'plan' && <PlanTab />}
         {tab === 'menu' && <MenuTab />}
         {tab === 'tools' && <ToolsTab />}
       </div>
@@ -697,7 +705,7 @@ function FoodResultRow({ food, isFav, onToggleFav, onAdd }: {
 
 /* ── GOALS TAB ── */
 function GoalsTab() {
-  const { goals, setGoals, macroCalc, setMacroCalc } = useNutriStore()
+  const { goals, setGoals, macroCalc, setMacroCalc, dietConfig, setDietConfig } = useNutriStore()
   const toast = useToast()
   const [kcal, setKcal] = useState(String(goals.kcal))
   const [p, setP] = useState(String(goals.p))
@@ -747,6 +755,34 @@ function GoalsTab() {
   }
 
   const ACTIVITIES = ['Sedentario', 'Ligero (1-2 días)', 'Moderado (3-4 días)', 'Activo (5-6 días)', 'Muy activo (atleta)']
+
+  // ── 1) DÉFICIT GUIADO POR KG ──
+  const weightKg = calcParams.weight || 75
+  const deficit = computeDeficit(dietConfig.kgObjetivo, dietConfig.semanas, est.tdee, mcGender)
+  // Recomendaciones de ritmo: cuántas semanas para cada perfil.
+  const ritmoSemanas = (kgWeek: number) => dietConfig.kgObjetivo > 0 ? Math.max(1, Math.round(dietConfig.kgObjetivo / kgWeek)) : 0
+
+  function applyDeficit() {
+    setDietConfig({ deficitCalculado: deficit.deficitDiario })
+    setKcal(String(deficit.kcalObjetivo))
+    // Recalcula macros con la config personalizada sobre las nuevas kcal.
+    const split = computeMacroSplit({ kcal: deficit.kcalObjetivo, weightKg, proteinPerKg: dietConfig.proteinPerKg, fatPct: dietConfig.fatPct })
+    setP(String(split.p)); setC(String(split.c)); setF(String(split.f))
+    toast.show(`✓ Déficit ${deficit.deficitDiario} kcal → objetivo ${deficit.kcalObjetivo} kcal`)
+  }
+
+  // ── 2) MACROS PERSONALIZABLES ──
+  const targetKcal = parseInt(kcal) || est.kcal
+  const split = computeMacroSplit({ kcal: targetKcal, weightKg, proteinPerKg: dietConfig.proteinPerKg, fatPct: dietConfig.fatPct })
+  const sumaPct = split.pPct + split.cPct + split.fPct
+
+  function applyMacros() {
+    setP(String(split.p)); setC(String(split.c)); setF(String(split.f))
+    toast.show('✓ Reparto de macros aplicado')
+  }
+
+  // ── 3) AYUNO ──
+  const winHours = windowHoursForPreset(dietConfig.fastingPreset, dietConfig.fastingWindowHours)
 
   return (
     <div>
@@ -804,6 +840,117 @@ function GoalsTab() {
         <button onClick={applyCalc} className="btn-ghost" style={{ border: '1px solid rgba(82,183,136,0.2)', color: 'var(--color-acc-green)', background: 'rgba(82,183,136,0.1)' }}>Aplicar a mis metas</button>
       </div>
 
+      {/* ── 1) DÉFICIT GUIADO POR KG A PERDER ── */}
+      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
+        <div className="sec-label">🎯 Déficit por objetivo de peso</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4 }}>Kg a perder</div>
+            <input className="inp" value={dietConfig.kgObjetivo} onChange={e => setDietConfig({ kgObjetivo: Math.max(0, parseFloat(e.target.value) || 0) })} type="number" step="0.5" style={{ marginBottom: 0 }} />
+          </div>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4 }}>En semanas</div>
+            <input className="inp" value={dietConfig.semanas} onChange={e => setDietConfig({ semanas: Math.max(1, parseInt(e.target.value) || 1) })} type="number" min="1" style={{ marginBottom: 0 }} />
+          </div>
+        </div>
+
+        {/* Recomendaciones de ritmo */}
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
+          {[{ r: 'lento' as const, kg: 0.3 }, { r: 'recomendado' as const, kg: 0.5 }, { r: 'moderado' as const, kg: 0.75 }, { r: 'agresivo' as const, kg: 1 }].map(({ r, kg }) => {
+            const meta = RITMO_META[r]
+            const sem = ritmoSemanas(kg)
+            const active = deficit.ritmo === r
+            return (
+              <button key={r} onClick={() => setDietConfig({ semanas: sem || dietConfig.semanas })}
+                title={`${meta.hint} (${sem} sem)`}
+                style={{ flex: '1 1 45%', minWidth: 120, padding: '8px 10px', borderRadius: 10, cursor: 'pointer', textAlign: 'left',
+                  border: `1px solid ${active ? meta.color : 'var(--color-border)'}`,
+                  background: active ? `color-mix(in srgb, ${meta.color} 14%, transparent)` : 'var(--color-s2)', fontFamily: 'DM Sans,sans-serif' }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: meta.color }}>{meta.label} · {kg} kg/sem</div>
+                <div style={{ fontSize: 10, color: 'var(--color-dim)' }}>{sem} semanas</div>
+              </button>
+            )
+          })}
+        </div>
+
+        <div style={{ background: 'var(--color-s2)', borderRadius: 12, padding: 12, marginBottom: 10 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+            <span style={{ fontSize: 12, color: 'var(--color-dim)' }}>Déficit diario</span>
+            <span style={{ fontFamily: 'DM Serif Display,serif', fontSize: 22, color: RITMO_META[deficit.ritmo].color }}>−{deficit.deficitDiario} kcal</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--color-sub)', marginTop: 4 }}>
+            <span>Objetivo: <b style={{ color: 'var(--color-text)' }}>{deficit.kcalObjetivo} kcal</b></span>
+            <span style={{ color: RITMO_META[deficit.ritmo].color, fontWeight: 700 }}>{RITMO_META[deficit.ritmo].label} · −{deficit.kgPorSemana} kg/sem</span>
+          </div>
+          {deficit.limitadoPorMinimo && (
+            <div style={{ fontSize: 11, color: 'var(--color-acc-orange)', marginTop: 8, lineHeight: 1.4 }}>
+              ⚠️ Limitado al mínimo de seguridad ({deficit.minKcal} kcal, {mcGender === 'male' ? 'hombre' : 'mujer'}). Alarga el plazo para un déficit realista.
+            </div>
+          )}
+        </div>
+        <button onClick={applyDeficit} className="btn-ghost" style={{ border: '1px solid rgba(82,183,136,0.2)', color: 'var(--color-acc-green)', background: 'rgba(82,183,136,0.1)' }}>Aplicar déficit a mis metas</button>
+      </div>
+
+      {/* ── 2) MACROS PERSONALIZABLES ── */}
+      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
+        <div className="sec-label">⚙️ Reparto de macros personalizado</div>
+        <SliderRow label="Proteína (g/kg peso)" value={dietConfig.proteinPerKg} min={1.2} max={3} step={0.1}
+          onChange={v => setDietConfig({ proteinPerKg: v })} format={v => `${v.toFixed(1)} g/kg → ${Math.round(v * weightKg)} g`} color="var(--color-acc-blue)" />
+        <SliderRow label="Grasa (% kcal)" value={dietConfig.fatPct} min={15} max={40} step={1}
+          onChange={v => setDietConfig({ fatPct: v })} format={v => `${v}%`} color="var(--color-acc-orange)" />
+
+        {/* Barra P/G/C en tiempo real */}
+        <div style={{ marginTop: 6, marginBottom: 8 }}>
+          <div style={{ display: 'flex', height: 24, borderRadius: 8, overflow: 'hidden', border: '1px solid var(--color-border)' }}>
+            <div style={{ width: `${split.pPct}%`, background: 'var(--color-acc-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: '#fff' }}>{split.pPct > 8 ? `P ${split.pPct}%` : ''}</div>
+            <div style={{ width: `${split.cPct}%`, background: 'var(--color-acc-gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: '#000' }}>{split.cPct > 8 ? `C ${split.cPct}%` : ''}</div>
+            <div style={{ width: `${split.fPct}%`, background: 'var(--color-acc-orange)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: '#fff' }}>{split.fPct > 8 ? `G ${split.fPct}%` : ''}</div>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6, fontSize: 12 }}>
+            <span style={{ color: 'var(--color-acc-blue)', fontWeight: 600 }}>P {split.p}g</span>
+            <span style={{ color: 'var(--color-acc-gold)', fontWeight: 600 }}>C {split.c}g</span>
+            <span style={{ color: 'var(--color-acc-orange)', fontWeight: 600 }}>G {split.f}g</span>
+            <span style={{ color: sumaPct === 100 ? 'var(--color-acc-green)' : 'var(--color-acc-orange)', fontWeight: 700 }}>Σ {sumaPct}%</span>
+          </div>
+          {split.invalido && <div style={{ fontSize: 11, color: 'var(--color-red)', marginTop: 6 }}>⚠️ Proteína + grasa superan las kcal: baja la proteína o la grasa.</div>}
+        </div>
+        <button onClick={applyMacros} disabled={split.invalido} className="btn-ghost" style={{ border: '1px solid rgba(82,183,136,0.2)', color: 'var(--color-acc-green)', background: 'rgba(82,183,136,0.1)', opacity: split.invalido ? 0.5 : 1 }}>Aplicar reparto a mis metas</button>
+      </div>
+
+      {/* ── 3) VENTANA DE AYUNO ── */}
+      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
+        <div className="sec-label">⏳ Ventana de ayuno</div>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
+          {FASTING_PRESETS.map(fp => {
+            const active = dietConfig.fastingPreset === fp.preset
+            return (
+              <button key={fp.preset} onClick={() => setDietConfig({ fastingPreset: fp.preset, fastingWindowHours: windowHoursForPreset(fp.preset, dietConfig.fastingWindowHours) })}
+                style={{ padding: '6px 12px', borderRadius: 99, fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer',
+                  border: `1px solid ${active ? 'rgba(91,138,240,0.4)' : 'var(--color-border)'}`,
+                  background: active ? 'rgba(91,138,240,0.12)' : 'var(--color-s2)', color: active ? 'var(--color-blue)' : 'var(--color-dim)' }}>
+                {fp.label}
+              </button>
+            )
+          })}
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: dietConfig.fastingPreset === 'custom' ? '1fr 1fr' : '1fr', gap: 8, marginBottom: 12 }}>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4 }}>Empieza a comer (hora)</div>
+            <input className="inp" value={dietConfig.fastingStartHour} onChange={e => setDietConfig({ fastingStartHour: Math.max(0, Math.min(23, parseInt(e.target.value) || 0)) })} type="number" min="0" max="23" style={{ marginBottom: 0 }} />
+          </div>
+          {dietConfig.fastingPreset === 'custom' && (
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4 }}>Ventana (h)</div>
+              <input className="inp" value={dietConfig.fastingWindowHours} onChange={e => setDietConfig({ fastingWindowHours: Math.max(1, Math.min(24, parseInt(e.target.value) || 1)) })} type="number" min="1" max="24" style={{ marginBottom: 0 }} />
+            </div>
+          )}
+        </div>
+        <FastingTimeline startHour={dietConfig.fastingStartHour} windowHours={winHours} />
+        <div style={{ fontSize: 12, color: 'var(--color-sub)', marginTop: 10, textAlign: 'center' }}>
+          Ayuno {24 - winHours}h · Ventana {winHours}h ({String(dietConfig.fastingStartHour).padStart(2, '0')}:00–{String((dietConfig.fastingStartHour + winHours) % 24).padStart(2, '0')}:00)
+        </div>
+      </div>
+
       <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
         <div className="sec-label">Metas diarias</div>
         {[
@@ -822,6 +969,323 @@ function GoalsTab() {
         ))}
         <button onClick={save} className="btn-ghost" style={{ border: '1px solid rgba(82,183,136,0.2)', color: 'var(--color-acc-green)', background: 'rgba(82,183,136,0.1)' }}>Guardar metas</button>
       </div>
+    </div>
+  )
+}
+
+// Fila de slider reutilizable con etiqueta + valor formateado.
+function SliderRow({ label, value, min, max, step, onChange, format, color }: {
+  label: string; value: number; min: number; max: number; step: number
+  onChange: (v: number) => void; format: (v: number) => string; color: string
+}) {
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+        <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-sub)' }}>{label}</span>
+        <span style={{ fontSize: 12, fontWeight: 700, color }}>{format(value)}</span>
+      </div>
+      <input type="range" min={min} max={max} step={step} value={value}
+        onChange={e => onChange(parseFloat(e.target.value))}
+        style={{ width: '100%', accentColor: color, cursor: 'pointer' }} />
+    </div>
+  )
+}
+
+// Timeline horizontal de 24h mostrando la ventana de comida (ayuno vs comer).
+function FastingTimeline({ startHour, windowHours }: { startHour: number; windowHours: number }) {
+  const hours = Array.from({ length: 24 }, (_, i) => i)
+  const inWindow = (h: number) => {
+    const end = startHour + windowHours
+    if (end <= 24) return h >= startHour && h < end
+    return h >= startHour || h < end % 24
+  }
+  return (
+    <div>
+      <div style={{ display: 'flex', height: 28, borderRadius: 8, overflow: 'hidden', border: '1px solid var(--color-border)' }}>
+        {hours.map(h => (
+          <div key={h} title={`${String(h).padStart(2, '0')}:00`}
+            style={{ flex: 1, background: inWindow(h) ? 'var(--color-acc-green)' : 'rgba(255,255,255,0.05)', borderRight: h < 23 ? '1px solid rgba(0,0,0,0.15)' : 'none' }} />
+        ))}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontSize: 9, color: 'var(--color-dim)' }}>
+        <span>00h</span><span>06h</span><span>12h</span><span>18h</span><span>24h</span>
+      </div>
+    </div>
+  )
+}
+
+/* ── PLAN TAB: creador de dietas visual, realista y configurable ── */
+const DOW_LONG = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
+
+function PlanTab() {
+  const { dishes, goals, macroCalc, dietConfig, setDietConfig } = useNutriStore()
+  const toast = useToast()
+
+  // Pool de platos candidatos: mis platos + biblioteca de recetas, clasificados
+  // por momento del día (realismo). Se calcula una vez.
+  const pool = useMemo<PlanDish[]>(() => {
+    const own = dishes.map(d => makePlanDish({ name: d.name, kcal: d.totalKcal, p: d.totalP, c: d.totalC, f: d.totalF }))
+    const lib = RECIPES.map(r => makePlanDish({
+      name: r.nombre, kcal: r.macros_por_racion.kcal, p: r.macros_por_racion.proteina_g,
+      c: r.macros_por_racion.carbohidratos_g, f: r.macros_por_racion.grasas_g, categoria: r.categoria,
+    }))
+    const map = new Map<string, PlanDish>()
+    lib.forEach(d => map.set(d.name, d))
+    own.forEach(d => map.set(d.name, d))
+    return [...map.values()]
+  }, [dishes])
+
+  const slots = slotsForMeals(dietConfig.numMeals)
+  // % por slot: personalizados si coinciden con el nº de slots, si no derivados.
+  const pcts = dietConfig.mealPcts.length === slots.length
+    ? dietConfig.mealPcts
+    : distribucionPorSlots(slots, dietConfig.distribucion)
+
+  // Base para objetivos de macros según perfil de día.
+  const est = computeMacros(macroCalc)
+  const maintenanceKcal = est.tdee
+  const deficitKcal = goals.kcal || est.kcal
+  const base = {
+    deficitKcal, maintenanceKcal, weightKg: macroCalc.weight || 75,
+    proteinPerKg: dietConfig.proteinPerKg, fatPct: dietConfig.fatPct,
+  }
+
+  const planConfig: PlanConfig = {
+    numMeals: dietConfig.numMeals,
+    distribucion: dietConfig.distribucion,
+    mealPcts: dietConfig.mealPcts.length === slots.length ? dietConfig.mealPcts : undefined,
+    fasting: { preset: dietConfig.fastingPreset, startHour: dietConfig.fastingStartHour, windowHours: windowHoursForPreset(dietConfig.fastingPreset, dietConfig.fastingWindowHours) },
+    trainingHour: dietConfig.trainingHour,
+  }
+
+  // Día visualizado y su perfil (entreno según trainingDays).
+  const [viewDay, setViewDay] = useState(new Date().getDay())
+  const profile: DayProfile = dietConfig.trainingDays.includes(viewDay) ? 'training' : 'rest'
+  const targets = dayTargets(base, profile)
+
+  const [day, setDay] = useState<GeneratedDay | null>(null)
+
+  function regenerateAll() {
+    if (pool.length === 0) { toast.show('No hay platos. Crea platos o usa la biblioteca.'); return }
+    setDay(generateDay(planConfig, targets, profile, pool))
+    toast.show(`🍽️ Plan generado (${profile === 'training' ? 'día de entreno' : 'día de descanso'})`)
+  }
+
+  // Regenerar UNA comida (mismo slot, plato distinto y aleatorio).
+  function regenMeal(idx: number) {
+    if (!day) return
+    const slot = slots[idx]
+    const meal = day.meals[idx]
+    const others = day.meals.filter((_, i) => i !== idx).map(m => m.dishName)
+    const pick = pickDishForSlot(slot, meal.targetKcal, pool, { exclude: others, random: true })
+    if (!pick) { toast.show('Sin alternativas'); return }
+    const meals = [...day.meals]
+    meals[idx] = buildMeal(slot, meal.time, meal.targetKcal, pick.dish, pick.servings)
+    setDay(summarizeDay(day.profile, meals, day.goalKcal))
+  }
+
+  // Sustituir por macros parecidas (mismo momento, distinto alimento).
+  function subMeal(idx: number) {
+    if (!day) return
+    const slot = slots[idx]
+    const pick = substituteDish(slot, day.meals[idx], pool)
+    if (!pick) { toast.show('Sin sustituto disponible'); return }
+    const meals = [...day.meals]
+    meals[idx] = buildMeal(slot, day.meals[idx].time, day.meals[idx].targetKcal, pick.dish, pick.servings)
+    setDay(summarizeDay(day.profile, meals, day.goalKcal))
+    toast.show(`↺ ${pick.dish.name}`)
+  }
+
+  // Editar % de contundencia manualmente (renormaliza a 100).
+  function setPct(idx: number, val: number) {
+    const arr = pcts.length === slots.length ? [...pcts] : distribucionPorSlots(slots, dietConfig.distribucion)
+    arr[idx] = val
+    setDietConfig({ mealPcts: roundTo100(arr) })
+  }
+
+  const pctSum = pcts.reduce((a, b) => a + b, 0)
+
+  return (
+    <div>
+      {/* Config: nº comidas + contundencia */}
+      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
+        <div className="sec-label">🍴 Comidas al día</div>
+        <div style={{ display: 'flex', gap: 6, marginBottom: 14, flexWrap: 'wrap' }}>
+          {[1, 2, 3, 4, 5, 6].map(n => {
+            const active = dietConfig.numMeals === n
+            return (
+              <button key={n} onClick={() => setDietConfig({ numMeals: n, mealPcts: [] })}
+                style={{ flex: 1, minWidth: 44, padding: '8px 0', borderRadius: 10, fontSize: 13, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer',
+                  border: `1px solid ${active ? 'rgba(82,183,136,0.4)' : 'var(--color-border)'}`,
+                  background: active ? 'rgba(82,183,136,0.14)' : 'var(--color-s2)', color: active ? 'var(--color-acc-green)' : 'var(--color-dim)' }}>
+                {n === 1 ? 'OMAD' : n}
+              </button>
+            )
+          })}
+        </div>
+
+        <div className="sec-label">📊 Contundencia (reparto de kcal)</div>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
+          {(Object.keys(DISTRIBUCION_LABELS) as DistribucionPreset[]).map(preset => {
+            const active = dietConfig.distribucion === preset && dietConfig.mealPcts.length === 0
+            return (
+              <button key={preset} onClick={() => setDietConfig({ distribucion: preset, mealPcts: [] })}
+                style={{ padding: '6px 12px', borderRadius: 99, fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer',
+                  border: `1px solid ${active ? 'rgba(82,183,136,0.4)' : 'var(--color-border)'}`,
+                  background: active ? 'rgba(82,183,136,0.12)' : 'var(--color-s2)', color: active ? 'var(--color-acc-green)' : 'var(--color-dim)' }}>
+                {DISTRIBUCION_LABELS[preset]}
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Sliders de % por comida */}
+        {slots.map((slot, i) => (
+          <div key={i} style={{ marginBottom: 10 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+              <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-sub)' }}>{slot.label}</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-acc-green)' }}>{pcts[i]}% · {Math.round(targets.goalKcal * pcts[i] / 100)} kcal</span>
+            </div>
+            <input type="range" min={0} max={70} step={1} value={pcts[i]} onChange={e => setPct(i, parseInt(e.target.value))}
+              style={{ width: '100%', accentColor: 'var(--color-acc-green)', cursor: 'pointer' }} />
+          </div>
+        ))}
+        <div style={{ fontSize: 11, textAlign: 'right', color: pctSum === 100 ? 'var(--color-acc-green)' : 'var(--color-acc-orange)', fontWeight: 700 }}>Suma: {pctSum}%</div>
+      </div>
+
+      {/* Config: entreno + perfiles de día */}
+      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
+        <div className="sec-label">🏋️ Entreno y perfiles de día</div>
+        <div style={{ marginBottom: 12 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4 }}>Hora del entreno (más carbos cerca)</div>
+          <input className="inp" value={dietConfig.trainingHour} onChange={e => setDietConfig({ trainingHour: Math.max(0, Math.min(23, parseInt(e.target.value) || 0)) })} type="number" min="0" max="23" style={{ marginBottom: 0 }} />
+        </div>
+        <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 6 }}>Días de entreno (más carbos, mantenimiento)</div>
+        <div style={{ display: 'flex', gap: 4 }}>
+          {[1, 2, 3, 4, 5, 6, 0].map(d => {
+            const active = dietConfig.trainingDays.includes(d)
+            return (
+              <button key={d} onClick={() => {
+                const set = active ? dietConfig.trainingDays.filter(x => x !== d) : [...dietConfig.trainingDays, d]
+                setDietConfig({ trainingDays: set })
+              }}
+                style={{ flex: 1, padding: '8px 0', borderRadius: 8, fontSize: 12, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer',
+                  border: `1px solid ${active ? 'rgba(91,138,240,0.4)' : 'var(--color-border)'}`,
+                  background: active ? 'rgba(91,138,240,0.14)' : 'var(--color-s2)', color: active ? 'var(--color-blue)' : 'var(--color-dim)' }}>
+                {DOW_S[d]}
+              </button>
+            )
+          })}
+        </div>
+        <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 8, lineHeight: 1.4 }}>
+          🔵 Entreno: mantenimiento ({maintenanceKcal} kcal), más carbos. ⚪ Descanso: déficit ({deficitKcal} kcal), más grasas.
+        </div>
+      </div>
+
+      {/* Selector de día + generar */}
+      <div style={{ display: 'flex', gap: 4, marginBottom: 10 }}>
+        {[1, 2, 3, 4, 5, 6, 0].map(d => {
+          const isTraining = dietConfig.trainingDays.includes(d)
+          return (
+            <button key={d} onClick={() => setViewDay(d)}
+              style={{ flex: 1, padding: '8px 2px', borderRadius: 8, fontSize: 12, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', position: 'relative',
+                border: `1px solid ${viewDay === d ? 'rgba(82,183,136,0.4)' : 'var(--color-border)'}`,
+                background: viewDay === d ? 'rgba(82,183,136,0.14)' : 'var(--color-s2)', color: viewDay === d ? 'var(--color-acc-green)' : 'var(--color-dim)' }}>
+              {DOW_S[d]}
+              {isTraining && <span style={{ position: 'absolute', top: 2, right: 3, fontSize: 7 }}>🏋️</span>}
+            </button>
+          )
+        })}
+      </div>
+
+      <button onClick={regenerateAll} className="btn-primary" style={{ background: 'var(--color-acc-green)', boxShadow: '0 2px 12px rgba(82,183,136,0.25)', marginBottom: 12 }}>
+        🎲 Generar plan del {DOW_LONG[viewDay]} ({profile === 'training' ? 'entreno' : 'descanso'})
+      </button>
+
+      {day && <PlanDayView day={day} onRegen={regenMeal} onSub={subMeal} />}
+      {!day && (
+        <div style={{ textAlign: 'center', padding: 32, fontSize: 13, color: 'var(--color-dim)' }}>
+          Configura y pulsa «Generar plan» para ver las comidas del día.
+        </div>
+      )}
+    </div>
+  )
+}
+
+// Vista diaria del plan: tarjetas hora+plato+icono+macros, gráfico P/G/C y botones.
+function PlanDayView({ day, onRegen, onSub }: {
+  day: GeneratedDay
+  onRegen: (idx: number) => void
+  onSub: (idx: number) => void
+}) {
+  const ringRef = useRef<HTMLCanvasElement>(null)
+  const chartRef = useRef<Chart | null>(null)
+  const pKcal = day.totalP * 4, cKcal = day.totalC * 4, fKcal = day.totalF * 9
+
+  useEffect(() => {
+    if (!ringRef.current) return
+    chartRef.current?.destroy()
+    chartRef.current = new Chart(ringRef.current.getContext('2d')!, {
+      type: 'doughnut',
+      data: {
+        labels: ['Proteína', 'Carbos', 'Grasa'],
+        datasets: [{ data: [pKcal, cKcal, fKcal], backgroundColor: ['#5b8af0', '#e0b84f', '#e08f5f'], borderWidth: 0 }],
+      },
+      options: { cutout: '68%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c: { label: string; raw: unknown }) => `${c.label}: ${Math.round((c.raw as number) / (pKcal + cKcal + fKcal || 1) * 100)}%` } } } },
+    })
+    return () => chartRef.current?.destroy()
+  }, [pKcal, cKcal, fKcal])
+
+  const near = day.goalKcal > 0 && Math.abs(day.totalKcal - day.goalKcal) / day.goalKcal <= 0.08
+
+  return (
+    <div>
+      {/* Resumen del día + gráfico P/G/C */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16, background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
+        <div style={{ position: 'relative', width: 90, height: 90, flexShrink: 0 }}>
+          <canvas ref={ringRef} width={90} height={90} />
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 20, color: 'var(--color-text)', lineHeight: 1 }}>{day.totalKcal}</div>
+            <div style={{ fontSize: 9, fontWeight: 600, color: 'var(--color-dim)' }}>kcal</div>
+          </div>
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 8 }}>
+            <span style={{ color: 'var(--color-dim)' }}>Meta {day.goalKcal} kcal</span>
+            <span style={{ color: near ? 'var(--color-acc-green)' : 'var(--color-acc-orange)', fontWeight: 700 }}>{day.profile === 'training' ? '🏋️ Entreno' : '⚪ Descanso'}</span>
+          </div>
+          <div style={{ display: 'flex', gap: 12, fontSize: 13 }}>
+            <span style={{ color: 'var(--color-acc-blue)', fontWeight: 700 }}>P {day.totalP}g</span>
+            <span style={{ color: 'var(--color-acc-gold)', fontWeight: 700 }}>C {day.totalC}g</span>
+            <span style={{ color: 'var(--color-acc-orange)', fontWeight: 700 }}>G {day.totalF}g</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Tarjetas de comida */}
+      {day.meals.map((m, i) => (
+        <div key={i} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, marginBottom: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(82,183,136,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>{m.icon}</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-acc-green)', background: 'rgba(82,183,136,0.1)', padding: '1px 6px', borderRadius: 4 }}>{m.time}</span>
+                <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase' }}>{m.slot}</span>
+              </div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)', marginTop: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {m.dishName}{m.servings !== 1 ? ` ×${m.servings}` : ''}
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--color-sub)', marginTop: 2 }}>{m.kcal} kcal · P{m.p} C{m.c} G{m.f}</div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
+            <button onClick={() => onRegen(i)} title="Regenerar esta comida"
+              style={{ flex: 1, padding: '6px 0', borderRadius: 8, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-sub)', fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>🎲 Regenerar</button>
+            <button onClick={() => onSub(i)} title="Sustituir por macros parecidas"
+              style={{ flex: 1, padding: '6px 0', borderRadius: 8, background: 'rgba(91,138,240,0.08)', border: '1px solid rgba(91,138,240,0.2)', color: 'var(--color-blue)', fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>↺ Sustituir</button>
+          </div>
+        </div>
+      ))}
     </div>
   )
 }

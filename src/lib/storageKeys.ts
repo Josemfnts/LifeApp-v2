@@ -23,6 +23,7 @@ export const STORE_KEYS = {
   nutri_favs: 'nutri_favs',
   nutri_fasting: 'nutri_fasting',
   nutri_macro_calc: 'nutri_macro_calc',
+  nutri_diet_config: 'nutri_diet_config',
 
   fisico_sessions: 'fisico_sessions',
   fisico_routines: 'fisico_routines',
