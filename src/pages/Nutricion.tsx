@@ -1105,9 +1105,23 @@ function PlanTab() {
   // de cada plato a un tipo de comida del Menú para que se vea en esa pestaña.
   function saveToMenu() {
     if (!day) return
-    const meals = day.meals.map(m => ({ meal: MOMENT_TO_MEAL[m.moment] || 'Comida', dishName: m.dishName }))
+    const meals = day.meals.map(m => ({ meal: MOMENT_TO_MEAL[m.moment] || 'Comida', dishName: m.dishName, servings: m.servings }))
     setMenuDay(viewDay, meals)
     toast.show(`✓ Guardado en el Menú del ${DOW_LONG[viewDay]}`)
+  }
+
+  // Genera los 7 días (cada uno con su perfil entreno/descanso, realismo y carbos
+  // cerca del entreno) y los vuelca al Menú semanal de una sola vez.
+  function saveWeekToMenu() {
+    if (pool.length === 0) { toast.show('No hay platos. Crea platos o usa la biblioteca.'); return }
+    let ok = 0
+    for (let d = 0; d < 7; d++) {
+      const prof: DayProfile = dietConfig.trainingDays.includes(d) ? 'training' : 'rest'
+      const gen = generateDay(planConfig, dayTargets(base, prof), prof, pool)
+      setMenuDay(d, gen.meals.map(m => ({ meal: MOMENT_TO_MEAL[m.moment] || 'Comida', dishName: m.dishName, servings: m.servings })))
+      if (gen.goalKcal > 0 && Math.abs(gen.totalKcal - gen.goalKcal) / gen.goalKcal <= 0.1) ok++
+    }
+    toast.show(`📅 Semana generada y guardada en el Menú · ${ok}/7 días en meta`)
   }
 
   // Volcar el plan al Diario de HOY con los macros ya escalados por ración.
@@ -1236,8 +1250,12 @@ function PlanTab() {
         })}
       </div>
 
-      <button onClick={regenerateAll} className="btn-primary" style={{ background: 'var(--color-acc-green)', boxShadow: '0 2px 12px rgba(82,183,136,0.25)', marginBottom: 12 }}>
+      <button onClick={regenerateAll} className="btn-primary" style={{ background: 'var(--color-acc-green)', boxShadow: '0 2px 12px rgba(82,183,136,0.25)', marginBottom: 8 }}>
         🎲 Generar plan del {DOW_LONG[viewDay]} ({profile === 'training' ? 'entreno' : 'descanso'})
+      </button>
+      <button onClick={saveWeekToMenu}
+        style={{ width: '100%', padding: '12px 0', borderRadius: 12, background: 'var(--color-s2)', border: '1px solid rgba(82,183,136,0.3)', color: 'var(--color-acc-green)', fontSize: 13, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', marginBottom: 12 }}>
+        📅 Generar y guardar la semana entera en el Menú
       </button>
 
       {day && (
@@ -1449,9 +1467,10 @@ function MenuTab() {
       dayMenu.meals.forEach(mealEntry => {
         const dish = allDishes.find(d => d.name === mealEntry.dishName)
         if (!dish) return
+        const mult = mealEntry.servings ?? 1
         dish.ingredients.forEach(ing => {
           if (!items[ing.name]) items[ing.name] = { totalGrams: 0, dishes: new Set() }
-          items[ing.name].totalGrams += ing.grams
+          items[ing.name].totalGrams += ing.grams * mult
           items[ing.name].dishes.add(dish.name)
         })
       })
@@ -1509,7 +1528,8 @@ function MenuTab() {
           .filter(g => g.items.length > 0)
         const tot = curMeals.reduce((a, m) => {
           const d = allDishes.find(x => x.name === m.dishName)
-          if (d) { a.kcal += d.totalKcal; a.p += d.totalP; a.c += d.totalC; a.f += d.totalF }
+          const mult = m.servings ?? 1
+          if (d) { a.kcal += d.totalKcal * mult; a.p += d.totalP * mult; a.c += d.totalC * mult; a.f += d.totalF * mult }
           return a
         }, { kcal: 0, p: 0, c: 0, f: 0 })
         const near = goalKcal > 0 && Math.abs(tot.kcal - goalKcal) / goalKcal <= 0.05
@@ -1517,7 +1537,7 @@ function MenuTab() {
           <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, overflow: 'hidden', marginTop: 8, marginBottom: 12 }}>
             <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text)' }}>Menú del {['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'][viewDay]}</span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: near ? 'var(--color-acc-green)' : 'var(--color-dim)' }}>{tot.kcal} / {goalKcal} kcal</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: near ? 'var(--color-acc-green)' : 'var(--color-dim)' }}>{Math.round(tot.kcal)} / {goalKcal} kcal</span>
             </div>
             {groups.length === 0 ? (
               <div style={{ padding: 14, fontSize: 12, color: 'var(--color-dim)', textAlign: 'center' }}>
@@ -1530,10 +1550,11 @@ function MenuTab() {
                     <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>{g.meal}</div>
                     {g.items.map((it, i) => {
                       const d = allDishes.find(x => x.name === it.dishName)
+                      const mult = it.servings ?? 1
                       return (
                         <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, padding: '3px 0' }}>
-                          <span style={{ fontSize: 13, color: 'var(--color-text)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{it.dishName}</span>
-                          <span style={{ fontSize: 11, color: 'var(--color-dim)', flexShrink: 0 }}>{d ? `${d.totalKcal} kcal` : '—'}</span>
+                          <span style={{ fontSize: 13, color: 'var(--color-text)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{it.dishName}{mult !== 1 ? ` ×${mult}` : ''}</span>
+                          <span style={{ fontSize: 11, color: 'var(--color-dim)', flexShrink: 0 }}>{d ? `${Math.round(d.totalKcal * mult)} kcal` : '—'}</span>
                           <button onClick={() => toggleDish(g.meal, it.dishName)} title="Quitar del menú"
                             style={{ flexShrink: 0, width: 22, height: 22, borderRadius: 6, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-dim)', cursor: 'pointer', fontSize: 12, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
                         </div>
@@ -1614,7 +1635,7 @@ function MenuTab() {
                   <div style={{ fontSize: 10, color: 'var(--color-dim)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.dishes}</div>
                 </div>
                 <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-acc-green)', flexShrink: 0, textAlign: 'right', minWidth: 70 }}>
-                  {item.totalGrams >= 1000 ? (item.totalGrams / 1000).toFixed(1) + ' kg' : item.totalGrams + ' g'}
+                  {item.totalGrams >= 1000 ? (item.totalGrams / 1000).toFixed(1) + ' kg' : Math.round(item.totalGrams) + ' g'}
                 </div>
               </div>
             ))}

@@ -4,7 +4,8 @@ import type { DistribucionPreset, FastingPreset } from '@/lib/dietPlanner'
 
 export interface FoodEntry { name: string; kcal: number; p: number; c: number; f: number; grams: number; meal: string }
 export interface Dish { id: number; name: string; ingredients: { name: string; kcal: number; p: number; c: number; f: number; grams: number }[]; totalKcal: number; totalP: number; totalC: number; totalF: number }
-export interface MenuDay { day: number; meals: { meal: string; dishName: string }[] }
+// servings: raciones del plato (por defecto 1 si falta — compat con datos viejos).
+export interface MenuDay { day: number; meals: { meal: string; dishName: string; servings?: number }[] }
 export interface BodyMetric { date: string; weight: number; fat: number; muscle: number }
 export interface MacroCalc { weight: number; height: number; age: number; gender: 'male' | 'female'; activity: number; goal: 'cut' | 'maintain' | 'bulk' }
 
@@ -63,7 +64,7 @@ interface NutriStore {
   addDish: (dish: Dish) => void
   removeDish: (id: number) => void
   setGoals: (g: { kcal: number; p: number; c: number; f: number; mealPcts?: Record<string, number> }) => void
-  setMenuDay: (day: number, meals: { meal: string; dishName: string }[]) => void
+  setMenuDay: (day: number, meals: { meal: string; dishName: string; servings?: number }[]) => void
   addBodyMetric: (m: BodyMetric) => void
   addWater: (date: string, ml: number) => void
   toggleFavorite: (name: string) => void
