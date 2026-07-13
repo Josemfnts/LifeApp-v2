@@ -1096,11 +1096,22 @@ function PlanTab() {
     toast.show(`↺ ${pick.dish.name}`)
   }
 
-  // Editar % de contundencia manualmente (renormaliza a 100).
+  // Editar % de contundencia manualmente. Fija el slot movido y reparte el resto
+  // (100 − val) entre los demás en proporción a su peso actual, de modo que la
+  // suma quede SIEMPRE exactamente 100. (roundTo100 solo cuadra decimales; no
+  // reduce sumas >100, por eso hay que renormalizar aquí antes de pasárselo.)
   function setPct(idx: number, val: number) {
-    const arr = pcts.length === slots.length ? [...pcts] : distribucionPorSlots(slots, dietConfig.distribucion)
-    arr[idx] = val
-    setDietConfig({ mealPcts: roundTo100(arr) })
+    const cur = pcts.length === slots.length ? [...pcts] : distribucionPorSlots(slots, dietConfig.distribucion)
+    if (cur.length === 1) { setDietConfig({ mealPcts: [100] }); return }
+    const clamped = Math.max(0, Math.min(100, val))
+    const remaining = 100 - clamped
+    const othersSum = cur.reduce((s, p, i) => (i === idx ? s : s + p), 0)
+    const next = cur.map((p, i) => {
+      if (i === idx) return clamped
+      // Si los demás sumaban 0, reparte el resto a partes iguales entre ellos.
+      return othersSum > 0 ? (p / othersSum) * remaining : remaining / (cur.length - 1)
+    })
+    setDietConfig({ mealPcts: roundTo100(next) })
   }
 
   const pctSum = pcts.reduce((a, b) => a + b, 0)
