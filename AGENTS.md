@@ -168,10 +168,18 @@ La auditoría del 1-jul ya está mayormente resuelta:
   **⟳ Actualizar** (pone `sync_requested_at=now()`, guarda de 10 min). Helpers en `health.ts`
   (`fetch/save/deleteWearableAccount`, `requestWearableSync`). **Seguridad**: solo RLS por usuario — se descartó
   el privilegio-por-columna para `secret` porque PostgREST necesita SELECT de tabla para el upsert (incompatible);
-  riesgo asumido (dueño releyendo su propia contraseña). **Falta**: el **conector del mini PC** (servicio Python,
-  NO va en la app: adaptadores `garminconnect` + API Huami/Zepp, lee `wearable_accounts` con service_role, escribe
-  `health_metrics`, sincroniza 2×/día + cuando ve `sync_requested_at`). Especificado en `ORDENES-OPENCODE.md`
-  (tanda 4, carpeta `connector/`) → lo implementa OpenCode.
+  riesgo asumido (dueño releyendo su propia contraseña).
+- **2026-07-14 — conector del mini PC HECHO** (carpeta **`connector/`**, servicio Python, NO se importa desde la
+  app): `sync.py` (loop + decisión de sync: alta `pending` / botón Actualizar `sync_requested_at`>`last_sync` /
+  pasada diaria), `store.py` (lee `wearable_accounts` y escribe `health_metrics` vía PostgREST con **service_role**),
+  `providers/garmin.py` (`garminconnect`, sesión garth cacheada en `.sessions/`, mensaje claro si 2FA) y
+  `providers/zepp.py` (API no oficial Huami: login email → `band_data.json` → pasos/distancia/calorías/sueño).
+  Slugs canónicos en `providers/base.py`. Verificado E2E la **fontanería Supabase** con proveedor fake (16 checks:
+  upsert, filtrado de métricas inválidas, idempotencia, estados, should_sync) + smoke del parseo Garmin/Zepp. Los
+  adaptadores reales no se pueden probar sin credenciales. Arranque: `python sync.py --once` (cron) o `sync.py`
+  (bucle); systemd de ejemplo en `connector/README.md`. La **service_role va en `connector/.env`** del mini PC
+  (gitignored, NO al repo). **Falta solo**: que la pareja de Josema cree cuenta LifeApp y arrancarlo en el mini PC
+  con las 2 cuentas reales.
 
 ## Gotchas
 - `.env` (`VITE_SUPABASE_URL` + anon key) **ya NO está versionado** (gitignored desde `255b781`). La anon key
