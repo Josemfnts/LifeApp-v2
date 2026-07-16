@@ -26,20 +26,49 @@ Métricas que emite (slugs que la app entiende): `steps`, `sleep_minutes`, `rest
 `body_battery`, `calories`, `distance_m`, `spo2`, `hr_avg`. Garmin da casi todas; Zepp da
 pasos/distancia/calorías/sueño.
 
-## Puesta en marcha (mini PC) — de cero a sincronizando
+## Estado: YA INSTALADO en el mini PC (2026-07-16)
 
-**1. Traer el código y crear el entorno**
+El mini PC es **DESKTOP-KFFL25R** (Dell OptiPlex 3050, Windows 11 Pro, 16 GB) — la misma máquina
+donde vive el repo. Ya está todo puesto:
+
+- `.env` creado con la `service_role` y probado contra Supabase de producción.
+- Dependencias instaladas (Python 3.11 del sistema; no hace falta venv).
+- **Tarea programada `LifeApp Connector`**, cada **5 minutos**, ejecutando `run.bat` (log en
+  `connector/sync.log`, gitignored). Verificada: el Programador la lanza y devuelve `0`.
+
+⚠️ **Limitación conocida**: la tarea es de **"solo interactivo"** — corre mientras `josema` tenga la
+sesión iniciada. Si el mini PC se reinicia y nadie inicia sesión, el conector no arranca (en
+silencio). Para que corra sin sesión hay que recrear la tarea **como admin**:
+```powershell
+# Opción A: como SYSTEM (sin contraseña; comprueba que SYSTEM ve el Python del perfil)
+schtasks /create /tn "LifeApp Connector" /tr "C:\...\connector\run.bat" /sc minute /mo 5 /ru SYSTEM /f
+# Opción B: como josema, corra o no la sesión (pide la contraseña de Windows)
+schtasks /create /tn "LifeApp Connector" /tr "C:\...\connector\run.bat" /sc minute /mo 5 /ru josema /rp <password> /f
+```
+Alternativa sin tocar nada: dejar el mini PC con **inicio de sesión automático**.
+
+### Comandos útiles (Windows)
+```powershell
+schtasks /query /tn "LifeApp Connector" /fo list /v   # estado y último resultado
+schtasks /run   /tn "LifeApp Connector"               # forzar una pasada ahora
+schtasks /change /tn "LifeApp Connector" /disable     # pausar
+schtasks /delete /tn "LifeApp Connector" /f           # quitar
+Get-Content connector\sync.log -Tail 20               # ver qué hizo
+```
+
+## Instalar desde cero (otra máquina)
+
+**1. Código y dependencias**
 ```bash
 cd /ruta/a/LifeApp-v2 && git pull
 cd connector
-python3 -m venv .venv && source .venv/bin/activate
+python -m venv .venv && source .venv/bin/activate   # (opcional; en Windows: .venv\Scripts\activate)
 pip install -r requirements.txt
 ```
 
-**2. Crear el `.env`** (no viaja por git: hay que crearlo aquí)
+**2. Crear el `.env`** (no viaja por git: hay que crearlo en cada máquina)
 ```bash
-cp .env.example .env
-nano .env      # pegar la service_role en SUPABASE_SERVICE_ROLE
+cp .env.example .env      # y pegar la service_role en SUPABASE_SERVICE_ROLE
 ```
 La `service_role` sale del panel de Supabase (Project Settings → API → `service_role`). **No se
 versiona** y **no va nunca al navegador**.
@@ -60,7 +89,7 @@ python sync.py --once      # debe decir "N cuentas sincronizadas"
 En la app, el reloj debe pasar de *Conectando…* a *✓ Conectado* y aparecer los datos. Si sale
 *Error*, el mensaje de la app dice qué pasa (contraseña, 2FA o rate limit).
 
-**6. Dejarlo automático**: activar el timer de systemd (abajo) o el cron.
+**6. Dejarlo automático**: tarea programada (Windows, arriba) o systemd/cron (Linux, abajo).
 
 ## Ejecución
 ```bash
@@ -68,7 +97,7 @@ python sync.py --once     # una pasada (para cron)
 python sync.py            # bucle cada POLL_INTERVAL segundos
 ```
 
-### systemd (recomendado en Linux)
+### systemd (solo si algún día se mueve a Linux; el mini PC actual es Windows)
 `/etc/systemd/system/lifeapp-connector.service`:
 ```ini
 [Unit]

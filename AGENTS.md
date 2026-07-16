@@ -185,7 +185,16 @@ La auditoría del 1-jul ya está mayormente resuelta:
   Verificado: fontanería Supabase con proveedor fake (**24 checks**: upsert, filtrado, idempotencia, estados,
   should_sync + backoff), clasificador de errores (8 casos), smoke del parseo Garmin/Zepp, y una **pasada real
   contra la API de Garmin** (credenciales falsas → error legible, sin romper). El camino de login OK no se puede
-  probar sin credenciales reales. **Falta solo**: pareja crea cuenta LifeApp + arrancar en el mini PC.
+  probar sin credenciales reales.
+- **EL MINI PC ES ESTA MISMA MÁQUINA** (`DESKTOP-KFFL25R`, Dell OptiPlex 3050, **Windows 11 Pro**, 16 GB) — donde
+  vive el repo y corre CompAI. No es un Linux remoto (error de suposición previo: el README tenía systemd).
+  **El conector YA ESTÁ INSTALADO Y CORRIENDO** aquí: `connector/.env` con la service_role (gitignored, probado
+  contra producción) + tarea programada **`LifeApp Connector`** cada 5 min lanzando `connector/run.bat`
+  (log en `connector/sync.log`, gitignored). Verificada: el Programador la ejecuta y devuelve 0.
+  ⚠️ La tarea es **"solo interactivo"** (se creó sin admin): corre solo con la sesión de `josema` iniciada; tras un
+  reinicio sin login NO arranca. Para arreglarlo: recrearla como admin con `/ru SYSTEM` o `/ru josema /rp <pass>`,
+  o dejar el mini PC con inicio de sesión automático. Comandos en `connector/README.md`.
+  **Falta solo**: que la pareja de Josema cree cuenta LifeApp y que cada uno registre su reloj en la app.
 
 ## Gotchas
 - `.env` (`VITE_SUPABASE_URL` + anon key) **ya NO está versionado** (gitignored desde `255b781`). La anon key
