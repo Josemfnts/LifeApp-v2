@@ -26,15 +26,41 @@ Métricas que emite (slugs que la app entiende): `steps`, `sleep_minutes`, `rest
 `body_battery`, `calories`, `distance_m`, `spo2`, `hr_avg`. Garmin da casi todas; Zepp da
 pasos/distancia/calorías/sueño.
 
-## Instalación (mini PC)
+## Puesta en marcha (mini PC) — de cero a sincronizando
+
+**1. Traer el código y crear el entorno**
 ```bash
+cd /ruta/a/LifeApp-v2 && git pull
 cd connector
-python -m venv .venv && source .venv/bin/activate   # o .venv\Scripts\activate en Windows
+python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env      # y rellena SUPABASE_SERVICE_ROLE
 ```
-La `service_role` sale del panel de Supabase (Project Settings → API) o de la Management API. **No
-se versiona** y **no va nunca al navegador**.
+
+**2. Crear el `.env`** (no viaja por git: hay que crearlo aquí)
+```bash
+cp .env.example .env
+nano .env      # pegar la service_role en SUPABASE_SERVICE_ROLE
+```
+La `service_role` sale del panel de Supabase (Project Settings → API → `service_role`). **No se
+versiona** y **no va nunca al navegador**.
+
+**3. Comprobar que conecta** (con 0 relojes registrados debe decir `0 cuentas sincronizadas`)
+```bash
+python sync.py --once
+```
+Si dice `KeyError: 'SUPABASE_SERVICE_ROLE'` → el `.env` no está o está mal escrito.
+
+**4. Registrar los relojes desde la app** (cada usuario en su móvil): Físico → Salud → *Conectar
+reloj* → Garmin o Amazfit (Zepp) → email y contraseña **de esa cuenta del fabricante**.
+
+**5. Primera sincronización de verdad**
+```bash
+python sync.py --once      # debe decir "N cuentas sincronizadas"
+```
+En la app, el reloj debe pasar de *Conectando…* a *✓ Conectado* y aparecer los datos. Si sale
+*Error*, el mensaje de la app dice qué pasa (contraseña, 2FA o rate limit).
+
+**6. Dejarlo automático**: activar el timer de systemd (abajo) o el cron.
 
 ## Ejecución
 ```bash
