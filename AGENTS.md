@@ -174,12 +174,18 @@ La auditoría del 1-jul ya está mayormente resuelta:
   pasada diaria), `store.py` (lee `wearable_accounts` y escribe `health_metrics` vía PostgREST con **service_role**),
   `providers/garmin.py` (`garminconnect`, sesión garth cacheada en `.sessions/`, mensaje claro si 2FA) y
   `providers/zepp.py` (API no oficial Huami: login email → `band_data.json` → pasos/distancia/calorías/sueño).
-  Slugs canónicos en `providers/base.py`. Verificado E2E la **fontanería Supabase** con proveedor fake (16 checks:
-  upsert, filtrado de métricas inválidas, idempotencia, estados, should_sync) + smoke del parseo Garmin/Zepp. Los
-  adaptadores reales no se pueden probar sin credenciales. Arranque: `python sync.py --once` (cron) o `sync.py`
-  (bucle); systemd de ejemplo en `connector/README.md`. La **service_role va en `connector/.env`** del mini PC
-  (gitignored, NO al repo). **Falta solo**: que la pareja de Josema cree cuenta LifeApp y arrancarlo en el mini PC
-  con las 2 cuentas reales.
+  Slugs canónicos en `providers/base.py`. Arranque: `python sync.py --once` (cron) o `sync.py` (bucle); systemd de
+  ejemplo en `connector/README.md`. La **service_role va en `connector/.env`** (gitignored, NO al repo).
+  **RATE LIMITING (importante)**: Garmin limita **por IP** y afecta a todos los usuarios del mini PC. Probado en
+  real: devuelve **429**. Por eso (migración **012**, `last_attempt`, APLICADA) las cuentas en error esperan
+  `ERROR_BACKOFF_HOURS` (6h) antes de reintentar — **antes se reintentaban en cada pasada (~5 min)** porque el error
+  no rellena `last_sync`. `last_attempt` se escribe SIEMPRE; `last_sync` solo si la sincronización fue OK; el botón
+  "Actualizar" se salta el backoff. No bajes `POLL_INTERVAL`/`ERROR_BACKOFF_HOURS` sin motivo. `garmin._classify`
+  distingue 429 (transitorio) de credenciales/2FA: **no culpes a la contraseña de un rate limit**.
+  Verificado: fontanería Supabase con proveedor fake (**24 checks**: upsert, filtrado, idempotencia, estados,
+  should_sync + backoff), clasificador de errores (8 casos), smoke del parseo Garmin/Zepp, y una **pasada real
+  contra la API de Garmin** (credenciales falsas → error legible, sin romper). El camino de login OK no se puede
+  probar sin credenciales reales. **Falta solo**: pareja crea cuenta LifeApp + arrancar en el mini PC.
 
 ## Gotchas
 - `.env` (`VITE_SUPABASE_URL` + anon key) **ya NO está versionado** (gitignored desde `255b781`). La anon key

@@ -26,6 +26,29 @@ def _num(d: dict, *keys):
     return None
 
 
+def _classify(e: Exception) -> Exception:
+    """Traduce el fallo de login de Garmin al error correcto para el conector.
+
+    El orden importa. Comprobado en real: cuando Garmin limita la IP responde **429** y
+    `garminconnect` acaba lanzando un error genérico; si lo tratásemos como credenciales malas,
+    le diríamos al usuario que su contraseña está mal cuando no lo está (y, al ser AuthError,
+    dejaríamos de reintentar). El rate limit es TRANSITORIO → ProviderError.
+    """
+    msg = str(e)
+    low = msg.lower()
+    if "429" in low or "rate limit" in low or "too many request" in low:
+        return ProviderError("Garmin está limitando las peticiones; se reintentará más tarde")
+    if any(t in low for t in ("mfa", "multi-factor", "multifactor", "two-factor", "two factor",
+                              "verification code", "código de verificación")):
+        return AuthError("La cuenta tiene verificación en dos pasos; desactívala para sincronizar")
+    # Solo señales inequívocas de credenciales; "invalid" a secas es demasiado genérico
+    # (p. ej. "invalid response") y acabaría culpando a la contraseña de un fallo de red.
+    if any(t in low for t in ("401", "unauthorized", "invalid credential", "bad credential",
+                              "incorrect password", "authentication failed", "invalid password")):
+        return AuthError("Credenciales de Garmin incorrectas")
+    return ProviderError(f"No se pudo entrar en Garmin: {msg[:180]}")
+
+
 def fetch(email: str, secret: str, session_dir: str, days: int) -> list[Metric]:
     try:
         from garminconnect import Garmin
@@ -56,12 +79,7 @@ def _login(Garmin, email: str, secret: str, tokenstore: str):
         client = Garmin(email=email, password=secret)
         client.login()
     except Exception as e:  # noqa: BLE001
-        msg = str(e).lower()
-        if "mfa" in msg or "multi-factor" in msg or "two" in msg or "verification" in msg:
-            raise AuthError("La cuenta tiene verificación en dos pasos; desactívala para sincronizar") from e
-        if "401" in msg or "credential" in msg or "unauthorized" in msg or "invalid" in msg:
-            raise AuthError("Credenciales de Garmin incorrectas") from e
-        raise ProviderError(f"No se pudo entrar en Garmin: {e}") from e
+        raise _classify(e) from e
     try:
         client.garth.dump(tokenstore)
     except Exception:  # noqa: BLE001 — cachear es best-effort

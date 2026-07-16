@@ -14,8 +14,9 @@ app (usuario mete credenciales) ──► tabla wearable_accounts
 ## Qué hace
 - Cada pasada lee `wearable_accounts` y decide qué cuentas sincronizar:
   - **alta nueva** (`status='pending'`),
-  - el usuario pulsó **⟳ Actualizar** en la app (`sync_requested_at` > `last_sync`),
-  - o toca la **pasada diaria** (más de `DAILY_HOURS` desde la última).
+  - el usuario pulsó **⟳ Actualizar** en la app (`sync_requested_at` > `last_attempt`),
+  - toca la **pasada diaria** (más de `DAILY_HOURS` desde la última sincronización OK),
+  - o una cuenta **en error** cuyo último intento fue hace más de `ERROR_BACKOFF_HOURS`.
 - Entra en el proveedor (Garmin con `garminconnect`; Amazfit con la API no oficial de Zepp/Huami),
   baja los últimos `SYNC_DAYS` días y hace **upsert** en `health_metrics` (idempotente por día+métrica).
 - Actualiza el estado de la cuenta: `connected` + `last_sync`, o `error` con un mensaje legible que la
@@ -75,6 +76,11 @@ sudo systemctl enable --now lifeapp-connector.timer
 (la RAM del mini PC es limitada): el proceso pesa unos MB y despierta cada `POLL_INTERVAL`.
 
 ## Notas y límites
+- **Rate limiting de Garmin (429)**: Garmin limita por **IP**, y eso afecta a *todos* los usuarios que
+  sincronizan desde este mini PC. Por eso las cuentas en error esperan `ERROR_BACKOFF_HOURS` (6 h por
+  defecto) antes de reintentar, y las sesiones se cachean. **No bajes el backoff ni el `POLL_INTERVAL`**
+  sin una buena razón. Si ves *"Garmin está limitando las peticiones"*, no es culpa de la contraseña:
+  espera y se recupera solo.
 - **Garmin con verificación en dos pasos (2FA)**: el login automático falla → la cuenta queda en
   `error` con *"La cuenta tiene verificación en dos pasos; desactívala para sincronizar"*. Hay que
   desactivar el 2FA en Garmin para que sincronice.

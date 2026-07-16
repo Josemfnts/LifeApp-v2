@@ -22,8 +22,9 @@ class Account:
     email: str
     secret: str
     status: str              # 'pending' | 'connected' | 'error'
-    last_sync: str | None
+    last_sync: str | None       # última sincronización OK (la app la muestra)
     sync_requested_at: str | None
+    last_attempt: str | None = None  # último intento, salga bien o mal (para el backoff)
 
 
 class Store:
@@ -42,7 +43,7 @@ class Store:
         r = requests.get(
             f"{self.rest}/wearable_accounts",
             headers=self._h,
-            params={"select": "user_id,provider,email,secret,status,last_sync,sync_requested_at"},
+            params={"select": "user_id,provider,email,secret,status,last_sync,sync_requested_at,last_attempt"},
             timeout=self.timeout,
         )
         r.raise_for_status()
@@ -51,6 +52,7 @@ class Store:
                 user_id=row["user_id"], provider=row["provider"], email=row["email"],
                 secret=row["secret"], status=row["status"],
                 last_sync=row.get("last_sync"), sync_requested_at=row.get("sync_requested_at"),
+                last_attempt=row.get("last_attempt"),
             )
             for row in r.json()
         ]
@@ -76,7 +78,9 @@ class Store:
 
     def mark(self, acc: Account, status: str, error: str | None = None,
              set_last_sync: bool = False) -> None:
-        patch: dict[str, object] = {"status": status, "error": error}
+        # `last_attempt` se escribe SIEMPRE (salga bien o mal): es lo que permite espaciar los
+        # reintentos de las cuentas en error. `last_sync` solo cuando la sincronización fue OK.
+        patch: dict[str, object] = {"status": status, "error": error, "last_attempt": _now_iso()}
         if set_last_sync:
             patch["last_sync"] = _now_iso()
         r = requests.patch(

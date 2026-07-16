@@ -28,6 +28,12 @@ from providers import garmin, zepp
 
 log = logging.getLogger("connector")
 
+# Horas de espera antes de reintentar una cuenta que falló (override: env ERROR_BACKOFF_HOURS).
+# Sin esto, una cuenta en error (p. ej. contraseña mal) se reintentaría en cada pasada y el
+# proveedor banea la IP del mini PC (Garmin responde 429 IP rate limited). El botón "Actualizar"
+# del usuario se salta este backoff.
+ERROR_BACKOFF_HOURS = 6.0
+
 # Registro de adaptadores. `run_once` acepta otro dict (tests con proveedor fake).
 PROVIDERS = {
     "garmin": garmin.fetch,
@@ -44,16 +50,36 @@ def _parse_iso(s: str | None) -> datetime | None:
         return None
 
 
-def should_sync(acc: Account, now: datetime, daily_hours: float) -> bool:
-    """Sincroniza si: alta nueva (pending), el usuario pulsó Actualizar, o toca la pasada diaria."""
-    if acc.status == "pending":
+def should_sync(acc: Account, now: datetime, daily_hours: float,
+                error_backoff_hours: float = ERROR_BACKOFF_HOURS) -> bool:
+    """¿Toca sincronizar esta cuenta en esta pasada?
+
+    Orden: alta nueva → botón "Actualizar" → backoff si está en error → pasada diaria.
+
+    El backoff es importante: una cuenta que falla NO rellena `last_sync`, así que sin él se
+    reintentaría en cada pasada (~5 min) y el proveedor acaba baneando la IP del mini PC
+    (verificado: Garmin devuelve 429 IP rate limited). Por eso usamos `last_attempt`, que se
+    escribe pase lo que pase.
+    """
+    if acc.status == "pending":          # alta nueva o credenciales recién cambiadas
         return True
-    last = _parse_iso(acc.last_sync)
+
+    attempt = _parse_iso(acc.last_attempt)
     req = _parse_iso(acc.sync_requested_at)
-    if req and (last is None or req > last):   # botón "Actualizar" de la app
+    # Botón "Actualizar": lo pedimos si la petición es posterior al último intento.
+    if req and (attempt is None or req > attempt):
         return True
+
+    if acc.status == "error":
+        # Reintento espaciado; si nunca se intentó (raro), adelante.
+        if attempt is None:
+            return True
+        return (now - attempt).total_seconds() >= error_backoff_hours * 3600
+
+    last = _parse_iso(acc.last_sync)
     if last is None:
-        return True
+        # Sin sincronización previa: intentar, pero respetando el hueco entre intentos.
+        return attempt is None or (now - attempt).total_seconds() >= error_backoff_hours * 3600
     return (now - last).total_seconds() >= daily_hours * 3600
 
 
@@ -84,7 +110,8 @@ def sync_account(acc: Account, store: Store, providers: dict, session_dir: str, 
 
 
 def run_once(store: Store, providers: dict = PROVIDERS, session_dir: str = ".sessions",
-             days: int = 7, daily_hours: float = 20.0) -> int:
+             days: int = 7, daily_hours: float = 20.0,
+             error_backoff_hours: float = ERROR_BACKOFF_HOURS) -> int:
     os.makedirs(session_dir, exist_ok=True)
     now = datetime.now(timezone.utc)
     try:
@@ -94,7 +121,7 @@ def run_once(store: Store, providers: dict = PROVIDERS, session_dir: str = ".ses
         return 0
     done = 0
     for acc in accounts:
-        if not should_sync(acc, now, daily_hours):
+        if not should_sync(acc, now, daily_hours, error_backoff_hours):
             continue
         sync_account(acc, store, providers, session_dir, days)
         done += 1
@@ -115,18 +142,21 @@ def main() -> None:
     interval = int(os.environ.get("POLL_INTERVAL", "300"))
     days = int(os.environ.get("SYNC_DAYS", "7"))
     daily_hours = float(os.environ.get("DAILY_HOURS", "20"))
+    backoff = float(os.environ.get("ERROR_BACKOFF_HOURS", ERROR_BACKOFF_HOURS))
     session_dir = os.environ.get("SESSION_DIR", os.path.join(os.path.dirname(__file__), ".sessions"))
     store = Store()
 
     if args.once:
-        n = run_once(store, session_dir=session_dir, days=days, daily_hours=daily_hours)
+        n = run_once(store, session_dir=session_dir, days=days, daily_hours=daily_hours,
+                     error_backoff_hours=backoff)
         log.info("pasada única: %d cuentas sincronizadas", n)
         return
 
     log.info("conector arrancado (cada %ds)", interval)
     while True:
         try:
-            run_once(store, session_dir=session_dir, days=days, daily_hours=daily_hours)
+            run_once(store, session_dir=session_dir, days=days, daily_hours=daily_hours,
+                     error_backoff_hours=backoff)
         except Exception:  # noqa: BLE001 — el loop nunca muere por un fallo puntual
             log.exception("fallo en la pasada")
         time.sleep(interval)
