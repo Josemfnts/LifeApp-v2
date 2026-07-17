@@ -43,7 +43,7 @@ src/
   pages/             Una por módulo: Dashboard, Agenda, Habitos, Fisico, Nutricion,
                      Finanzas, Diario, Pomodoro, Comunidad, Login, Notas (pantalla full-screen)
   stores/            Zustand por dominio: agendaStore, financeStore, fisicoStore, nutriStore, toast
-  lib/               storageKeys · storage · sync · supabase · notifications · dates · xp-engine · social · appTheme
+  lib/               storageKeys · storage · sync · mirror · realtime · supabase · notifications · dates · xp-engine · social · appTheme
   modules/notes/     Módulo Notas tipo Notion (BlockNote): api · hooks · NotesPanel · EntityNotes · PageEditor/Tree
   components/
     ui/              Átomos reutilizables (Badge, Button, Card, EmptyState, Input, Modal,
@@ -59,7 +59,7 @@ supabase/migrations/ 001..006 (ver §Datos)
 Alias de imports: **`@/` → `src/`** (ej. `import { supabase } from '@/lib/supabase'`). Úsalo siempre.
 
 ## Arquitectura de datos — LÉELO antes de tocar cualquier dato
-Este es el corazón de la app y donde estaban los bugs graves. Tres reglas:
+Este es el corazón de la app y donde estaban los bugs graves. Cuatro reglas:
 
 1. **Local-first.** La fuente de verdad es **`localStorage`**. Supabase es un **espejo** para backup y
    multi-dispositivo. Todo funciona sin sesión (cae a localStorage).
@@ -75,7 +75,29 @@ Este es el corazón de la app y donde estaban los bugs graves. Tres reglas:
    (migración [003](supabase/migrations/003_store_data_multitenant.sql)). `saveToCloud` escribe a
    localStorage **y** a la nube; los errores de nube se registran (`console.warn`) sin romper la UI.
    **No hay tablas por dominio**: el esquema multi-tabla original se **borró** (migración 004). No lo
-   reintroduzcas salvo decisión explícita.
+   reintroduzcas salvo decisión explícita (reafirmada el 2026-07-17 al construir el espejo vivo).
+
+4. **El espejo es VIVO y las escrituras llevan control de versión** (2026-07-17, migración 013).
+   CompAI escribe en `store_data` por su cuenta (life-mcp con service_role) y nadie debe pisar a nadie:
+   - `updated_at` lo fija SIEMPRE el servidor (trigger `store_data_touch_updated_at`, migración 013): es
+     la **versión** de cada fila. Ningún cliente debe mandar `updated_at` (el trigger lo machaca igualmente).
+   - **Entrada (nube → app)**: `store_data` está en la publicación Realtime. Con sesión,
+     [`src/lib/realtime.ts`](src/lib/realtime.ts) abre un canal postgres_changes filtrado por `user_id`
+     (respeta RLS). Cada fila entrante pasa por `applyCloudRow` ([`src/lib/mirror.ts`](src/lib/mirror.ts)):
+     actualiza `lifeos_sync_meta` y, si `value` difiere de localStorage, lo escribe y emite el evento
+     **`lifeos:remote-change`** (esa comparación corta el eco de las escrituras propias, porque saveToCloud
+     escribe localStorage antes de subir). Los stores Zustand registran `onRemoteChange({clave: recargador})`
+     al final de su módulo; los componentes con useState usan el hook `useRemoteChange([claves], reload)`.
+     **Si añades una clave/store nueva, cablea su recargador** o la UI no verá los cambios de CompAI.
+   - **Salida (app → nube)**: `lifeos_sync_meta` (localStorage; NUNCA se sube — no está en ALL_STORAGE_KEYS)
+     guarda por clave el último `updated_at` visto. `saveToCloud` hace UPDATE **condicionado** a esa versión;
+     si toca 0 filas y la fila existe hay conflicto → adopta la versión de la nube localmente (evento a la UI
+     incluido) y re-aplica el cambio del usuario con UN reintento. Sin versión vista → INSERT estricto (jamás
+     upsert a ciegas). Hay cola por clave para guardados rápidos consecutivos. Semántica resultante por clave:
+     last-writer-wins CON visibilidad (el blob es entero; no hay merge por campos).
+   - **Login sin clobber**: `syncOnLogin()` (sync.ts; sustituye a los antiguos downloadFromCloud +
+     syncAllToCloud) primero baja TODO lo que exista en la nube (la UI se refresca vía eventos) y después
+     sube SOLO las claves locales que la nube no tenga.
 
 Helpers de storage en [`src/lib/storage.ts`](src/lib/storage.ts): `getItem/setItem` (prefijan `lifeos_`)
 y `loadFromStorage/saveToStorage` (clave completa, sin prefijo) — ambos sincronizan a la nube. Los stores
@@ -87,7 +109,9 @@ Migraciones: `001` esquema inicial (ya en desuso), `002` tabla `store_data`, **`
 **`007` comunidad v2** (perfiles, seguidores, comentarios, reposts, notificaciones y nuevos tipos de post:
 rutina/receta/dieta/objetivo/progreso), **`008` social_uses** ("han usado tu contenido": tabla `social_uses` +
 `use_count` + trigger que notifica al autor al importar del feed), **`009` storage** (bucket `social` público +
-policies en `storage.objects`: subir a `social/{uid}/`, lectura pública) — todas **APLICADAS y verificadas E2E**.
+policies en `storage.objects`: subir a `social/{uid}/`, lectura pública), **`013` espejo vivo** (`store_data`
+en la publicación `supabase_realtime` + trigger `updated_at = now()` del servidor) — todas **APLICADAS y
+verificadas E2E**.
 Nota: los `GRANT` de 005/007/008 son a `anon, authenticated` (no a `service_role`): la service_role no puede leer
 estas tablas por PostgREST. Al aplicar una migración con tablas nuevas, tras el POST hacer
 `NOTIFY pgrst, 'reload schema';` (si no, PostgREST da 404 hasta que refresca el cache del esquema).
@@ -195,6 +219,19 @@ La auditoría del 1-jul ya está mayormente resuelta:
   reinicio sin login NO arranca. Para arreglarlo: recrearla como admin con `/ru SYSTEM` o `/ru josema /rp <pass>`,
   o dejar el mini PC con inicio de sesión automático. Comandos en `connector/README.md`.
   **Falta solo**: que la pareja de Josema cree cuenta LifeApp y que cada uno registre su reloj en la app.
+- **2026-07-17 — espejo VIVO store_data ↔ CompAI**: migración **013 (APLICADA)** = `store_data` en la
+  publicación `supabase_realtime` + trigger que fija `updated_at = now()` del servidor en cada escritura.
+  Fase 1: la app abierta ve al instante las escrituras de CompAI (canal en `lib/realtime.ts`; aplicación +
+  evento `lifeos:remote-change` en `lib/mirror.ts`; re-hidratación cableada en agenda/finance/nutri/fisico
+  stores, useHabits, Kanban, Diario, Planes y Dashboard; toast "⟳ Actualizado desde CompAI"). Fase 2:
+  `saveToCloud` con control de versión vía `lifeos_sync_meta` (UPDATE condicionado + conflicto → adoptar
+  nube + reintento único) y `syncOnLogin()` que nunca sube a ciegas (baja todo, sube solo claves nuevas).
+  De paso: **el Diario ahora sube a la nube** (antes guardaba solo en localStorage). Verificado E2E con
+  Playwright contra prod (usuario real + service_role): actualización en ~0,5 s sin recargar; escritura de
+  CompAI + edición del usuario acumuladas sin pisarse; conflicto forzado resuelto re-aplicando el cambio
+  del usuario; login que no machaca la nube. Detalle de arquitectura en §Arquitectura de datos, regla 4.
+  **Pendiente del lado CompAI (otra sesión)**: life-mcp debería escribir con CAS sobre `updated_at` para
+  tener la misma garantía; el trigger ya le asegura versiones honestas.
 
 ## Gotchas
 - `.env` (`VITE_SUPABASE_URL` + anon key) **ya NO está versionado** (gitignored desde `255b781`). La anon key
