@@ -1,5 +1,6 @@
 import { saveToStorage, loadFromStorage } from '@/lib/storage'
 import { create } from 'zustand'
+import { onRemoteChange } from '@/lib/mirror'
 
 export interface Tx {
   id?: number
@@ -275,3 +276,13 @@ export const useFinanceStore = create<FinanceStore>((set, get) => ({
     return newTxs
   },
 }))
+
+// Espejo vivo: recarga desde localStorage la clave que cambió en la nube.
+onRemoteChange({
+  finances_tx: () => useFinanceStore.setState({ txs: loadFromStorage('finances_tx', []) }),
+  finances_huchas: () => useFinanceStore.setState({ huchas: loadFromStorage('finances_huchas', []) }),
+  finances_pufos: () => useFinanceStore.setState({ pufos: loadFromStorage('finances_pufos', []) }),
+  finances_cuentas: () => useFinanceStore.setState({ cuentas: loadFromStorage('finances_cuentas', []) }),
+  finances_budgets: () => useFinanceStore.setState({ presupuestos: loadFromStorage('finances_budgets', []) }),
+  finances_recurring: () => useFinanceStore.setState({ recurrentes: loadFromStorage('finances_recurring', []) }),
+})

@@ -1,6 +1,7 @@
 import { loadFromStorage as load, saveToStorage as save } from '@/lib/storage'
 import { useState } from 'react'
 import { useToast } from '@/stores/toast'
+import { useRemoteChange } from '@/lib/mirror'
 import { NotesFor } from '@/components/notes/NotesFor'
 
 interface Viaje { id: number; destino: string; cuando: string; tipo: string; nota: string; presupuesto: string }
@@ -45,6 +46,7 @@ const PROYECTOS_KEY = 'lifeos_proyectos_v1'
 
 function ViajesTab() {
   const [viajes, setViajes] = useState<Viaje[]>(() => load(VIAJES_KEY, []))
+  useRemoteChange([VIAJES_KEY], () => setViajes(load(VIAJES_KEY, [])))
   const toast = useToast()
   const [d, setD] = useState(''); const [c, setC] = useState(''); const [t, setT] = useState('city'); const [n, setN] = useState(''); const [p, setP] = useState('')
   function add() { if (!d.trim()) return; setViajes(v => { const nv = [...v, { id: Date.now(), destino: d.trim(), cuando: c.trim(), tipo: t, nota: n.trim(), presupuesto: p.trim() }]; save(VIAJES_KEY, nv); return nv }); setD(''); setC(''); setN(''); setP(''); toast.show('✓ Viaje añadido') }
@@ -85,6 +87,7 @@ function ViajesTab() {
 
 function ActividadesTab() {
   const [acts, setActs] = useState<Actividad[]>(() => load(ACTIVIDADES_KEY, []))
+  useRemoteChange([ACTIVIDADES_KEY], () => setActs(load(ACTIVIDADES_KEY, [])))
   const toast = useToast()
   const [n, setN] = useState(''); const [c, setC] = useState(''); const [cat, setCat] = useState('sport'); const [nota, setNota] = useState('')
   function add() { if (!n.trim()) return; setActs(a => { const na = [...a, { id: Date.now(), nombre: n.trim(), cuando: c.trim(), categoria: cat, nota: nota.trim() }]; save(ACTIVIDADES_KEY, na); return na }); setN(''); setC(''); setNota(''); toast.show('✓ Actividad añadida') }
@@ -123,6 +126,7 @@ function ActividadesTab() {
 
 function ComprasTab() {
   const [items, setItems] = useState<ListaItem[]>(() => load(COMPRAS_KEY, []))
+  useRemoteChange([COMPRAS_KEY], () => setItems(load(COMPRAS_KEY, [])))
   const toast = useToast()
   const [text, setText] = useState('')
   function add() { if (!text.trim()) return; setItems(i => { const ni = [{ id: Date.now(), text: text.trim(), done: false }, ...i]; save(COMPRAS_KEY, ni); return ni }); setText(''); toast.show('✓ Añadido') }
@@ -159,6 +163,7 @@ function ComprasTab() {
 
 function InboxTab() {
   const [ideas, setIdeas] = useState<{ id: number; text: string; date: string }[]>(() => load(INBOX_KEY, []))
+  useRemoteChange([INBOX_KEY], () => setIdeas(load(INBOX_KEY, [])))
   const toast = useToast()
   const [text, setText] = useState('')
   function add() { if (!text.trim()) return; setIdeas(i => { const ni = [{ id: Date.now(), text: text.trim(), date: new Date().toISOString().slice(0, 10) }, ...i]; save(INBOX_KEY, ni); return ni }); setText(''); toast.show('✓ Idea guardada') }
@@ -186,6 +191,7 @@ function InboxTab() {
 
 function ProyectosTab() {
   const [projs, setProjs] = useState<Proyecto[]>(() => load(PROYECTOS_KEY, []))
+  useRemoteChange([PROYECTOS_KEY], () => setProjs(load(PROYECTOS_KEY, [])))
   const toast = useToast()
   const [name, setName] = useState('')
   function add() { if (!name.trim()) return; setProjs(p => { const np = [...p, { id: Date.now(), nombre: name.trim(), tareas: [], color: 'var(--color-acc-blue)' }]; save(PROYECTOS_KEY, np); return np }); setName(''); toast.show('✓ Proyecto creado') }

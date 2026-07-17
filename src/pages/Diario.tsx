@@ -1,10 +1,18 @@
 import { useState } from 'react'
 import { NotesFor } from '@/components/notes/NotesFor'
 import { useToast } from '@/stores/toast'
+import { loadFromStorage, saveToStorage } from '@/lib/storage'
+import { useRemoteChange } from '@/lib/mirror'
+import { STORE_KEYS } from '@/lib/storageKeys'
 
 export default function Diario() {
-  const [entries, setEntries] = useState<{ date: string; text: string }[]>(() => {
-    try { return JSON.parse(localStorage.getItem('journal_entries') || '[]') } catch { return [] }
+  const [entries, setEntries] = useState<{ date: string; text: string }[]>(() =>
+    loadFromStorage(STORE_KEYS.journal_entries, [])
+  )
+
+  // Espejo vivo: recarga las entradas si cambian en la nube.
+  useRemoteChange([STORE_KEYS.journal_entries], () => {
+    setEntries(loadFromStorage(STORE_KEYS.journal_entries, []))
   })
   const today = new Date().toISOString().slice(0, 10)
   const [text, setText] = useState('')
@@ -22,7 +30,8 @@ export default function Diario() {
       next = [...entries, { date: editingDate, text: text.trim() }]
     }
     setEntries(next)
-    localStorage.setItem('journal_entries', JSON.stringify(next))
+    // saveToStorage y no localStorage a pelo: también sube el diario a la nube.
+    saveToStorage(STORE_KEYS.journal_entries, next)
     toast.show(editingDate === today ? '✓ Entrada guardada' : `✓ Entrada del ${editingDate} actualizada`)
     if (editingDate !== today) { setEditingDate(today); setText('') }
   }

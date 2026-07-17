@@ -4,7 +4,8 @@ import { TopBar } from '@/components/layout/TopBar'
 import { useXP } from '@/contexts/XPContext'
 import { useToast } from '@/stores/toast'
 import { calcLevel } from '@/lib/xp-engine'
-import { STORE_KEYS } from '@/lib/storageKeys'
+import { STORE_KEYS, ALL_STORAGE_KEYS } from '@/lib/storageKeys'
+import { useRemoteChange } from '@/lib/mirror'
 import { AREA_COLORS, AREA_ICONS, AREA_NAMES, type AreaStat, type Goal } from '@/types'
 
 const acCls: Record<AreaStat, string> = { disc: 'ac-a', fuerza: 'ac-b', intel: 'ac-c', riqueza: 'ac-d' }
@@ -19,6 +20,17 @@ export default function Dashboard() {
 
   const [goals, setGoals] = useState<Goal[]>(() => {
     try { return JSON.parse(localStorage.getItem(STORE_KEYS.josema_rpg_missions_v1) || '[]') } catch { return [] }
+  })
+
+  // Espejo vivo: el Dashboard lee localStorage en cada render, así que ante
+  // cualquier cambio remoto basta con forzar un re-render (y recargar las
+  // misiones, que sí viven en estado).
+  const [, setRemoteRev] = useState(0)
+  useRemoteChange(ALL_STORAGE_KEYS, key => {
+    if (key === STORE_KEYS.josema_rpg_missions_v1) {
+      try { setGoals(JSON.parse(localStorage.getItem(STORE_KEYS.josema_rpg_missions_v1) || '[]')) } catch { /* se queda como está */ }
+    }
+    setRemoteRev(r => r + 1)
   })
   const [goalName, setGoalName] = useState('')
   const [goalCur, setGoalCur] = useState('')

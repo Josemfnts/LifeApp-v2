@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { saveToCloud } from '@/lib/sync'
+import { onRemoteChange } from '@/lib/mirror'
 
 function getStr(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
@@ -190,3 +191,12 @@ export const useAgendaStore = create<AgendaStore>((set, get) => ({
     if (changed) { save('agenda_tasks', next); set({ tasks: next }) }
   },
 }))
+
+// Espejo vivo: si CompAI (u otro dispositivo) cambia una clave nuestra en la
+// nube, se recarga SOLO ese trozo de estado desde localStorage.
+onRemoteChange({
+  agenda_tasks: () => useAgendaStore.setState({ tasks: load('agenda_tasks', {}) }),
+  agenda_recurring: () => useAgendaStore.setState({ recurring: load('agenda_recurring', { 0:[],1:[],2:[],3:[],4:[],5:[],6:[] }) }),
+  agenda_pending: () => useAgendaStore.setState({ pending: load('agenda_pending', []) }),
+  agenda_shifts: () => useAgendaStore.setState({ shifts: load('agenda_shifts', {}) }),
+})

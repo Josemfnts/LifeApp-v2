@@ -1,5 +1,6 @@
 import { saveToStorage, loadFromStorage } from '@/lib/storage'
 import { create } from 'zustand'
+import { onRemoteChange } from '@/lib/mirror'
 
 export interface SessionSet { setNumber: number; weight: number; reps: number; done: boolean; type?: 'warmup' | 'normal' | 'dropset' | 'failure' }
 export interface SessionExercise { name: string; group: string; color: string; sets: SessionSet[]; notes?: string; restSeconds?: number; supersetWith?: number }
@@ -434,3 +435,20 @@ ${topPRs || 'Sin PRs aún'}
 ⚡ Entrena con Life OS`
   },
 }))
+
+// Espejo vivo: recarga desde localStorage la clave que cambió en la nube.
+// (Se dejan fuera las claves de sesión activa/timer: son estado efímero local.)
+onRemoteChange({
+  fisico_sessions: () => useFisicoStore.setState({ sessions: loadFromStorage('fisico_sessions', []) }),
+  fisico_routines: () => useFisicoStore.setState({ routines: loadFromStorage('fisico_routines', []) }),
+  fisico_exercises: () => useFisicoStore.setState({ customExercises: loadFromStorage('fisico_exercises', []) }),
+  fisico_runs: () => useFisicoStore.setState({ runs: loadFromStorage('fisico_runs', []) }),
+  fisico_run_plans: () => useFisicoStore.setState({ runPlans: loadFromStorage('fisico_run_plans', []) }),
+  fisico_mob_routines: () => useFisicoStore.setState({ mobRoutines: loadFromStorage('fisico_mob_routines', []) }),
+  fisico_mob_exercises: () => useFisicoStore.setState({ mobExercises: loadFromStorage('fisico_mob_exercises', []) }),
+  fisico_mob_sessions: () => useFisicoStore.setState({ mobSessions: loadFromStorage('fisico_mob_sessions', []) }),
+  fisico_prs: () => useFisicoStore.setState({ prs: loadFromStorage('fisico_prs', []) }),
+  fisico_templates: () => useFisicoStore.setState({ setTemplates: loadFromStorage('fisico_templates', []) }),
+  fisico_programs: () => useFisicoStore.setState({ programs: loadFromStorage('fisico_programs', []) }),
+  fisico_weekly: () => useFisicoStore.setState({ weeklyProgram: loadFromStorage('fisico_weekly', null) }),
+})

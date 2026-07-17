@@ -1,5 +1,7 @@
 import { useState, useCallback } from 'react'
 import { getItem, setItem } from '@/lib/storage'
+import { useRemoteChange } from '@/lib/mirror'
+import { STORE_KEYS } from '@/lib/storageKeys'
 import type { Habit, HabitLog } from '@/types'
 
 function getStr(d: Date): string {
@@ -54,6 +56,13 @@ export function useHabits() {
   const [log, setLog] = useState<HabitLog>(() =>
     getItem<HabitLog>('habits_log', {})
   )
+
+  // Espejo vivo: si la nube cambia hábitos o log (CompAI/otro dispositivo),
+  // se recargan desde localStorage. getItem añade el prefijo lifeos_.
+  useRemoteChange([STORE_KEYS.lifeos_habits, STORE_KEYS.lifeos_habits_log], () => {
+    setHabits(getItem<Habit[]>('habits', []))
+    setLog(getItem<HabitLog>('habits_log', {}))
+  })
 
   const today = todayStr()
 

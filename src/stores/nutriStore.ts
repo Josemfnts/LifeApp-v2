@@ -1,5 +1,6 @@
 import { saveToStorage, loadFromStorage } from '@/lib/storage'
 import { create } from 'zustand'
+import { onRemoteChange } from '@/lib/mirror'
 import type { DistribucionPreset, FastingPreset } from '@/lib/dietPlanner'
 
 export interface FoodEntry { name: string; kcal: number; p: number; c: number; f: number; grams: number; meal: string }
@@ -146,4 +147,19 @@ export const useNutriStore = create<NutriStore>((set, get) => ({
     return { fasting: f2 }
   }),
 }))
+
+// Espejo vivo: recarga desde localStorage la clave que cambió en la nube.
+onRemoteChange({
+  nutri_log: () => useNutriStore.setState({ log: loadFromStorage('nutri_log', {}) }),
+  nutri_dishes: () => useNutriStore.setState({ dishes: loadFromStorage('nutri_dishes', []) }),
+  nutri_goals: () => useNutriStore.setState({ goals: loadFromStorage('nutri_goals', { kcal: 2500, p: 150, c: 250, f: 80, mealPcts: M_TPCTS }) }),
+  nutri_menu: () => useNutriStore.setState({ menu: loadFromStorage('nutri_menu', []) }),
+  nutri_body: () => useNutriStore.setState({ bodyMetrics: loadFromStorage('nutri_body', []) }),
+  nutri_water: () => useNutriStore.setState({ water: loadFromStorage('nutri_water', {}) }),
+  nutri_water_goal: () => useNutriStore.setState({ waterGoal: loadFromStorage('nutri_water_goal', 2000) }),
+  nutri_favs: () => useNutriStore.setState({ favorites: loadFromStorage('nutri_favs', []) }),
+  nutri_fasting: () => useNutriStore.setState({ fasting: loadFromStorage('nutri_fasting', { startTime: null, targetHours: 16, history: [] }) }),
+  nutri_macro_calc: () => useNutriStore.setState({ macroCalc: loadFromStorage('nutri_macro_calc', { weight: 75, height: 175, age: 30, gender: 'male', activity: 3, goal: 'maintain' }) }),
+  nutri_diet_config: () => useNutriStore.setState({ dietConfig: { ...DEFAULT_DIET_CONFIG, ...loadFromStorage('nutri_diet_config', {}) } }),
+})
 

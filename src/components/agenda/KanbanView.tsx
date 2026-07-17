@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useToast } from '@/stores/toast'
 import { loadFromStorage as load, saveToStorage as save } from '@/lib/storage'
+import { useRemoteChange } from '@/lib/mirror'
 import { NotesFor } from '@/components/notes/NotesFor'
 
 interface KanbanCard {
@@ -36,6 +37,12 @@ export function KanbanView() {
   const toast = useToast()
   const [projects, setProjects] = useState<KanbanProject[]>(() => load(PROJECTS_KEY, []))
   const [cards, setCards] = useState<KanbanCard[]>(() => load(CARDS_KEY, []))
+
+  // Espejo vivo: recarga tableros/tarjetas si cambian en la nube.
+  useRemoteChange([PROJECTS_KEY, CARDS_KEY], () => {
+    setProjects(load(PROJECTS_KEY, []))
+    setCards(load(CARDS_KEY, []))
+  })
   const [activeProject, setActiveProject] = useState<number | null>(projects[0]?.id || null)
   const [showProjForm, setShowProjForm] = useState(false)
   const [projName, setProjName] = useState('')

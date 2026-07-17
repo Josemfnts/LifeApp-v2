@@ -7,6 +7,7 @@ import { SplashScreen } from '@/components/layout/SplashScreen'
 import { lazy, Suspense, useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { checkHabitReminders, checkAgendaReminders } from '@/lib/notifications'
+import { initRealtimeMirror } from '@/lib/realtime'
 
 // Navegación por teclado con leader key "g" (patrón GitHub/Gmail): pulsa g y
 // luego 1-8. Va dentro del Router para navegar por SPA (useNavigate) en vez de
@@ -65,6 +66,9 @@ export default function App() {
   const [checking, setChecking] = useState(true)
 
   useEffect(() => {
+    // Espejo vivo: con sesión, escucha los cambios de store_data en la nube
+    // (escrituras de CompAI u otros dispositivos) y refresca la UI al momento.
+    initRealtimeMirror()
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) setShowLogin(true)
       else { checkHabitReminders(); checkAgendaReminders() }
