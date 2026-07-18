@@ -48,13 +48,30 @@ def _login(email: str, password: str) -> tuple[str, str]:
     except requests.RequestException as e:
         raise ProviderError(f"No se pudo contactar con Zepp: {e}") from e
 
+    # Distinguir el rate-limit de Huami de unas credenciales malas: un 429 aquí
+    # NO es culpa del usuario (nos pasó con esta IP: cada reintento del conector
+    # sumaba al contador y el mensaje "credenciales incorrectas" era falso).
+    if r.status_code == 429:
+        raise ProviderError(
+            "Zepp: demasiados intentos desde esta IP (429). Se reintentará solo más tarde."
+        )
+    if r.status_code >= 500:
+        raise ProviderError(f"Zepp no está disponible ahora (HTTP {r.status_code}).")
+
     location = r.headers.get("Location", "")
     qs = parse_qs(urlparse(location).query)
     access = qs.get("access", [None])[0]
     country = qs.get("country", ["US"])[0]
     if not access:
-        # Sin código de acceso = credenciales rechazadas.
-        raise AuthError("Credenciales de Zepp incorrectas (o la cuenta no usa email)")
+        error_code = qs.get("error", [None])[0]
+        if error_code:
+            # Redirect con ?error=... = rechazo explícito de credenciales.
+            raise AuthError("Credenciales de Zepp incorrectas (o la cuenta no usa email)")
+        # Sin redirect y sin error explícito: lo más probable es flujo/API, no el usuario.
+        raise ProviderError(
+            f"Zepp devolvió una respuesta inesperada al login (HTTP {r.status_code}); "
+            "puede ser temporal o un cambio de su API."
+        )
 
     # 2) Login → app_token + user_id.
     try:
