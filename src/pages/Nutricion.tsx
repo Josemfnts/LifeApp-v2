@@ -538,10 +538,7 @@ function SearchTab() {
   async function getDetector(): Promise<Detector | null> {
     const native = (window as unknown as { BarcodeDetector?: new (o: { formats: string[] }) => Detector }).BarcodeDetector
     if (native) return new native({ formats: FORMATS })
-    try {
-      const mod = await import('barcode-detector/ponyfill')
-      return new mod.BarcodeDetector({ formats: FORMATS as never }) as unknown as Detector
-    } catch { return null }
+    return null
   }
 
   async function startCameraScan() {

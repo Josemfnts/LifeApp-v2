@@ -176,6 +176,29 @@ function StrengthTab() {
               const wp = useFisicoStore.getState().weeklyProgram
               if (!wp) return null
               const lib = ROUTINES.find(r => r.id === wp.routineId)
+
+              // Handle custom-weekly: map day index to user's own routines
+              if (!lib && wp.routineId === 'custom-weekly') {
+                const today = new Date().getDay()
+                const userRoutines = useFisicoStore.getState().routines
+                const idx = wp.dayMapping[today]
+                if (idx !== undefined && userRoutines[idx]) {
+                  const r = userRoutines[idx]
+                  return (
+                    <div style={{ background: 'linear-gradient(145deg, var(--color-s1), color-mix(in srgb, var(--color-acc-orange) 10%, var(--color-s1)))', border: '1px solid color-mix(in srgb, var(--color-acc-orange) 25%, var(--color-border))', borderRadius: 16, padding: 16, marginBottom: 10 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                        <div><div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-acc-orange)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 2 }}>Programa semanal · Hoy</div>
+                          <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text)' }}>{r.name}</div></div>
+                        <button onClick={() => { useFisicoStore.getState().setWeeklyProgram(null); toast.show('Programa desactivado') }} style={{ background: 'none', border: 'none', color: 'var(--color-dim)', cursor: 'pointer', fontSize: 12 }}>✕</button>
+                      </div>
+                      <div style={{ fontSize: 11, color: 'var(--color-sub)', marginBottom: 10 }}>{r.exercises.map((e: { name: string }) => e.name).join(' · ')}</div>
+                      <button onClick={() => startSession(r.name, r.exercises.map((e: { name: string; group: string; color: string; sets: number }) => ({ name: e.name, group: e.group, color: e.color, sets: e.sets })))}
+                        style={{ width: '100%', padding: 12, borderRadius: 10, background: 'var(--color-acc-orange)', color: '#fff', border: 'none', fontSize: 14, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>▶ Empezar sesión de hoy</button>
+                    </div>
+                  )
+                }
+                return null
+              }
               if (!lib) return null
               const today = new Date().getDay()
               const sessionIdx = wp.dayMapping[today]

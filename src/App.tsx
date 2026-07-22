@@ -111,6 +111,40 @@ export default function App() {
       window.history.replaceState({}, '', window.location.pathname)
     }
 
+    // Default routines + weekly program setup
+    if (!localStorage.getItem('fisico_routines')) {
+      localStorage.setItem('fisico_routines', JSON.stringify([
+        { id: Date.now(), name: 'Día A — Pierna, Cadera y Postura', exercises: [
+          { name:'Bird-Dog',group:'Abdomen',color:'#a78bfa',sets:3 },
+          { name:'Puente glúteo a una pierna',group:'Glúteos',color:'#f472b6',sets:3 },
+          { name:'Peso muerto rumano mancuernas',group:'Piernas',color:'#e05f5f',sets:3 },
+          { name:'Zancadas atrás',group:'Piernas',color:'#e05f5f',sets:3 },
+          { name:'Press Pallof polea',group:'Abdomen',color:'#a78bfa',sets:3 },
+        ]},
+        { id: Date.now()+1, name: 'Día B — Torso Estético y Upper Body', exercises: [
+          { name:'Bird-Dog',group:'Abdomen',color:'#a78bfa',sets:2 },
+          { name:'Puente glúteo normal',group:'Glúteos',color:'#f472b6',sets:2 },
+          { name:'Dominadas asistidas / Jalón pecho',group:'Espalda',color:'#5b8af0',sets:3 },
+          { name:'Press inclinado mancuernas',group:'Pecho',color:'#e07a5f',sets:3 },
+          { name:'Remo polea baja agarre neutro',group:'Espalda',color:'#5b8af0',sets:3 },
+          { name:'Elevaciones laterales mancuernas',group:'Hombros',color:'#c9a84c',sets:3 },
+        ]},
+      ]))
+    }
+    if (!localStorage.getItem('fisico_mob_routines')) {
+      localStorage.setItem('fisico_mob_routines', JSON.stringify([
+        { id: Date.now(), name: 'Movilidad y reset (15 min)', focus:'full', exercises: [
+          { name:'Gato-Camello — 10 reps',duration:60 },
+          { name:'Péndulo 90/90 — 10 por lado',duration:60 },
+          { name:'Lunge retroversión — 30s/lado',duration:60 },
+          { name:'Isométrico cuádriceps — 3x45s',duration:180 },
+        ]}
+      ]))
+    }
+    if (!localStorage.getItem('fisico_weekly')) {
+      localStorage.setItem('fisico_weekly', JSON.stringify({ routineId:'custom-weekly', dayMapping:{1:0,3:1,5:0} }))
+    }
+
     return () => {
       subscription.unsubscribe()
       window.removeEventListener('show-login', handler)
