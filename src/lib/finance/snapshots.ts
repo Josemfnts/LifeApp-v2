@@ -1,6 +1,7 @@
 import type { Cuenta, Tx } from './types.ts'
 import type { NetWorthBreakdown } from './networth.ts'
 import { computeNetWorth } from './networth.ts'
+import { toCents, fromCents, subEuros } from './money.ts'
 
 export interface NwSnapshot extends NetWorthBreakdown {
   date: string
@@ -44,13 +45,13 @@ function endOfMonthISO(year: number, month: number): string {
 }
 
 function effectAfter(txs: Tx[], cuenta: string, afterDate: string): number {
-  let total = 0
+  let cents = 0
   for (const t of txs) {
     if (t.cuenta !== cuenta) continue
     if (t.date <= afterDate) continue
-    total += t.type === 'income' ? t.amount : -t.amount
+    cents += t.type === 'income' ? toCents(t.amount) : -toCents(t.amount)
   }
-  return total
+  return fromCents(cents)
 }
 
 export function backfillEstimated(
@@ -72,7 +73,7 @@ export function backfillEstimated(
     if (iso < oldestTxDate) continue
     const cuentasAt = cuentas.map(c => ({
       ...c,
-      balance: c.balance - effectAfter(txs, c.name, iso),
+      balance: subEuros(c.balance, effectAfter(txs, c.name, iso)),
     }))
     const b = computeNetWorth(cuentasAt)
     out.push({ ...b, date: iso, estimated: true })

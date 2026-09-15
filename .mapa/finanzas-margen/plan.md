@@ -72,7 +72,7 @@ navegador) y commit+push. Si una fase se corta, se retoma por la primera casilla
       (2026-09-15, commits e41e941·5095d42·d506a1f + fix de Claude en toCents: notación exponencial y −0.)
 - [x] **F1 · El número** — motor de patrimonio + snapshots + hero animado + gráfica evolución;
       ajustar saldo; traspasos; `kind` excluido de estadísticas; id estable de cuenta.
-      (2026-09-15, commits b4973fc·850c82d·[UI].)
+      (2026-09-15, commits b4973fc·850c82d·81f7927 + fixes de revisión: dinero en céntimos, variación sin histórico.)
 - [ ] **F2 · Que se mantenga solo** — comercios + alta rápida + editar movimiento; importador N43/CSV
       con revisión, dedupe y deshacer.
 - [ ] **F3 · Inversiones** — holdings + lotes + P&L + CoinGecko + precio manual + DCA.

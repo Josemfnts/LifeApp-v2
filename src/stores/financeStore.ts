@@ -98,10 +98,6 @@ function cuentasConMovimiento(cuentas: Cuenta[], tx: Tx, dir: 1 | -1): Cuenta[] 
   return next
 }
 
-function applyAll(s: FinanceStore, patch: Partial<FinanceStore>): void {
-  Object.assign(s, patch)
-}
-
 export const useFinanceStore = create<FinanceStore>((set, get) => {
   const initialSnapshots = loadFromStorage('finances_nw_snapshots', [] as NwSnapshot[])
 
@@ -324,7 +320,6 @@ export const useFinanceStore = create<FinanceStore>((set, get) => {
       get().recordSnapshot()
     },
   }
-  applyAll(inner, {})
   return inner
 })
 

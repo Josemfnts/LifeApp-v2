@@ -28,15 +28,6 @@ export function NetWorthHero({ onGoPatrimonio }: Props) {
     if (chartRef.current) chartRef.current.destroy()
     if (snapshots.length === 0) return
     const labels = snapshots.map(s => s.date)
-    const realLabelIndex: number[] = []
-    const realLabelMap = new Map<number, number>()
-    let ri = 0
-    for (let i = 0; i < snapshots.length; i++) {
-      if (!snapshots[i].estimated) {
-        realLabelMap.set(i, ri++)
-        realLabelIndex.push(i)
-      }
-    }
     const data = snapshots.map(s => s.net)
     chartRef.current = new Chart(canvasRef.current.getContext('2d')!, {
       type: 'line',
@@ -107,6 +98,7 @@ export function NetWorthHero({ onGoPatrimonio }: Props) {
 
   const variationColor = v.abs >= 0 ? 'var(--color-acc-green)' : 'var(--color-red)'
   const variationSign = v.abs >= 0 ? '+' : ''
+  const hasHistory = v.fromDate !== null
   const segmentRows: Array<[string, number]> = []
   segmentRows.push(['Líquido', breakdown.liquid])
   if (breakdown.investments !== 0 || breakdown.property !== 0) {
@@ -136,10 +128,16 @@ export function NetWorthHero({ onGoPatrimonio }: Props) {
         <AnimatedNumber value={breakdown.net} format={fmt} />
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-        <span style={{ fontSize: 12, fontWeight: 700, color: variationColor, background: 'var(--color-s2)', border: '1px solid var(--color-border)', padding: '2px 10px', borderRadius: 99 }}>
-          {variationSign}{fmt(v.abs)} {v.pct !== null && `(${v.pct >= 0 ? '+' : ''}${v.pct.toFixed(1)}%)`}
-        </span>
-        <span style={{ fontSize: 11, color: 'var(--color-dim)' }}>variación del patrimonio, no rentabilidad</span>
+        {hasHistory ? (
+          <>
+            <span style={{ fontSize: 12, fontWeight: 700, color: variationColor, background: 'var(--color-s2)', border: '1px solid var(--color-border)', padding: '2px 10px', borderRadius: 99 }}>
+              {variationSign}{fmt(v.abs)} {v.pct !== null && `(${v.pct >= 0 ? '+' : ''}${v.pct.toFixed(1)}%)`}
+            </span>
+            <span style={{ fontSize: 11, color: 'var(--color-dim)' }}>variación del patrimonio, no rentabilidad</span>
+          </>
+        ) : (
+          <span style={{ fontSize: 11, color: 'var(--color-dim)' }}>Sin histórico todavía — se calcula a partir de mañana</span>
+        )}
       </div>
       <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginBottom: 12 }}>
         {segmentRows.map(([name, val]) => (
