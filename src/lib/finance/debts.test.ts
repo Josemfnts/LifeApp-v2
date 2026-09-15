@@ -80,6 +80,28 @@ test('pagar la cuota del mes consume plazo: la siguiente cuota no se recalcula a
   assert.equal(remainingMonths(withExtra, '2026-09-15'), 359)
 })
 
+test('amortización anticipada: reducir plazo mantiene la cuota, reducir cuota mantiene el plazo', () => {
+  const d = debt({})
+  const s1 = nextPaymentSplit(d, '2026-09-15')
+  const after: Debt = {
+    ...d,
+    balance: 150000 - s1.principal,
+    payments: [{ id: 'p1', date: '2026-09-15', total: s1.total, interest: s1.interest, principal: s1.principal }],
+  }
+  const term = simulateExtra(after, 1000, 'reduce_term', '2026-09-15')
+  assert.ok(term.monthsSaved > 0)
+  const extraPay = { id: 'p2', date: '2026-09-15', total: 1000, interest: 0, principal: 1000, extra: true }
+  const reducedTerm: Debt = { ...after, balance: after.balance - 1000, payments: [...after.payments, { ...extraPay, monthsSaved: term.monthsSaved }] }
+  assert.equal(remainingMonths(reducedTerm, '2026-09-15'), 359 - term.monthsSaved)
+  const cuotaTerm = nextPaymentSplit(reducedTerm, '2026-09-15').total
+  assert.ok(cuotaTerm <= 632.41 && cuotaTerm > 625, `cuota ${cuotaTerm}`)
+
+  const pay = simulateExtra(after, 1000, 'reduce_payment', '2026-09-15')
+  const reducedPayment: Debt = { ...after, balance: after.balance - 1000, payments: [...after.payments, extraPay] }
+  assert.equal(remainingMonths(reducedPayment, '2026-09-15'), 359)
+  assert.equal(nextPaymentSplit(reducedPayment, '2026-09-15').total, pay.newPayment)
+})
+
 test('pagar una cuota solo baja el patrimonio en los intereses', () => {
   const d = debt({ balance: 100000, startDate: '2006-09-15', termMonths: 480 })
   const s = nextPaymentSplit(d, '2026-09-15')

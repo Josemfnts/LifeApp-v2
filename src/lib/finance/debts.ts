@@ -12,6 +12,7 @@ export interface DebtPayment {
   interest: number
   principal: number
   extra?: boolean
+  monthsSaved?: number // amortización anticipada en modo "reducir plazo": meses que quita al plazo
   linkId?: string // une el pago con sus movimientos: borrar el movimiento deshace el pago
 }
 
@@ -94,7 +95,9 @@ export function remainingMonths(
   // Las cuotas pagadas consumen plazo aunque se paguen antes de su fecha (las amortizaciones
   // anticipadas no): si no, pagar la cuota del mes recalcularía sobre el plazo entero y bajaría cada vez.
   const paid = (d.payments ?? []).filter(p => !p.extra).length
-  const remaining = d.termMonths - Math.max(0, elapsed, paid)
+  // "Reducir plazo" acorta el plazo y la cuota se mantiene; sin monthsSaved la amortización reduce la cuota.
+  const saved = (d.payments ?? []).reduce((s, p) => s + (p.extra && p.monthsSaved ? p.monthsSaved : 0), 0)
+  const remaining = d.termMonths - Math.max(0, elapsed, paid) - saved
   return toCents(d.balance) > 0 ? Math.max(1, remaining) : Math.max(0, remaining)
 }
 

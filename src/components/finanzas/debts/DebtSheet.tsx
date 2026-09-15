@@ -172,7 +172,7 @@ export function DebtSheet({ open, debtId, onClose }: Props) {
                     </div>
                   )}
                   <button className="btn-ghost" style={{ width: '100%', marginTop: 8 }} disabled={!(extraAmount > 0)}
-                    onClick={() => { extraAmortization(existing.id, extraAmount, { date: today, cuenta: payCuenta || undefined }); setExtra(''); toast.show('✓ Amortización anticipada registrada') }}>
+                    onClick={() => { extraAmortization(existing.id, extraAmount, { date: today, cuenta: payCuenta || undefined, mode: extraMode }); setExtra(''); toast.show('✓ Amortización anticipada registrada') }}>
                     Amortizar {extraAmount > 0 ? fmt(Math.min(extraAmount, existing.balance)) : ''}
                   </button>
                 </div>

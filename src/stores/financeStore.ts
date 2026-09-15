@@ -2,7 +2,7 @@ import { saveToStorage, loadFromStorage } from '@/lib/storage'
 import { create } from 'zustand'
 import { onRemoteChange } from '@/lib/mirror'
 import { addEuros, roundEuros, subEuros, sumEuros, toCents } from '@/lib/finance/money'
-import { nextPaymentSplit, type Debt } from '@/lib/finance/debts'
+import { nextPaymentSplit, simulateExtra, type Debt } from '@/lib/finance/debts'
 import { dueOccurrences } from '@/lib/finance/recurring'
 import { buildFinanceContext } from '@/lib/finance/context'
 import { currentValue, type Property, type Valuation } from '@/lib/finance/properties'
@@ -109,7 +109,7 @@ interface FinanceStore {
   saveDebt: (d: Debt) => void
   removeDebt: (id: string) => void
   payDebt: (id: string, opts?: { date?: string; cuenta?: string }) => void
-  extraAmortization: (id: string, amount: number, opts?: { date?: string; cuenta?: string }) => void
+  extraAmortization: (id: string, amount: number, opts?: { date?: string; cuenta?: string; mode?: 'reduce_term' | 'reduce_payment' }) => void
   saveProperty: (p: Property) => void
   removeProperty: (id: string) => void
   addValuation: (propertyId: string, v: Valuation) => void
@@ -266,11 +266,14 @@ export const useFinanceStore = create<FinanceStore>((set, get) => {
       if (toCents(principal) <= 0) return
       const date = opts.date ?? localISO()
       const linkId = uid()
+      // Reducir plazo guarda los meses que se quitan; sin ellos el plazo sigue y baja la cuota.
+      const monthsSaved = opts.mode === 'reduce_term' ? simulateExtra(d, principal, 'reduce_term', date).monthsSaved : 0
       const tx: Tx = { id: nextTxId(get().txs), type: 'expense', amount: principal, category: 'Amortización', concept: `Amortización anticipada ${d.name}`, note: '', cuenta: opts.cuenta, date, kind: 'debt_principal', debtId: id, linkId }
       const txs = [tx, ...get().txs]
       const cuentas = cuentasConMovimiento(get().cuentas, tx, 1) ?? get().cuentas
+      const payment = { id: uid(), date, total: principal, interest: 0, principal, extra: true, linkId, ...(monthsSaved > 0 ? { monthsSaved } : {}) }
       const debts = get().debts.map(x => (x.id === id
-        ? { ...x, balance: subEuros(x.balance, principal), payments: [...x.payments, { id: uid(), date, total: principal, interest: 0, principal, extra: true, linkId }] }
+        ? { ...x, balance: subEuros(x.balance, principal), payments: [...x.payments, payment] }
         : x))
       saveToStorage('finances_tx', txs)
       saveToStorage('finances_cuentas', cuentas)
