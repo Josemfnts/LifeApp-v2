@@ -71,6 +71,12 @@ export const STORE_KEYS = {
 
 export const ALL_STORAGE_KEYS: string[] = Object.values(STORE_KEYS)
 
+// Claves que viven SOLO en este dispositivo: nunca se suben a la nube (no están en ALL_STORAGE_KEYS)
+// y se escriben con localStorage directo, no con saveToStorage.
+export const LOCAL_ONLY_KEYS = {
+  finances_price_cache: 'finances_price_cache',
+} as const
+
 // Etiquetas legibles para UI (pantalla de almacenamiento en Ajustes).
 // Solo las claves con volumen de datos relevante para el usuario.
 export const STORAGE_LABELS: Record<string, string> = {
