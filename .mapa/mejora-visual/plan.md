@@ -36,7 +36,7 @@ En reposo orienta; al hacer scroll se compacta; al volver arriba reaparece. Ning
       fijos → 🔍 y ⚙ con insignia y hoja de chips). Revisados y se quedan: el selector de ejercicio (ya es una hoja),
       los grupos de Ejercicios (una línea de chips) y Nutrición › Platos (un solo buscador, es el contenido).
 - [x] **V4 · Inicio compacto**: saludo + fecha en una línea, ajustes a la derecha, racha y nivel como chips.
-      Cabecera 187 → 125 px (local).
+      Cabecera 187 → 125 px. V3 y V4 verificados en prod (753d5e4): Inicio 125 px; filtro Gimnasio 16 → 8 rutinas, 0 errores.
 - [ ] **V5 · Superficies**: menos tarjeta dentro de tarjeta; listas planas para información relacionada.
 - [ ] **V6 · Tipografía y motion**: escala 28/22/16/14/12/11 en tokens; transiciones cortas de pestaña y hojas.
 
