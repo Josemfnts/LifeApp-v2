@@ -136,6 +136,14 @@ Requiere sesión (RLS): en modo invitado el gate lo oculta. Cablea notas a entid
   a `/notas` (no renderiza inline). Si algo debe abrirse full-screen sin nav, sigue este patrón.
 - **Theming**: colores vía CSS variables (`var(--color-dim)`, etc.), no hex hardcodeados — respeta eso al
   añadir estilos. El header de página es `.page-header` (padding-top 24px) + un único `.page-title`.
+  No pegues alfa hex a una variable (`'var(--color-acc-orange)26'` es CSS inválido): usa `color-mix()`.
+- **Chrome que reacciona al scroll** (mejora visual, `.mapa/mejora-visual/plan.md`): `.page-header` es sticky y el
+  `Shell` pone `data-header-collapsed` / `data-nav-hidden` en `<html>` según el scroll de `#sw` (lógica pura y con
+  tests en `src/lib/ui/scrollChrome.ts`); el CSS compacta la cabecera y esconde la barra. **No** añadas listeners
+  de scroll ni estado React por página para esto. Inicio usa `.page-header.home-header` (no sticky).
+- **Navegación dentro de un módulo**: `ChipTabs` (`components/ui`) — `variant="chips"` para categorías y `"line"`
+  para sub-pestañas. Nada de filas de botones con borde. Buscador y filtros de listas largas, bajo demanda: botones
+  🔍 / ⚙ con insignia de filtros activos y hoja inferior (`Modal`) — patrón de Finanzas › Movs y Físico › Rutinas.
 - **Atajos de teclado**: leader key **`g`** y luego `1..9` navega entre módulos (patrón Gmail/GitHub);
   implementado dentro del Router para no recargar la página (`App.tsx:KeyboardShortcuts`).
 - **Deep-link iOS**: `?kanban=texto&priority=&project=` añade una tarjeta al Kanban al abrir (atajo de iOS).
@@ -234,7 +242,7 @@ La auditoría del 1-jul ya está mayormente resuelta:
   **Pendiente del lado CompAI (otra sesión)**: life-mcp debería escribir con CAS sobre `updated_at` para
   tener la misma garantía; el trigger ya le asegura versiones honestas.
 
-## Finanzas "Margen" (2026-09-15, en curso — plan en `.mapa/finanzas-margen/`)
+## Finanzas "Margen" (2026-09-15, plan cerrado F0-F6 — `.mapa/finanzas-margen/`)
 Replica de la app Margen dentro de Finanzas, por fases F0-F6 (plan.md con casillas, specs en `encargos/`).
 - **Motor puro** en `src/lib/finance/` (money, dates, flow, networth, snapshots, ops, merchants, `import/`
   n43·csv·dedupe·decode·apply), con tests `*.test.ts`. Reglas ahí dentro: imports relativos con extensión `.ts`

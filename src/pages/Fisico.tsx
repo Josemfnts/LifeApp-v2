@@ -80,6 +80,9 @@ function StrengthTab() {
   const [dbNivel, setDbNivel] = useState('')
   const [dbLugar, setDbLugar] = useState('')
   const [dbSearch2, setDbSearch2] = useState('')
+  // Biblioteca de rutinas: buscador y filtros bajo demanda (mejora visual V3), no siempre abiertos.
+  const [dbSearchOpen, setDbSearchOpen] = useState(false)
+  const [dbFilterOpen, setDbFilterOpen] = useState(false)
   const [showProgForm, setShowProgForm] = useState(false)
   const [progName, setProgName] = useState('')
   const [progRoutineSel, setProgRoutineSel] = useState<number[]>([])
@@ -621,24 +624,49 @@ function StrengthTab() {
 
         {/* Routine database library */}
         <div style={{ marginTop: 12 }}>
-          <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 14, marginBottom: 10 }}>
-            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 10 }}>📚 Biblioteca ({ROUTINES.length} rutinas)</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6, marginBottom: 8 }}>
-              <select className="inp" value={dbObj} onChange={e => setDbObj(e.target.value)} style={{ marginBottom: 0, fontSize: 11 }}>
-                <option value="">Objetivo</option>
-                {ROUTINE_OBJECTIVES.map(o => <option key={o} value={o}>{getObjLabel(o)}</option>)}
-              </select>
-              <select className="inp" value={dbNivel} onChange={e => setDbNivel(e.target.value)} style={{ marginBottom: 0, fontSize: 11 }}>
-                <option value="">Nivel</option>
-                {ROUTINE_LEVELS.map(n => <option key={n} value={n}>{getNivelLabel(n)}</option>)}
-              </select>
-              <select className="inp" value={dbLugar} onChange={e => setDbLugar(e.target.value)} style={{ marginBottom: 0, fontSize: 11 }}>
-                <option value="">Lugar</option>
-                {ROUTINE_PLACES.map(l => <option key={l} value={l}>{getLugarLabel(l)}</option>)}
-              </select>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+            <div style={{ flex: 1, fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+              📚 Biblioteca · {filterRoutines({ objetivo: dbObj || undefined, nivel: dbNivel || undefined, lugar: dbLugar || undefined, search: dbSearch2 || undefined }).length} rutinas
             </div>
-            <input className="inp" value={dbSearch2} onChange={e => setDbSearch2(e.target.value)} placeholder="🔍 Buscar rutina..." style={{ marginBottom: 0 }} />
+            <button type="button" aria-label="Buscar rutina" onClick={() => setDbSearchOpen(v => !v)}
+              style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--color-s1)', border: '1px solid var(--color-border)', color: dbSearchOpen || dbSearch2 ? 'var(--color-acc-orange)' : 'var(--color-sub)', cursor: 'pointer', fontSize: 15 }}>🔍</button>
+            <button type="button" aria-label="Filtrar rutinas" onClick={() => setDbFilterOpen(true)}
+              style={{ position: 'relative', width: 36, height: 36, borderRadius: 10, background: 'var(--color-s1)', border: '1px solid var(--color-border)', color: dbObj || dbNivel || dbLugar ? 'var(--color-acc-orange)' : 'var(--color-sub)', cursor: 'pointer', fontSize: 15 }}>⚙
+              {[dbObj, dbNivel, dbLugar].filter(Boolean).length > 0 && (
+                <span style={{ position: 'absolute', top: -2, right: -2, minWidth: 16, height: 16, padding: '0 4px', borderRadius: 99, background: 'var(--color-acc-orange)', color: '#111', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {[dbObj, dbNivel, dbLugar].filter(Boolean).length}
+                </span>
+              )}
+            </button>
           </div>
+          {(dbSearchOpen || dbSearch2) && (
+            <input className="inp" autoFocus value={dbSearch2} onChange={e => setDbSearch2(e.target.value)} placeholder="🔍 Buscar rutina..." style={{ marginBottom: 10 }} />
+          )}
+          <Modal open={dbFilterOpen} onClose={() => setDbFilterOpen(false)} title="Filtrar rutinas">
+            <div style={{ padding: '0 20px 8px' }}>
+              {([
+                { label: 'Objetivo', value: dbObj, set: setDbObj, options: ROUTINE_OBJECTIVES.map(o => [o, getObjLabel(o)]) },
+                { label: 'Nivel', value: dbNivel, set: setDbNivel, options: ROUTINE_LEVELS.map(n => [n, getNivelLabel(n)]) },
+                { label: 'Lugar', value: dbLugar, set: setDbLugar, options: ROUTINE_PLACES.map(l => [l, getLugarLabel(l)]) },
+              ] as const).map(f => (
+                <div key={f.label} style={{ marginBottom: 12 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-sub)', marginBottom: 6 }}>{f.label}</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {/* «Cualquiera» = sin filtro; ROUTINE_LEVELS ya tiene un valor 'todos' (rutinas para todos los niveles). */}
+                    {[['', 'Cualquiera'] as const, ...f.options].map(([v, l]) => (
+                      <button key={v === '' ? '__sin-filtro' : v} type="button" onClick={() => f.set(v)}
+                        className={`chip-tab${f.value === v ? ' active' : ''}`}
+                        style={{ '--chip-color': 'var(--color-acc-orange)', border: '1px solid var(--color-border)' } as React.CSSProperties}>{l}</button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 6 }}>
+                <button type="button" className="btn-ghost" style={{ width: '100%' }} onClick={() => { setDbObj(''); setDbNivel(''); setDbLugar('') }}>Limpiar</button>
+                <button type="button" className="btn-primary" style={{ background: 'var(--color-acc-orange)', width: 'auto' }} onClick={() => setDbFilterOpen(false)}>Ver rutinas</button>
+              </div>
+            </div>
+          </Modal>
           {filterRoutines({ objetivo: dbObj || undefined, nivel: dbNivel || undefined, lugar: dbLugar || undefined, search: dbSearch2 || undefined }).slice(0, 10).map(r => (
             <div key={r.id} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 12, overflow: 'hidden', marginBottom: 8 }}>
               <div style={{ padding: '12px 14px' }}>

@@ -83,20 +83,14 @@ export function TopBar() {
 
   return (
     <>
+      {/* Inicio compacto (mejora visual V4): saludo y ajustes en una fila; racha, nivel y fecha como chips. */}
       <div className="page-header home-header">
-        <div className="greeting">{greeting}</div>
-        <div className="greeting-name"><em>{getDisplayName()}</em></div>
-
-        <div className="streak-row">
-          <span style={{ fontSize: 16 }}>🔥</span>
-          <span style={{ fontFamily: 'DM Serif Display,serif', fontSize: 16, color: 'var(--color-acc-gold)' }}>{streak}</span>
-          <span style={{ fontSize: 11, color: 'var(--color-dim)', fontWeight: 600 }}>días de racha</span>
-        </div>
-
-        <div className="top-meta">
-          <div className="date-chip">{dateStr}</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <button className="gear-btn" onClick={async () => {
+        <div className="home-top">
+          <div style={{ minWidth: 0 }}>
+            <div className="greeting">{greeting.replace(/,\s*$/, '')} · {dateStr}</div>
+            <div className="greeting-name"><em>{getDisplayName()}</em></div>
+          </div>
+            <button className="gear-btn" aria-label="Ajustes" onClick={async () => {
               setSettingsOpen(true)
               const info = calcStorage()
               setStorageInfo(info.lines)
@@ -109,15 +103,11 @@ export function TopBar() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
             </button>
-            <div className="level-pill">
-              <div className="level-dot">{lv.level}</div>
-              <div>
-                <div className="level-text">Nivel {lv.level}</div>
-                <div className="level-xp">{grandTotal} XP totales</div>
-              </div>
-            </div>
-          </div>
         </div>
+
+        <div className="home-meta">
+          <span className="home-chip">🔥 <strong style={{ color: 'var(--color-acc-gold)' }}>{streak}</strong> {streak === 1 ? 'día' : 'días'} de racha</span>
+          <span className="home-chip"><span className="level-dot">{lv.level}</span>Nivel {lv.level} · {grandTotal} XP</span>        </div>
 
         <div className="xp-strip">
           <div className="xp-strip-fill" style={{ width: `${lv.pct}%` }} />

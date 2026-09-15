@@ -52,11 +52,15 @@ Stack real: React 19 + Vite 8 + Zustand + Supabase (store_data key-value). Ver A
     patrimonio); `finances_context` (resumen <4 KB para CompAI, solo lo escribe la app). 189 tests.
   - Aviso visto: el selector de color de cuenta recibe `var(--color-acc-blue)` (input type=color exige #hex) — preexistente.
 
+- **Mejora visual global** (2026-09-15, plan en `.mapa/mejora-visual/plan.md`): hechas V1 (cabecera pegada que se
+  compacta y barra inferior que se esconde con el scroll), V2 (`ChipTabs`: Físico compacto, CSV a Movs), V3 (filtros
+  de la biblioteca de rutinas bajo demanda) y V4 (Inicio compacto, 187→125 px). Quedan V5 superficies y V6 tipografía/motion.
+- **life-mcp** (CompAI, c0a0b17, reiniciado por pm2): `finanzas` ya no cuenta traspasos/ajustes/inversiones/capital
+  como gasto y usa tu parte en compartidos; tool nueva `finanzas_contexto` (lee `finances_context`). Verificado en vivo.
+
 ## Lo siguiente
 - Josema: probar la importación con un extracto REAL de su banco (N43 o CSV) — el parser solo se ha
   probado con ficheros sintéticos.
-- life-mcp (fuera del repo): enseñarle `Tx.kind` (no-flujo), `Tx.split` + `flowAmount` (solo tu parte cuenta
-  como gasto), las claves nuevas de finanzas y que puede leer `finances_context` en vez de reconstruir las cifras.
 - Verificado E2E en prod el 2026-09-15 (2ª tanda): precios de cripto al abrir Finanzas (foto del día al precio de
   ahora), presupuesto 94 %, inmueble al 4 % anual con hipoteca ligada (valor y patrimonio al céntimo), amortización
   anticipada en ambos modos, venta con realizado, split, compra periódica al abrir y vista de impresión del informe.

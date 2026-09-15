@@ -20,17 +20,23 @@ En reposo orienta; al hacer scroll se compacta; al volver arriba reaparece. Ning
 
 ## Fases
 
-- [ ] **V1 · Chrome que reacciona al scroll** (global, sin tocar cada página)
+- [x] **V1 · Chrome que reacciona al scroll** (global, sin tocar cada página)
+      (2026-09-15, 0a8c632. Verificado en local con página larga y en prod en Finanzas con datos: al bajar la cabecera
+      110→79 px y la barra sale de pantalla; al subir vuelve; arriba se expande; al final la barra se ve.)
       `.page-header` sticky dentro de `#sw`; al bajar >48 px se compacta (título 26→17 px, menos padding)
       y la barra inferior se desliza fuera al bajar y vuelve al subir / arriba / al final.
       Estado en `data-` del `<html>` (CSS puro, sin re-render). Inicio (TopBar) no es sticky.
       Lógica de dirección con histéresis en `src/lib/ui/scrollChrome.ts` con tests. `prefers-reduced-motion`.
-- [ ] **V2 · Navegación compacta y sin duplicados**
+- [x] **V2 · Navegación compacta y sin duplicados**
+      (2026-09-15, 51980d0. Físico en local; CSV en Movs verificado en prod: descarga lifeos-finanzas-*.csv.)
       Componente `ChipTabs` (línea de chips/pestañas, sin tarjetas ni bordes gruesos). Físico: categorías y
       sub-pestañas pasan de botones con borde a una línea compacta. Finanzas: CSV sale de la cabecera a Movs.
-- [ ] **V3 · Buscador y filtros bajo demanda**: donde haya buscador + filtros permanentes → icono 🔍 / ⚙ y
-      hoja inferior (Movs ya lo hace: patrón a copiar). Revisar Físico › Ejercicios y Nutrición › Platos.
-- [ ] **V4 · Inicio compacto**: saludo en una línea, nivel/racha como chips; el bloque editorial fuera.
+- [x] **V3 · Buscador y filtros bajo demanda**: donde haya buscador + filtros permanentes → icono 🔍 / ⚙ y
+      hoja inferior (Movs ya lo hace: patrón a copiar). Hecho en Físico › Rutinas › Biblioteca (3 selects + buscador
+      fijos → 🔍 y ⚙ con insignia y hoja de chips). Revisados y se quedan: el selector de ejercicio (ya es una hoja),
+      los grupos de Ejercicios (una línea de chips) y Nutrición › Platos (un solo buscador, es el contenido).
+- [x] **V4 · Inicio compacto**: saludo + fecha en una línea, ajustes a la derecha, racha y nivel como chips.
+      Cabecera 187 → 125 px (local).
 - [ ] **V5 · Superficies**: menos tarjeta dentro de tarjeta; listas planas para información relacionada.
 - [ ] **V6 · Tipografía y motion**: escala 28/22/16/14/12/11 en tokens; transiciones cortas de pestaña y hojas.
 
