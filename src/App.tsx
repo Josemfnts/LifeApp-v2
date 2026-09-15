@@ -6,7 +6,7 @@ import { Shell } from '@/components/layout/Shell'
 import { SplashScreen } from '@/components/layout/SplashScreen'
 import { lazy, Suspense, useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import { checkHabitReminders, checkAgendaReminders } from '@/lib/notifications'
+import { checkHabitReminders, checkAgendaReminders, checkFinanceReminders } from '@/lib/notifications'
 import { initRealtimeMirror } from '@/lib/realtime'
 
 // Navegación por teclado con leader key "g" (patrón GitHub/Gmail): pulsa g y
@@ -71,7 +71,7 @@ export default function App() {
     initRealtimeMirror()
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) setShowLogin(true)
-      else { checkHabitReminders(); checkAgendaReminders() }
+      else { checkHabitReminders(); checkAgendaReminders(); checkFinanceReminders() }
       setChecking(false)
     })
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {

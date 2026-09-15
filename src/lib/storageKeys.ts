@@ -51,6 +51,7 @@ export const STORE_KEYS = {
   finances_holdings: 'finances_holdings',
   finances_debts: 'finances_debts',
   finances_properties: 'finances_properties',
+  finances_recurring_dismissed: 'finances_recurring_dismissed',
 
   lifeos_habits: 'lifeos_habits',
   lifeos_habits_log: 'lifeos_habits_log',
@@ -78,6 +79,7 @@ export const ALL_STORAGE_KEYS: string[] = Object.values(STORE_KEYS)
 // y se escriben con localStorage directo, no con saveToStorage.
 export const LOCAL_ONLY_KEYS = {
   finances_price_cache: 'finances_price_cache',
+  finances_alerts_sent: 'finances_alerts_sent',
 } as const
 
 // Etiquetas legibles para UI (pantalla de almacenamiento en Ajustes).

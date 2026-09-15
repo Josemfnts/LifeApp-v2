@@ -3,6 +3,7 @@ import { create } from 'zustand'
 import { onRemoteChange } from '@/lib/mirror'
 import { addEuros, roundEuros, subEuros, sumEuros, toCents } from '@/lib/finance/money'
 import { nextPaymentSplit, type Debt } from '@/lib/finance/debts'
+import { dueOccurrences } from '@/lib/finance/recurring'
 import { currentValue, type Property, type Valuation } from '@/lib/finance/properties'
 import { position, portfolio, resolvePrice, dcaDue, type Holding, type Lot, type Sale, type PriceCache } from '@/lib/finance/investments'
 import { fetchCryptoPrices, loadPriceCache, savePriceCache } from '@/lib/finance/prices'
@@ -126,7 +127,10 @@ interface FinanceStore {
   removePufo: (idx: number) => void
   saveCuenta: (c: Cuenta, editIdx?: number | null) => void
   removeCuenta: (idx: number) => void
-  setPresupuesto: (cat: string, limit: number) => void
+  setPresupuesto: (cat: string, limit: number, rollover?: boolean) => void
+  recurringDismissed: string[]
+  updateRecurrente: (id: number, partial: Partial<Recurrente>) => void
+  dismissSuggestion: (key: string) => void
   removePresupuesto: (cat: string) => void
   addRecurrente: (r: Recurrente) => void
   removeRecurrente: (id: number) => void
@@ -185,6 +189,7 @@ export const useFinanceStore = create<FinanceStore>((set, get) => {
     priceCache: loadPriceCache(),
     debts: loadFromStorage('finances_debts', [] as Debt[]),
     properties: loadFromStorage('finances_properties', [] as Property[]),
+    recurringDismissed: loadFromStorage('finances_recurring_dismissed', [] as string[]),
 
     // ── Deudas ─────────────────────────────────────────────────────────────────
     saveDebt: (d) => {
@@ -665,8 +670,16 @@ export const useFinanceStore = create<FinanceStore>((set, get) => {
       get().recordSnapshot()
     },
 
-    setPresupuesto: (cat, limit) => {
-      const presupuestos = [...get().presupuestos.filter(p => p.category !== cat), { category: cat, limit }]
+    setPresupuesto: (cat, limit, rollover) => {
+      const prev = get().presupuestos.find(p => p.category === cat)
+      const keepRollover = rollover ?? prev?.rollover ?? false
+      const next: Presupuesto = {
+        category: cat,
+        limit,
+        ...(keepRollover ? { rollover: true } : {}),
+        since: prev?.since ?? localISO().slice(0, 7),
+      }
+      const presupuestos = [...get().presupuestos.filter(p => p.category !== cat), next]
       saveToStorage('finances_budgets', presupuestos)
       set({ presupuestos })
     },
@@ -686,39 +699,56 @@ export const useFinanceStore = create<FinanceStore>((set, get) => {
       saveToStorage('finances_recurring', recurrentes)
       set({ recurrentes })
     },
+    updateRecurrente: (id, partial) => {
+      const recurrentes = get().recurrentes.map(r => (r.id === id ? { ...r, ...partial, id } : r))
+      saveToStorage('finances_recurring', recurrentes)
+      set({ recurrentes })
+    },
+    dismissSuggestion: (key) => {
+      if (get().recurringDismissed.includes(key)) return
+      const recurringDismissed = [...get().recurringDismissed, key]
+      saveToStorage('finances_recurring_dismissed', recurringDismissed)
+      set({ recurringDismissed })
+    },
 
+    // Genera los movimientos de los recurrentes que tocan hasta hoy, con la fecha real de cada
+    // ocurrencia y moviendo la cuenta. Con lastRun: todas las pendientes. Los antiguos (sin lastRun):
+    // solo el mes actual y con la guarda de siempre (mismo concepto/categoría/tipo ya apuntado este mes).
     processRecurrentes: () => {
-      const { recurrentes, txs } = get()
-      const today = new Date()
-      const todayD = today.getDate()
-      const todayStr = localISO(today)
+      const todayStr = localISO()
+      const monthNow = todayStr.slice(0, 7)
+      let txs = get().txs
+      let cuentas = get().cuentas
       const newTxs: Tx[] = []
-
-      recurrentes.filter(r => r.active).forEach(r => {
-        const keyM = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`
-        const alreadyAdded = txs.some(t =>
-          t.date.startsWith(keyM) &&
-          t.concept === r.concept &&
-          t.category === r.category &&
-          t.type === r.type
-        )
-        if (r.day <= todayD && !alreadyAdded) {
-          newTxs.push({
-            id: nextTxId([...newTxs, ...txs]),
-            concept: r.concept,
-            amount: r.amount,
-            type: r.type,
-            category: r.category,
-            date: todayStr,
-            note: '(recurrente)',
-          })
+      let changed = false
+      const recurrentes = get().recurrentes.map(r => {
+        const due = dueOccurrences(r, todayStr)
+        if (due.length === 0) return r
+        const alreadyThisMonth = !r.lastRun && txs.some(t =>
+          t.date.startsWith(monthNow) && t.concept === r.concept && t.category === r.category && t.type === r.type)
+        if (!alreadyThisMonth) {
+          for (const date of due) {
+            const tx: Tx = {
+              id: nextTxId([...newTxs, ...txs]), concept: r.concept, amount: r.amount, type: r.type,
+              category: r.category, date, note: '(recurrente)', recurringId: r.id, ...(r.cuenta ? { cuenta: r.cuenta } : {}),
+            }
+            newTxs.push(tx)
+            const c = cuentasConMovimiento(cuentas, tx, 1)
+            if (c) cuentas = c
+          }
         }
+        changed = true
+        return { ...r, lastRun: due[due.length - 1] }
       })
-
+      if (changed) {
+        saveToStorage('finances_recurring', recurrentes)
+        set({ recurrentes })
+      }
       if (newTxs.length > 0) {
-        const updated = [...newTxs, ...txs]
-        saveToStorage('finances_tx', updated)
-        set({ txs: updated })
+        txs = [...newTxs, ...txs]
+        saveToStorage('finances_tx', txs)
+        saveToStorage('finances_cuentas', cuentas)
+        set({ txs, cuentas })
         get().recordSnapshot()
       }
       return newTxs
@@ -766,5 +796,6 @@ onRemoteChange({
   finances_import_maps: () => useFinanceStore.setState({ importMaps: loadFromStorage('finances_import_maps', {}) }),
   finances_holdings: () => useFinanceStore.setState({ holdings: loadFromStorage('finances_holdings', []) }),
   finances_debts: () => useFinanceStore.setState({ debts: loadFromStorage('finances_debts', []) }),
+  finances_recurring_dismissed: () => useFinanceStore.setState({ recurringDismissed: loadFromStorage('finances_recurring_dismissed', []) }),
   finances_properties: () => useFinanceStore.setState({ properties: loadFromStorage('finances_properties', []) }),
 })

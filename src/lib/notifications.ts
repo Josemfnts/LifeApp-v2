@@ -1,4 +1,7 @@
 // Push notification helpers for Life OS
+import { computeFinanceAlerts } from '@/lib/finance/alerts'
+import { localISO } from '@/lib/finance/dates'
+import { LOCAL_ONLY_KEYS, STORE_KEYS } from '@/lib/storageKeys'
 
 export async function requestPermission(): Promise<boolean> {
   if (!('Notification' in window)) return false
@@ -74,6 +77,26 @@ export function checkHabitReminders() {
     }, 5000)
   }
   localStorage.setItem('lifeos_last_notif_check', today)
+}
+
+// Avisos de Finanzas (cargo previsto, presupuesto al 80 %/superado, resumen del mes). Cada aviso tiene un
+// id estable y se apunta en finances_alerts_sent (solo local) para no repetirlo en cada apertura.
+export function checkFinanceReminders() {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return
+  const read = <T>(key: string, fallback: T): T => {
+    try { const raw = localStorage.getItem(key); return raw ? (JSON.parse(raw) as T) : fallback } catch { return fallback }
+  }
+  const sent = read<string[]>(LOCAL_ONLY_KEYS.finances_alerts_sent, [])
+  const alerts = computeFinanceAlerts({
+    txs: read(STORE_KEYS.finances_tx, []),
+    presupuestos: read(STORE_KEYS.finances_budgets, []),
+    recurrentes: read(STORE_KEYS.finances_recurring, []),
+  }, localISO())
+  const fresh = alerts.filter(a => !sent.includes(a.id))
+  fresh.forEach((a, i) => scheduleReminder(`💶 ${a.title}`, { body: a.body, requireInteraction: false }, 5000 + i * 1500))
+  if (fresh.length > 0) {
+    localStorage.setItem(LOCAL_ONLY_KEYS.finances_alerts_sent, JSON.stringify([...sent, ...fresh.map(a => a.id)].slice(-300)))
+  }
 }
 
 export function checkAgendaReminders() {

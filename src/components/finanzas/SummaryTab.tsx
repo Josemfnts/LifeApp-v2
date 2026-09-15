@@ -7,6 +7,7 @@ import { MONTHS, monthKey } from './shared'
 import { TxRow } from './TxRow'
 import { EditTxSheet } from './EditTxSheet'
 import { NetWorthHero } from './NetWorthHero'
+import { UpcomingBlock } from './plan/UpcomingBlock'
 
 export function SummaryTab({ onGoPatrimonio }: { onGoPatrimonio?: () => void }) {
   const { txs } = useFinanceStore()
@@ -78,6 +79,7 @@ export function SummaryTab({ onGoPatrimonio }: { onGoPatrimonio?: () => void }) 
   return (
     <div>
       <NetWorthHero onGoPatrimonio={onGoPatrimonio} />
+      <UpcomingBlock />
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         background: 'var(--color-s1)', border: '1px solid var(--color-border)',
         borderRadius: 14, padding: '10px 14px', marginBottom: 12 }}>
