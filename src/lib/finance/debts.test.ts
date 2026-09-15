@@ -63,6 +63,23 @@ test('nextPaymentSplit: intereses sobre el pendiente y el resto a capital', () =
   assert.equal(toCents(s.principal) + toCents(s.interest), toCents(s.total))
 })
 
+test('pagar la cuota del mes consume plazo: la siguiente cuota no se recalcula a la baja', () => {
+  const d = debt({})
+  const s1 = nextPaymentSplit(d, '2026-09-15')
+  assert.equal(s1.total, 632.41)
+  const after: Debt = {
+    ...d,
+    balance: 150000 - s1.principal,
+    payments: [{ id: 'p1', date: '2026-09-15', total: s1.total, interest: s1.interest, principal: s1.principal }],
+  }
+  assert.equal(remainingMonths(after, '2026-09-15'), 359)
+  const s2 = nextPaymentSplit(after, '2026-09-15')
+  assert.equal(s2.total, 632.41)
+  assert.equal(s2.interest, 374.36)
+  const withExtra: Debt = { ...after, payments: [...after.payments, { id: 'p2', date: '2026-09-15', total: 1000, interest: 0, principal: 1000, extra: true }] }
+  assert.equal(remainingMonths(withExtra, '2026-09-15'), 359)
+})
+
 test('pagar una cuota solo baja el patrimonio en los intereses', () => {
   const d = debt({ balance: 100000, startDate: '2006-09-15', termMonths: 480 })
   const s = nextPaymentSplit(d, '2026-09-15')

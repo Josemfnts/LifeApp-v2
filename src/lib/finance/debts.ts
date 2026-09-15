@@ -83,12 +83,18 @@ export function schedule(principal: number, annualRate: number, months: number, 
   return rows
 }
 
-export function remainingMonths(d: Pick<Debt, 'startDate' | 'termMonths' | 'balance'>, todayISO: string): number {
+export function remainingMonths(
+  d: Pick<Debt, 'startDate' | 'termMonths' | 'balance'> & { payments?: DebtPayment[] },
+  todayISO: string,
+): number {
   const [sy, sm, sd] = d.startDate.split('-').map(Number)
   const [ty, tm, td] = todayISO.split('-').map(Number)
   let elapsed = (ty - sy) * 12 + (tm - sm)
   if (td < sd) elapsed -= 1
-  const remaining = d.termMonths - Math.max(0, elapsed)
+  // Las cuotas pagadas consumen plazo aunque se paguen antes de su fecha (las amortizaciones
+  // anticipadas no): si no, pagar la cuota del mes recalcularía sobre el plazo entero y bajaría cada vez.
+  const paid = (d.payments ?? []).filter(p => !p.extra).length
+  const remaining = d.termMonths - Math.max(0, elapsed, paid)
   return toCents(d.balance) > 0 ? Math.max(1, remaining) : Math.max(0, remaining)
 }
 
