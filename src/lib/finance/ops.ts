@@ -1,7 +1,12 @@
 import type { Cuenta, Tx } from './types.ts'
 import { toCents, fromCents } from './money.ts'
 
-export function buildAdjustment(cuenta: Cuenta, newBalance: number, date: string): Tx | null {
+export function buildAdjustment(
+  cuenta: Cuenta,
+  newBalance: number,
+  date: string,
+  importId?: string
+): Tx | null {
   // Diferencia en céntimos: con floats, 100.1 − 100 = 0.0999… y 100.1 vs 100.10000000000001
   // daría un ajuste de 0 €.
   const diffC = toCents(newBalance) - toCents(cuenta.balance)
@@ -16,6 +21,7 @@ export function buildAdjustment(cuenta: Cuenta, newBalance: number, date: string
     cuenta: cuenta.name,
     date,
     kind: 'adjust',
+    ...(importId ? { importId } : {}),
   }
 }
 

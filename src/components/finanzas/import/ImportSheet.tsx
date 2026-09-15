@@ -168,7 +168,7 @@ export function ImportSheet({ open, onClose }: Props) {
     })
     // El ajuste va DESPUÉS de aplicar: así apunta solo la diferencia que quede.
     if (parsed.format === 'n43' && adjustToFinal && parsed.finalBalance !== undefined) {
-      adjustBalance(cuentaSel, parsed.finalBalance)
+      adjustBalance(cuentaSel, parsed.finalBalance, undefined, rec.id)
     }
     if (parsed.format === 'csv' && mapping && bankName.trim()) saveImportMap(bankName, mapping)
     toast.show(`✓ ${rec.imported} movimientos importados${dups.length ? ` · ${dups.length} duplicados omitidos` : ''}`)

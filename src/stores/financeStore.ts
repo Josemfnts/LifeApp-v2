@@ -93,7 +93,7 @@ interface FinanceStore {
   removeRecurrente: (id: number) => void
   processRecurrentes: () => Tx[]
   recordSnapshot: () => void
-  adjustBalance: (cuentaName: string, newBalance: number, date?: string) => void
+  adjustBalance: (cuentaName: string, newBalance: number, date?: string, importId?: string) => void
   addTransfer: (from: string, to: string, amount: number, date: string, concept?: string) => void
 }
 
@@ -427,10 +427,10 @@ export const useFinanceStore = create<FinanceStore>((set, get) => {
       return newTxs
     },
 
-    adjustBalance: (cuentaName, newBalance, date) => {
+    adjustBalance: (cuentaName, newBalance, date, importId) => {
       const cuenta = get().cuentas.find(c => c.name === cuentaName)
       if (!cuenta) return
-      const tx = buildAdjustment(cuenta, newBalance, date ?? localISO())
+      const tx = buildAdjustment(cuenta, newBalance, date ?? localISO(), importId)
       if (!tx) return
       get().addTx(tx)
     },

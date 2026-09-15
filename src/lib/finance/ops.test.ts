@@ -27,6 +27,18 @@ test('buildAdjustment: diff > 0 es income', () => {
   assert.equal(r.kind, 'adjust')
 })
 
+test('buildAdjustment: con importId lleva el importId en la Tx', () => {
+  const r = buildAdjustment(c({ balance: 100 }), 250, '2026-09-15', 'imp-abc')
+  assert.ok(r)
+  assert.equal(r.importId, 'imp-abc')
+})
+
+test('buildAdjustment: sin importId no lo pone', () => {
+  const r = buildAdjustment(c({ balance: 100 }), 250, '2026-09-15')
+  assert.ok(r)
+  assert.equal(r.importId, undefined)
+})
+
 test('buildAdjustment: diff < 0 es expense', () => {
   const r = buildAdjustment(c({ balance: 250 }), 100, '2026-09-15')
   assert.ok(r)
