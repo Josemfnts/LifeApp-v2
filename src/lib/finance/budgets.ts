@@ -2,6 +2,7 @@
 import type { Presupuesto, Tx } from './types.ts'
 import { isFlow } from './flow.ts'
 import { toCents, fromCents } from './money.ts'
+import { flowAmount } from './split.ts'
 
 export interface BudgetStatus {
   spent: number
@@ -24,7 +25,7 @@ export function prevMonthKey(mk: string): string {
 function spentCents(p: Presupuesto, txs: Tx[], monthKey: string): number {
   return txs
     .filter(t => t.type === 'expense' && isFlow(t) && t.category === p.category && t.date.startsWith(monthKey))
-    .reduce((s, t) => s + toCents(t.amount), 0)
+    .reduce((s, t) => s + toCents(flowAmount(t)), 0) // en gastos compartidos solo cuenta mi parte
 }
 
 export function budgetStatus(p: Presupuesto, txs: Tx[], monthKey: string): BudgetStatus {

@@ -5,6 +5,7 @@ import { budgetStatus, prevMonthKey } from './budgets.ts'
 import { addDaysISO, occurrences } from './recurring.ts'
 import { isFlow } from './flow.ts'
 import { toCents } from './money.ts'
+import { flowAmount } from './split.ts'
 
 export interface FinanceAlert {
   id: string // estable: sirve para no repetir el aviso
@@ -54,8 +55,8 @@ export function computeFinanceAlerts(
   if (todayISO.slice(8, 10) === '01') {
     const prev = prevMonthKey(month)
     const flow = state.txs.filter(t => isFlow(t) && t.date.startsWith(prev))
-    const incomeC = flow.filter(t => t.type === 'income').reduce((s, t) => s + toCents(t.amount), 0)
-    const expenseC = flow.filter(t => t.type === 'expense').reduce((s, t) => s + toCents(t.amount), 0)
+    const incomeC = flow.filter(t => t.type === 'income').reduce((s, t) => s + toCents(flowAmount(t)), 0)
+    const expenseC = flow.filter(t => t.type === 'expense').reduce((s, t) => s + toCents(flowAmount(t)), 0)
     if (incomeC > 0 || expenseC > 0) {
       const rate = incomeC > 0 ? Math.round(((incomeC - expenseC) / incomeC) * 100) : null
       alerts.push({

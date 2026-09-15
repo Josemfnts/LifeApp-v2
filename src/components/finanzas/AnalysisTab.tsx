@@ -4,6 +4,7 @@ import { useFinanceStore, CAT_META, fmt, fmtShort } from '@/stores/financeStore'
 import { useToast } from '@/stores/toast'
 import { isFlow } from '@/lib/finance/flow'
 import { sumEuros } from '@/lib/finance/money'
+import { flowAmount } from '@/lib/finance/split'
 import { MONTHS_SH, monthKey } from './shared'
 
 export function AnalysisTab() {
@@ -19,8 +20,8 @@ export function AnalysisTab() {
   const chartRefs = useRef<{ bar: Chart | null; rate: Chart | null }>({ bar: null, rate: null })
 
   const flowTxs = txs.filter(isFlow)
-  const totalIncome = sumEuros(flowTxs.filter(t => t.type === 'income').map(t => t.amount))
-  const totalExpense = sumEuros(flowTxs.filter(t => t.type === 'expense').map(t => t.amount))
+  const totalIncome = sumEuros(flowTxs.filter(t => t.type === 'income').map(flowAmount))
+  const totalExpense = sumEuros(flowTxs.filter(t => t.type === 'expense').map(flowAmount))
   const totalSaved = sumEuros([totalIncome, -totalExpense])
   const savingsRate = totalIncome > 0 ? Math.round((totalSaved / totalIncome) * 100) : 0
 
@@ -32,8 +33,8 @@ export function AnalysisTab() {
     const monthFlow = txs.filter(t => t.date.startsWith(keyM) && isFlow(t))
     return {
       label: MONTHS_SH[m],
-      income: sumEuros(monthFlow.filter(t => t.type === 'income').map(t => t.amount)),
-      expense: sumEuros(monthFlow.filter(t => t.type === 'expense').map(t => t.amount)),
+      income: sumEuros(monthFlow.filter(t => t.type === 'income').map(flowAmount)),
+      expense: sumEuros(monthFlow.filter(t => t.type === 'expense').map(flowAmount)),
     }
   })
 
@@ -75,9 +76,9 @@ export function AnalysisTab() {
   }, [txs])
 
   const expFlow = txs.filter(t => t.type === 'expense' && isFlow(t) && t.date.startsWith(monthKey(now.getFullYear(), now.getMonth())))
-  const totalExp = sumEuros(expFlow.map(t => t.amount))
+  const totalExp = sumEuros(expFlow.map(flowAmount))
   const byCat: Record<string, number> = {}
-  for (const t of expFlow) byCat[t.category] = sumEuros([byCat[t.category] || 0, t.amount])
+  for (const t of expFlow) byCat[t.category] = sumEuros([byCat[t.category] || 0, flowAmount(t)])
   const catsSorted = Object.entries(byCat).sort((a, b) => b[1] - a[1])
 
   return (

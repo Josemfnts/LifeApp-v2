@@ -3,6 +3,7 @@ import Chart from 'chart.js/auto'
 import { useFinanceStore, CAT_META, fmt, fmtShort } from '@/stores/financeStore'
 import { isFlow } from '@/lib/finance/flow'
 import { sumEuros } from '@/lib/finance/money'
+import { flowAmount } from '@/lib/finance/split'
 import { MONTHS, monthKey } from './shared'
 import { TxRow } from './TxRow'
 import { EditTxSheet } from './EditTxSheet'
@@ -19,8 +20,8 @@ export function SummaryTab({ onGoPatrimonio }: { onGoPatrimonio?: () => void }) 
 
   const txsMonth = txs.filter(t => t.date.startsWith(monthKey(viewYear, viewMonth)))
   const txsMonthFlow = txsMonth.filter(isFlow)
-  const income = sumEuros(txsMonthFlow.filter(t => t.type === 'income').map(t => t.amount))
-  const expense = sumEuros(txsMonthFlow.filter(t => t.type === 'expense').map(t => t.amount))
+  const income = sumEuros(txsMonthFlow.filter(t => t.type === 'income').map(flowAmount))
+  const expense = sumEuros(txsMonthFlow.filter(t => t.type === 'expense').map(flowAmount))
   const balance = sumEuros([income, -expense])
 
   useEffect(() => {
@@ -30,7 +31,7 @@ export function SummaryTab({ onGoPatrimonio }: { onGoPatrimonio?: () => void }) 
 
     const expTxs = txsMonthFlow.filter(t => t.type === 'expense')
     const byCat: Record<string, number> = {}
-    for (const t of expTxs) byCat[t.category] = sumEuros([byCat[t.category] || 0, t.amount])
+    for (const t of expTxs) byCat[t.category] = sumEuros([byCat[t.category] || 0, flowAmount(t)])
     const cats = Object.entries(byCat).sort((a, b) => b[1] - a[1])
 
     if (!cats.length) {
@@ -68,7 +69,7 @@ export function SummaryTab({ onGoPatrimonio }: { onGoPatrimonio?: () => void }) 
 
   const expFlow = txsMonthFlow.filter(t => t.type === 'expense')
   const topByCat: Record<string, number> = {}
-  for (const t of expFlow) topByCat[t.category] = sumEuros([topByCat[t.category] || 0, t.amount])
+  for (const t of expFlow) topByCat[t.category] = sumEuros([topByCat[t.category] || 0, flowAmount(t)])
   const topCats = Object.entries(topByCat).sort((a, b) => b[1] - a[1]).slice(0, 5)
 
   const showAlert = expense > income && income > 0

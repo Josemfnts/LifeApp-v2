@@ -17,6 +17,13 @@ export interface Tx {
   holdingId?: string
   debtId?: string
   recurringId?: number
+  split?: TxSplit // gasto compartido: el movimiento entra completo en la cuenta, pero tu gasto es myShare
+}
+
+export interface TxSplit {
+  mode: 'equal' | 'pct' | 'amount'
+  people: { name: string; share: number }[] // sin incluirme; share en euros finales
+  myShare: number
 }
 
 export interface Hucha {
@@ -39,6 +46,7 @@ export interface Pufo {
   date: string
   settled: boolean
   settledDate?: string
+  txId?: number // si nace de un gasto compartido
 }
 
 export interface Cuenta {
