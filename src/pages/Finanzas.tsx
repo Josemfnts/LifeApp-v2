@@ -17,16 +17,22 @@ export default function Finanzas() {
   const processRecurrentes = useFinanceStore(s => s.processRecurrentes)
   const recordSnapshot = useFinanceStore(s => s.recordSnapshot)
   const runDueDca = useFinanceStore(s => s.runDueDca)
+  const refreshPrices = useFinanceStore(s => s.refreshPrices)
   const toastShow = useToast(s => s.show)
 
   useEffect(() => {
     recordSnapshot()
     const newTxs = processRecurrentes()
     if (newTxs.length > 0) toastShow(`✓ ${newTxs.length} transacciones recurrentes añadidas`)
-    const dca = runDueDca()
-    if (dca.done.length > 0) toastShow(`✓ Compra periódica hecha: ${dca.done.join(', ')}`)
-    if (dca.skipped.length > 0) toastShow(`⚠️ Sin precio para la compra periódica de ${dca.skipped.join(', ')}`)
-  }, [processRecurrentes, recordSnapshot, runDueDca, toastShow])
+    // Precios de cripto al abrir Finanzas (no solo con Inversiones visible): la foto del día y la compra
+    // periódica usan el precio de ahora. Si la red falla, siguen con la caché o el precio manual.
+    void refreshPrices().catch(() => 0).then(() => {
+      const dca = runDueDca()
+      if (dca.done.length > 0) toastShow(`✓ Compra periódica hecha: ${dca.done.join(', ')}`)
+      if (dca.skipped.length > 0) toastShow(`⚠️ Sin precio para la compra periódica de ${dca.skipped.join(', ')}`)
+      recordSnapshot()
+    })
+  }, [processRecurrentes, recordSnapshot, refreshPrices, runDueDca, toastShow])
 
   return (
     <div>

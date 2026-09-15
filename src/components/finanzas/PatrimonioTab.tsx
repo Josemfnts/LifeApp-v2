@@ -167,7 +167,8 @@ export function PatrimonioTab() {
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
                   <input className="inp" value={cBal} onChange={e => setCBal(e.target.value)} type="number" step="0.01" placeholder="Saldo actual (€)" />
-                  <input className="inp" value={cColor} onChange={e => setCColor(e.target.value)} type="color" style={{ height: 44, cursor: 'pointer' }} />
+                  {/* input color solo acepta #rrggbb: el token por defecto se muestra con su valor (--color-acc-blue) */}
+                  <input className="inp" value={/^#[0-9a-f]{6}$/i.test(cColor) ? cColor : '#6d76f0'} onChange={e => setCColor(e.target.value)} type="color" style={{ height: 44, cursor: 'pointer' }} />
                 </div>
                 {(['invest', 'pension', 'loan', 'mortgage', 'property'] as const).some(t => t === cType) && (
                   <div style={{ fontSize: 12, color: 'var(--color-acc-gold)', marginBottom: 8, lineHeight: 1.4 }}>
