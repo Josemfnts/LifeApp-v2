@@ -41,11 +41,15 @@ Stack real: React 19 + Vite 8 + Zustand + Supabase (store_data key-value). Ver A
     cuota francesa con cuadro exacto, pagar cuota = intereses (gasto) + capital (`debt_principal`), amortización
     anticipada simulada, inmuebles con valor manual o % anual y valor neto de hipoteca (`finances_debts`,
     `finances_properties`). El patrimonio neto suma cartera, deudas e inmuebles. 161 tests.
-  - HECHO en código, SIN verificar en prod aún: **F5 planificación** (pestaña Plan): presupuestos con rollover y
+  - HECHO **F5 planificación** (pestaña Plan), recurrentes/calendario/Inicio verificados E2E en prod el 2026-09-15: presupuestos con rollover y
     niveles 80/100 %, recurrentes semanal/mensual/anual que se apuntan solos con su fecha y mueven la cuenta,
     sugerencias automáticas de recurrentes, calendario con saldo previsto a fin de mes, avisos al abrir la app
     (`checkFinanceReminders`) y bloque "Próximos 7 días" en Inicio (`finances_recurring_dismissed`;
     `finances_alerts_sent` solo local).
+  - HECHO en código, verificación en prod EN CURSO: **F6 útiles** (pestaña Útiles → Análisis · Simuladores · Informe):
+    simuladores de préstamo, hipoteca con impacto en tu patrimonio y ahorro; informe mensual imprimible/PDF;
+    "👥 Compartir gasto" en el alta rápida (tu parte en estadísticas, pufos para el resto; pufos activos cuentan en el
+    patrimonio); `finances_context` (resumen <4 KB para CompAI, solo lo escribe la app). 189 tests.
   - Aviso visto: el selector de color de cuenta recibe `var(--color-acc-blue)` (input type=color exige #hex) — preexistente.
 
 ## Lo siguiente

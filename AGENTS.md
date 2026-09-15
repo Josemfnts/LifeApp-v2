@@ -243,7 +243,20 @@ Replica de la app Margen dentro de Finanzas, por fases F0-F6 (plan.md con casill
 - **UI** en `src/components/finanzas/` (una pestaña/hoja por fichero); `src/pages/Finanzas.tsx` es solo el shell.
 - **Claves nuevas** (todas en STORE_KEYS con recargador): `finances_nw_snapshots` (foto diaria del patrimonio,
   inmutable hacia atrás), `finances_merchants` (comercios aprendidos; los ~60 seed viven en código),
-  `finances_imports` (historial de importaciones) y `finances_import_maps` (mapeos CSV por banco).
+  `finances_imports` (historial de importaciones), `finances_import_maps` (mapeos CSV por banco),
+  `finances_holdings` (inversiones con lotes/ventas/DCA), `finances_debts` (deudas con pagos), `finances_properties`
+  (inmuebles con valoraciones), `finances_recurring_dismissed` (sugerencias de recurrentes descartadas) y
+  `finances_context` (resumen <4 KB para CompAI; **solo lo escribe la app**, recalculado tras cada cambio).
+- **`LOCAL_ONLY_KEYS`** (storageKeys.ts, NO en ALL_STORAGE_KEYS, localStorage directo, nunca a la nube):
+  `finances_price_cache` (precios CoinGecko) y `finances_alerts_sent` (avisos ya lanzados).
+- **Patrimonio neto** = cuentas + `netWorthExtras` (store): cartera a precio resuelto, − deudas, + inmuebles, ± pufos
+  activos. Úsalo en cualquier sitio que muestre el patrimonio para que cuadre con la foto diaria.
+- **Gastos compartidos**: `Tx.split` (mi parte en `myShare`) → en TODA suma de flujo usa `flowAmount(t)`, nunca
+  `t.amount`; el saldo de la cuenta sí mueve el importe entero. `addTx` crea un pufo `me_debe` por persona (`Pufo.txId`).
+- **Deudas**: una cuota = 2 movimientos con el mismo `linkId` (intereses = gasto; capital = `debt_principal`); borrar el
+  apunte devuelve el capital a la deuda. **Inversiones**: compras/ventas = `kind: 'investment'` contra la cuenta.
+- **Recurrentes**: `processRecurrentes` genera desde `lastRun` con la fecha real y mueve la cuenta; uno nuevo nace con
+  `lastRun = hoy`. Avisos: `checkFinanceReminders` (lib/notifications.ts) al abrir con sesión.
 - **`Tx.kind`** (opcional): `transfer | adjust | investment | debt_principal` = NO es flujo; se excluye de
   ingresos/gastos/tasa de ahorro/presupuestos (`isFlow`). Un traspaso son 2 patas con el mismo `linkId`.
   Otros opcionales: `merchantId`, `importId`, `dedupe`. `Cuenta.id` estable; `Tx.cuenta` sigue siendo el nombre.
