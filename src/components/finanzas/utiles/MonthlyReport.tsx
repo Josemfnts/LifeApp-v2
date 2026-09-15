@@ -93,7 +93,7 @@ export function MonthlyReport() {
       </button>
 
       <div className="fin-report" style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16 }}>
-        <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-text)', textTransform: 'capitalize' }}>Informe de {MONTHS[m - 1]} {y}</div>
+        <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-text)' }}>Informe de {MONTHS[m - 1].toLowerCase()} {y}</div>
         <div style={{ fontSize: 11, color: 'var(--color-dim)' }}>Life OS · generado el {today}</div>
 
         <div style={h2}>Patrimonio neto {isCurrent ? '(hoy)' : 'a fin de mes'}</div>

@@ -57,8 +57,11 @@ Stack real: React 19 + Vite 8 + Zustand + Supabase (store_data key-value). Ver A
   probado con ficheros sintéticos.
 - life-mcp (fuera del repo): enseñarle `Tx.kind` (no-flujo), `Tx.split` + `flowAmount` (solo tu parte cuenta
   como gasto), las claves nuevas de finanzas y que puede leer `finances_context` en vez de reconstruir las cifras.
-- Sin probar en navegador (cubierto solo por tests): inmuebles, amortización anticipada, venta/split/DCA,
-  creación de presupuestos, impresión real a PDF.
+- Verificado E2E en prod el 2026-09-15 (2ª tanda): precios de cripto al abrir Finanzas (foto del día al precio de
+  ahora), presupuesto 94 %, inmueble al 4 % anual con hipoteca ligada (valor y patrimonio al céntimo), amortización
+  anticipada en ambos modos, venta con realizado, split, compra periódica al abrir y vista de impresión del informe.
+  Bug destapado y corregido: «Reducir plazo» guardaba siempre «Reducir cuota» (9033f3d, `DebtPayment.monthsSaved`).
+  Nota: tras «Reducir plazo» la cuota real puede quedar ~1 € por debajo de la simulada (plazo en meses enteros).
 - Ideas aparcadas en `Pendiente implementar/`: Agente personal, Atajos iOS, Mejora visual global.
 
 ## Cuidado con
