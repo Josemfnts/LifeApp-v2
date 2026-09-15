@@ -4,6 +4,10 @@ import { parseN43, isN43, _internal } from './n43.ts'
 
 const { pad, sliceAt, aammddToIso } = _internal
 
+function replaceAt(line: string, start1: number, value: string): string {
+  return line.slice(0, start1 - 1) + value + line.slice(start1 - 1 + value.length)
+}
+
 function reg11(opts: {
   cuenta: string
   fechaIni: string
@@ -180,10 +184,10 @@ test('parseN43: totales no cuadran -> check.ok=false y mensaje', () => {
       { importe: 50, fechaOp: '260120', doc: 'RECIBO67890' },
     ],
   })
-  const lines = text.split('\n')
+  const lines = text.split('\n').map(l => l.length === 80 ? l : l.padEnd(81, ' '))
   const last33 = lines.findIndex(l => l.startsWith('33'))
-  // Reemplaza el saldo final: pos 60-73 (14d) por un valor que rompa
-  lines[last33] = lines[last33].slice(0, 59) + '2' + '00000000009999' + lines[last33].slice(73)
+  // El saldo final está en la posición 60 (1-indexada, 14 dígitos). Forzamos otro valor.
+  lines[last33] = replaceAt(lines[last33], 60, '00000000009999')
   const r2 = parseN43(lines.join('\n'))
   assert.equal(r2.check?.ok, false)
   assert.match(r2.check?.message ?? '', /no cuadra/)
@@ -286,4 +290,42 @@ test('parseN43: registro 88 final y fin de cuenta 33', () => {
   const r = parseN43(text)
   assert.equal(r.format, 'n43')
   assert.ok(r.check)
+})
+
+test('parseN43: importe ilegible en 22 -> fila omitida, errors con "Línea", check.ok=false', () => {
+  const text = buildFile({
+    cuenta: '1234567890',
+    ini: 0,
+    fin: 0,
+    movimientos: [
+      { importe: -200, fechaOp: '260115', doc: 'BIEN' },
+    ],
+  })
+  const lines = text.split('\n')
+  const idx22 = lines.findIndex(l => l.startsWith('22'))
+  // Reemplaza el importe (pos 29-42, 14 dígitos) por X
+  lines[idx22] = replaceAt(lines[idx22], 29, 'XXXXXXXXXXXXXX')
+  const r = parseN43(lines.join('\n'))
+  assert.equal(r.rows.length, 0)
+  assert.ok(r.errors.some(e => /Línea \d+: movimiento ilegible/.test(e)))
+  assert.equal(r.check?.ok, false)
+})
+
+test('parseN43: fecha ilegible en 22 -> fila omitida, errors con "Línea", check.ok=false', () => {
+  const text = buildFile({
+    cuenta: '1234567890',
+    ini: 0,
+    fin: 0,
+    movimientos: [
+      { importe: -200, fechaOp: '260115', doc: 'BIEN' },
+    ],
+  })
+  const lines = text.split('\n')
+  const idx22 = lines.findIndex(l => l.startsWith('22'))
+  // Fecha op pos 11-16. La machacamos por una fecha imposible (mes 13).
+  lines[idx22] = replaceAt(lines[idx22], 11, '991399')
+  const r = parseN43(lines.join('\n'))
+  assert.equal(r.rows.length, 0)
+  assert.ok(r.errors.some(e => /Línea \d+: movimiento ilegible/.test(e)))
+  assert.equal(r.check?.ok, false)
 })

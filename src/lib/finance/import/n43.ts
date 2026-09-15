@@ -27,9 +27,9 @@ function aammddToIso(s: string): string | null {
   return `${year}-${String(mm).padStart(2, '0')}-${String(dd).padStart(2, '0')}`
 }
 
-function cents14(raw: string): number {
+function cents14(raw: string): number | null {
   const digits = raw.trim()
-  return /^\d{1,14}$/.test(digits) ? Number(digits) : 0
+  return /^\d{1,14}$/.test(digits) ? Number(digits) : null
 }
 
 function eur(cents: number): string {
@@ -49,12 +49,15 @@ export function isN43(text: string): boolean {
 interface AccState {
   account: string
   initialCents: number
+  initialReadOk: boolean
   debitCents: number
   creditCents: number
   debitCount: number
   creditCount: number
   finalCents?: number
+  finalReadOk: boolean
   totalsOk?: boolean
+  readErrors: number
 }
 
 export function parseN43(text: string): ParseResult {
@@ -76,7 +79,9 @@ export function parseN43(text: string): ParseResult {
     current = null
   }
 
-  for (const raw of text.split(/\r?\n/)) {
+  const rawLines = text.split(/\r?\n/)
+  for (let lineNumber = 1; lineNumber <= rawLines.length; lineNumber++) {
+    const raw = rawLines[lineNumber - 1]
     const line = raw.replace(/\s+$/, '')
     if (line.length < 2) continue
     const code = line.slice(0, 2)
@@ -84,13 +89,17 @@ export function parseN43(text: string): ParseResult {
     if (code === '11') {
       flush()
       const sign = sliceAt(line, 33, 33) === '1' ? -1 : 1
+      const initial = cents14(sliceAt(line, 34, 47))
       active = {
         account: sliceAt(line, 11, 20).trim() || 'desconocida',
-        initialCents: sign * cents14(sliceAt(line, 34, 47)),
+        initialCents: initial === null ? 0 : sign * initial,
+        initialReadOk: initial !== null,
         debitCents: 0,
         creditCents: 0,
         debitCount: 0,
         creditCount: 0,
+        finalReadOk: true,
+        readErrors: initial === null ? 1 : 0,
       }
       accounts.push(active)
       continue
@@ -99,21 +108,23 @@ export function parseN43(text: string): ParseResult {
     if (code === '22') {
       flush()
       if (!active) {
-        errors.push('Movimiento (registro 22) antes de una cabecera de cuenta (11): ignorado.')
+        errors.push(`Línea ${lineNumber}: movimiento (registro 22) antes de una cabecera de cuenta (11): ignorado.`)
         continue
       }
-      const isDebit = sliceAt(line, 28, 28) === '1'
+      const date = aammddToIso(sliceAt(line, 11, 16))
+      const dh = sliceAt(line, 28, 28)
       const c = cents14(sliceAt(line, 29, 42))
+      if (!date || (dh !== '1' && dh !== '2') || c === null) {
+        errors.push(`Línea ${lineNumber}: movimiento ilegible (fecha, debe/haber o importe), omitido.`)
+        active.readErrors += 1
+        continue
+      }
+      const isDebit = dh === '1'
       if (isDebit) { active.debitCents += c; active.debitCount += 1 }
       else { active.creditCents += c; active.creditCount += 1 }
       const doc = sliceAt(line, 43, 52).trim()
       const ref1 = sliceAt(line, 53, 64).trim()
       const ref2 = sliceAt(line, 65, 80).trim()
-      const date = aammddToIso(sliceAt(line, 11, 16))
-      if (!date) {
-        errors.push(`Movimiento sin fecha válida: ${ref2 || ref1 || doc || '(sin referencia)'}`)
-        continue
-      }
       const valueDate = aammddToIso(sliceAt(line, 17, 22))
       rows.push({ date, valueDate: valueDate ?? undefined, amount: fromCents(isDebit ? -c : c), concept: '' })
       current = { idx: rows.length - 1, fallback: (ref2 || ref1 || doc).replace(/\s+/g, ' '), extras: [] }
@@ -129,16 +140,28 @@ export function parseN43(text: string): ParseResult {
       flush()
       if (!active) continue
       const numDebe = Number(sliceAt(line, 21, 25).trim() || '0')
-      const totDebe = cents14(sliceAt(line, 26, 39))
+      const totDebeRaw = cents14(sliceAt(line, 26, 39))
       const numHaber = Number(sliceAt(line, 40, 44).trim() || '0')
-      const totHaber = cents14(sliceAt(line, 45, 58))
-      active.finalCents = (sliceAt(line, 59, 59) === '1' ? -1 : 1) * cents14(sliceAt(line, 60, 73))
+      const totHaberRaw = cents14(sliceAt(line, 45, 58))
+      const finalSign = sliceAt(line, 59, 59) === '1' ? -1 : 1
+      const finalRaw = cents14(sliceAt(line, 60, 73))
+      const readErrors = [
+        totDebeRaw === null,
+        totHaberRaw === null,
+        finalRaw === null,
+      ].filter(Boolean).length
+      active.readErrors += readErrors
+      if (totDebeRaw === null || totHaberRaw === null || finalRaw === null) {
+        errors.push(`Línea ${lineNumber}: totales del registro 33 ilegibles.`)
+      }
       active.totalsOk =
-        totDebe === active.debitCents && totHaber === active.creditCents &&
+        totDebeRaw === active.debitCents && totHaberRaw === active.creditCents &&
         numDebe === active.debitCount && numHaber === active.creditCount
-      if (!active.totalsOk) {
+      active.finalCents = finalRaw === null ? 0 : finalSign * finalRaw
+      active.finalReadOk = finalRaw !== null
+      if (!active.totalsOk && totDebeRaw !== null && totHaberRaw !== null) {
         errors.push(
-          `La cuenta ${active.account} no cuadra con su registro de totales: cargos ${eur(totDebe)} (${numDebe}) frente a ${eur(active.debitCents)} (${active.debitCount}) leídos; abonos ${eur(totHaber)} (${numHaber}) frente a ${eur(active.creditCents)} (${active.creditCount}).`,
+          `La cuenta ${active.account} no cuadra con su registro de totales: cargos ${eur(totDebeRaw)} (${numDebe}) frente a ${eur(active.debitCents)} (${active.debitCount}) leídos; abonos ${eur(totHaberRaw)} (${numHaber}) frente a ${eur(active.creditCents)} (${active.creditCount}).`,
         )
       }
       active = null
@@ -153,13 +176,17 @@ export function parseN43(text: string): ParseResult {
     errors.push(`El fichero trae ${accounts.length} cuentas; se importan todas en la cuenta elegida.`)
   }
 
-  const closed = accounts.filter(a => a.finalCents !== undefined)
+  const closed = accounts.filter(a => a.finalCents !== undefined || a.readErrors > 0)
   let check: ParseResult['check']
   if (closed.length === 0) {
     check = { ok: false, message: 'El fichero no trae registro de totales (33): no se puede verificar.' }
   } else {
     const problems: string[] = []
     for (const a of closed) {
+      if (a.readErrors > 0) {
+        problems.push(`La cuenta ${a.account} tiene ${a.readErrors} campo(s) ilegible(s) (importe o totales).`)
+        continue
+      }
       const expected = a.initialCents + a.creditCents - a.debitCents
       if (expected !== a.finalCents) {
         problems.push(
