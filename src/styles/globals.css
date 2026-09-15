@@ -127,6 +127,18 @@ body { background:var(--color-bg); color:var(--color-text); font-family:var(--fo
 .tab-btn.tab-green.active{color:var(--color-acc-green);border-color:var(--color-acc-green)}
 .tab-btn.tab-gold.active{color:var(--color-acc-gold);border-color:var(--color-acc-gold)}
 .tab-btn.tab-purple.active{color:var(--color-acc-purple);border-color:var(--color-acc-purple)}
+
+/* ChipTabs (components/ui/ChipTabs.tsx): navegación compacta en una línea. 'chips' para categorías
+   (sin borde ni tarjeta, el activo con un tinte), 'line' = pestañas subrayadas como .tab-btn. */
+.chip-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:10px}
+.chip-tabs::-webkit-scrollbar{display:none}
+.chip-tab{flex:0 0 auto;padding:6px 12px;border-radius:99px;font-family:var(--font-sans);font-size:13px;font-weight:600;color:var(--color-dim);background:transparent;border:none;cursor:pointer;white-space:nowrap;transition:background 0.18s,color 0.18s}
+.chip-tab.active{color:var(--chip-color,var(--color-acc-blue));background:color-mix(in srgb, var(--chip-color,var(--color-acc-blue)) 16%, transparent)}
+.chip-tab:active{opacity:0.7}
+.line-tabs{display:flex;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--color-border);margin-bottom:14px}
+.line-tabs::-webkit-scrollbar{display:none}
+.line-tabs .tab-btn{padding:9px 12px}
+.line-tabs .tab-btn.active{color:var(--chip-color,var(--color-acc-blue));border-color:var(--chip-color,var(--color-acc-blue));padding-bottom:8px}
 .tab-btn.tab-orange.active{color:var(--color-acc-orange);border-color:var(--color-acc-orange)}
 
 .section{padding:20px 16px}

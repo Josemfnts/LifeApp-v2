@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useFisicoStore, STATIC_EXERCISES, EXERCISE_GROUPS, EQUIPMENT_TYPES, EQUIPMENT_LABELS, EXERCISE_COLORS } from '@/stores/fisicoStore'
-import { Input, Modal } from '@/components/ui'
+import { ChipTabs, Input, Modal } from '@/components/ui'
 import { useToast } from '@/stores/toast'
 import { parseActivity, toRunRecord, isDuplicateRun, type ParsedActivity } from '@/lib/activityImport'
 import { ROUTINES, ROUTINE_OBJECTIVES, ROUTINE_LEVELS, ROUTINE_PLACES, getObjLabel, getNivelLabel, getLugarLabel, filterRoutines } from '@/data/routinesDB'
@@ -96,20 +96,7 @@ function StrengthTab() {
   const subBar = (
     <>
     {sharePost && <ShareSheet post={sharePost} onClose={() => setSharePost(null)} />}
-    <div style={{ display: 'flex', gap: 6, marginBottom: 14, overflowX: 'auto' }}>
-      {(['today','history','routines','library','progress'] as const).map(k => (
-        <button key={k} onClick={() => setSub(k)}
-          style={{
-            flex: 1, padding: '9px 4px', borderRadius: 10, fontSize: 12, fontWeight: 700,
-            fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid', whiteSpace: 'nowrap',
-            background: sub === k ? 'var(--color-acc-orange)26' : 'transparent',
-            color: sub === k ? 'var(--color-acc-orange)' : 'var(--color-dim)',
-            borderColor: sub === k ? 'var(--color-acc-orange)4d' : 'var(--color-border)',
-            transition: 'all 0.15s',
-          }}
-        >{{today:'Hoy',history:'Historial',routines:'Rutinas',library:'Ejercicios',progress:'Progreso'}[k]}</button>
-      ))}
-    </div>
+    <ChipTabs variant="line" color="var(--color-acc-orange)" value={sub} onChange={setSub} items={STRENGTH_SUBS} />
     </>
   )
 
@@ -1284,20 +1271,7 @@ function MobilityTab() {
   ]
 
   const mobBar = (
-    <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
-      {(['session','routines','history'] as const).map(k => (
-        <button key={k} onClick={() => setMobSub(k)}
-          style={{
-            flex: 1, padding: '8px 4px', borderRadius: 10, fontSize: 11, fontWeight: 700,
-            fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid',
-            background: mobSub === k ? 'var(--color-acc-purple)26' : 'var(--color-s2)',
-            color: mobSub === k ? 'var(--color-acc-purple)' : 'var(--color-dim)',
-            borderColor: mobSub === k ? 'var(--color-acc-purple)4d' : 'var(--color-border)',
-            transition: 'all 0.15s',
-          }}
-        >{{session:'🧘 Sesión',routines:'📋 Rutinas',history:'📊 Historial'}[k]}</button>
-      ))}
-    </div>
+    <ChipTabs variant="line" color="var(--color-acc-purple)" value={mobSub} onChange={setMobSub} items={MOBILITY_SUBS} />
   )
 
   if (mobSub === 'session') {
@@ -1440,6 +1414,21 @@ function MobilityTab() {
 }
 
 /* ── MAIN FÍSICO PAGE ── */
+// Navegación compacta (mejora visual V2): categorías como chips en la cabecera y sub-pestañas en línea.
+const SECTIONS = [
+  { key: 'strength', label: '💪 Fuerza', color: 'var(--color-acc-orange)' },
+  { key: 'running', label: '🏃 Running', color: 'var(--color-acc-blue)' },
+  { key: 'mobility', label: '🧘 Movilidad', color: 'var(--color-acc-purple)' },
+  { key: 'health', label: '❤️ Salud', color: 'var(--color-red)' },
+] as const
+const STRENGTH_SUBS = [
+  { key: 'today', label: 'Hoy' }, { key: 'history', label: 'Historial' }, { key: 'routines', label: 'Rutinas' },
+  { key: 'library', label: 'Ejercicios' }, { key: 'progress', label: 'Progreso' },
+] as const
+const MOBILITY_SUBS = [
+  { key: 'session', label: 'Sesión' }, { key: 'routines', label: 'Rutinas' }, { key: 'history', label: 'Historial' },
+] as const
+
 export default function Fisico() {
   const [section, setSection] = useState<'strength' | 'running' | 'mobility' | 'health'>('strength')
 
@@ -1447,25 +1436,7 @@ export default function Fisico() {
     <div>
       <div className="page-header">
         <div className="page-title">Físico</div>
-        <div style={{ display: 'flex', gap: 8, marginTop: 2, paddingBottom: 6, overflowX: 'auto' }}>
-          {([
-            { k: 'strength' as const, l: '💪 Fuerza', c: 'var(--color-acc-orange)' },
-            { k: 'running' as const, l: '🏃 Running', c: 'var(--color-acc-blue)' },
-            { k: 'mobility' as const, l: '🧘 Movilidad', c: 'var(--color-acc-purple)' },
-            { k: 'health' as const, l: '❤️ Salud', c: 'var(--color-red)' },
-          ]).map(s => (
-            <button key={s.k} onClick={() => setSection(s.k)}
-              style={{
-                flex: 1, padding: '9px 4px', borderRadius: 12, fontSize: 13, fontWeight: 700,
-                fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid', whiteSpace: 'nowrap',
-                background: section === s.k ? s.c + '26' : 'transparent',
-                color: section === s.k ? s.c : 'var(--color-dim)',
-                borderColor: section === s.k ? s.c + '4d' : 'var(--color-border)',
-                transition: 'all 0.15s',
-              }}
-            >{s.l}</button>
-          ))}
-        </div>
+        <ChipTabs value={section} onChange={setSection} items={SECTIONS} />
       </div>
 
       <div className="p-4">

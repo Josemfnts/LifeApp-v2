@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useFinanceStore, CAT_META } from '@/stores/financeStore'
-import { MONTHS_SH } from './shared'
+import { useToast } from '@/stores/toast'
+import { MONTHS_SH, exportCSV } from './shared'
 import { TxRow } from './TxRow'
 import { QuickAddSheet } from './QuickAddSheet'
 import { EditTxSheet } from './EditTxSheet'
@@ -20,6 +21,7 @@ export function MovesTab() {
   const [importOpen, setImportOpen] = useState(false)
   const [historyOpen, setHistoryOpen] = useState(false)
   const importsCount = useFinanceStore(s => s.imports.length)
+  const toast = useToast()
 
   const allCats = ['Todos', ...Array.from(new Set(txs.map(t => t.category)))]
 
@@ -67,11 +69,19 @@ export function MovesTab() {
         <input className="inp" autoFocus value={search} onChange={e => setSearch(e.target.value)} type="text" placeholder="🔍 Buscar movimientos…" style={{ marginBottom: 10 }} />
       )}
 
-      {importsCount > 0 && (
-        <button onClick={() => setHistoryOpen(true)}
-          style={{ background: 'transparent', border: 'none', color: 'var(--color-acc-blue)', fontSize: 12, fontWeight: 600, padding: '0 0 10px', cursor: 'pointer' }}>
-          Importaciones ({importsCount})
-        </button>
+      {txs.length > 0 && (
+        <div style={{ display: 'flex', gap: 14, padding: '0 0 10px' }}>
+          {importsCount > 0 && (
+            <button onClick={() => setHistoryOpen(true)}
+              style={{ background: 'transparent', border: 'none', color: 'var(--color-acc-blue)', fontSize: 12, fontWeight: 600, padding: 0, cursor: 'pointer' }}>
+              Importaciones ({importsCount})
+            </button>
+          )}
+          <button onClick={() => exportCSV(txs, toast)}
+            style={{ background: 'transparent', border: 'none', color: 'var(--color-sub)', fontSize: 12, fontWeight: 600, padding: 0, cursor: 'pointer' }}>
+            Exportar CSV
+          </button>
+        </div>
       )}
 
       <div className="card">
