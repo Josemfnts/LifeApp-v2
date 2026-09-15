@@ -1,7 +1,9 @@
 import { saveToStorage, loadFromStorage } from '@/lib/storage'
 import { create } from 'zustand'
 import { onRemoteChange } from '@/lib/mirror'
-import { addEuros, roundEuros } from '@/lib/finance/money'
+import { addEuros, roundEuros, subEuros, sumEuros, toCents } from '@/lib/finance/money'
+import { nextPaymentSplit, type Debt } from '@/lib/finance/debts'
+import { currentValue, type Property, type Valuation } from '@/lib/finance/properties'
 import { position, portfolio, resolvePrice, dcaDue, type Holding, type Lot, type Sale, type PriceCache } from '@/lib/finance/investments'
 import { fetchCryptoPrices, loadPriceCache, savePriceCache } from '@/lib/finance/prices'
 import { localISO } from '@/lib/finance/dates'
@@ -55,6 +57,8 @@ export const CAT_META: Record<string, { icon: string; color: string; type: strin
   'Ajuste':          { icon:'⚖️', color:'var(--color-sub)',        type:'adjust' },
   'Traspaso':        { icon:'🔁', color:'var(--color-acc-blue)',   type:'transfer' },
   'Inversión':       { icon:'📈', color:'var(--color-acc-purple)', type:'investment' },
+  'Intereses':       { icon:'💸', color:'var(--color-red)',        type:'expense' },
+  'Amortización':    { icon:'🏦', color:'var(--color-acc-blue)',   type:'debt_principal' },
 }
 
 export const CUENTA_TYPE: Record<string, { label: string; icon: string; asset: boolean }> = {
@@ -98,6 +102,15 @@ interface FinanceStore {
   sell: (holdingId: string, sale: Omit<Sale, 'id'>, cuenta?: string) => void
   refreshPrices: () => Promise<number>
   runDueDca: () => { done: string[]; skipped: string[] }
+  debts: Debt[]
+  properties: Property[]
+  saveDebt: (d: Debt) => void
+  removeDebt: (id: string) => void
+  payDebt: (id: string, opts?: { date?: string; cuenta?: string }) => void
+  extraAmortization: (id: string, amount: number, opts?: { date?: string; cuenta?: string }) => void
+  saveProperty: (p: Property) => void
+  removeProperty: (id: string) => void
+  addValuation: (propertyId: string, v: Valuation) => void
   applyImport: (p: { cuenta: string; filename: string; format: 'n43' | 'csv'; rows: ReviewedRow[]; skipped: number }) => ImportRecord
   undoImport: (importId: string) => number
   saveImportMap: (bank: string, mapping: CsvMapping) => void
@@ -140,6 +153,20 @@ function cuentasConMovimiento(cuentas: Cuenta[], tx: Tx, dir: 1 | -1): Cuenta[] 
   return next
 }
 
+// Lo que se suma a las cuentas para el patrimonio neto: cartera de inversión, deudas e inmuebles
+// registrados en sus módulos (respetando includeInNw). Lo usan la foto diaria y el hero.
+export function netWorthExtras(
+  s: { holdings: Holding[]; priceCache: PriceCache; debts: Debt[]; properties: Property[] },
+  now = Date.now(),
+): { investments: number; debt: number; property: number } {
+  const today = localISO(new Date(now))
+  return {
+    investments: portfolio(s.holdings, s.priceCache, now).value,
+    debt: sumEuros(s.debts.filter(d => d.includeInNw !== false).map(d => d.balance)),
+    property: sumEuros(s.properties.filter(p => p.includeInNw !== false).map(p => currentValue(p, today))),
+  }
+}
+
 export const useFinanceStore = create<FinanceStore>((set, get) => {
   const initialSnapshots = loadFromStorage('finances_nw_snapshots', [] as NwSnapshot[])
 
@@ -156,6 +183,105 @@ export const useFinanceStore = create<FinanceStore>((set, get) => {
     importMaps: loadFromStorage('finances_import_maps', {} as Record<string, CsvMapping>),
     holdings: loadFromStorage('finances_holdings', [] as Holding[]),
     priceCache: loadPriceCache(),
+    debts: loadFromStorage('finances_debts', [] as Debt[]),
+    properties: loadFromStorage('finances_properties', [] as Property[]),
+
+    // ── Deudas ─────────────────────────────────────────────────────────────────
+    saveDebt: (d) => {
+      const exists = get().debts.some(x => x.id === d.id)
+      const debts = exists ? get().debts.map(x => (x.id === d.id ? d : x)) : [...get().debts, d]
+      saveToStorage('finances_debts', debts)
+      set({ debts })
+      get().recordSnapshot()
+    },
+
+    removeDebt: (id) => {
+      const debts = get().debts.filter(d => d.id !== id)
+      saveToStorage('finances_debts', debts)
+      set({ debts })
+      get().recordSnapshot()
+    },
+
+    // Una cuota = dos movimientos enlazados: intereses (gasto real) y capital (kind 'debt_principal':
+    // sale de la cuenta y baja la deuda, el patrimonio no cambia).
+    payDebt: (id, opts = {}) => {
+      const d = get().debts.find(x => x.id === id)
+      if (!d) return
+      const date = opts.date ?? localISO()
+      const split = nextPaymentSplit(d, date)
+      if (toCents(split.total) <= 0) return
+      const linkId = uid()
+      let txs = get().txs
+      let cuentas = get().cuentas
+      const legs: Tx[] = []
+      if (toCents(split.interest) > 0) {
+        legs.push({ id: nextTxId(txs), type: 'expense', amount: split.interest, category: 'Intereses', concept: `Intereses ${d.name}`, note: '', cuenta: opts.cuenta, date, debtId: id, linkId })
+      }
+      if (toCents(split.principal) > 0) {
+        legs.push({ id: nextTxId([...legs, ...txs]), type: 'expense', amount: split.principal, category: 'Amortización', concept: `Capital ${d.name}`, note: '', cuenta: opts.cuenta, date, kind: 'debt_principal', debtId: id, linkId })
+      }
+      for (const t of legs) {
+        const c = cuentasConMovimiento(cuentas, t, 1)
+        if (c) cuentas = c
+      }
+      txs = [...legs, ...txs]
+      const debts = get().debts.map(x => (x.id === id
+        ? { ...x, balance: subEuros(x.balance, split.principal), payments: [...x.payments, { id: uid(), date, total: split.total, interest: split.interest, principal: split.principal, linkId }] }
+        : x))
+      saveToStorage('finances_tx', txs)
+      saveToStorage('finances_cuentas', cuentas)
+      saveToStorage('finances_debts', debts)
+      set({ txs, cuentas, debts })
+      get().recordSnapshot()
+    },
+
+    extraAmortization: (id, amount, opts = {}) => {
+      const d = get().debts.find(x => x.id === id)
+      if (!d) return
+      const principal = Math.min(roundEuros(amount), d.balance)
+      if (toCents(principal) <= 0) return
+      const date = opts.date ?? localISO()
+      const linkId = uid()
+      const tx: Tx = { id: nextTxId(get().txs), type: 'expense', amount: principal, category: 'Amortización', concept: `Amortización anticipada ${d.name}`, note: '', cuenta: opts.cuenta, date, kind: 'debt_principal', debtId: id, linkId }
+      const txs = [tx, ...get().txs]
+      const cuentas = cuentasConMovimiento(get().cuentas, tx, 1) ?? get().cuentas
+      const debts = get().debts.map(x => (x.id === id
+        ? { ...x, balance: subEuros(x.balance, principal), payments: [...x.payments, { id: uid(), date, total: principal, interest: 0, principal, extra: true, linkId }] }
+        : x))
+      saveToStorage('finances_tx', txs)
+      saveToStorage('finances_cuentas', cuentas)
+      saveToStorage('finances_debts', debts)
+      set({ txs, cuentas, debts })
+      get().recordSnapshot()
+    },
+
+    // ── Inmuebles ──────────────────────────────────────────────────────────────
+    saveProperty: (p) => {
+      const exists = get().properties.some(x => x.id === p.id)
+      const properties = exists ? get().properties.map(x => (x.id === p.id ? p : x)) : [...get().properties, p]
+      saveToStorage('finances_properties', properties)
+      set({ properties })
+      get().recordSnapshot()
+    },
+
+    removeProperty: (id) => {
+      const properties = get().properties.filter(p => p.id !== id)
+      // Las hipotecas que apuntaban a este inmueble se quedan sin vínculo, no se borran.
+      const debts = get().debts.map(d => (d.propertyId === id ? { ...d, propertyId: undefined } : d))
+      saveToStorage('finances_properties', properties)
+      saveToStorage('finances_debts', debts)
+      set({ properties, debts })
+      get().recordSnapshot()
+    },
+
+    addValuation: (propertyId, v) => {
+      const properties = get().properties.map(p => (p.id === propertyId
+        ? { ...p, valuations: [...p.valuations.filter(x => x.date !== v.date), v].sort((a, b) => a.date.localeCompare(b.date)) }
+        : p))
+      saveToStorage('finances_properties', properties)
+      set({ properties })
+      get().recordSnapshot()
+    },
 
     // ── Inversiones ────────────────────────────────────────────────────────────
     addHolding: (h, cuenta) => {
@@ -337,8 +463,7 @@ export const useFinanceStore = create<FinanceStore>((set, get) => {
       if (current.length === 0 && cuentas.length > 0) {
         current = backfillEstimated(cuentas, txs, localISO(), 12)
       }
-      const investments = portfolio(get().holdings, get().priceCache, Date.now()).value
-      const b = computeNetWorth(cuentas, investments ? { investments } : undefined)
+      const b = computeNetWorth(cuentas, netWorthExtras(get()))
       const r = upsertTodaySnapshot(current, localISO(), b)
       if (r.changed) {
         saveToStorage('finances_nw_snapshots', r.snaps)
@@ -376,6 +501,24 @@ export const useFinanceStore = create<FinanceStore>((set, get) => {
         txs = txsAll.filter((_, i) => i !== idx)
         const c = cuentasConMovimiento(cuentas, borrada, -1)
         if (c) cuentas = c
+      }
+      // Si se borra el apunte de una cuota o amortización, la deuda recupera ese capital y el pago
+      // desaparece del historial: si no, la deuda quedaría rebajada sin que salga dinero de ninguna cuenta.
+      const removed = borrada.linkId ? txsAll.filter(t => t.linkId === borrada.linkId) : [borrada]
+      const principalLegs = removed.filter(t => t.kind === 'debt_principal' && t.debtId)
+      if (principalLegs.length > 0) {
+        const debts = get().debts.map(d => {
+          const legs = principalLegs.filter(t => t.debtId === d.id)
+          if (legs.length === 0) return d
+          const links = new Set(legs.map(t => t.linkId).filter(Boolean))
+          return {
+            ...d,
+            balance: addEuros(d.balance, ...legs.map(t => t.amount)),
+            payments: d.payments.filter(p => !(p.linkId && links.has(p.linkId))),
+          }
+        })
+        saveToStorage('finances_debts', debts)
+        set({ debts })
       }
       saveToStorage('finances_tx', txs)
       saveToStorage('finances_cuentas', cuentas)
@@ -622,4 +765,6 @@ onRemoteChange({
   finances_imports: () => useFinanceStore.setState({ imports: loadFromStorage('finances_imports', []) }),
   finances_import_maps: () => useFinanceStore.setState({ importMaps: loadFromStorage('finances_import_maps', {}) }),
   finances_holdings: () => useFinanceStore.setState({ holdings: loadFromStorage('finances_holdings', []) }),
+  finances_debts: () => useFinanceStore.setState({ debts: loadFromStorage('finances_debts', []) }),
+  finances_properties: () => useFinanceStore.setState({ properties: loadFromStorage('finances_properties', []) }),
 })

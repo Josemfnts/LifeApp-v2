@@ -6,11 +6,13 @@ import { NotesFor } from '@/components/notes/NotesFor'
 import { TransferSheet } from './TransferSheet'
 import { AdjustSheet } from './AdjustSheet'
 import { InvestmentsSection } from './investments/InvestmentsSection'
+import { DebtsSection } from './debts/DebtsSection'
+import { PropertiesSection } from './debts/PropertiesSection'
 
 export function PatrimonioTab() {
   const { cuentas, huchas, pufos, saveCuenta, removeCuenta, addHucha, aportarHucha, removeHucha, addPufo, settlePufo, removePufo } = useFinanceStore()
   const toast = useToast()
-  const [sub, setSub] = useState<'cuentas' | 'inversiones' | 'huchas' | 'pufos'>('cuentas')
+  const [sub, setSub] = useState<'cuentas' | 'inversiones' | 'deudas' | 'inmuebles' | 'huchas' | 'pufos'>('cuentas')
   const [cuentaModal, setCuentaModal] = useState(false)
   const [editIdx, setEditIdx] = useState<number | null>(null)
   const [cName, setCName] = useState('')
@@ -69,6 +71,8 @@ export function PatrimonioTab() {
         {([
           { k: 'cuentas' as const, l: '🏦 Cuentas', c: 'var(--color-acc-gold)' },
           { k: 'inversiones' as const, l: '📈 Inversiones', c: 'var(--color-acc-blue)' },
+          { k: 'deudas' as const, l: '💳 Deudas', c: 'var(--color-red)' },
+          { k: 'inmuebles' as const, l: '🏠 Inmuebles', c: 'var(--color-acc-purple)' },
           { k: 'huchas' as const, l: '🎯 Huchas', c: 'var(--color-acc-green)' },
           { k: 'pufos' as const, l: '💸 Pufos', c: 'var(--color-red)' },
         ]).map(s => (
@@ -165,9 +169,9 @@ export function PatrimonioTab() {
                   <input className="inp" value={cBal} onChange={e => setCBal(e.target.value)} type="number" step="0.01" placeholder="Saldo actual (€)" />
                   <input className="inp" value={cColor} onChange={e => setCColor(e.target.value)} type="color" style={{ height: 44, cursor: 'pointer' }} />
                 </div>
-                {(cType === 'invest' || cType === 'pension') && (
+                {(['invest', 'pension', 'loan', 'mortgage', 'property'] as const).some(t => t === cType) && (
                   <div style={{ fontSize: 12, color: 'var(--color-acc-gold)', marginBottom: 8, lineHeight: 1.4 }}>
-                    Si registras esta inversión en 📈 Inversiones, no la añadas también como cuenta: contaría dos veces.
+                    Si lo registras en {cType === 'loan' || cType === 'mortgage' ? '💳 Deudas' : cType === 'property' ? '🏠 Inmuebles' : '📈 Inversiones'}, no lo añadas también como cuenta: contaría dos veces.
                   </div>
                 )}
                 <input className="inp" value={cNote} onChange={e => setCNote(e.target.value)} type="text" placeholder="Nota opcional" />
@@ -183,6 +187,8 @@ export function PatrimonioTab() {
       )}
 
       {sub === 'inversiones' && <InvestmentsSection />}
+      {sub === 'deudas' && <DebtsSection />}
+      {sub === 'inmuebles' && <PropertiesSection />}
 
       {sub === 'huchas' && huchas.length > 0 && (
         <div style={{ background: 'linear-gradient(145deg,#191c22,#191f1e)', border: '1px solid rgba(82,183,136,0.2)', borderRadius: 16, padding: 16, marginBottom: 12, textAlign: 'center' }}>

@@ -12,6 +12,7 @@ export interface DebtPayment {
   interest: number
   principal: number
   extra?: boolean
+  linkId?: string // une el pago con sus movimientos: borrar el movimiento deshace el pago
 }
 
 export interface Debt {

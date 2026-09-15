@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Chart from 'chart.js/auto'
-import { useFinanceStore, fmt, fmtShort } from '@/stores/financeStore'
+import { useFinanceStore, fmt, fmtShort, netWorthExtras } from '@/stores/financeStore'
 import { computeNetWorth } from '@/lib/finance/networth'
-import { portfolio } from '@/lib/finance/investments'
 import { variation } from '@/lib/finance/snapshots'
 import { localISO } from '@/lib/finance/dates'
 import { AnimatedNumber } from './AnimatedNumber'
@@ -22,8 +21,9 @@ export function NetWorthHero({ onGoPatrimonio }: Props) {
 
   const holdings = useFinanceStore(s => s.holdings)
   const priceCache = useFinanceStore(s => s.priceCache)
-  const investments = portfolio(holdings, priceCache, Date.now()).value
-  const breakdown = computeNetWorth(cuentas, investments ? { investments } : undefined)
+  const debts = useFinanceStore(s => s.debts)
+  const properties = useFinanceStore(s => s.properties)
+  const breakdown = computeNetWorth(cuentas, netWorthExtras({ holdings, priceCache, debts, properties }))
   const today = localISO()
   const v = variation(snapshots, breakdown.net, today, period)
 
@@ -85,7 +85,7 @@ export function NetWorthHero({ onGoPatrimonio }: Props) {
     })
   }, [snapshots])
 
-  if (cuentas.length === 0 && holdings.length === 0) {
+  if (cuentas.length === 0 && holdings.length === 0 && debts.length === 0 && properties.length === 0) {
     return (
       <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 20, padding: 24, marginBottom: 14, textAlign: 'center' }}>
         <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: 8 }}>Patrimonio neto</div>

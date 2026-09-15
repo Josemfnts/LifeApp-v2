@@ -49,6 +49,8 @@ export const STORE_KEYS = {
   finances_imports: 'finances_imports',
   finances_import_maps: 'finances_import_maps',
   finances_holdings: 'finances_holdings',
+  finances_debts: 'finances_debts',
+  finances_properties: 'finances_properties',
 
   lifeos_habits: 'lifeos_habits',
   lifeos_habits_log: 'lifeos_habits_log',

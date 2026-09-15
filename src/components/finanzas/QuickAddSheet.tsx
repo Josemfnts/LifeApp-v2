@@ -14,7 +14,7 @@ interface Props {
 }
 
 const INCOME_CATS = ['Nómina', 'Freelance', 'Dividendos', 'Otros ingresos']
-const EXPENSE_CATS = ['Vivienda', 'Alimentación', 'Transporte', 'Salud', 'Ocio', 'Ropa', 'Suscripciones', 'Deporte', 'Restaurantes', 'Viajes', 'Educación', 'Ahorro', 'Otros gastos']
+const EXPENSE_CATS = ['Vivienda', 'Alimentación', 'Transporte', 'Salud', 'Ocio', 'Ropa', 'Suscripciones', 'Deporte', 'Restaurantes', 'Viajes', 'Educación', 'Ahorro', 'Intereses', 'Otros gastos']
 
 interface Suggestion {
   key: string
