@@ -78,6 +78,22 @@ body { background:var(--color-bg); color:var(--color-text); font-family:var(--fo
 .page-module{font-size:11px;font-weight:600;letter-spacing:0.3px;margin-bottom:3px}
 .page-title{font-family:var(--font-serif);font-size:26px;font-weight:400;color:var(--color-text);line-height:1.15;margin-bottom:14px}
 
+/* Chrome que reacciona al scroll (Shell + src/lib/ui/scrollChrome.ts): la cabecera se queda
+   pegada arriba y al bajar se compacta (las pestañas siguen a mano); la barra inferior se
+   esconde al bajar y vuelve al subir. Inicio (.home-header) no se pega: es un bloque grande. */
+.page-header{position:sticky;top:0;z-index:50;transition:padding-top 0.22s ease}
+.page-title{transition:font-size 0.22s ease,margin-bottom 0.22s ease}
+[data-header-collapsed] .page-header{padding-top:10px}
+[data-header-collapsed] .page-title{font-size:18px;margin-bottom:6px}
+[data-header-collapsed] .page-module{display:none}
+.page-header.home-header{position:relative;z-index:auto}
+[data-header-collapsed] .page-header.home-header{padding-top:24px}
+.nav-bar{transition:transform 0.26s cubic-bezier(0.22,1,0.36,1)}
+[data-nav-hidden] .nav-bar{transform:translateY(calc(100% + 24px))}
+@media (prefers-reduced-motion: reduce){
+  .page-header,.page-title,.nav-bar{transition:none}
+}
+
 .greeting{font-size:12px;font-weight:500;color:var(--color-sub);letter-spacing:0.3px;margin-bottom:3px}
 .greeting-name{font-family:var(--font-serif);font-size:30px;color:var(--color-text);line-height:1.1}
 .greeting-name em{font-style:italic;background:linear-gradient(135deg,var(--color-acc-blue),var(--color-acc-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}

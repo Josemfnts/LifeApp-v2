@@ -83,7 +83,7 @@ export function TopBar() {
 
   return (
     <>
-      <div className="page-header">
+      <div className="page-header home-header">
         <div className="greeting">{greeting}</div>
         <div className="greeting-name"><em>{getDisplayName()}</em></div>
 
