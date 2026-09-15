@@ -46,7 +46,7 @@ Stack real: React 19 + Vite 8 + Zustand + Supabase (store_data key-value). Ver A
     sugerencias automáticas de recurrentes, calendario con saldo previsto a fin de mes, avisos al abrir la app
     (`checkFinanceReminders`) y bloque "Próximos 7 días" en Inicio (`finances_recurring_dismissed`;
     `finances_alerts_sent` solo local).
-  - HECHO en código, verificación en prod EN CURSO: **F6 útiles** (pestaña Útiles → Análisis · Simuladores · Informe):
+  - HECHO y verificado E2E en prod el 2026-09-15 (contexto, simulador hipoteca, informe, compartir gasto → pufos): **F6 útiles** (pestaña Útiles → Análisis · Simuladores · Informe):
     simuladores de préstamo, hipoteca con impacto en tu patrimonio y ahorro; informe mensual imprimible/PDF;
     "👥 Compartir gasto" en el alta rápida (tu parte en estadísticas, pufos para el resto; pufos activos cuentan en el
     patrimonio); `finances_context` (resumen <4 KB para CompAI, solo lo escribe la app). 189 tests.
@@ -55,8 +55,10 @@ Stack real: React 19 + Vite 8 + Zustand + Supabase (store_data key-value). Ver A
 ## Lo siguiente
 - Josema: probar la importación con un extracto REAL de su banco (N43 o CSV) — el parser solo se ha
   probado con ficheros sintéticos.
-- Verificar F4 en prod → F5 planificación → F6 útiles (la primera casilla sin marcar en
-  plan.md; cada spec en `.mapa/finanzas-margen/encargos/`). Encargos cortos (motor / store / UI).
+- life-mcp (fuera del repo): enseñarle `Tx.kind` (no-flujo), `Tx.split` + `flowAmount` (solo tu parte cuenta
+  como gasto), las claves nuevas de finanzas y que puede leer `finances_context` en vez de reconstruir las cifras.
+- Sin probar en navegador (cubierto solo por tests): inmuebles, amortización anticipada, venta/split/DCA,
+  creación de presupuestos, impresión real a PDF.
 - Ideas aparcadas en `Pendiente implementar/`: Agente personal, Atajos iOS, Mejora visual global.
 
 ## Cuidado con

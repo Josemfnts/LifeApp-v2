@@ -92,11 +92,16 @@ navegador) y commit+push. Si una fase se corta, se retoma por la primera casilla
       recurrente mensual día 20 contra cuenta → "próximo 20 sep" sin cargos atrasados; calendario con el cargo el 20 y
       saldo previsto −782,41 €; Inicio "Próximos 7 días". De paso, en Inicio los gastos del mes = solo intereses (375 €),
       sin capital de hipoteca ni compra de BTC. Presupuestos, detección y notificaciones: solo tests.)
-- [ ] **F6 · Útiles** — simuladores préstamo/hipoteca/ahorro, gastos compartidos, informe imprimible, contexto IA, disclaimer.
+- [x] **F6 · Útiles** — simuladores préstamo/hipoteca/ahorro, gastos compartidos, informe imprimible, contexto IA, disclaimer.
       (2026-09-15, Claude directo: motor 7e19e7e + store 81414cf + Útiles f51d20c + compartir gasto dcfa5e1, 189 tests.
       Un test del contexto destapó que presupuestos contaba el gasto compartido entero → flowAmount en todas las sumas.
-      Pendiente verificación E2E en prod.)
-- [ ] **Cierre** — sección Finanzas en AGENTS.md (claves nuevas + `kind`), ESTADO, DECISIONES, aviso life-mcp.
+      Verificado E2E en prod: `finances_context` 738 bytes con cifras coherentes; simulador de hipoteca (cuota 843,21 €,
+      impacto en patrimonio, semáforo); informe renderiza; compartir gasto 90 € a partes iguales con 2 personas →
+      movimiento con `split` (tu parte 30), 2 pufos «me debe» de 30 € enlazados por `txId`, gastos del mes suben solo 30 €,
+      patrimonio incluye los 60 € que te deben. Bug destapado y corregido: ratio deuda/activos del simulador con saldo
+      líquido negativo (da075a3). Impresión real a PDF, amortización anticipada y ventas: solo tests.)
+- [x] **Cierre** — sección Finanzas en AGENTS.md (claves nuevas + `kind`), ESTADO, DECISIONES. Queda fuera del repo:
+      avisar a life-mcp de `Tx.kind`/`Tx.split`/`flowAmount`, las claves nuevas y `finances_context`.
 
 ## 4. Claves nuevas (todas en `storageKeys.ts` y con recargador `onRemoteChange`)
 
