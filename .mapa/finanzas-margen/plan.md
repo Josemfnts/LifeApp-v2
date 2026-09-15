@@ -78,8 +78,12 @@ navegador) y commit+push. Si una fase se corta, se retoma por la primera casilla
       F2b: motor b87fd4a + store/UI f9f7fda, hecho por Claude con dev-mcp caído. Verificado E2E en prod
       2026-09-15: alta rápida → editar → borrar; importar N43 (3 movs, totales OK, saldo 1000→2791,71) →
       reimportar = 0 nuevos/3 duplicados → deshacer (saldo vuelve a 1000). Pendiente probar un N43/CSV REAL de banco.)
-- [ ] **F3 · Inversiones** — holdings + lotes + P&L + CoinGecko + precio manual + DCA.
+- [x] **F3 · Inversiones** — holdings + lotes + P&L + CoinGecko + precio manual + DCA.
+      (2026-09-15, Claude directo con dev-mcp caído: motor 71a3ac8 + store/UI 89d8410. Verificado E2E en prod:
+      buscar BTC en CoinGecko desde el navegador (CORS OK) → compra 0,01 contra cuenta (mov. kind investment,
+      saldo 1000→600) → precio en vivo 66.201 € y P&L latente. Venta/split/DCA solo cubiertos por tests del motor.)
 - [ ] **F4 · Deudas e inmuebles** — amortización francesa, pago con desglose, variable, inmuebles.
+      (2026-09-15, Claude directo: motor c655ae6 + store/UI bc8bc80, 161 tests. Pendiente verificación E2E en prod.)
 - [ ] **F5 · Planificación** — presupuestos rollover/avisos, recurrentes pro, detección, calendario, notificaciones.
 - [ ] **F6 · Útiles** — simuladores préstamo/hipoteca/ahorro, gastos compartidos, informe imprimible, contexto IA, disclaimer.
 - [ ] **Cierre** — sección Finanzas en AGENTS.md (claves nuevas + `kind`), ESTADO, DECISIONES, aviso life-mcp.

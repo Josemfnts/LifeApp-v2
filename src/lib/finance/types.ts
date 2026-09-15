@@ -16,6 +16,7 @@ export interface Tx {
   dedupe?: string
   holdingId?: string
   debtId?: string
+  recurringId?: number
 }
 
 export interface Hucha {
@@ -54,6 +55,8 @@ export interface Cuenta {
 export interface Presupuesto {
   category: string
   limit: number
+  rollover?: boolean // lo no gastado (o el exceso) pasa al mes siguiente
+  since?: string // YYYY-MM desde el que cuenta el rollover
 }
 
 export interface Recurrente {
@@ -64,4 +67,11 @@ export interface Recurrente {
   category: string
   day: number
   active: boolean
+  // Sin freq = mensual el día `day` (formato antiguo, sigue funcionando igual).
+  freq?: 'weekly' | 'monthly' | 'yearly'
+  interval?: number // cada N semanas/meses/años
+  startDate?: string
+  cuenta?: string
+  lastRun?: string // YYYY-MM-DD de la última ocurrencia generada
+  notifyDaysBefore?: number
 }

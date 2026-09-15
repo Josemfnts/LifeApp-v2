@@ -33,12 +33,20 @@ Stack real: React 19 + Vite 8 + Zustand + Supabase (store_data key-value). Ver A
     `importId` y Deshacer lo revierte (a99b90b). Más: saldo final ilegible ya no se ofrece como 0 €.
     Verificado leyendo código + tests/build de OpenCode; NO re-probado E2E en prod (el navegador de Claude
     solo mira, no puede pasar del login).
+  - HECHO **F3 inversiones** (Patrimonio → 📈 Inversiones): posiciones con lotes FIFO, P&L latente/realizado,
+    cripto en vivo con CoinGecko (verificado desde el navegador), precio manual con marca de antigüedad, split,
+    compra periódica (DCA) al abrir Finanzas, compras/ventas contra cuenta como `kind: investment`
+    (`finances_holdings`; caché de precios solo local). Verificado E2E en prod el 2026-09-15.
+  - HECHO en código, SIN verificar en prod aún: **F4 deudas e inmuebles** (Patrimonio → 💳 Deudas / 🏠 Inmuebles):
+    cuota francesa con cuadro exacto, pagar cuota = intereses (gasto) + capital (`debt_principal`), amortización
+    anticipada simulada, inmuebles con valor manual o % anual y valor neto de hipoteca (`finances_debts`,
+    `finances_properties`). El patrimonio neto suma cartera, deudas e inmuebles. 161 tests.
   - Aviso visto: el selector de color de cuenta recibe `var(--color-acc-blue)` (input type=color exige #hex) — preexistente.
 
 ## Lo siguiente
 - Josema: probar la importación con un extracto REAL de su banco (N43 o CSV) — el parser solo se ha
   probado con ficheros sintéticos.
-- F3 inversiones → F4 deudas/inmuebles → F5 planificación → F6 útiles (la primera casilla sin marcar en
+- Verificar F4 en prod → F5 planificación → F6 útiles (la primera casilla sin marcar en
   plan.md; cada spec en `.mapa/finanzas-margen/encargos/`). Encargos cortos (motor / store / UI).
 - Ideas aparcadas en `Pendiente implementar/`: Agente personal, Atajos iOS, Mejora visual global.
 
