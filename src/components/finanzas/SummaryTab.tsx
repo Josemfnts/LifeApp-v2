@@ -5,10 +5,12 @@ import { isFlow } from '@/lib/finance/flow'
 import { sumEuros } from '@/lib/finance/money'
 import { MONTHS, monthKey } from './shared'
 import { TxRow } from './TxRow'
+import { EditTxSheet } from './EditTxSheet'
 import { NetWorthHero } from './NetWorthHero'
 
 export function SummaryTab({ onGoPatrimonio }: { onGoPatrimonio?: () => void }) {
   const { txs } = useFinanceStore()
+  const [editId, setEditId] = useState<number | null>(null)
   const [viewYear, setViewYear] = useState(new Date().getFullYear())
   const [viewMonth, setViewMonth] = useState(new Date().getMonth())
   const donaRef = useRef<HTMLCanvasElement>(null)
@@ -146,9 +148,10 @@ export function SummaryTab({ onGoPatrimonio }: { onGoPatrimonio?: () => void }) 
         {recent.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '32px 0', fontSize: 13, color: 'var(--color-dim)' }}>Sin movimientos este mes.</div>
         ) : recent.map((t, i) => (
-          <TxRow key={i} tx={t} />
+          <TxRow key={i} tx={t} onClick={(id) => setEditId(id)} />
         ))}
       </div>
+      <EditTxSheet open={editId !== null} onClose={() => setEditId(null)} txId={editId} />
     </div>
   )
 }

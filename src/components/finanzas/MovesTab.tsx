@@ -1,99 +1,73 @@
 import { useState } from 'react'
-import { useFinanceStore, CAT_META, fmt } from '@/stores/financeStore'
-import { useToast } from '@/stores/toast'
-import { localISO } from '@/lib/finance/dates'
-import { MONTHS_SH, exportCSV } from './shared'
+import { useFinanceStore, CAT_META } from '@/stores/financeStore'
+import { MONTHS_SH } from './shared'
 import { TxRow } from './TxRow'
+import { QuickAddSheet } from './QuickAddSheet'
+import { EditTxSheet } from './EditTxSheet'
+import { Modal } from '@/components/ui/Modal'
+
+const INCOME_CATS = ['Nómina', 'Freelance', 'Otros ingresos']
+const EXPENSE_CATS = ['Vivienda', 'Alimentación', 'Transporte', 'Salud', 'Ocio', 'Ropa', 'Suscripciones', 'Deporte', 'Restaurantes', 'Viajes', 'Educación', 'Ahorro', 'Otros gastos']
 
 export function MovesTab() {
-  const { txs, addTx, cuentas } = useFinanceStore()
-  const toast = useToast()
-  const [type, setType] = useState<'income' | 'expense'>('income')
-  const [concept, setConcept] = useState('')
-  const [amount, setAmount] = useState('')
-  const [category, setCategory] = useState('Nómina')
-  const [date, setDate] = useState(localISO())
-  const [cuenta, setCuenta] = useState('')
-  const [filter, setFilter] = useState('Todos')
+  const txs = useFinanceStore(s => s.txs)
   const [search, setSearch] = useState('')
+  const [filter, setFilter] = useState('Todos')
+  const [typeFilter, setTypeFilter] = useState<'all' | 'income' | 'expense'>('all')
+  const [showSearch, setShowSearch] = useState(false)
+  const [filterOpen, setFilterOpen] = useState(false)
+  const [quickAddOpen, setQuickAddOpen] = useState(false)
+  const [editId, setEditId] = useState<number | null>(null)
 
-  const incCats = ['Nómina','Freelance','Otros ingresos']
-  const expCats = ['Vivienda','Alimentación','Transporte','Salud','Ocio','Ropa','Suscripciones','Deporte','Restaurantes','Viajes','Educación','Ahorro','Otros gastos']
-  const cats = type === 'income' ? incCats : expCats
+  const allCats = ['Todos', ...Array.from(new Set(txs.map(t => t.category)))]
 
-  function handleAdd() {
-    const a = parseFloat(amount)
-    if (!a || a <= 0) { toast.show('Introduce un importe'); return }
-    addTx({ concept: concept.trim() || category, amount: a, category, date, note: '', cuenta, type })
-    const cu = useFinanceStore.getState().cuentas.find(c => c.name === cuenta)
-    const saldo = cu ? ` · ${cu.name}: ${fmt(cu.balance)}` : ''
-    toast.show((type === 'income' ? `✓ Ingreso de ${fmt(a)} añadido` : `✓ Gasto de ${fmt(a)} añadido`) + saldo)
-    setConcept(''); setAmount('')
-  }
-
-  const allCats = ['Todos', ...new Set(txs.map(t => t.category))]
   let filtered = txs.slice()
   if (filter !== 'Todos') filtered = filtered.filter(t => t.category === filter)
-  if (search.trim()) filtered = filtered.filter(t =>
-    t.concept.toLowerCase().includes(search.toLowerCase()) ||
-    (t.note || '').toLowerCase().includes(search.toLowerCase()) ||
-    (t.cuenta || '').toLowerCase().includes(search.toLowerCase()) ||
-    t.category.toLowerCase().includes(search.toLowerCase())
-  )
+  if (typeFilter !== 'all') {
+    if (typeFilter === 'income') filtered = filtered.filter(t => t.type === 'income' && t.kind !== 'transfer' && t.kind !== 'adjust')
+    else filtered = filtered.filter(t => t.type === 'expense' && t.kind !== 'transfer' && t.kind !== 'adjust')
+  }
+  if (search.trim()) {
+    const q = search.toLowerCase()
+    filtered = filtered.filter(t =>
+      t.concept.toLowerCase().includes(q) ||
+      (t.note || '').toLowerCase().includes(q) ||
+      (t.cuenta || '').toLowerCase().includes(q) ||
+      t.category.toLowerCase().includes(q)
+    )
+  }
   filtered.sort((a, b) => b.date.localeCompare(a.date))
 
   const byDate: Record<string, typeof filtered> = {}
   filtered.forEach(t => { const d = t.date; if (!byDate[d]) byDate[d] = []; byDate[d].push(t) })
 
+  const filterCount = (filter !== 'Todos' ? 1 : 0) + (typeFilter !== 'all' ? 1 : 0)
+
   return (
     <div>
-      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 14 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 10 }}>
-          <button onClick={() => { setType('income'); setCategory('Nómina') }}
-            style={{ padding: 9, borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', textAlign: 'center', cursor: 'pointer', border: '1px solid',
-              background: type === 'income' ? 'rgba(82,183,136,0.12)' : 'var(--color-s2)',
-              color: type === 'income' ? 'var(--color-acc-green)' : 'var(--color-dim)',
-              borderColor: type === 'income' ? 'rgba(82,183,136,0.3)' : 'var(--color-border)' }}>↑ Ingreso</button>
-          <button onClick={() => { setType('expense'); setCategory('Alimentación') }}
-            style={{ padding: 9, borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', textAlign: 'center', cursor: 'pointer', border: '1px solid',
-              background: type === 'expense' ? 'rgba(224,95,95,0.1)' : 'var(--color-s2)',
-              color: type === 'expense' ? 'var(--color-red)' : 'var(--color-dim)',
-              borderColor: type === 'expense' ? 'rgba(224,95,95,0.25)' : 'var(--color-border)' }}>↓ Gasto</button>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+        <div style={{ flex: 1, fontSize: 12, fontWeight: 600, color: 'var(--color-dim)' }}>
+          {filtered.length} {filtered.length === 1 ? 'movimiento' : 'movimientos'}
         </div>
-        <input className="inp" value={concept} onChange={e => setConcept(e.target.value)} type="text" placeholder="Concepto" />
-        <input className="inp" value={amount} onChange={e => setAmount(e.target.value)} type="number" step="0.01" placeholder="Importe en €" />
-        <select className="inp" value={category} onChange={e => setCategory(e.target.value)}>
-          {cats.map(c => <option key={c} value={c}>{CAT_META[c]?.icon || '•'} {c}</option>)}
-        </select>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
-          <input className="inp" value={date} onChange={e => setDate(e.target.value)} type="date" style={{ marginBottom: 0, fontSize: 13 }} />
-          <select className="inp" value={cuenta} onChange={e => setCuenta(e.target.value)} style={{ marginBottom: 0, fontSize: 13 }}>
-            <option value="">Cuenta…</option>
-            {cuentas.map(cu => <option key={cu.name} value={cu.name}>{cu.name}</option>)}
-          </select>
-        </div>
-        <button onClick={handleAdd} style={{ width: '100%', background: 'var(--color-acc-gold)', color: '#111', border: 'none', fontFamily: 'DM Sans,sans-serif', fontSize: 14, fontWeight: 700, padding: 11, borderRadius: 10, cursor: 'pointer', boxShadow: '0 2px 12px rgba(201,168,76,0.25)' }}>
-          {type === 'income' ? 'Añadir ingreso' : 'Añadir gasto'}
+        <button onClick={() => setShowSearch(v => !v)}
+          style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--color-s1)', border: '1px solid var(--color-border)', color: showSearch ? 'var(--color-acc-gold)' : 'var(--color-sub)', cursor: 'pointer', fontSize: 16 }}>🔍</button>
+        <button onClick={() => setFilterOpen(true)}
+          style={{ position: 'relative', width: 36, height: 36, borderRadius: 10, background: 'var(--color-s1)', border: '1px solid var(--color-border)', color: filterCount > 0 ? 'var(--color-acc-gold)' : 'var(--color-sub)', cursor: 'pointer', fontSize: 16 }}>⚙
+          {filterCount > 0 && <span style={{ position: 'absolute', top: -2, right: -2, minWidth: 16, height: 16, padding: '0 4px', borderRadius: 99, background: 'var(--color-acc-gold)', color: '#111', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{filterCount}</span>}
         </button>
+        <button onClick={() => setQuickAddOpen(true)}
+          style={{ background: 'var(--color-acc-gold)', color: '#111', border: 'none', borderRadius: 10, padding: '0 14px', height: 36, fontSize: 13, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>+ Añadir</button>
       </div>
 
-      <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-        <input className="inp" value={search} onChange={e => setSearch(e.target.value)} type="text" placeholder="🔍 Buscar movimientos..." style={{ marginBottom: 0 }} />
-        <button onClick={() => exportCSV(txs, toast)} style={{ background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-sub)', borderRadius: 10, padding: '6px 12px', fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>📥 CSV</button>
-      </div>
-      <div style={{ display: 'flex', gap: 6, overflowX: 'auto', marginBottom: 12, paddingBottom: 2 }}>
-        {allCats.map(c => (
-          <button key={c} onClick={() => setFilter(c)}
-            style={{ flex: '0 0 auto', padding: '6px 14px', borderRadius: 99, fontSize: 12, fontWeight: 600, border: '1px solid', whiteSpace: 'nowrap', cursor: 'pointer',
-              background: filter === c ? 'rgba(201,168,76,0.1)' : 'var(--color-s1)',
-              color: filter === c ? 'var(--color-acc-gold)' : 'var(--color-sub)',
-              borderColor: filter === c ? 'rgba(201,168,76,0.3)' : 'var(--color-border)' }}>{c}</button>
-        ))}
-      </div>
+      {showSearch && (
+        <input className="inp" autoFocus value={search} onChange={e => setSearch(e.target.value)} type="text" placeholder="🔍 Buscar movimientos…" style={{ marginBottom: 10 }} />
+      )}
 
       <div className="card">
         {filtered.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '32px 0', fontSize: 13, color: 'var(--color-dim)' }}>Sin movimientos{filter !== 'Todos' ? ' en esta categoría' : ''}.</div>
+          <div style={{ textAlign: 'center', padding: '32px 0', fontSize: 13, color: 'var(--color-dim)' }}>
+            {txs.length === 0 ? 'Sin movimientos todavía. Toca "+ Añadir" para empezar.' : 'Sin movimientos con ese filtro.'}
+          </div>
         ) : Object.entries(byDate).sort((a, b) => b[0].localeCompare(a[0])).map(([d, txList]) => {
           const dt = new Date(d + 'T12:00:00')
           return (
@@ -101,11 +75,56 @@ export function MovesTab() {
               <div style={{ padding: '8px 16px 0', fontSize: 10, fontWeight: 700, color: 'var(--color-dim)', letterSpacing: '0.5px', textTransform: 'uppercase', borderTop: '1px solid rgba(255,255,255,0.03)' }}>
                 {dt.getDate()} {MONTHS_SH[dt.getMonth()]}
               </div>
-              {txList.map(t => <TxRow key={`${d}-${t.id}`} tx={t} />)}
+              {txList.map(t => <TxRow key={`${d}-${t.id}`} tx={t} onClick={(id) => setEditId(id)} />)}
             </div>
           )
         })}
       </div>
+
+      <Modal open={filterOpen} onClose={() => setFilterOpen(false)} title="Filtrar movimientos">
+        <div style={{ padding: '0 20px 8px' }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 6 }}>Tipo</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6, marginBottom: 14 }}>
+            {([
+              { k: 'all' as const, label: 'Todos' },
+              { k: 'income' as const, label: 'Ingresos' },
+              { k: 'expense' as const, label: 'Gastos' },
+            ]).map(o => {
+              const active = typeFilter === o.k
+              return (
+                <button key={o.k} onClick={() => setTypeFilter(o.k)}
+                  style={{ padding: 9, borderRadius: 10, fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid',
+                    background: active ? 'rgba(201,168,76,0.1)' : 'var(--color-s2)',
+                    color: active ? 'var(--color-acc-gold)' : 'var(--color-sub)',
+                    borderColor: active ? 'rgba(201,168,76,0.3)' : 'var(--color-border)' }}>{o.label}</button>
+              )
+            })}
+          </div>
+          <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 6 }}>Categoría</div>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {allCats.map(c => {
+              const active = filter === c
+              return (
+                <button key={c} onClick={() => setFilter(c)}
+                  style={{ padding: '6px 12px', borderRadius: 99, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: '1px solid', whiteSpace: 'nowrap',
+                    background: active ? 'rgba(201,168,76,0.1)' : 'var(--color-s1)',
+                    color: active ? 'var(--color-acc-gold)' : 'var(--color-sub)',
+                    borderColor: active ? 'rgba(201,168,76,0.3)' : 'var(--color-border)' }}>
+                  {c === 'Todos' ? c : `${CAT_META[c as keyof typeof CAT_META]?.icon || '•'} ${c}`}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, padding: '12px 20px 0' }}>
+          <button onClick={() => { setFilter('Todos'); setTypeFilter('all') }}
+            className="btn-ghost" style={{ width: '100%' }}>Limpiar</button>
+          <button onClick={() => setFilterOpen(false)} className="btn-primary" style={{ background: 'var(--color-acc-blue)', width: 'auto' }}>Aplicar</button>
+        </div>
+      </Modal>
+
+      <QuickAddSheet open={quickAddOpen} onClose={() => setQuickAddOpen(false)} />
+      <EditTxSheet open={editId !== null} onClose={() => setEditId(null)} txId={editId} />
     </div>
   )
 }

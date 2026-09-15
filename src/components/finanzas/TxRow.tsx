@@ -1,12 +1,40 @@
 import { useFinanceStore, CAT_META, fmt } from '@/stores/financeStore'
+import { useMemo } from 'react'
+import { MerchantAvatar } from './MerchantAvatar'
+import { SEED_MERCHANTS } from '@/lib/finance/merchants'
 
-export function TxRow({ tx }: { tx: { id?: number; concept: string; category: string; amount: number; type: string; note: string; cuenta?: string; kind?: string; linkId?: string } }) {
-  const { removeTx, txs } = useFinanceStore()
+interface Props {
+  tx: {
+    id?: number
+    concept: string
+    category: string
+    amount: number
+    type: string
+    note: string
+    cuenta?: string
+    kind?: string
+    linkId?: string
+    merchantId?: string
+  }
+  onClick?: (id: number) => void
+}
+
+export function TxRow({ tx, onClick }: Props) {
+  const txs = useFinanceStore(s => s.txs)
+  const merchants = useFinanceStore(s => s.merchants)
   const idx = txs.findIndex(t => t.id === tx.id)
   const meta = CAT_META[tx.category] || { icon: '📤', color: 'var(--color-dim)' }
+
+  const merchant = useMemo(() => {
+    if (!tx.merchantId) return null
+    const all = [...merchants, ...SEED_MERCHANTS]
+    return all.find(m => m.id === tx.merchantId) ?? null
+  }, [tx.merchantId, merchants])
+
   const sign = tx.type === 'income' ? '+' : '−'
   const isTransfer = tx.kind === 'transfer'
   const isAdjust = tx.kind === 'adjust'
+
   let subtitle = tx.category
   if (tx.cuenta) subtitle += ' · ' + tx.cuenta
   else if (tx.note) subtitle += ' · ' + tx.note
@@ -18,11 +46,22 @@ export function TxRow({ tx }: { tx: { id?: number; concept: string; category: st
       subtitle = `${origin} → ${dest}`
     }
   }
+
   let amountColor = tx.type === 'income' ? 'var(--color-acc-green)' : 'var(--color-red)'
   if (isTransfer) amountColor = 'var(--color-sub)'
+
+  const handleClick = () => {
+    if (tx.id !== undefined && onClick) onClick(tx.id)
+  }
+
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 16px', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-      <div style={{ width: 38, height: 38, borderRadius: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17, flexShrink: 0, background: 'var(--color-s2)', border: '1px solid var(--color-border)' }}>{isAdjust ? '⚖️' : meta.icon}</div>
+    <div onClick={handleClick}
+      style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 16px', borderBottom: '1px solid rgba(255,255,255,0.03)', cursor: onClick ? 'pointer' : 'default' }}>
+      {merchant ? (
+        <MerchantAvatar merchant={merchant} category={tx.category} size={38} />
+      ) : (
+        <div style={{ width: 38, height: 38, borderRadius: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17, flexShrink: 0, background: meta.color + '18', border: '1px solid ' + meta.color + '30' }}>{isAdjust ? '⚖️' : meta.icon}</div>
+      )}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{tx.concept}</div>
         <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 2 }}>{subtitle}</div>
@@ -30,9 +69,8 @@ export function TxRow({ tx }: { tx: { id?: number; concept: string; category: st
       <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 20, fontWeight: 400, flexShrink: 0, color: amountColor }}>
         {isTransfer ? '' : sign}{fmt(tx.amount)}
       </div>
-      {idx >= 0 && (
-        <button onClick={() => removeTx(idx)}
-          style={{ width: 28, height: 28, borderRadius: 8, flexShrink: 0, background: 'rgba(224,95,95,0.08)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.15)', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>✕</button>
+      {onClick && idx >= 0 && (
+        <span aria-hidden style={{ color: 'var(--color-dim)', fontSize: 18, paddingLeft: 4 }}>›</span>
       )}
     </div>
   )
