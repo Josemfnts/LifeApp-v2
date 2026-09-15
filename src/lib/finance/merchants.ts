@@ -94,7 +94,7 @@ const SEED_RAW: Seed[] = [
   { id: 'seed:primark',        name: 'Primark',       domain: 'primark.com',      category: 'Ropa',            patterns: ['PRIMARK'] },
   { id: 'seed:hm',             name: 'H&M',           domain: 'hm.com',           category: 'Ropa',            patterns: ['H M', 'HM'] },
   { id: 'seed:decathlon',      name: 'Decathlon',     domain: 'decathlon.es',     category: 'Deporte',         patterns: ['DECATHLON'] },
-  { id: 'seed:ikea',           name: 'IKEA',          domain: 'ikea.com',         category: 'Hogar',           patterns: ['IKEA'] },
+  { id: 'seed:ikea',           name: 'IKEA',          domain: 'ikea.com',         category: 'Vivienda',        patterns: ['IKEA'] },
   { id: 'seed:leroymerlin',    name: 'Leroy Merlin',  domain: 'leroymerlin.es',   category: 'Vivienda',        patterns: ['LEROY MERLIN'] },
   { id: 'seed:mediamarkt',     name: 'MediaMarkt',    domain: 'mediamarkt.es',    category: 'Ocio',            patterns: ['MEDIAMARKT'] },
   { id: 'seed:pccomponentes',  name: 'PcComponentes', domain: 'pccomponentes.com', category: 'Ocio',          patterns: ['PCCOMPONENTES'] },
@@ -154,13 +154,16 @@ export const SEED_MERCHANTS: Merchant[] = SEED_RAW.map(s => ({
 export function matchMerchant(concept: string, merchants: Merchant[]): Merchant | null {
   const norm = normalizeConcept(concept)
   if (!norm) return null
+  // Coincidencia por palabras completas: con includes() a secas "PELUQUERIA DIANA" era Dia
+  // y "PINEAPPLE" era Apple.
+  const padded = ` ${norm} `
   let best: { merchant: Merchant; len: number; index: number } | null = null
   for (let i = 0; i < merchants.length; i++) {
     const m = merchants[i]
     for (const pat of m.patterns) {
       const tokenized = pat
       if (!tokenized) continue
-      if (norm.includes(tokenized)) {
+      if (padded.includes(` ${tokenized} `)) {
         if (best === null || tokenized.length > best.len || (tokenized.length === best.len && i < best.index)) {
           best = { merchant: m, len: tokenized.length, index: i }
         }

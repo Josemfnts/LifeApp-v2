@@ -45,6 +45,7 @@ export const STORE_KEYS = {
   finances_budgets: 'finances_budgets',
   finances_recurring: 'finances_recurring',
   finances_nw_snapshots: 'finances_nw_snapshots',
+  finances_merchants: 'finances_merchants',
 
   lifeos_habits: 'lifeos_habits',
   lifeos_habits_log: 'lifeos_habits_log',

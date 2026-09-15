@@ -6,6 +6,13 @@ import { localISO } from '@/lib/finance/dates'
 import { computeNetWorth } from '@/lib/finance/networth'
 import { upsertTodaySnapshot, backfillEstimated, type NwSnapshot } from '@/lib/finance/snapshots'
 import { buildAdjustment, buildTransfer } from '@/lib/finance/ops'
+import { matchMerchant, learnMerchant, SEED_MERCHANTS, type Merchant } from '@/lib/finance/merchants'
+
+// Los comercios del usuario van primero: en empate de patrón, matchMerchant se queda con el
+// primero, así un override de usuario gana al seed.
+function allMerchants(user: Merchant[]): Merchant[] {
+  return [...user, ...SEED_MERCHANTS]
+}
 
 export type { Tx, TxKind, Hucha, Pufo, Cuenta, Presupuesto, Recurrente } from '@/lib/finance/types'
 import type { Tx, Hucha, Pufo, Cuenta, Presupuesto, Recurrente } from '@/lib/finance/types'
@@ -60,9 +67,11 @@ interface FinanceStore {
   presupuestos: Presupuesto[]
   recurrentes: Recurrente[]
   snapshots: NwSnapshot[]
+  merchants: Merchant[]
   addTx: (tx: Tx) => void
   removeTx: (idx: number) => void
   updateTx: (idx: number, tx: Partial<Tx>) => void
+  updateTxFull: (idx: number, tx: Partial<Tx>) => void
   addHucha: (h: Hucha) => void
   aportarHucha: (i: number, amount: number) => void
   removeHucha: (i: number) => void
@@ -109,6 +118,7 @@ export const useFinanceStore = create<FinanceStore>((set, get) => {
     presupuestos: loadFromStorage('finances_budgets', []),
     recurrentes: loadFromStorage('finances_recurring', []),
     snapshots: initialSnapshots,
+    merchants: loadFromStorage('finances_merchants', [] as Merchant[]),
 
     recordSnapshot: () => {
       const { snapshots, cuentas, txs } = get()
@@ -125,7 +135,9 @@ export const useFinanceStore = create<FinanceStore>((set, get) => {
     },
 
     addTx: (tx) => {
-      const stamped: Tx = { ...tx, id: Date.now() }
+      const baseStamped: Tx = { ...tx, id: Date.now() }
+      const m = matchMerchant(baseStamped.concept, allMerchants(get().merchants))
+      const stamped: Tx = m ? { ...baseStamped, merchantId: m.id } : baseStamped
       const txs = [stamped, ...get().txs]
       saveToStorage('finances_tx', txs)
       const cuentas = cuentasConMovimiento(get().cuentas, stamped, 1)
@@ -171,6 +183,67 @@ export const useFinanceStore = create<FinanceStore>((set, get) => {
       if (c2) cuentas = c2
       if (c1 || c2) { saveToStorage('finances_cuentas', cuentas); set({ txs, cuentas }) }
       else set({ txs })
+      get().recordSnapshot()
+    },
+
+    updateTxFull: (idx, partial) => {
+      const txsAll = get().txs
+      const target = txsAll[idx]
+      if (!target) return
+      const isTransfer = !!target.linkId
+      const linkId = target.linkId
+
+      if (!isTransfer) {
+        get().updateTx(idx, partial)
+        const after = get().txs[idx]
+        let merchants = get().merchants
+        if (after.category && partial.category !== undefined) {
+          const m = matchMerchant(after.concept, allMerchants(merchants))
+          if (m) {
+            merchants = learnMerchant(merchants, {
+              name: m.name,
+              concept: after.concept,
+              category: after.category,
+              domain: m.domain,
+            })
+            saveToStorage('finances_merchants', merchants)
+            set({ merchants })
+          }
+        }
+        return
+      }
+
+      const patas = txsAll.filter(t => t.linkId === linkId)
+      const basePata = target
+
+      const newAmount = partial.amount !== undefined ? partial.amount : basePata.amount
+      const newDate = partial.date !== undefined ? partial.date : basePata.date
+      const newConcept = partial.concept !== undefined ? partial.concept : basePata.concept
+
+      let cuentas = get().cuentas
+      for (const p of patas) {
+        const c = cuentasConMovimiento(cuentas, p, -1)
+        if (c) cuentas = c
+      }
+
+      let txs = [...txsAll]
+      const txsAfter: Tx[] = []
+      for (const p of patas) {
+        const updated: Tx = {
+          ...p,
+          amount: newAmount,
+          date: newDate,
+          concept: newConcept,
+        }
+        txsAfter.push(updated)
+        const c = cuentasConMovimiento(cuentas, updated, 1)
+        if (c) cuentas = c
+      }
+      const map = new Map(txsAfter.map(t => [t.id, t]))
+      txs = txs.map(t => map.get(t.id) ?? t)
+      saveToStorage('finances_tx', txs)
+      saveToStorage('finances_cuentas', cuentas)
+      set({ txs, cuentas })
       get().recordSnapshot()
     },
 
@@ -332,4 +405,5 @@ onRemoteChange({
   finances_budgets: () => useFinanceStore.setState({ presupuestos: loadFromStorage('finances_budgets', []) }),
   finances_recurring: () => useFinanceStore.setState({ recurrentes: loadFromStorage('finances_recurring', []) }),
   finances_nw_snapshots: () => useFinanceStore.setState({ snapshots: loadFromStorage('finances_nw_snapshots', []) }),
+  finances_merchants: () => useFinanceStore.setState({ merchants: loadFromStorage('finances_merchants', []) }),
 })
