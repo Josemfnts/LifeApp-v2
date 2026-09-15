@@ -5,8 +5,9 @@ import { isFlow } from '@/lib/finance/flow'
 import { sumEuros } from '@/lib/finance/money'
 import { MONTHS, monthKey } from './shared'
 import { TxRow } from './TxRow'
+import { NetWorthHero } from './NetWorthHero'
 
-export function SummaryTab() {
+export function SummaryTab({ onGoPatrimonio }: { onGoPatrimonio?: () => void }) {
   const { txs } = useFinanceStore()
   const [viewYear, setViewYear] = useState(new Date().getFullYear())
   const [viewMonth, setViewMonth] = useState(new Date().getMonth())
@@ -74,6 +75,7 @@ export function SummaryTab() {
 
   return (
     <div>
+      <NetWorthHero onGoPatrimonio={onGoPatrimonio} />
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         background: 'var(--color-s1)', border: '1px solid var(--color-border)',
         borderRadius: 14, padding: '10px 14px', marginBottom: 12 }}>

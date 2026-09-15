@@ -3,6 +3,8 @@ import { useFinanceStore, CUENTA_TYPE, fmt, fmtShort } from '@/stores/financeSto
 import { useToast } from '@/stores/toast'
 import { localISO } from '@/lib/finance/dates'
 import { NotesFor } from '@/components/notes/NotesFor'
+import { TransferSheet } from './TransferSheet'
+import { AdjustSheet } from './AdjustSheet'
 
 export function PatrimonioTab() {
   const { cuentas, huchas, pufos, saveCuenta, removeCuenta, addHucha, aportarHucha, removeHucha, addPufo, settlePufo, removePufo } = useFinanceStore()
@@ -19,6 +21,9 @@ export function PatrimonioTab() {
   const [settleModal, setSettleModal] = useState(false)
   const [settleIdx, setSettleIdx] = useState(-1)
   const [settleTarget, setSettleTarget] = useState('none')
+  const [transferOpen, setTransferOpen] = useState(false)
+  const [adjustOpen, setAdjustOpen] = useState(false)
+  const [adjustCuenta, setAdjustCuenta] = useState('')
 
   const assets = cuentas.reduce((s, cu) => CUENTA_TYPE[cu.type]?.asset ? s + cu.balance : s, 0)
   const liabilities = cuentas.reduce((s, cu) => !CUENTA_TYPE[cu.type]?.asset ? s + Math.abs(cu.balance) : s, 0)
@@ -88,8 +93,14 @@ export function PatrimonioTab() {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
             <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Mis cuentas</div>
-            <button onClick={() => openForm()}
-              style={{ background: 'rgba(91,138,240,0.1)', color: 'var(--color-acc-blue)', border: '1px solid rgba(91,138,240,0.2)', borderRadius: 8, padding: '5px 12px', fontSize: 11, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>+ Añadir</button>
+            <div style={{ display: 'flex', gap: 6 }}>
+              {cuentas.length >= 2 && (
+                <button onClick={() => setTransferOpen(true)}
+                  style={{ background: 'rgba(91,138,240,0.08)', color: 'var(--color-acc-blue)', border: '1px solid rgba(91,138,240,0.18)', borderRadius: 8, padding: '5px 12px', fontSize: 11, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>🔁 Traspaso</button>
+              )}
+              <button onClick={() => openForm()}
+                style={{ background: 'rgba(91,138,240,0.1)', color: 'var(--color-acc-blue)', border: '1px solid rgba(91,138,240,0.2)', borderRadius: 8, padding: '5px 12px', fontSize: 11, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>+ Añadir</button>
+            </div>
           </div>
           {cuentas.length === 0 ? (
             <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 28, textAlign: 'center' }}>
@@ -121,6 +132,9 @@ export function PatrimonioTab() {
                               <div style={{ fontSize: 10, color: 'var(--color-dim)', marginTop: 2 }}>actualizado {cu.updatedAt || '—'}</div>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
+                              <button onClick={() => { setAdjustCuenta(cu.name); setAdjustOpen(true) }}
+                                title="Ajustar saldo"
+                                style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(201,168,76,0.08)', color: 'var(--color-acc-gold)', border: '1px solid rgba(201,168,76,0.18)', cursor: 'pointer', fontSize: 13 }}>⚖️</button>
                               <button onClick={() => openForm(i)} style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(91,138,240,0.08)', color: 'var(--color-acc-blue)', border: '1px solid rgba(91,138,240,0.15)', cursor: 'pointer', fontSize: 12 }}>✎</button>
                               <button onClick={() => { removeCuenta(i); toast.show('Cuenta eliminada') }} style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(224,95,95,0.06)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.12)', cursor: 'pointer', fontSize: 11 }}>✕</button>
                             </div>
@@ -367,6 +381,8 @@ export function PatrimonioTab() {
           </div>
         </div>
       )}
+      <TransferSheet open={transferOpen} onClose={() => setTransferOpen(false)} />
+      <AdjustSheet open={adjustOpen} onClose={() => setAdjustOpen(false)} cuentaName={adjustCuenta} />
     </div>
   )
 }

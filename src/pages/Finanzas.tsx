@@ -8,19 +8,21 @@ import { AnalysisTab } from '@/components/finanzas/AnalysisTab'
 import { PatrimonioTab } from '@/components/finanzas/PatrimonioTab'
 import { BudgetsTab } from '@/components/finanzas/BudgetsTab'
 
-type Tab = 'summary' | 'moves' | 'analysis' | 'patrimonio' | 'budgets'
+type Tab = 'inicio' | 'moves' | 'patrimonio' | 'plan' | 'utiles'
 
 export default function Finanzas() {
-  const [tab, setTab] = useState<Tab>('summary')
+  const [tab, setTab] = useState<Tab>('inicio')
   const store = useFinanceStore()
   const toast = useToast()
   const processRecurrentes = useFinanceStore(s => s.processRecurrentes)
+  const recordSnapshot = useFinanceStore(s => s.recordSnapshot)
   const toastShow = useToast(s => s.show)
 
   useEffect(() => {
+    recordSnapshot()
     const newTxs = processRecurrentes()
     if (newTxs.length > 0) toastShow(`✓ ${newTxs.length} transacciones recurrentes añadidas`)
-  }, [processRecurrentes, toastShow])
+  }, [processRecurrentes, recordSnapshot, toastShow])
 
   return (
     <div>
@@ -28,9 +30,9 @@ export default function Finanzas() {
         <div className="page-title">Finanzas</div>
         <div className="tab-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', overflowX: 'auto', overflowY: 'hidden', minWidth: 0 }}>
-            {(['summary','moves','analysis','patrimonio','budgets'] as const).map(t => (
+            {(['inicio','moves','patrimonio','plan','utiles'] as const).map(t => (
               <button key={t} onClick={() => setTab(t)} className={`tab-btn tab-gold${tab === t ? ' active' : ''}`}>
-                {{summary:'Resumen',moves:'Movs',analysis:'Análisis',patrimonio:'Patrimonio',budgets:'Presupuesto'}[t]}
+                {{inicio:'Inicio',moves:'Movs',patrimonio:'Patrimonio',plan:'Plan',utiles:'Útiles'}[t]}
               </button>
             ))}
           </div>
@@ -38,11 +40,11 @@ export default function Finanzas() {
         </div>
       </div>
       <div style={{ padding: 16 }}>
-        {tab === 'summary' && <SummaryTab />}
+        {tab === 'inicio' && <SummaryTab onGoPatrimonio={() => setTab('patrimonio')} />}
         {tab === 'moves' && <MovesTab />}
-        {tab === 'analysis' && <AnalysisTab />}
         {tab === 'patrimonio' && <PatrimonioTab />}
-        {tab === 'budgets' && <BudgetsTab />}
+        {tab === 'plan' && <BudgetsTab />}
+        {tab === 'utiles' && <AnalysisTab />}
       </div>
     </div>
   )

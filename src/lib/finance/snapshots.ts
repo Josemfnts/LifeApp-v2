@@ -80,12 +80,6 @@ export function backfillEstimated(
   return out
 }
 
-function nextDayISO(iso: string): string {
-  const d = new Date(iso + 'T12:00:00Z')
-  d.setUTCDate(d.getUTCDate() + 1)
-  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`
-}
-
 function periodStart(today: string, period: '1M' | '3M' | '1A' | 'Todo'): string {
   if (period === 'Todo') return '0000-01-01'
   const [y, m, d] = today.split('-').map(Number)
