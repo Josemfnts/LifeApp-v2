@@ -45,6 +45,6 @@ En reposo orienta; al hacer scroll se compacta; al volver arriba reaparece. Ning
       `.page-title` a 24 px. `.animate-tab`, `.animate-fadeIn` y `.animate-slideUp` se usaban SIN definir (ni el cambio
       de pestaña ni las hojas se animaban): definidas; contenido de pestaña con `key` + fade corto en Finanzas,
       Físico, Nutrición, Agenda y Hábitos; `:active` en pestañas; todo desactivado con `prefers-reduced-motion`.
-      Verificado en local (animationName tabIn / slideUp, 0 errores).
+      Verificado en local y en prod (58a76fd): título 24 px, tabIn en pestañas, slideUp en hojas, 2 stat-strip en Físico, balance con datos, chrome V1 intacto, 0 errores.
 
 Cada fase: build + lint + tests, captura antes/después en 390×844 y prueba en prod. Commit y push por fase.
