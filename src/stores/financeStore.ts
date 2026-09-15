@@ -7,6 +7,8 @@ import { computeNetWorth } from '@/lib/finance/networth'
 import { upsertTodaySnapshot, backfillEstimated, type NwSnapshot } from '@/lib/finance/snapshots'
 import { buildAdjustment, buildTransfer } from '@/lib/finance/ops'
 import { matchMerchant, learnMerchant, SEED_MERCHANTS, type Merchant } from '@/lib/finance/merchants'
+import { buildImportTxs, type ImportRecord, type ReviewedRow } from '@/lib/finance/import/apply'
+import type { CsvMapping } from '@/lib/finance/import/csv'
 
 // Los comercios del usuario van primero: en empate de patrón, matchMerchant se queda con el
 // primero, así un override de usuario gana al seed.
@@ -68,6 +70,11 @@ interface FinanceStore {
   recurrentes: Recurrente[]
   snapshots: NwSnapshot[]
   merchants: Merchant[]
+  imports: ImportRecord[]
+  importMaps: Record<string, CsvMapping>
+  applyImport: (p: { cuenta: string; filename: string; format: 'n43' | 'csv'; rows: ReviewedRow[]; skipped: number }) => ImportRecord
+  undoImport: (importId: string) => number
+  saveImportMap: (bank: string, mapping: CsvMapping) => void
   addTx: (tx: Tx) => void
   removeTx: (idx: number) => void
   updateTx: (idx: number, tx: Partial<Tx>) => void
@@ -119,6 +126,56 @@ export const useFinanceStore = create<FinanceStore>((set, get) => {
     recurrentes: loadFromStorage('finances_recurring', []),
     snapshots: initialSnapshots,
     merchants: loadFromStorage('finances_merchants', [] as Merchant[]),
+    imports: loadFromStorage('finances_imports', [] as ImportRecord[]),
+    importMaps: loadFromStorage('finances_import_maps', {} as Record<string, CsvMapping>),
+
+    // Aplica una importación ya revisada: una sola escritura por clave, saldo movido y registro
+    // en el historial para poder deshacerla.
+    applyImport: ({ cuenta, filename, format, rows, skipped }) => {
+      const importId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `imp-${Date.now()}`
+      const newTxs = buildImportTxs(rows, cuenta, importId, Date.now())
+      const txs = [...newTxs, ...get().txs]
+      let cuentas = get().cuentas
+      for (const t of newTxs) {
+        const c = cuentasConMovimiento(cuentas, t, 1)
+        if (c) cuentas = c
+      }
+      const record: ImportRecord = {
+        id: importId, date: localISO(), cuenta, filename, format,
+        total: rows.length + skipped, imported: newTxs.length, skipped,
+      }
+      const imports = [record, ...get().imports]
+      saveToStorage('finances_tx', txs)
+      saveToStorage('finances_cuentas', cuentas)
+      saveToStorage('finances_imports', imports)
+      set({ txs, cuentas, imports })
+      get().recordSnapshot()
+      return record
+    },
+
+    undoImport: (importId) => {
+      const all = get().txs
+      const removed = all.filter(t => t.importId === importId)
+      let cuentas = get().cuentas
+      for (const t of removed) {
+        const c = cuentasConMovimiento(cuentas, t, -1)
+        if (c) cuentas = c
+      }
+      const txs = all.filter(t => t.importId !== importId)
+      const imports = get().imports.map(r => (r.id === importId ? { ...r, undone: true } : r))
+      saveToStorage('finances_tx', txs)
+      saveToStorage('finances_cuentas', cuentas)
+      saveToStorage('finances_imports', imports)
+      set({ txs, cuentas, imports })
+      get().recordSnapshot()
+      return removed.length
+    },
+
+    saveImportMap: (bank, mapping) => {
+      const importMaps = { ...get().importMaps, [bank.trim()]: mapping }
+      saveToStorage('finances_import_maps', importMaps)
+      set({ importMaps })
+    },
 
     recordSnapshot: () => {
       const { snapshots, cuentas, txs } = get()
@@ -406,4 +463,6 @@ onRemoteChange({
   finances_recurring: () => useFinanceStore.setState({ recurrentes: loadFromStorage('finances_recurring', []) }),
   finances_nw_snapshots: () => useFinanceStore.setState({ snapshots: loadFromStorage('finances_nw_snapshots', []) }),
   finances_merchants: () => useFinanceStore.setState({ merchants: loadFromStorage('finances_merchants', []) }),
+  finances_imports: () => useFinanceStore.setState({ imports: loadFromStorage('finances_imports', []) }),
+  finances_import_maps: () => useFinanceStore.setState({ importMaps: loadFromStorage('finances_import_maps', {}) }),
 })

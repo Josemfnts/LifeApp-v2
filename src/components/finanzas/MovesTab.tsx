@@ -4,6 +4,8 @@ import { MONTHS_SH } from './shared'
 import { TxRow } from './TxRow'
 import { QuickAddSheet } from './QuickAddSheet'
 import { EditTxSheet } from './EditTxSheet'
+import { ImportSheet } from './import/ImportSheet'
+import { ImportsHistorySheet } from './import/ImportsHistorySheet'
 import { Modal } from '@/components/ui/Modal'
 
 export function MovesTab() {
@@ -15,6 +17,9 @@ export function MovesTab() {
   const [filterOpen, setFilterOpen] = useState(false)
   const [quickAddOpen, setQuickAddOpen] = useState(false)
   const [editId, setEditId] = useState<number | null>(null)
+  const [importOpen, setImportOpen] = useState(false)
+  const [historyOpen, setHistoryOpen] = useState(false)
+  const importsCount = useFinanceStore(s => s.imports.length)
 
   const allCats = ['Todos', ...Array.from(new Set(txs.map(t => t.category)))]
 
@@ -52,12 +57,21 @@ export function MovesTab() {
           style={{ position: 'relative', width: 36, height: 36, borderRadius: 10, background: 'var(--color-s1)', border: '1px solid var(--color-border)', color: filterCount > 0 ? 'var(--color-acc-gold)' : 'var(--color-sub)', cursor: 'pointer', fontSize: 16 }}>⚙
           {filterCount > 0 && <span style={{ position: 'absolute', top: -2, right: -2, minWidth: 16, height: 16, padding: '0 4px', borderRadius: 99, background: 'var(--color-acc-gold)', color: '#111', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{filterCount}</span>}
         </button>
+        <button onClick={() => setImportOpen(true)} title="Importar extracto" aria-label="Importar extracto"
+          style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--color-s1)', border: '1px solid var(--color-border)', color: 'var(--color-sub)', cursor: 'pointer', fontSize: 16 }}>⬆</button>
         <button onClick={() => setQuickAddOpen(true)}
           style={{ background: 'var(--color-acc-gold)', color: '#111', border: 'none', borderRadius: 10, padding: '0 14px', height: 36, fontSize: 13, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>+ Añadir</button>
       </div>
 
       {showSearch && (
         <input className="inp" autoFocus value={search} onChange={e => setSearch(e.target.value)} type="text" placeholder="🔍 Buscar movimientos…" style={{ marginBottom: 10 }} />
+      )}
+
+      {importsCount > 0 && (
+        <button onClick={() => setHistoryOpen(true)}
+          style={{ background: 'transparent', border: 'none', color: 'var(--color-acc-blue)', fontSize: 12, fontWeight: 600, padding: '0 0 10px', cursor: 'pointer' }}>
+          Importaciones ({importsCount})
+        </button>
       )}
 
       <div className="card">
@@ -122,6 +136,8 @@ export function MovesTab() {
 
       <QuickAddSheet open={quickAddOpen} onClose={() => setQuickAddOpen(false)} />
       <EditTxSheet open={editId !== null} onClose={() => setEditId(null)} txId={editId} />
+      <ImportSheet open={importOpen} onClose={() => setImportOpen(false)} />
+      <ImportsHistorySheet open={historyOpen} onClose={() => setHistoryOpen(false)} />
     </div>
   )
 }
