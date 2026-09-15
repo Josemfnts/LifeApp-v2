@@ -47,8 +47,10 @@ test('categorías top con media de 6 meses, presupuestos en aviso y próximos ca
 
 test('patrimonio, deudas, pufos activos y tamaño compacto', () => {
   const c = buildFinanceContext(state(), '2026-09-15')
-  assert.equal(c.netWorth.now, 3000 - 100000)
-  assert.equal(c.netWorth.var1M, -97000 - -97500)
+  // 30 € que Ana me debe (pufo activo) cuentan como líquido, igual que en el hero y la foto diaria.
+  assert.equal(c.netWorth.now, 3000 + 30 - 100000)
+  assert.equal(c.netWorth.breakdown.liquid, 3030)
+  assert.equal(c.netWorth.var1M, -96970 - -97500)
   assert.equal(c.debts.total, 100000)
   assert.ok(c.debts.monthlyPayments > 0)
   assert.deepEqual(c.receivables, { meDeben: 30, lesDebo: 0 })

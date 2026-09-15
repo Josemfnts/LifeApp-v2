@@ -57,7 +57,11 @@ function flowSums(txs: Tx[], monthKey: string) {
 
 export function buildFinanceContext(s: FinanceState, todayISO: string, now = Date.now()): FinanceContext {
   const pf = portfolio(s.holdings, s.priceCache, now)
+  const active = s.pufos.filter(p => !p.settled)
+  // Mismo patrimonio que el hero y la foto diaria (netWorthExtras): los pufos activos ajustan el líquido.
+  // Sin ellos la variación se inventaba una bajada igual a lo que te deben.
   const extras = {
+    liquid: sumEuros(active.map(p => (p.dir === 'me_debe' ? p.amount : -p.amount))),
     investments: pf.value,
     debt: sumEuros(s.debts.filter(d => d.includeInNw !== false).map(d => d.balance)),
     property: sumEuros(s.properties.filter(p => p.includeInNw !== false).map(p => currentValue(p, todayISO))),
@@ -92,7 +96,6 @@ export function buildFinanceContext(s: FinanceState, todayISO: string, now = Dat
       .map(date => ({ date, concept: r.concept, amount: r.type === 'income' ? r.amount : -r.amount })))
     .sort((a, b) => a.date.localeCompare(b.date))
 
-  const active = s.pufos.filter(p => !p.settled)
   return {
     generatedAt: new Date(now).toISOString(),
     disclaimer: DISCLAIMER,
