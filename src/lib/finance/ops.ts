@@ -54,3 +54,15 @@ export function buildTransfer(
   }
   return [txFrom, txTo]
 }
+
+// Siguiente id de Tx libre: mayor entre Date.now() y el maximo de los ids existentes + 1.
+// Garantiza unicidad cuando varias llamadas al mismo milisegundo (p.ej. applyImport +
+// adjustBalance en el mismo tick) comparten Date.now().
+export function nextTxId(txs: Tx[]): number {
+  let maxId = 0
+  for (const t of txs) {
+    if (typeof t.id === 'number' && t.id > maxId) maxId = t.id
+  }
+  const now = Date.now()
+  return Math.max(now, maxId + 1)
+}

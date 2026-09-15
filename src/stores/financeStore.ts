@@ -5,7 +5,7 @@ import { addEuros } from '@/lib/finance/money'
 import { localISO } from '@/lib/finance/dates'
 import { computeNetWorth } from '@/lib/finance/networth'
 import { upsertTodaySnapshot, backfillEstimated, type NwSnapshot } from '@/lib/finance/snapshots'
-import { buildAdjustment, buildTransfer } from '@/lib/finance/ops'
+import { buildAdjustment, buildTransfer, nextTxId } from '@/lib/finance/ops'
 import { matchMerchant, learnMerchant, SEED_MERCHANTS, type Merchant } from '@/lib/finance/merchants'
 import { buildImportTxs, type ImportRecord, type ReviewedRow } from '@/lib/finance/import/apply'
 import type { CsvMapping } from '@/lib/finance/import/csv'
@@ -133,7 +133,8 @@ export const useFinanceStore = create<FinanceStore>((set, get) => {
     // en el historial para poder deshacerla.
     applyImport: ({ cuenta, filename, format, rows, skipped }) => {
       const importId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `imp-${Date.now()}`
-      const newTxs = buildImportTxs(rows, cuenta, importId, Date.now())
+      const baseId = nextTxId(get().txs)
+      const newTxs = buildImportTxs(rows, cuenta, importId, baseId)
       const txs = [...newTxs, ...get().txs]
       let cuentas = get().cuentas
       for (const t of newTxs) {
@@ -192,7 +193,7 @@ export const useFinanceStore = create<FinanceStore>((set, get) => {
     },
 
     addTx: (tx) => {
-      const baseStamped: Tx = { ...tx, id: Date.now() }
+      const baseStamped: Tx = { ...tx, id: nextTxId(get().txs) }
       const m = matchMerchant(baseStamped.concept, allMerchants(get().merchants))
       const stamped: Tx = m ? { ...baseStamped, merchantId: m.id } : baseStamped
       const txs = [stamped, ...get().txs]
@@ -406,7 +407,7 @@ export const useFinanceStore = create<FinanceStore>((set, get) => {
         )
         if (r.day <= todayD && !alreadyAdded) {
           newTxs.push({
-            id: Date.now() + Math.random(),
+            id: nextTxId([...newTxs, ...txs]),
             concept: r.concept,
             amount: r.amount,
             type: r.type,
@@ -436,8 +437,9 @@ export const useFinanceStore = create<FinanceStore>((set, get) => {
 
     addTransfer: (from, to, amount, date, concept) => {
       const [fromTx, toTx] = buildTransfer(from, to, amount, date, concept)
-      const stampedFrom: Tx = { ...fromTx, id: Date.now() }
-      const stampedTo: Tx = { ...toTx, id: Date.now() + 1 }
+      const idFrom = nextTxId(get().txs)
+      const stampedFrom: Tx = { ...fromTx, id: idFrom }
+      const stampedTo: Tx = { ...toTx, id: idFrom + 1 }
       const txs = [stampedFrom, stampedTo, ...get().txs]
       saveToStorage('finances_tx', txs)
       let cuentas = get().cuentas

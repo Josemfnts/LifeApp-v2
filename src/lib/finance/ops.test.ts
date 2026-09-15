@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { buildAdjustment, buildTransfer } from './ops.ts'
+import { buildAdjustment, buildTransfer, nextTxId } from './ops.ts'
 import type { Cuenta } from './types.ts'
 
 function c(partial: Partial<Cuenta>): Cuenta {
@@ -74,4 +74,30 @@ test('buildTransfer: lanza si from === to', () => {
 test('buildTransfer: lanza si amount <= 0', () => {
   assert.throws(() => buildTransfer('A', 'B', 0, '2026-09-15'), /Importe/)
   assert.throws(() => buildTransfer('A', 'B', -10, '2026-09-15'), /Importe/)
+})
+
+test('nextTxId: lista vacia usa Date.now()', () => {
+  const id = nextTxId([])
+  assert.ok(id > 0)
+  assert.ok(id <= Date.now())
+})
+
+test('nextTxId: ids existentes menores que Date.now() -> Date.now()', () => {
+  const txs = [{ id: 1 }, { id: 2 }, { id: 3 }] as unknown as Parameters<typeof nextTxId>[0]
+  const id = nextTxId(txs)
+  assert.ok(id >= Date.now())
+})
+
+test('nextTxId: ids existentes mayores que Date.now() -> max+1 (caso applyImport + adjust)', () => {
+  const bigId = Date.now() + 1000
+  const txs = [{ id: bigId }, { id: bigId + 1 }] as unknown as Parameters<typeof nextTxId>[0]
+  const id = nextTxId(txs)
+  assert.equal(id, bigId + 2)
+})
+
+test('nextTxId: ignora ids no numéricos', () => {
+  const txs = [{ id: undefined }, { id: 5 }] as unknown as Parameters<typeof nextTxId>[0]
+  const id = nextTxId(txs)
+  assert.ok(id >= Date.now())
+  assert.notEqual(id, NaN)
 })
