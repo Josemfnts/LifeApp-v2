@@ -207,7 +207,7 @@ export function parseN43(text: string): ParseResult {
     rows,
     errors,
     check,
-    finalBalance: only?.finalCents !== undefined ? fromCents(only.finalCents) : undefined,
+    finalBalance: only && only.finalReadOk ? fromCents(only.finalCents ?? 0) : undefined,
     accountId: accounts[0]?.account,
   }
 }

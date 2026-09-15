@@ -329,3 +329,22 @@ test('parseN43: fecha ilegible en 22 -> fila omitida, errors con "Línea", check
   assert.ok(r.errors.some(e => /Línea \d+: movimiento ilegible/.test(e)))
   assert.equal(r.check?.ok, false)
 })
+
+test('parseN43: saldo final ilegible en 33 -> finalBalance undefined y check.ok=false', () => {
+  const text = buildFile({
+    cuenta: '1234567890',
+    ini: 0,
+    fin: 0,
+    movimientos: [
+      { importe: -200, fechaOp: '260115', doc: 'BIEN' },
+      { importe: 200, fechaOp: '260116', doc: 'ABONO' },
+    ],
+  })
+  const lines = text.split('\n').map(l => l.length === 80 ? l.padEnd(80, ' ') : l)
+  const idx33 = lines.findIndex(l => l.startsWith('33'))
+  // Saldo final en posición 60 (1-indexada), 14 caracteres.
+  lines[idx33] = replaceAt(lines[idx33], 60, 'XXXXXXXXXXXXXX')
+  const r = parseN43(lines.join('\n'))
+  assert.equal(r.finalBalance, undefined)
+  assert.equal(r.check?.ok, false)
+})
