@@ -6,9 +6,6 @@ import { QuickAddSheet } from './QuickAddSheet'
 import { EditTxSheet } from './EditTxSheet'
 import { Modal } from '@/components/ui/Modal'
 
-const INCOME_CATS = ['Nómina', 'Freelance', 'Otros ingresos']
-const EXPENSE_CATS = ['Vivienda', 'Alimentación', 'Transporte', 'Salud', 'Ocio', 'Ropa', 'Suscripciones', 'Deporte', 'Restaurantes', 'Viajes', 'Educación', 'Ahorro', 'Otros gastos']
-
 export function MovesTab() {
   const txs = useFinanceStore(s => s.txs)
   const [search, setSearch] = useState('')

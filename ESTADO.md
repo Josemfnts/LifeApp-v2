@@ -16,10 +16,17 @@ Stack real: React 19 + Vite 8 + Zustand + Supabase (store_data key-value). Ver A
 
 ## A medias
 - **Finanzas "Margen"** (2026-09-15): replicar todas las funciones de Margen en Finanzas.
-  Plan y decisiones en `.mapa/finanzas-margen/` (mapa.md = indice, plan.md = fases F0-F6 con casillas).
+  Plan y decisiones en `.mapa/finanzas-margen/` (mapa.md = indice, plan.md = fases F0-F6 con casillas,
+  encargos/ = spec de cada fase lista para OpenCode).
+  - HECHO y en prod (https://life-app-v2-ten.vercel.app/finanzas): F0 motor `src/lib/finance/` + tests
+    `npm test` (node:test) + Finanzas partido en `components/finanzas/`; F1 patrimonio neto con hero animado,
+    snapshots diarios (`finances_nw_snapshots`), ajustar saldo y traspasos (`Tx.kind`); F2a-1 motor y store de
+    comercios (`finances_merchants`, seed de ~60 comercios).
+  - EN CURSO: F2a-2 UI (alta rápida, editar movimiento, logos).
 
 ## Lo siguiente
-- Ejecutar F0→F6 del plan de Finanzas (la primera casilla sin marcar en plan.md).
+- F2b importación N43/CSV → F3 inversiones → F4 deudas/inmuebles → F5 planificación → F6 útiles
+  (la primera casilla sin marcar en plan.md; cada spec en `.mapa/finanzas-margen/encargos/`).
 - Ideas aparcadas en `Pendiente implementar/`: Agente personal, Atajos iOS, Mejora visual global.
 
 ## Cuidado con

@@ -3,6 +3,7 @@ import { Modal } from '@/components/ui/Modal'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { useFinanceStore, CAT_META, fmt } from '@/stores/financeStore'
 import { useToast } from '@/stores/toast'
+import { parseEuroInput, roundEuros } from '@/lib/finance/money'
 
 interface Props {
   open: boolean
@@ -46,28 +47,35 @@ export function EditTxSheet({ open, onClose, txId }: Props) {
 
   const cats = type === 'income' ? INCOME_CATS : EXPENSE_CATS
 
+  // updateTxFull/removeTx reciben la POSICIÓN en el array, no el id del movimiento.
+  function currentIdx(): number {
+    return txId == null ? -1 : useFinanceStore.getState().txs.findIndex(t => t.id === txId)
+  }
+
   function handleSave() {
-    const a = parseFloat(amount.replace(',', '.'))
-    if (!a || a <= 0) { toast.show('Importe inválido'); return }
+    const a = parseEuroInput(amount)
+    if (!(a > 0)) { toast.show('Importe inválido'); return }
     if (!concept.trim()) { toast.show('Introduce un concepto'); return }
     const partial = {
       type,
-      amount: a,
+      amount: roundEuros(a),
       concept: concept.trim(),
       category,
       cuenta: cuenta || undefined,
       date,
       note: note ?? '',
     }
-    if (txId == null) return
-    updateTxFull(txId, partial)
+    const idx = currentIdx()
+    if (idx < 0) { toast.show('Ese movimiento ya no existe'); onClose(); return }
+    updateTxFull(idx, partial)
     toast.show('✓ Movimiento actualizado')
     onClose()
   }
 
   function handleDelete() {
-    if (txId == null) return
-    removeTx(txId)
+    const idx = currentIdx()
+    if (idx < 0) { onClose(); return }
+    removeTx(idx)
     toast.show('✓ Movimiento borrado')
     onClose()
   }
@@ -94,7 +102,7 @@ export function EditTxSheet({ open, onClose, txId }: Props) {
           )}
 
           <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4 }}>Importe (€)</div>
-          <input className="inp" value={amount} onChange={e => setAmount(e.target.value)} type="number" step="0.01" />
+          <input className="inp" value={amount} onChange={e => setAmount(e.target.value)} type="text" inputMode="decimal" />
 
           <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4, marginTop: 8 }}>Concepto</div>
           <input className="inp" value={concept} onChange={e => setConcept(e.target.value)} type="text" />

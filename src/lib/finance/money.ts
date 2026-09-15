@@ -14,6 +14,16 @@ export function toCents(eur: number): number {
   return cents === 0 ? 0 : sign * cents
 }
 
+// Importe tecleado por el usuario en formato español o inglés: "12,5", "1.234,56", "1234.56",
+// "12,00 €". Devuelve NaN si no es un número.
+export function parseEuroInput(s: string): number {
+  let t = (s ?? '').replace(/[€\s]/g, '')
+  if (!t) return NaN
+  if (t.includes(',')) t = t.replace(/\./g, '').replace(',', '.')
+  const n = Number(t)
+  return Number.isFinite(n) ? n : NaN
+}
+
 export function fromCents(c: number): number {
   return Math.round(c) / 100
 }

@@ -3,7 +3,7 @@ import { Modal } from '@/components/ui/Modal'
 import { useFinanceStore, CAT_META } from '@/stores/financeStore'
 import { useToast } from '@/stores/toast'
 import { localISO } from '@/lib/finance/dates'
-import { roundEuros } from '@/lib/finance/money'
+import { roundEuros, parseEuroInput } from '@/lib/finance/money'
 import { matchMerchant, suggestCategory, type Merchant } from '@/lib/finance/merchants'
 import { SEED_MERCHANTS } from '@/lib/finance/merchants'
 import { MerchantAvatar } from './MerchantAvatar'
@@ -41,8 +41,13 @@ export function QuickAddSheet({ open, onClose }: Props) {
   const amountRef = useRef<HTMLInputElement>(null)
   const conceptRef = useRef<HTMLInputElement>(null)
 
+  // Reinicia el formulario solo al ABRIR la hoja: si dependiera de cada cambio de txs, una
+  // escritura de CompAI (espejo vivo) borraría lo que el usuario está tecleando.
+  const wasOpen = useRef(false)
   useEffect(() => {
-    if (open) {
+    const opening = open && !wasOpen.current
+    wasOpen.current = open
+    if (opening) {
       setType('expense')
       setAmount('')
       setConcept('')
@@ -104,8 +109,8 @@ export function QuickAddSheet({ open, onClose }: Props) {
   }
 
   function handleSave() {
-    const a = parseFloat(amount.replace(',', '.'))
-    if (!a || a <= 0) { toast.show('Introduce un importe'); return }
+    const a = parseEuroInput(amount)
+    if (!(a > 0)) { toast.show('Introduce un importe'); return }
     const trimmed = concept.trim()
     if (!trimmed) { toast.show('Introduce un concepto'); return }
     addTx({
