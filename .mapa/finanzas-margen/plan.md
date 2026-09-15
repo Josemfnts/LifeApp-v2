@@ -82,9 +82,13 @@ navegador) y commit+push. Si una fase se corta, se retoma por la primera casilla
       (2026-09-15, Claude directo con dev-mcp caído: motor 71a3ac8 + store/UI 89d8410. Verificado E2E en prod:
       buscar BTC en CoinGecko desde el navegador (CORS OK) → compra 0,01 contra cuenta (mov. kind investment,
       saldo 1000→600) → precio en vivo 66.201 € y P&L latente. Venta/split/DCA solo cubiertos por tests del motor.)
-- [ ] **F4 · Deudas e inmuebles** — amortización francesa, pago con desglose, variable, inmuebles.
-      (2026-09-15, Claude directo: motor c655ae6 + store/UI bc8bc80, 161 tests. Pendiente verificación E2E en prod.)
+- [x] **F4 · Deudas e inmuebles** — amortización francesa, pago con desglose, variable, inmuebles.
+      (2026-09-15, Claude directo: motor c655ae6 + store/UI bc8bc80. Verificado E2E en prod: hipoteca 150.000 € 3 %
+      360 m → cuota 632,41 € (375 intereses + 257,41 capital), cuadro 360 cuotas, pagar cuota = 2 movimientos
+      enlazados, cuenta −632,41, deuda 149.742,59, patrimonio −375,00 exactos. Bug destapado y corregido: la cuota
+      bajaba tras pagar (plazo no descontaba cuotas pagadas). Inmuebles y amortización anticipada: solo tests.)
 - [ ] **F5 · Planificación** — presupuestos rollover/avisos, recurrentes pro, detección, calendario, notificaciones.
+      (2026-09-15, Claude directo: motor 144303d + store/UI c1e1102, 177 tests. Pendiente verificación E2E en prod.)
 - [ ] **F6 · Útiles** — simuladores préstamo/hipoteca/ahorro, gastos compartidos, informe imprimible, contexto IA, disclaimer.
 - [ ] **Cierre** — sección Finanzas en AGENTS.md (claves nuevas + `kind`), ESTADO, DECISIONES, aviso life-mcp.
 

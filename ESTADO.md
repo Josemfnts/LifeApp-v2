@@ -37,10 +37,15 @@ Stack real: React 19 + Vite 8 + Zustand + Supabase (store_data key-value). Ver A
     cripto en vivo con CoinGecko (verificado desde el navegador), precio manual con marca de antigüedad, split,
     compra periódica (DCA) al abrir Finanzas, compras/ventas contra cuenta como `kind: investment`
     (`finances_holdings`; caché de precios solo local). Verificado E2E en prod el 2026-09-15.
-  - HECHO en código, SIN verificar en prod aún: **F4 deudas e inmuebles** (Patrimonio → 💳 Deudas / 🏠 Inmuebles):
+  - HECHO **F4 deudas e inmuebles**, deudas verificadas E2E en prod el 2026-09-15 (inmuebles solo por tests): (Patrimonio → 💳 Deudas / 🏠 Inmuebles):
     cuota francesa con cuadro exacto, pagar cuota = intereses (gasto) + capital (`debt_principal`), amortización
     anticipada simulada, inmuebles con valor manual o % anual y valor neto de hipoteca (`finances_debts`,
     `finances_properties`). El patrimonio neto suma cartera, deudas e inmuebles. 161 tests.
+  - HECHO en código, SIN verificar en prod aún: **F5 planificación** (pestaña Plan): presupuestos con rollover y
+    niveles 80/100 %, recurrentes semanal/mensual/anual que se apuntan solos con su fecha y mueven la cuenta,
+    sugerencias automáticas de recurrentes, calendario con saldo previsto a fin de mes, avisos al abrir la app
+    (`checkFinanceReminders`) y bloque "Próximos 7 días" en Inicio (`finances_recurring_dismissed`;
+    `finances_alerts_sent` solo local).
   - Aviso visto: el selector de color de cuenta recibe `var(--color-acc-blue)` (input type=color exige #hex) — preexistente.
 
 ## Lo siguiente
