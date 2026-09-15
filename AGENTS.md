@@ -31,9 +31,10 @@ cuenta — **excepto Notas y Comunidad**, que hablan con Supabase directamente y
 npm run dev       # Vite dev server (HMR)
 npm run build     # tsc -b && vite build   ← el build hace TYPECHECK; si tsc falla, no compila
 npm run lint      # oxlint
+npm test          # tests del motor de Finanzas (node:test nativo, sin dependencias)
 npm run preview   # sirve el build
 ```
-Tras cualquier cambio no trivial, deja **verde** las tres: `npm run build` (incluye `tsc -b`) y `npm run lint`.
+Tras cualquier cambio no trivial, deja **verde**: `npm run build` (incluye `tsc -b`), `npm run lint` y `npm test`.
 
 ## Estructura
 ```
@@ -232,6 +233,22 @@ La auditoría del 1-jul ya está mayormente resuelta:
   del usuario; login que no machaca la nube. Detalle de arquitectura en §Arquitectura de datos, regla 4.
   **Pendiente del lado CompAI (otra sesión)**: life-mcp debería escribir con CAS sobre `updated_at` para
   tener la misma garantía; el trigger ya le asegura versiones honestas.
+
+## Finanzas "Margen" (2026-09-15, en curso — plan en `.mapa/finanzas-margen/`)
+Replica de la app Margen dentro de Finanzas, por fases F0-F6 (plan.md con casillas, specs en `encargos/`).
+- **Motor puro** en `src/lib/finance/` (money, dates, flow, networth, snapshots, ops, merchants, `import/`
+  n43·csv·dedupe·decode·apply), con tests `*.test.ts`. Reglas ahí dentro: imports relativos con extensión `.ts`
+  (nunca `@/`), solo sintaxis TS borrable, **dinero siempre en céntimos** vía `money.ts` (toCents/addEuros/…).
+  Los `*.test.ts` están excluidos de `tsconfig.app.json`.
+- **UI** en `src/components/finanzas/` (una pestaña/hoja por fichero); `src/pages/Finanzas.tsx` es solo el shell.
+- **Claves nuevas** (todas en STORE_KEYS con recargador): `finances_nw_snapshots` (foto diaria del patrimonio,
+  inmutable hacia atrás), `finances_merchants` (comercios aprendidos; los ~60 seed viven en código),
+  `finances_imports` (historial de importaciones) y `finances_import_maps` (mapeos CSV por banco).
+- **`Tx.kind`** (opcional): `transfer | adjust | investment | debt_principal` = NO es flujo; se excluye de
+  ingresos/gastos/tasa de ahorro/presupuestos (`isFlow`). Un traspaso son 2 patas con el mismo `linkId`.
+  Otros opcionales: `merchantId`, `importId`, `dedupe`. `Cuenta.id` estable; `Tx.cuenta` sigue siendo el nombre.
+  **CompAI/life-mcp** debería ignorar los `kind` en sus sumas (pendiente del lado life-mcp).
+- Los store actions `updateTxFull/removeTx` reciben la **posición** en `txs`, no el id del movimiento.
 
 ## Gotchas
 - **`NODE_ENV=production` en el entorno de esta máquina** (lo ve OpenCode): `npm ci`/`npm install` a secas

@@ -73,10 +73,11 @@ navegador) y commit+push. Si una fase se corta, se retoma por la primera casilla
 - [x] **F1 · El número** — motor de patrimonio + snapshots + hero animado + gráfica evolución;
       ajustar saldo; traspasos; `kind` excluido de estadísticas; id estable de cuenta.
       (2026-09-15, commits b4973fc·850c82d·81f7927 + fixes de revisión: dinero en céntimos, variación sin histórico.)
-- [ ] **F2 · Que se mantenga solo** — comercios + alta rápida + editar movimiento; importador N43/CSV
-      con revisión, dedupe y deshacer. (F2a hecho (UI+motor): commits f5ef1cd·102f889·b419848·aba9094 + fix 5a6fc1a editar/borrar;
-      verificado E2E en prod 2026-09-15: cuenta → alta rápida con literal bancario (comercio+categoría) →
-      editar → borrar, saldos y snapshot correctos. F2b: motor N43 a medias en import/, sin commitear.)
+- [x] **F2 · Que se mantenga solo** — comercios + alta rápida + editar movimiento; importador N43/CSV
+      con revisión, dedupe y deshacer. (F2a: f5ef1cd·102f889·b419848·aba9094 + fix 5a6fc1a editar/borrar.
+      F2b: motor b87fd4a + store/UI f9f7fda, hecho por Claude con dev-mcp caído. Verificado E2E en prod
+      2026-09-15: alta rápida → editar → borrar; importar N43 (3 movs, totales OK, saldo 1000→2791,71) →
+      reimportar = 0 nuevos/3 duplicados → deshacer (saldo vuelve a 1000). Pendiente probar un N43/CSV REAL de banco.)
 - [ ] **F3 · Inversiones** — holdings + lotes + P&L + CoinGecko + precio manual + DCA.
 - [ ] **F4 · Deudas e inmuebles** — amortización francesa, pago con desglose, variable, inmuebles.
 - [ ] **F5 · Planificación** — presupuestos rollover/avisos, recurrentes pro, detección, calendario, notificaciones.

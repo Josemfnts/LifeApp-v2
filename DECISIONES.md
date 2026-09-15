@@ -14,3 +14,7 @@
 - 2026-09-15 - Importacion N43 + CSV en cliente con revision obligatoria, dedupe y deshacer; IA de PDFs, widget iPhone, asesor IA y amigos/cuentas compartidas quedan fuera de la app - requieren servidor/claves/multiusuario - Claude
 - 2026-09-15 - Se anade vitest solo para src/lib/finance (motor puro) - el dinero debe cuadrar al centimo y no habia tests - Claude
 - 2026-09-15 - CORRIGE la anterior: tests con node:test nativo (sin dependencias) en vez de vitest - el primer intento de F0 no logro instalar vitest y dejo node_modules borrado - Claude
+- 2026-09-15 - Con dev-mcp caido, Claude termina F2b (importacion) directamente en vez de esperar a OpenCode - el job de OpenCode dejo el parser N43 roto a medias - Josema
+- 2026-09-15 - Encargos a OpenCode siempre cortos (motor / store / UI por separado) y revision de logica + prueba en navegador de cada entrega - un encargo largo se colgo y varias entregas "verdes" traian bugs de dinero (id vs indice, floats, comercios sin seed) - Claude
+- 2026-09-15 - Importacion N43: el concepto sale de los registros 23 (si no hay, referencia 2/1/documento); ajustar al saldo final del extracto es opcional y viene desmarcado - los codigos y referencias son ruido, y ajustar a ciegas descuadra si hay movimientos posteriores al extracto - Claude
+- 2026-09-15 - Importes tecleados o importados: el ultimo separador (punto o coma) es el decimal - cubre 1.234,56 (ES) y 1,234.56 (Revolut/EN) con un solo parser - Claude
