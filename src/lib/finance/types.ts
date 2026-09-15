@@ -48,6 +48,7 @@ export interface Cuenta {
   color: string
   note: string
   updatedAt: string
+  includeInNw?: boolean
 }
 
 export interface Presupuesto {
