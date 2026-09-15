@@ -26,7 +26,13 @@ Stack real: React 19 + Vite 8 + Zustand + Supabase (store_data key-value). Ver A
     **F2b importar extractos** (Movs → ⬆): N43 y CSV (BBVA/Revolut/cargo-abono, columnas recordadas por
     banco), revisión con duplicados omitidos y categoría editable, ajuste opcional al saldo final del N43,
     historial con Deshacer (`finances_imports`, `finances_import_maps`). Ambas verificadas E2E en prod el
-    2026-09-15 con un N43 sintético. 123 tests (`npm test`).
+    2026-09-15 con un N43 sintético.
+  - Revisión de Claude de F2b (2026-09-15 tarde), 3 bugs de dinero corregidos: N43 con fecha/importe ilegible
+    ya no se pierde con check en verde (38fb831); ids de Tx únicos con `nextTxId` — antes el ajuste al saldo
+    final repetía id con un importado y editar/borrar podía tocar otro movimiento (0567745); el ajuste lleva
+    `importId` y Deshacer lo revierte (a99b90b). Más: saldo final ilegible ya no se ofrece como 0 €.
+    Verificado leyendo código + tests/build de OpenCode; NO re-probado E2E en prod (el navegador de Claude
+    solo mira, no puede pasar del login).
   - Aviso visto: el selector de color de cuenta recibe `var(--color-acc-blue)` (input type=color exige #hex) — preexistente.
 
 ## Lo siguiente
