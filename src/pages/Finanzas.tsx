@@ -16,13 +16,17 @@ export default function Finanzas() {
   const toast = useToast()
   const processRecurrentes = useFinanceStore(s => s.processRecurrentes)
   const recordSnapshot = useFinanceStore(s => s.recordSnapshot)
+  const runDueDca = useFinanceStore(s => s.runDueDca)
   const toastShow = useToast(s => s.show)
 
   useEffect(() => {
     recordSnapshot()
     const newTxs = processRecurrentes()
     if (newTxs.length > 0) toastShow(`✓ ${newTxs.length} transacciones recurrentes añadidas`)
-  }, [processRecurrentes, recordSnapshot, toastShow])
+    const dca = runDueDca()
+    if (dca.done.length > 0) toastShow(`✓ Compra periódica hecha: ${dca.done.join(', ')}`)
+    if (dca.skipped.length > 0) toastShow(`⚠️ Sin precio para la compra periódica de ${dca.skipped.join(', ')}`)
+  }, [processRecurrentes, recordSnapshot, runDueDca, toastShow])
 
   return (
     <div>

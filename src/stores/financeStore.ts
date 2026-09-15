@@ -1,7 +1,9 @@
 import { saveToStorage, loadFromStorage } from '@/lib/storage'
 import { create } from 'zustand'
 import { onRemoteChange } from '@/lib/mirror'
-import { addEuros } from '@/lib/finance/money'
+import { addEuros, roundEuros } from '@/lib/finance/money'
+import { position, portfolio, resolvePrice, dcaDue, type Holding, type Lot, type Sale, type PriceCache } from '@/lib/finance/investments'
+import { fetchCryptoPrices, loadPriceCache, savePriceCache } from '@/lib/finance/prices'
 import { localISO } from '@/lib/finance/dates'
 import { computeNetWorth } from '@/lib/finance/networth'
 import { upsertTodaySnapshot, backfillEstimated, type NwSnapshot } from '@/lib/finance/snapshots'
@@ -16,6 +18,19 @@ function allMerchants(user: Merchant[]): Merchant[] {
   return [...user, ...SEED_MERCHANTS]
 }
 
+function uid(): string {
+  return typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `id-${Date.now()}-${Math.random().toString(36).slice(2)}`
+}
+
+// Compra o venta de una inversión contra una cuenta: mueve dinero pero NO es gasto ni ingreso
+// (kind 'investment', excluido del flujo). El resultado de la venta se ve en el P&L, no en el flujo.
+function investmentTx(txs: Tx[], p: { type: 'income' | 'expense'; amount: number; cuenta: string; date: string; concept: string; holdingId: string }): Tx {
+  return {
+    id: nextTxId(txs), type: p.type, amount: roundEuros(p.amount), category: 'Inversión', concept: p.concept,
+    note: '', cuenta: p.cuenta, date: p.date, kind: 'investment', holdingId: p.holdingId,
+  }
+}
+
 export type { Tx, TxKind, Hucha, Pufo, Cuenta, Presupuesto, Recurrente } from '@/lib/finance/types'
 import type { Tx, Hucha, Pufo, Cuenta, Presupuesto, Recurrente } from '@/lib/finance/types'
 
@@ -23,6 +38,7 @@ export const CAT_META: Record<string, { icon: string; color: string; type: strin
   'Nómina':          { icon:'💼', color:'var(--color-acc-green)', type:'income' },
   'Freelance':       { icon:'💻', color:'var(--color-acc-green)', type:'income' },
   'Otros ingresos':  { icon:'📥', color:'var(--color-acc-green)', type:'income' },
+  'Dividendos':      { icon:'💶', color:'var(--color-acc-green)', type:'income' },
   'Vivienda':        { icon:'🏠', color:'var(--color-acc-blue)', type:'expense' },
   'Alimentación':    { icon:'🛒', color:'var(--color-acc-gold)', type:'expense' },
   'Transporte':      { icon:'🚗', color:'var(--color-acc-purple)', type:'expense' },
@@ -38,6 +54,7 @@ export const CAT_META: Record<string, { icon: string; color: string; type: strin
   'Otros gastos':    { icon:'📤', color:'#8a8d96', type:'expense' },
   'Ajuste':          { icon:'⚖️', color:'var(--color-sub)',        type:'adjust' },
   'Traspaso':        { icon:'🔁', color:'var(--color-acc-blue)',   type:'transfer' },
+  'Inversión':       { icon:'📈', color:'var(--color-acc-purple)', type:'investment' },
 }
 
 export const CUENTA_TYPE: Record<string, { label: string; icon: string; asset: boolean }> = {
@@ -72,6 +89,15 @@ interface FinanceStore {
   merchants: Merchant[]
   imports: ImportRecord[]
   importMaps: Record<string, CsvMapping>
+  holdings: Holding[]
+  priceCache: PriceCache
+  addHolding: (h: Holding, cuenta?: string) => void
+  updateHolding: (id: string, partial: Partial<Holding>) => void
+  removeHolding: (id: string) => void
+  buyLot: (holdingId: string, lot: Omit<Lot, 'id'>, cuenta?: string) => void
+  sell: (holdingId: string, sale: Omit<Sale, 'id'>, cuenta?: string) => void
+  refreshPrices: () => Promise<number>
+  runDueDca: () => { done: string[]; skipped: string[] }
   applyImport: (p: { cuenta: string; filename: string; format: 'n43' | 'csv'; rows: ReviewedRow[]; skipped: number }) => ImportRecord
   undoImport: (importId: string) => number
   saveImportMap: (bank: string, mapping: CsvMapping) => void
@@ -128,6 +154,133 @@ export const useFinanceStore = create<FinanceStore>((set, get) => {
     merchants: loadFromStorage('finances_merchants', [] as Merchant[]),
     imports: loadFromStorage('finances_imports', [] as ImportRecord[]),
     importMaps: loadFromStorage('finances_import_maps', {} as Record<string, CsvMapping>),
+    holdings: loadFromStorage('finances_holdings', [] as Holding[]),
+    priceCache: loadPriceCache(),
+
+    // ── Inversiones ────────────────────────────────────────────────────────────
+    addHolding: (h, cuenta) => {
+      const holdings = [...get().holdings, h]
+      let txs = get().txs
+      let cuentas = get().cuentas
+      if (cuenta) {
+        for (const l of h.lots) {
+          const tx = investmentTx(txs, { type: 'expense', amount: l.quantity * l.unitCost + l.fees, cuenta, date: l.date, concept: `Compra ${h.name}`, holdingId: h.id })
+          txs = [tx, ...txs]
+          const c = cuentasConMovimiento(cuentas, tx, 1)
+          if (c) cuentas = c
+        }
+        saveToStorage('finances_tx', txs)
+        saveToStorage('finances_cuentas', cuentas)
+      }
+      saveToStorage('finances_holdings', holdings)
+      set({ holdings, txs, cuentas })
+      get().recordSnapshot()
+    },
+
+    updateHolding: (id, partial) => {
+      const holdings = get().holdings.map(h => (h.id === id ? { ...h, ...partial, id } : h))
+      saveToStorage('finances_holdings', holdings)
+      set({ holdings })
+      get().recordSnapshot()
+    },
+
+    removeHolding: (id) => {
+      const holdings = get().holdings.filter(h => h.id !== id)
+      saveToStorage('finances_holdings', holdings)
+      set({ holdings })
+      get().recordSnapshot()
+    },
+
+    buyLot: (holdingId, lot, cuenta) => {
+      const h = get().holdings.find(x => x.id === holdingId)
+      if (!h) return
+      const updated: Holding = { ...h, lots: [...h.lots, { ...lot, id: uid() }] }
+      const holdings = get().holdings.map(x => (x.id === holdingId ? updated : x))
+      let txs = get().txs
+      let cuentas = get().cuentas
+      // Staking y airdrops no salen de ninguna cuenta.
+      const free = lot.source === 'staking' || lot.source === 'airdrop'
+      if (cuenta && !free) {
+        const tx = investmentTx(txs, { type: 'expense', amount: lot.quantity * lot.unitCost + lot.fees, cuenta, date: lot.date, concept: `Compra ${h.name}`, holdingId })
+        txs = [tx, ...txs]
+        const c = cuentasConMovimiento(cuentas, tx, 1)
+        if (c) cuentas = c
+        saveToStorage('finances_tx', txs)
+        saveToStorage('finances_cuentas', cuentas)
+      }
+      saveToStorage('finances_holdings', holdings)
+      set({ holdings, txs, cuentas })
+      get().recordSnapshot()
+    },
+
+    // Lanza (sin guardar nada) si la venta supera lo que había en cartera en esa fecha.
+    sell: (holdingId, sale, cuenta) => {
+      const h = get().holdings.find(x => x.id === holdingId)
+      if (!h) return
+      const updated: Holding = { ...h, sales: [...h.sales, { ...sale, id: uid() }] }
+      position(updated)
+      const holdings = get().holdings.map(x => (x.id === holdingId ? updated : x))
+      let txs = get().txs
+      let cuentas = get().cuentas
+      if (cuenta) {
+        const tx = investmentTx(txs, { type: 'income', amount: sale.quantity * sale.unitPrice - sale.fees, cuenta, date: sale.date, concept: `Venta ${h.name}`, holdingId })
+        txs = [tx, ...txs]
+        const c = cuentasConMovimiento(cuentas, tx, 1)
+        if (c) cuentas = c
+        saveToStorage('finances_tx', txs)
+        saveToStorage('finances_cuentas', cuentas)
+      }
+      saveToStorage('finances_holdings', holdings)
+      set({ holdings, txs, cuentas })
+      get().recordSnapshot()
+    },
+
+    // Pide precios de todas las cripto en UNA llamada. No escribe la foto diaria: los precios cambian
+    // cada minuto y eso llenaría el espejo de escrituras; la foto se actualiza al abrir o al tocar datos.
+    refreshPrices: async () => {
+      const ids = get().holdings.map(h => h.coingeckoId).filter((x): x is string => !!x)
+      if (ids.length === 0) return 0
+      const quotes = await fetchCryptoPrices(ids)
+      const n = Object.keys(quotes).length
+      if (n === 0) return 0
+      set({ priceCache: savePriceCache(quotes) })
+      return n
+    },
+
+    runDueDca: () => {
+      const today = localISO()
+      const now = Date.now()
+      const done: string[] = []
+      const skipped: string[] = []
+      let txs = get().txs
+      let cuentas = get().cuentas
+      const holdings = get().holdings.map(h => {
+        if (!h.dca || !dcaDue(h, today)) return h
+        const { price, source } = resolvePrice(h, get().priceCache, now)
+        if (source === 'cost' || !(price > 0)) { skipped.push(h.name); return h }
+        const quantity = Math.round((h.dca.amount / price) * 1e8) / 1e8
+        const tx = investmentTx(txs, { type: 'expense', amount: h.dca.amount, cuenta: h.dca.cuenta, date: today, concept: `Compra periódica ${h.name}`, holdingId: h.id })
+        txs = [tx, ...txs]
+        const c = cuentasConMovimiento(cuentas, tx, 1)
+        if (c) cuentas = c
+        done.push(h.name)
+        return {
+          ...h,
+          lots: [...h.lots, { id: uid(), date: today, quantity, unitCost: price, fees: 0, source: 'dca' as const }],
+          dca: { ...h.dca, lastRun: today.slice(0, 7) },
+        }
+      })
+      if (done.length > 0 || skipped.length > 0) {
+        if (done.length > 0) {
+          saveToStorage('finances_tx', txs)
+          saveToStorage('finances_cuentas', cuentas)
+          saveToStorage('finances_holdings', holdings)
+          set({ holdings, txs, cuentas })
+          get().recordSnapshot()
+        }
+      }
+      return { done, skipped }
+    },
 
     // Aplica una importación ya revisada: una sola escritura por clave, saldo movido y registro
     // en el historial para poder deshacerla.
@@ -184,7 +337,8 @@ export const useFinanceStore = create<FinanceStore>((set, get) => {
       if (current.length === 0 && cuentas.length > 0) {
         current = backfillEstimated(cuentas, txs, localISO(), 12)
       }
-      const b = computeNetWorth(cuentas)
+      const investments = portfolio(get().holdings, get().priceCache, Date.now()).value
+      const b = computeNetWorth(cuentas, investments ? { investments } : undefined)
       const r = upsertTodaySnapshot(current, localISO(), b)
       if (r.changed) {
         saveToStorage('finances_nw_snapshots', r.snaps)
@@ -467,4 +621,5 @@ onRemoteChange({
   finances_merchants: () => useFinanceStore.setState({ merchants: loadFromStorage('finances_merchants', []) }),
   finances_imports: () => useFinanceStore.setState({ imports: loadFromStorage('finances_imports', []) }),
   finances_import_maps: () => useFinanceStore.setState({ importMaps: loadFromStorage('finances_import_maps', {}) }),
+  finances_holdings: () => useFinanceStore.setState({ holdings: loadFromStorage('finances_holdings', []) }),
 })

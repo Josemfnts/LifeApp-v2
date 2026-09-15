@@ -11,7 +11,7 @@ interface Props {
   txId: number | null
 }
 
-const INCOME_CATS = ['Nómina', 'Freelance', 'Otros ingresos']
+const INCOME_CATS = ['Nómina', 'Freelance', 'Dividendos', 'Otros ingresos']
 const EXPENSE_CATS = ['Vivienda', 'Alimentación', 'Transporte', 'Salud', 'Ocio', 'Ropa', 'Suscripciones', 'Deporte', 'Restaurantes', 'Viajes', 'Educación', 'Ahorro', 'Otros gastos']
 
 export function EditTxSheet({ open, onClose, txId }: Props) {
