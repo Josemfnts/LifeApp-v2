@@ -93,7 +93,11 @@ export function CashflowCalendar() {
           <div style={{ fontSize: 12, color: 'var(--color-sub)' }}>
             Saldo líquido previsto a fin de mes: <strong style={{ color: endBalance >= 0 ? 'var(--color-text)' : 'var(--color-red)' }}>{fmt(endBalance)}</strong>
           </div>
-          {firstNegative && (
+          {liquidNow < 0 ? (
+            <div style={{ fontSize: 12, color: 'var(--color-red)', fontWeight: 600, marginTop: 6 }}>
+              ⚠️ Tu saldo líquido ya está en negativo ({fmt(liquidNow)})
+            </div>
+          ) : firstNegative && (
             <div style={{ fontSize: 12, color: 'var(--color-red)', fontWeight: 600, marginTop: 6 }}>
               ⚠️ El {Number(firstNegative.date.slice(8, 10))} bajarías a {fmt(firstNegative.balance)}
             </div>
