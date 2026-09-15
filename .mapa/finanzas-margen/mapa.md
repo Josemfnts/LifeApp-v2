@@ -24,7 +24,7 @@ verde y cada fase comprobada en el navegador.
 - [05 · De dónde salen los precios](05-precios.md): cripto en vivo con CoinGecko desde el cliente; bolsa/fondos con precio manual y marca de frescura.
 - [06 · Cómo se importan extractos](06-importacion.md): N43 y CSV parseados en cliente, revisión obligatoria, deduplicación por hash y deshacer por importación.
 - [07 · Qué se queda fuera de la app](07-fuera-de-la-app.md): widget → Atajos iOS; asesor IA → CompAI con `buildFinanceContext()`; amigos/cuentas compartidas → no (single-user).
-- [08 · Cómo se prueba](08-tests.md): vitest sólo sobre `src/lib/finance/**`.
+- [08 · Cómo se prueba](08-tests.md): runner nativo `node:test` (sin dependencias) sólo sobre `src/lib/finance/**`; vitest descartado tras fallar su instalación.
 - [09 · Cómo se ve Finanzas](09-ui.md): 5 pestañas (Inicio · Movs · Patrimonio · Plan · Útiles), formularios en hojas, Finanzas.tsx partido en `components/finanzas/`.
 
 ## Niebla

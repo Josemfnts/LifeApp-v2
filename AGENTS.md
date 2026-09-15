@@ -234,6 +234,9 @@ La auditoría del 1-jul ya está mayormente resuelta:
   tener la misma garantía; el trigger ya le asegura versiones honestas.
 
 ## Gotchas
+- **`NODE_ENV=production` en el entorno de esta máquina** (lo ve OpenCode): `npm ci`/`npm install` a secas
+  OMITEN las devDependencies (vite, typescript, oxlint…) y el build se rompe. Instala SIEMPRE con
+  `npm ci --include=dev`. Nunca `rm -rf node_modules` ni borres `package-lock.json` para "arreglar" una instalación.
 - `.env` (`VITE_SUPABASE_URL` + anon key) **ya NO está versionado** (gitignored desde `255b781`). La anon key
   es **pública por diseño**; es recuperable del historial (`git show f6f3a0b:.env`) para correr en local.
   **Nunca** metas una `service_role` key en el cliente ni en `.env`.

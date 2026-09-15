@@ -1,6 +1,7 @@
 # Encargo F1 — El número (patrimonio neto vivo + histórico + ajuste + traspasos)
 
-Calidad: final. Requiere F0 hecho (lib/finance, vitest, Finanzas partido en components/finanzas).
+Calidad: final. Requiere F0 hecho (lib/finance, tests con node:test, Finanzas partido en components/finanzas).
+En `src/lib/finance/` imports relativos con extensión `.ts`, nunca `@/`, y solo sintaxis TS borrable (ver 08-tests.md).
 
 LEE PRIMERO: AGENTS.md (§Arquitectura de datos, reglas 2 y 4), .mapa/finanzas-margen/mapa.md,
 plan.md, 02-compatibilidad-compai.md, 03-dinero.md, 04-snapshots.md, 09-ui.md.

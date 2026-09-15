@@ -5,18 +5,35 @@ Calidad: final. Sin cambios visibles para el usuario.
 LEE PRIMERO: AGENTS.md (entero), .mapa/finanzas-margen/mapa.md, plan.md, 02-compatibilidad-compai.md,
 03-dinero.md, 08-tests.md, 09-ui.md.
 
-## PASO 0 — commit de documentación (antes de tocar código)
-`git add .mapa ESTADO.md DECISIONES.md` y commit "docs(finanzas): plan Margen por fases + decisiones
-de arquitectura". NO añadas "Pendiente implementar/" ni "mockups/" (son de Josema, se quedan sin
-trackear). En TODO el encargo: NUNCA `git add -A` ni `git add .`; solo rutas concretas.
+## PASO 0 — commit de documentación
+Ya hecho en el intento anterior (7b8993e). Ahora commitea con rutas concretas los cambios de
+`.mapa` y `DECISIONES.md` que haya sin commitear (spec de F0 revisada, decisión de tests).
+NO añadas "Pendiente implementar/" ni "mockups/" (son de Josema, se quedan sin trackear). En TODO
+el encargo: NUNCA `git add -A` ni `git add .`; solo rutas concretas.
 
-## PASO A — Tests del motor
-1. Instala vitest como devDependency (versión compatible con vite 8 que instale SIN --force ni
-   --legacy-peer-deps; si la última no lo es, baja de versión). Script: `"test": "vitest run"`.
-2. `vitest.config.ts` en la raíz, independiente de vite.config.ts (sin PWA/tailwind): alias `@` →
-   `./src`, `test.include: ['src/lib/finance/**/*.test.ts']`, `test.environment: 'node'`.
-3. `npm run build` (tsc -b) debe seguir compilando con los .test.ts dentro de src (si tsc se queja
-   de vitest.config.ts, inclúyelo en tsconfig.node.json o exclúyelo; lo más limpio).
+## PASO A0 — REPARAR node_modules (el primer intento de F0 lo dejó roto)
+El intento anterior modificó package.json/package-lock.json (vitest ^5.0.0, que nunca llegó a
+instalarse) y borró node_modules. **vitest queda DESCARTADO.**
+1. `git restore package.json package-lock.json` (vuelven a la versión commiteada, sin vitest).
+2. `npm ci` UNA vez. Comprueba que existen `node_modules/vite`, `node_modules/typescript`,
+   `node_modules/oxlint`, `node_modules/react` y que `npm run build` pasa ANTES de tocar código.
+3. Si `npm ci` no deja esos paquetes: PARA. No borres nada más, no edites package.json a mano, no
+   experimentes. Reporta `node -v`, `npm -v`, `npm config get omit`, el valor de NODE_ENV y la
+   salida de `npm ci`, y termina el encargo.
+
+## PASO A — Tests del motor con el runner NATIVO de Node (cero dependencias)
+1. NO instales ninguna dependencia. Script en package.json:
+   `"test": "node --test --experimental-strip-types \"src/lib/finance/**/*.test.ts\""`
+   (si `node -v` no soporta globs en `--test` o type stripping, adapta el comando al mínimo que
+   funcione con esa versión y explícalo en el resumen). Editar el bloque "scripts" de package.json
+   es lo ÚNICO que se toca de ese fichero; package-lock.json no debe cambiar.
+2. Tests con `import { test, describe } from 'node:test'` y `import assert from 'node:assert/strict'`.
+3. Reglas para que Node pueda ejecutar el TS sin compilar, en TODO `src/lib/finance/`:
+   imports RELATIVOS con extensión `.ts` (`import { toCents } from './money.ts'`; para las fechas
+   `import { getStr } from '../dates.ts'`), NUNCA el alias `@/` dentro de lib/finance; tipos con
+   `import type`; nada de enums, namespaces ni parameter properties (solo sintaxis borrable).
+4. Excluye `src/**/*.test.ts` de `tsconfig.app.json` (`"exclude"`) para que `tsc -b` no necesite
+   los tipos de `node:test`. El resto del código de lib/finance sí se typecheckea con el build.
 
 ## PASO B — `src/lib/finance/` (funciones puras, sin React ni localStorage)
 - `money.ts`:
@@ -59,9 +76,10 @@ trackear). En TODO el encargo: NUNCA `git add -A` ni `git add .`; solo rutas con
 3. En financeStore, `cuentasConMovimiento` usa `addEuros` en vez del Math.round manual.
 
 NO TOQUES: formato de claves de localStorage, storageKeys.ts, sync/mirror/realtime, Dashboard,
-otras páginas. Ninguna dependencia aparte de vitest.
+otras páginas. NINGUNA dependencia nueva. NUNCA `rm -rf node_modules` ni borrar package-lock.json.
 
 ## Criterios de aceptación (compruébalos antes de commitear)
+- `git diff HEAD -- package-lock.json` vacío; en package.json solo cambia el script "test".
 - `npm test` verde (di cuántos tests).
 - `npm run build` verde.
 - `npm run lint` sin ERRORES (hoy solo hay warnings; el exhaustive-deps de AnalysisTab puede cambiar

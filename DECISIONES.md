@@ -13,3 +13,4 @@
 - 2026-09-15 - Precios: cripto en vivo con CoinGecko desde cliente; bolsa/fondos con precio manual; proveedor de bolsa en vivo pendiente de clave de Josema - sin coste ni claves - Claude
 - 2026-09-15 - Importacion N43 + CSV en cliente con revision obligatoria, dedupe y deshacer; IA de PDFs, widget iPhone, asesor IA y amigos/cuentas compartidas quedan fuera de la app - requieren servidor/claves/multiusuario - Claude
 - 2026-09-15 - Se anade vitest solo para src/lib/finance (motor puro) - el dinero debe cuadrar al centimo y no habia tests - Claude
+- 2026-09-15 - CORRIGE la anterior: tests con node:test nativo (sin dependencias) en vez de vitest - el primer intento de F0 no logro instalar vitest y dejo node_modules borrado - Claude
