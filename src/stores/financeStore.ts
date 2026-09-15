@@ -1,60 +1,11 @@
 import { saveToStorage, loadFromStorage } from '@/lib/storage'
 import { create } from 'zustand'
 import { onRemoteChange } from '@/lib/mirror'
+import { addEuros } from '@/lib/finance/money'
+import { localISO } from '@/lib/finance/dates'
 
-export interface Tx {
-  id?: number
-  date: string
-  amount: number
-  type: 'income' | 'expense'
-  category: string
-  concept: string
-  note: string
-  cuenta?: string
-}
-export interface Hucha {
-  name: string
-  goal: number
-  current: number
-  emoji: string
-  deadline: string
-  color: string
-}
-export interface Pufo {
-  id: number
-  who: string
-  person: string
-  amount: number
-  dir: 'me_debe' | 'le_debo'
-  reason: string
-  concept: string
-  date: string
-  settled: boolean
-  settledDate?: string
-}
-export interface Cuenta {
-  name: string
-  type: string
-  balance: number
-  color: string
-  note: string
-  updatedAt: string
-}
-
-export interface Presupuesto {
-  category: string
-  limit: number
-}
-
-export interface Recurrente {
-  id: number
-  concept: string
-  amount: number
-  type: 'income' | 'expense'
-  category: string
-  day: number
-  active: boolean
-}
+export type { Tx, TxKind, Hucha, Pufo, Cuenta, Presupuesto, Recurrente } from '@/lib/finance/types'
+import type { Tx, Hucha, Pufo, Cuenta, Presupuesto, Recurrente } from '@/lib/finance/types'
 
 export const CAT_META: Record<string, { icon: string; color: string; type: string }> = {
   'Nómina':          { icon:'💼', color:'var(--color-acc-green)', type:'income' },
@@ -132,8 +83,8 @@ function cuentasConMovimiento(cuentas: Cuenta[], tx: Tx, dir: 1 | -1): Cuenta[] 
   const next = [...cuentas]
   next[i] = {
     ...next[i],
-    balance: Math.round((next[i].balance + delta) * 100) / 100,
-    updatedAt: new Date().toISOString().slice(0, 10),
+    balance: addEuros(next[i].balance, delta),
+    updatedAt: localISO(),
   }
   return next
 }
@@ -198,7 +149,7 @@ export const useFinanceStore = create<FinanceStore>((set, get) => ({
   },
   settlePufo: (idx) => {
     const pufos = [...get().pufos]
-    pufos[idx] = { ...pufos[idx], settled: true, settledDate: new Date().toISOString().slice(0, 10) }
+    pufos[idx] = { ...pufos[idx], settled: true, settledDate: localISO() }
     saveToStorage('finances_pufos', pufos)
     set({ pufos })
   },
@@ -243,7 +194,7 @@ export const useFinanceStore = create<FinanceStore>((set, get) => ({
     const { recurrentes, txs } = get()
     const today = new Date()
     const todayD = today.getDate()
-    const todayStr = new Date().toISOString().slice(0, 10)
+    const todayStr = localISO(today)
     const newTxs: Tx[] = []
 
     recurrentes.filter(r => r.active).forEach(r => {
