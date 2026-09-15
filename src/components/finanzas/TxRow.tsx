@@ -15,6 +15,7 @@ interface Props {
     kind?: string
     linkId?: string
     merchantId?: string
+    split?: { myShare: number }
   }
   onClick?: (id: number) => void
 }
@@ -46,6 +47,8 @@ export function TxRow({ tx, onClick }: Props) {
       subtitle = `${origin} → ${dest}`
     }
   }
+
+  if (tx.split) subtitle += ` · tu parte ${fmt(tx.split.myShare)}`
 
   let amountColor = tx.type === 'income' ? 'var(--color-acc-green)' : 'var(--color-red)'
   if (isTransfer) amountColor = 'var(--color-sub)'

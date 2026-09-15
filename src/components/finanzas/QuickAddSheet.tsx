@@ -4,9 +4,12 @@ import { useFinanceStore, CAT_META } from '@/stores/financeStore'
 import { useToast } from '@/stores/toast'
 import { localISO } from '@/lib/finance/dates'
 import { roundEuros, parseEuroInput } from '@/lib/finance/money'
+import { buildSplit } from '@/lib/finance/split'
+import type { TxSplit } from '@/lib/finance/types'
 import { matchMerchant, suggestCategory, type Merchant } from '@/lib/finance/merchants'
 import { SEED_MERCHANTS } from '@/lib/finance/merchants'
 import { MerchantAvatar } from './MerchantAvatar'
+import { SharePanel } from './SharePanel'
 
 interface Props {
   open: boolean
@@ -27,6 +30,7 @@ export function QuickAddSheet({ open, onClose }: Props) {
   const merchants = useFinanceStore(s => s.merchants)
   const txs = useFinanceStore(s => s.txs)
   const cuentas = useFinanceStore(s => s.cuentas)
+  const pufos = useFinanceStore(s => s.pufos)
   const addTx = useFinanceStore(s => s.addTx)
   const toast = useToast()
 
@@ -37,6 +41,9 @@ export function QuickAddSheet({ open, onClose }: Props) {
   const [cuenta, setCuenta] = useState('')
   const [date, setDate] = useState(localISO())
   const [showMore, setShowMore] = useState(false)
+  const [shareOpen, setShareOpen] = useState(false)
+  const [shareMode, setShareMode] = useState<TxSplit['mode']>('equal')
+  const [people, setPeople] = useState<{ name: string; value: string }[]>([{ name: '', value: '' }])
 
   const amountRef = useRef<HTMLInputElement>(null)
   const conceptRef = useRef<HTMLInputElement>(null)
@@ -52,6 +59,9 @@ export function QuickAddSheet({ open, onClose }: Props) {
       setAmount('')
       setConcept('')
       setShowMore(false)
+      setShareOpen(false)
+      setShareMode('equal')
+      setPeople([{ name: '', value: '' }])
       setDate(localISO())
       const last = txs.find(t => t.cuenta)
       setCuenta(last?.cuenta ?? '')
@@ -113,6 +123,16 @@ export function QuickAddSheet({ open, onClose }: Props) {
     if (!(a > 0)) { toast.show('Introduce un importe'); return }
     const trimmed = concept.trim()
     if (!trimmed) { toast.show('Introduce un concepto'); return }
+    let split: TxSplit | undefined
+    const named = people.filter(p => p.name.trim())
+    if (type === 'expense' && shareOpen && named.length > 0) {
+      try {
+        split = buildSplit(roundEuros(a), shareMode, named.map(p => ({ name: p.name.trim(), value: parseEuroInput(p.value) || 0 })))
+      } catch (e) {
+        toast.show(e instanceof Error ? e.message : 'Reparto inválido')
+        return
+      }
+    }
     addTx({
       type,
       amount: roundEuros(a),
@@ -121,6 +141,7 @@ export function QuickAddSheet({ open, onClose }: Props) {
       date,
       note: '',
       cuenta: cuenta || undefined,
+      ...(split ? { split } : {}),
     })
     const cu = cuentas.find(c => c.name === cuenta)
     const extra = cu ? ` · ${cu.name}: ${fmt2(cu.balance)}` : ''
@@ -204,6 +225,19 @@ export function QuickAddSheet({ open, onClose }: Props) {
             )
           })}
         </div>
+
+        {type === 'expense' && (
+          <SharePanel
+            open={shareOpen}
+            onToggle={() => setShareOpen(v => !v)}
+            total={parseEuroInput(amount)}
+            mode={shareMode}
+            onMode={setShareMode}
+            people={people}
+            onPeople={setPeople}
+            knownNames={[...new Set(pufos.map(p => p.person).filter(Boolean))]}
+          />
+        )}
 
         <button onClick={() => setShowMore(v => !v)} type="button"
           style={{ marginTop: 14, width: '100%', padding: '8px 10px', borderRadius: 10, background: 'transparent', border: '1px solid var(--color-border)', color: 'var(--color-dim)', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'DM Sans,sans-serif' }}>

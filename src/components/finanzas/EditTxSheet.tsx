@@ -75,7 +75,7 @@ export function EditTxSheet({ open, onClose, txId }: Props) {
   function handleDelete() {
     const idx = currentIdx()
     if (idx < 0) { onClose(); return }
-    removeTx(idx)
+    removeTx(idx, { removeSplitPufos: true })
     toast.show('✓ Movimiento borrado')
     onClose()
   }
@@ -102,7 +102,12 @@ export function EditTxSheet({ open, onClose, txId }: Props) {
           )}
 
           <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4 }}>Importe (€)</div>
-          <input className="inp" value={amount} onChange={e => setAmount(e.target.value)} type="text" inputMode="decimal" />
+          <input className="inp" value={amount} onChange={e => setAmount(e.target.value)} type="text" inputMode="decimal" disabled={!!tx.split} />
+          {tx.split && (
+            <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: -4, marginBottom: 6 }}>
+              Gasto compartido: tu parte {fmt(tx.split.myShare)} ({tx.split.people.map(p => `${p.name} ${fmt(p.share)}`).join(', ')}). Para cambiar el importe, bórralo y apúntalo de nuevo.
+            </div>
+          )}
 
           <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4, marginTop: 8 }}>Concepto</div>
           <input className="inp" value={concept} onChange={e => setConcept(e.target.value)} type="text" />
@@ -157,7 +162,7 @@ export function EditTxSheet({ open, onClose, txId }: Props) {
         title={isTransfer ? 'Borrar traspaso' : 'Borrar movimiento'}
         message={isTransfer
           ? `Se borrarán las dos patas del traspaso${tx.concept ? ` (${tx.concept})` : ''}. Los saldos de las cuentas se revierten.`
-          : `Vas a borrar "${tx.concept}" por ${fmt(tx.amount)}. Esta acción no se puede deshacer.`
+          : `Vas a borrar "${tx.concept}" por ${fmt(tx.amount)}.${tx.split ? ' También se borran los pufos pendientes de este gasto compartido.' : ''} Esta acción no se puede deshacer.`
         }
         confirmLabel="Borrar"
         danger

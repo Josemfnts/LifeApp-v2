@@ -4,6 +4,7 @@ import { useFinanceStore, fmt, fmtShort, netWorthExtras } from '@/stores/finance
 import { computeNetWorth } from '@/lib/finance/networth'
 import { variation } from '@/lib/finance/snapshots'
 import { localISO } from '@/lib/finance/dates'
+import { sumEuros } from '@/lib/finance/money'
 import { AnimatedNumber } from './AnimatedNumber'
 
 type Period = '1M' | '3M' | '1A' | 'Todo'
@@ -152,6 +153,15 @@ export function NetWorthHero({ onGoPatrimonio }: Props) {
           </div>
         ))}
       </div>
+      {(() => {
+        const receivables = sumEuros(pufos.filter(p => !p.settled).map(p => (p.dir === 'me_debe' ? p.amount : -p.amount)))
+        if (receivables === 0) return null
+        return (
+          <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: -6, marginBottom: 10 }}>
+            {receivables > 0 ? `Incluye ${fmt(receivables)} que te deben` : `Descuenta ${fmt(-receivables)} que debes`}
+          </div>
+        )
+      })()}
       {snapshots.length > 1 && (
         <div style={{ position: 'relative', height: 110 }}>
           <canvas ref={canvasRef} />
