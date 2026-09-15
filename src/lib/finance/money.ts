@@ -14,17 +14,30 @@ export function toCents(eur: number): number {
   return cents === 0 ? 0 : sign * cents
 }
 
-// Importe tecleado por el usuario en formato español o inglés: "12,5", "1.234,56", "1234.56",
-// "12,00 €", "EUR", "(12,00)". Acepta paréntesis como signo negativo. Devuelve NaN si no es un número.
+// Importe en formato español o inglés: "12,5", "1.234,56", "1,234.56", "1234.56", "1.234.567",
+// "12,00 €", "12,00 EUR", y negativos como "-12,30", "(12,00)" o "12,00-". Si aparecen punto y coma,
+// el último que aparece es el decimal. Devuelve NaN si no es un número.
 export function parseEuroInput(s: string): number {
-  let t = (s ?? '').replace(/€|\bEUR\b|\s/gi, '').trim()
+  let t = (s ?? '').replace(/€|EUR|\s/gi, '')
   if (!t) return NaN
   let negative = false
   if (t.startsWith('(') && t.endsWith(')')) {
     negative = true
     t = t.slice(1, -1)
+  } else if (t.length > 1 && t.endsWith('-')) {
+    negative = true
+    t = t.slice(0, -1)
   }
-  if (t.includes(',')) t = t.replace(/\./g, '').replace(',', '.')
+  const lastComma = t.lastIndexOf(',')
+  const lastDot = t.lastIndexOf('.')
+  if (lastComma >= 0 && lastDot >= 0) {
+    t = lastComma > lastDot ? t.replace(/\./g, '').replace(',', '.') : t.replace(/,/g, '')
+  } else if (lastComma >= 0) {
+    t = t.replace(',', '.')
+  } else if (/^[+-]?\d{1,3}(\.\d{3}){2,}$/.test(t)) {
+    t = t.replace(/\./g, '')
+  }
+  if (!/^[+-]?(\d+(\.\d*)?|\.\d+)$/.test(t)) return NaN
   const n = Number(t)
   if (!Number.isFinite(n)) return NaN
   return negative ? -Math.abs(n) : n
