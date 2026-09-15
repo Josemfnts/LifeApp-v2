@@ -20,3 +20,6 @@
 - 2026-09-15 - Importes tecleados o importados: el ultimo separador (punto o coma) es el decimal - cubre 1.234,56 (ES) y 1,234.56 (Revolut/EN) con un solo parser - Claude
 - 2026-09-15 - N43: un campo ilegible (fecha, debe/haber, importe, totales, saldo) nunca se lee como 0; la fila se omite con aviso de linea y check.ok=false - un movimiento perdido con el aviso en verde es peor que un aviso amarillo - Claude
 - 2026-09-15 - Ids de Tx con nextTxId = max(Date.now(), id maximo + 1) en todas las altas; el ajuste al saldo final de un extracto lleva el importId - editar/borrar buscan por id y Deshacer revierte por importId - Claude
+- 2026-09-15 - F3 (inversiones) la escribe Claude directamente, no OpenCode - la sesion de dev-mcp de Claude quedo caducada tras el reinicio del servidor y Josema pidio seguir sin esperar - Josema
+- 2026-09-15 - Compras y ventas de inversiones son movimientos kind 'investment' contra la cuenta (mueven saldo, no son gasto ni ingreso); el resultado se ve en el P&L de la posicion, no en el flujo - trampas contables 2 y 4 del teardown - Claude
+- 2026-09-15 - Refrescar precios en vivo NO reescribe la foto diaria del patrimonio; la foto se recalcula al abrir Finanzas o al tocar datos - un precio que cambia cada minuto llenaria store_data y el espejo de CompAI de escrituras - Claude
