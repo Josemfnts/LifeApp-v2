@@ -67,8 +67,9 @@ dedupe (10); precio viejo con marca de frescura (11); lote a coste 0 para stakin
 Cada fase = 1-2 encargos a OpenCode, verificación de Claude (leer diff, build, lint, tests,
 navegador) y commit+push. Si una fase se corta, se retoma por la primera casilla sin marcar.
 
-- [ ] **F0 · Cimientos** — vitest; `src/lib/finance/{money,dates,types}.ts` con tests; `Finanzas.tsx`
+- [x] **F0 · Cimientos** — tests `node:test`; `src/lib/finance/{money,dates,types,flow}.ts` con tests; `Finanzas.tsx`
       partido en `src/components/finanzas/*` SIN cambio funcional; fecha local en vez de UTC.
+      (2026-09-15, commits e41e941·5095d42·d506a1f + fix de Claude en toCents: notación exponencial y −0.)
 - [ ] **F1 · El número** — motor de patrimonio + snapshots + hero animado + gráfica evolución;
       ajustar saldo; traspasos; `kind` excluido de estadísticas; id estable de cuenta.
 - [ ] **F2 · Que se mantenga solo** — comercios + alta rápida + editar movimiento; importador N43/CSV

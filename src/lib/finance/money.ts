@@ -1,7 +1,9 @@
 export function toCents(eur: number): number {
   if (!Number.isFinite(eur)) return 0
   const sign = eur < 0 ? -1 : 1
-  const absStr = Math.abs(eur).toString()
+  // toFixed(10) y no toString(): toString usa notación exponencial para residuos de coma
+  // flotante (0.1 + 0.2 - 0.3 = 5.55e-17 → "5.55…e-17") y los convertiría en 5,56 €.
+  const absStr = Math.abs(eur).toFixed(10)
   const dotIdx = absStr.indexOf('.')
   const intPart = dotIdx < 0 ? absStr : absStr.slice(0, dotIdx)
   const decPartRaw = dotIdx < 0 ? '' : absStr.slice(dotIdx + 1)
@@ -9,7 +11,7 @@ export function toCents(eur: number): number {
   const digit3 = Number(decPart.charAt(2) || '0')
   let cents = Number(intPart) * 100 + Number(decPart.slice(0, 2))
   if (digit3 >= 5) cents += 1
-  return sign * cents
+  return cents === 0 ? 0 : sign * cents
 }
 
 export function fromCents(c: number): number {

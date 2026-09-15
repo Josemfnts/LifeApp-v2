@@ -24,6 +24,19 @@ test('toCents: robusto a coma flotante', () => {
   assert.equal(toCents(0.005), 1)
 })
 
+test('toCents: residuos de coma flotante en notación exponencial son 0', () => {
+  assert.equal(toCents(0.1 + 0.2 - 0.3), 0)
+  assert.equal(toCents(5.551115123125783e-17), 0)
+  assert.equal(toCents(-5.551115123125783e-17), 0)
+  assert.equal(toCents(1e-7), 0)
+  assert.equal(subEuros(0.3, 0.1 + 0.2), 0)
+})
+
+test('toCents: importes grandes', () => {
+  assert.equal(toCents(123456789.12), 12345678912)
+  assert.equal(toCents(-250000), -25000000)
+})
+
 test('toCents: negativos (half away from zero)', () => {
   assert.equal(toCents(-12.345), -1235)
   assert.equal(toCents(-0.5), -50)
