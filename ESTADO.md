@@ -54,7 +54,9 @@ Stack real: React 19 + Vite 8 + Zustand + Supabase (store_data key-value). Ver A
 
 - **Mejora visual global** (2026-09-15, plan en `.mapa/mejora-visual/plan.md`): hechas V1 (cabecera pegada que se
   compacta y barra inferior que se esconde con el scroll), V2 (`ChipTabs`: Físico compacto, CSV a Movs), V3 (filtros
-  de la biblioteca de rutinas bajo demanda) y V4 (Inicio compacto, 187→125 px). Quedan V5 superficies y V6 tipografía/motion.
+  de la biblioteca de rutinas bajo demanda), V4 (Inicio compacto, 187→125 px), V5 (menos tarjeta dentro de tarjeta:
+  `.stat-strip`, listas planas) y V6 (escala tipográfica en tokens y animaciones de pestaña/hoja, que existían en el
+  código pero no estaban definidas). Plan cerrado; falta que Josema lo pruebe en su iPhone.
 - **life-mcp** (CompAI, c0a0b17, reiniciado por pm2): `finanzas` ya no cuenta traspasos/ajustes/inversiones/capital
   como gasto y usa tu parte en compartidos; tool nueva `finanzas_contexto` (lee `finances_context`). Verificado en vivo.
 

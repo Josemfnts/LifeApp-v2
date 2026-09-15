@@ -108,22 +108,11 @@ function StrengthTab() {
     return (
       <div className="animate-tab">
         {subBar}
-        <div className="grid grid-cols-3 gap-2 mb-3">
-          <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-3.5 text-center relative overflow-hidden">
-            <div className="absolute top-0 left-[10%] right-[10%] h-0.5 rounded-b-sm bg-[var(--color-acc-orange)]" />
-            <div className="font-serif text-[26px] text-[var(--color-acc-orange)] leading-none">{todayKg}</div>
-            <div className="text-[10px] font-semibold text-[var(--color-dim)] uppercase tracking-wide mt-1">kg totales</div>
-          </div>
-          <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-3.5 text-center relative overflow-hidden">
-            <div className="absolute top-0 left-[10%] right-[10%] h-0.5 rounded-b-sm bg-[var(--color-acc-blue)]" />
-            <div className="font-serif text-[26px] text-[var(--color-acc-blue)] leading-none">{todaySets}</div>
-            <div className="text-[10px] font-semibold text-[var(--color-dim)] uppercase tracking-wide mt-1">series</div>
-          </div>
-          <div className="bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl p-3.5 text-center relative overflow-hidden">
-            <div className="absolute top-0 left-[10%] right-[10%] h-0.5 rounded-b-sm bg-[var(--color-acc-green)]" />
-            <div className="font-serif text-[26px] text-[var(--color-acc-green)] leading-none">{todaySessions.length}</div>
-            <div className="text-[10px] font-semibold text-[var(--color-dim)] uppercase tracking-wide mt-1">sesiones</div>
-          </div>
+        {/* V5: las tres cifras de hoy en una sola superficie con divisores. */}
+        <div className="stat-strip" style={{ marginBottom: 12 }}>
+          <div><div className="stat-num" style={{ color: 'var(--color-acc-orange)' }}>{todayKg}</div><div className="stat-lbl">kg totales</div></div>
+          <div><div className="stat-num" style={{ color: 'var(--color-acc-blue)' }}>{todaySets}</div><div className="stat-lbl">series</div></div>
+          <div><div className="stat-num" style={{ color: 'var(--color-acc-green)' }}>{todaySessions.length}</div><div className="stat-lbl">sesiones</div></div>
         </div>
 
         {/* Rest Timer */}
@@ -230,10 +219,11 @@ function StrengthTab() {
               {routines.length === 0 ? (
                 <div style={{ fontSize: 12, color: 'var(--color-dim)', marginBottom: 10 }}>No tienes rutinas propias todavía.</div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 10 }}>
+                // V5: lista plana con divisores dentro de la tarjeta (antes, una caja con borde por rutina).
+                <div style={{ display: 'flex', flexDirection: 'column', marginBottom: 12, borderTop: '1px solid var(--color-border)' }}>
                   {routines.slice(0, 4).map(r => (
                     <button key={r.id} onClick={() => startSession(r.name, r.exercises.map(e => ({ name: e.name, group: e.group, color: e.color, sets: e.sets })))}
-                      style={{ textAlign: 'left', padding: '10px 12px', borderRadius: 10, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-text)', fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      style={{ textAlign: 'left', padding: '11px 2px', background: 'transparent', border: 'none', borderBottom: '1px solid var(--color-border)', color: 'var(--color-text)', fontSize: 14, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span>{r.name}</span>
                       <span style={{ fontSize: 10, color: 'var(--color-dim)', fontWeight: 500 }}>{r.exercises.length} ejercicios</span>
                     </button>
@@ -315,20 +305,18 @@ function StrengthTab() {
             </div>
 
             {/* Quick stats before starting */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-              <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 12, padding: 12, textAlign: 'center' }}>
-                <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Este mes</div>
-                <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 24, color: 'var(--color-acc-orange)', lineHeight: 1 }}>
+            <div className="stat-strip cols-2">
+              <div>
+                <div className="stat-num" style={{ color: 'var(--color-acc-orange)' }}>
                   {sessions.filter(s => s.date.startsWith(new Date().toISOString().slice(0, 7))).length}
                 </div>
-                <div style={{ fontSize: 10, color: 'var(--color-dim)', marginTop: 2 }}>sesiones</div>
+                <div className="stat-lbl">sesiones este mes</div>
               </div>
-              <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 12, padding: 12, textAlign: 'center' }}>
-                <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Última sesión</div>
-                <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 24, color: 'var(--color-acc-blue)', lineHeight: 1 }}>
+              <div>
+                <div className="stat-num" style={{ color: 'var(--color-acc-blue)' }}>
                   {sessions[0] ? sessions[0].date.slice(8) + '/' + sessions[0].date.slice(5, 7) : '—'}
                 </div>
-                <div style={{ fontSize: 10, color: 'var(--color-dim)', marginTop: 2 }}>{sessions[0]?.name || 'Sin datos'}</div>
+                <div className="stat-lbl" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{sessions[0]?.name || 'Última sesión'}</div>
               </div>
             </div>
           </div>
@@ -1467,7 +1455,7 @@ export default function Fisico() {
         <ChipTabs value={section} onChange={setSection} items={SECTIONS} />
       </div>
 
-      <div className="p-4">
+      <div key={section} className="p-4 animate-tab">
         {section === 'strength' && <StrengthTab />}
         {section === 'running' && <RunningTab />}
         {section === 'mobility' && <MobilityTab />}

@@ -144,6 +144,10 @@ Requiere sesión (RLS): en modo invitado el gate lo oculta. Cablea notas a entid
 - **Navegación dentro de un módulo**: `ChipTabs` (`components/ui`) — `variant="chips"` para categorías y `"line"`
   para sub-pestañas. Nada de filas de botones con borde. Buscador y filtros de listas largas, bajo demanda: botones
   🔍 / ⚙ con insignia de filtros activos y hoja inferior (`Modal`) — patrón de Finanzas › Movs y Físico › Rutinas.
+- **Superficies y tipografía** (V5-V6): varias cifras relacionadas van en UNA `.stat-strip` (con `.stat-num` /
+  `.stat-lbl`), no una tarjeta por cifra; nada de caja con borde dentro de una tarjeta (usa divisores). Tamaños de
+  letra con los tokens `--fs-*` de `globals.css`. Contenido de pestañas: wrapper con `key={tab}` +
+  `className="animate-tab"`; las hojas usan `animate-fadeIn` / `animate-slideUp` (definidas en globals.css).
 - **Atajos de teclado**: leader key **`g`** y luego `1..9` navega entre módulos (patrón Gmail/GitHub);
   implementado dentro del Router para no recargar la página (`App.tsx:KeyboardShortcuts`).
 - **Deep-link iOS**: `?kanban=texto&priority=&project=` añade una tarjeta al Kanban al abrir (atajo de iOS).

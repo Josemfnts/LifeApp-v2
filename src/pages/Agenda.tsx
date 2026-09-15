@@ -35,7 +35,7 @@ export default function Agenda() {
           ))}
         </div>
       </div>
-      <div style={{ padding: 16 }}>
+      <div key={tab} className="animate-tab" style={{ padding: 16 }}>
         {tab === 'month' && (
           // Columna que llena el alto disponible para que el calendario ocupe el
           // hueco en vez de dejar un vacío abajo (contenido corto). 210px ≈ header

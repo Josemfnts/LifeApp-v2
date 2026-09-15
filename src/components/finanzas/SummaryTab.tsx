@@ -81,9 +81,8 @@ export function SummaryTab({ onGoPatrimonio }: { onGoPatrimonio?: () => void }) 
     <div>
       <NetWorthHero onGoPatrimonio={onGoPatrimonio} />
       <UpcomingBlock />
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        background: 'var(--color-s1)', border: '1px solid var(--color-border)',
-        borderRadius: 14, padding: '10px 14px', marginBottom: 12 }}>
+      {/* V5: selector de mes sin tarjeta propia: es navegación, no contenido. */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '2px 0', marginBottom: 8 }}>
         <button onClick={() => { if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y - 1) } else setViewMonth(m => m - 1) }}
           style={{ width: 32, height: 32, borderRadius: 9, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-sub)', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>‹</button>
         <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 18, color: 'var(--color-text)' }}>{MONTHS[viewMonth]} {viewYear}</div>
@@ -98,13 +97,14 @@ export function SummaryTab({ onGoPatrimonio }: { onGoPatrimonio?: () => void }) 
           {balance >= 0 ? '+' : ''}{fmt(balance)}
         </div>
         <div style={{ fontSize: 12, color: 'var(--color-sub)', marginBottom: 20 }}>{MONTHS[viewMonth]} {viewYear}</div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-          <div style={{ background: 'var(--color-s2)', border: '1px solid var(--color-border)', borderRadius: 12, padding: 12 }}>
+        {/* V5: ingresos y gastos como columnas con divisor dentro del balance, no tarjetas dentro de la tarjeta. */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', borderTop: '1px solid var(--color-border)', paddingTop: 14 }}>
+          <div style={{ paddingRight: 12 }}>
             <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 5 }}>Ingresos</div>
             <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 22, color: 'var(--color-acc-green)' }}>{fmt(income)}</div>
             <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 3 }}>{txsMonthFlow.filter(t => t.type === 'income').length} movimientos</div>
           </div>
-          <div style={{ background: 'var(--color-s2)', border: '1px solid var(--color-border)', borderRadius: 12, padding: 12 }}>
+          <div style={{ paddingLeft: 14, borderLeft: '1px solid var(--color-border)' }}>
             <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 5 }}>Gastos</div>
             <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 22, color: 'var(--color-red)' }}>{fmt(expense)}</div>
             <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 3 }}>{txsMonthFlow.filter(t => t.type === 'expense').length} movimientos</div>

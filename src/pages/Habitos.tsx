@@ -54,7 +54,7 @@ export default function Habitos() {
           ))}
         </div>
       </div>
-      <div style={{ padding: 16 }}>
+      <div key={tab} className="animate-tab" style={{ padding: 16 }}>
         {tab === 'today' && (
           <>
             <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 14 }}>

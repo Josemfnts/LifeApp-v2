@@ -44,7 +44,7 @@ export default function Finanzas() {
           ))}
         </div>
       </div>
-      <div style={{ padding: 16 }}>
+      <div key={tab} className="animate-tab" style={{ padding: 16 }}>
         {tab === 'inicio' && <SummaryTab onGoPatrimonio={() => setTab('patrimonio')} />}
         {tab === 'moves' && <MovesTab />}
         {tab === 'patrimonio' && <PatrimonioTab />}

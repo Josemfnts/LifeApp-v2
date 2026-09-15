@@ -37,7 +37,14 @@ En reposo orienta; al hacer scroll se compacta; al volver arriba reaparece. Ning
       los grupos de Ejercicios (una línea de chips) y Nutrición › Platos (un solo buscador, es el contenido).
 - [x] **V4 · Inicio compacto**: saludo + fecha en una línea, ajustes a la derecha, racha y nivel como chips.
       Cabecera 187 → 125 px. V3 y V4 verificados en prod (753d5e4): Inicio 125 px; filtro Gimnasio 16 → 8 rutinas, 0 errores.
-- [ ] **V5 · Superficies**: menos tarjeta dentro de tarjeta; listas planas para información relacionada.
-- [ ] **V6 · Tipografía y motion**: escala 28/22/16/14/12/11 en tokens; transiciones cortas de pestaña y hojas.
+- [x] **V5 · Superficies**: menos tarjeta dentro de tarjeta; listas planas para información relacionada.
+      `.stat-strip` (varias cifras = una superficie con divisores): Físico › Hoy (kg/series/sesiones) y el resumen de
+      mes/última sesión. «Mis rutinas» de Iniciar sesión pasa a lista plana con divisores. Finanzas › Inicio: el
+      selector de mes sin tarjeta y ingresos/gastos como columnas dentro del balance. Verificado en local.
+- [x] **V6 · Tipografía y motion**: tokens `--fs-display/title/section/body/secondary/meta` (28/24/16/14/12/11) y
+      `.page-title` a 24 px. `.animate-tab`, `.animate-fadeIn` y `.animate-slideUp` se usaban SIN definir (ni el cambio
+      de pestaña ni las hojas se animaban): definidas; contenido de pestaña con `key` + fade corto en Finanzas,
+      Físico, Nutrición, Agenda y Hábitos; `:active` en pestañas; todo desactivado con `prefers-reduced-motion`.
+      Verificado en local (animationName tabIn / slideUp, 0 errores).
 
 Cada fase: build + lint + tests, captura antes/después en 390×844 y prueba en prod. Commit y push por fase.

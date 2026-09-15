@@ -31,6 +31,9 @@
   --font-serif: 'DM Serif Display', serif;
 }
 
+/* Escala tipográfica (mejora visual V6). Nuevos estilos: usa estos tamaños, no inventes otros. */
+:root{--fs-display:28px;--fs-title:24px;--fs-section:16px;--fs-body:14px;--fs-secondary:12px;--fs-meta:11px}
+
 /* Nota: no reseteamos margin/padding en `*` — al ir fuera de @layer ganaría
    sobre las utilidades de Tailwind (p-4, gap-2, mb-3…) y las anularía a 0.
    El preflight de Tailwind ya resetea los márgenes por defecto del navegador. */
@@ -51,6 +54,10 @@ body { background:var(--color-bg); color:var(--color-text); font-family:var(--fo
 @keyframes shimmer{from{left:-60%}to{left:160%}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+/* Motion corto (V6): cambio de pestaña y hojas inferiores. Estas clases se usaban sin definir. */
+.animate-tab{animation:tabIn 0.22s cubic-bezier(0.22,1,0.36,1) both}
+.animate-fadeIn{animation:fadeIn 0.2s ease both}
+.animate-slideUp{animation:slideUp 0.28s cubic-bezier(0.22,1,0.36,1) both}
 
 .s0{animation:up 0.45s 0.00s cubic-bezier(0.22,1,0.36,1) both}
 .s1{animation:up 0.45s 0.06s cubic-bezier(0.22,1,0.36,1) both}
@@ -76,7 +83,7 @@ body { background:var(--color-bg); color:var(--color-text); font-family:var(--fo
 
 .page-header{padding:24px 20px 0;background:var(--color-bg);border-bottom:1px solid var(--color-border);flex-shrink:0}
 .page-module{font-size:11px;font-weight:600;letter-spacing:0.3px;margin-bottom:3px}
-.page-title{font-family:var(--font-serif);font-size:26px;font-weight:400;color:var(--color-text);line-height:1.15;margin-bottom:14px}
+.page-title{font-family:var(--font-serif);font-size:var(--fs-title);font-weight:400;color:var(--color-text);line-height:1.15;margin-bottom:14px}
 
 /* Chrome que reacciona al scroll (Shell + src/lib/ui/scrollChrome.ts): la cabecera se queda
    pegada arriba y al bajar se compacta (las pestañas siguen a mano); la barra inferior se
@@ -92,6 +99,7 @@ body { background:var(--color-bg); color:var(--color-text); font-family:var(--fo
 [data-nav-hidden] .nav-bar{transform:translateY(calc(100% + 24px))}
 @media (prefers-reduced-motion: reduce){
   .page-header,.page-title,.nav-bar{transition:none}
+  .animate-tab,.animate-fadeIn,.animate-slideUp{animation:none}
 }
 
 .greeting{font-size:12px;font-weight:500;color:var(--color-sub);letter-spacing:0.3px;margin-bottom:3px}
@@ -140,7 +148,7 @@ body { background:var(--color-bg); color:var(--color-text); font-family:var(--fo
 .chip-tabs::-webkit-scrollbar{display:none}
 .chip-tab{flex:0 0 auto;padding:6px 12px;border-radius:99px;font-family:var(--font-sans);font-size:13px;font-weight:600;color:var(--color-dim);background:transparent;border:none;cursor:pointer;white-space:nowrap;transition:background 0.18s,color 0.18s}
 .chip-tab.active{color:var(--chip-color,var(--color-acc-blue));background:color-mix(in srgb, var(--chip-color,var(--color-acc-blue)) 16%, transparent)}
-.chip-tab:active{opacity:0.7}
+.chip-tab:active,.tab-btn:active{opacity:0.7}
 .line-tabs{display:flex;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--color-border);margin-bottom:14px}
 .line-tabs::-webkit-scrollbar{display:none}
 .line-tabs .tab-btn{padding:9px 12px}
@@ -152,6 +160,13 @@ body { background:var(--color-bg); color:var(--color-text); font-family:var(--fo
 
 .card{background:var(--color-s1);border:1px solid var(--color-border);border-radius:16px;overflow:hidden;transition:border-color 0.2s}
 .card-padded{padding:18px}
+/* Superficies (V5): varias cifras relacionadas = UNA superficie con divisores, no una tarjeta por cifra. */
+.stat-strip{display:grid;grid-template-columns:repeat(3,1fr);background:var(--color-s1);border:1px solid var(--color-border);border-radius:16px;overflow:hidden}
+.stat-strip.cols-2{grid-template-columns:repeat(2,1fr)}
+.stat-strip>div{padding:12px 8px;text-align:center;min-width:0}
+.stat-strip>div+div{border-left:1px solid var(--color-border)}
+.stat-num{font-family:var(--font-serif);font-size:24px;line-height:1}
+.stat-lbl{font-size:10px;font-weight:600;color:var(--color-dim);text-transform:uppercase;letter-spacing:0.5px;margin-top:4px}
 
 .today-card{background:var(--color-s1);border:1px solid var(--color-border);border-radius:16px;overflow:hidden}
 .today-row{display:flex;align-items:center;gap:14px;padding:16px;border-bottom:1px solid var(--color-border);cursor:pointer;transition:background 0.15s;text-decoration:none;position:relative}

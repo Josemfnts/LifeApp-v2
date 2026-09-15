@@ -35,7 +35,7 @@ export default function Nutricion() {
           ))}
         </div>
       </div>
-      <div style={{ padding: 16 }}>
+      <div key={tab} className="animate-tab" style={{ padding: 16 }}>
         {tab === 'diary' && <DiaryTab />}
         {tab === 'dishes' && <DishesTab />}
         {tab === 'search' && <SearchTab />}
