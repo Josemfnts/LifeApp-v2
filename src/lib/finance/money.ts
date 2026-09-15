@@ -15,13 +15,19 @@ export function toCents(eur: number): number {
 }
 
 // Importe tecleado por el usuario en formato español o inglés: "12,5", "1.234,56", "1234.56",
-// "12,00 €". Devuelve NaN si no es un número.
+// "12,00 €", "EUR", "(12,00)". Acepta paréntesis como signo negativo. Devuelve NaN si no es un número.
 export function parseEuroInput(s: string): number {
-  let t = (s ?? '').replace(/[€\s]/g, '')
+  let t = (s ?? '').replace(/€|\bEUR\b|\s/gi, '').trim()
   if (!t) return NaN
+  let negative = false
+  if (t.startsWith('(') && t.endsWith(')')) {
+    negative = true
+    t = t.slice(1, -1)
+  }
   if (t.includes(',')) t = t.replace(/\./g, '').replace(',', '.')
   const n = Number(t)
-  return Number.isFinite(n) ? n : NaN
+  if (!Number.isFinite(n)) return NaN
+  return negative ? -Math.abs(n) : n
 }
 
 export function fromCents(c: number): number {
