@@ -4,7 +4,7 @@ import { useToast } from '@/stores/toast'
 import { exportCSV } from '@/components/finanzas/shared'
 import { SummaryTab } from '@/components/finanzas/SummaryTab'
 import { MovesTab } from '@/components/finanzas/MovesTab'
-import { AnalysisTab } from '@/components/finanzas/AnalysisTab'
+import { UtilesTab } from '@/components/finanzas/utiles/UtilesTab'
 import { PatrimonioTab } from '@/components/finanzas/PatrimonioTab'
 import { BudgetsTab } from '@/components/finanzas/BudgetsTab'
 
@@ -48,7 +48,7 @@ export default function Finanzas() {
         {tab === 'moves' && <MovesTab />}
         {tab === 'patrimonio' && <PatrimonioTab />}
         {tab === 'plan' && <BudgetsTab />}
-        {tab === 'utiles' && <AnalysisTab />}
+        {tab === 'utiles' && <UtilesTab />}
       </div>
     </div>
   )

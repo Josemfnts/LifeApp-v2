@@ -206,3 +206,11 @@ select.inp option{background:#1f2229;color:#e8e9ee}
   .areas-grid{grid-template-columns:repeat(4,1fr)!important}
   .area-level{font-size:24px!important}
 }
+/* Informe mensual de Finanzas: al imprimir (o "Guardar como PDF") solo se ve .fin-report, en claro. */
+@media print {
+  body * { visibility: hidden !important; }
+  .fin-report, .fin-report * { visibility: visible !important; }
+  .fin-report { position: absolute; inset: 0 auto auto 0; width: 100%; padding: 16px !important; border: none !important; background: #fff !important; }
+  .fin-report * { color: #111 !important; border-color: #ccc !important; background: transparent !important; }
+  .no-print, .nav-bar { display: none !important; }
+}

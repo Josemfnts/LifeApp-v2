@@ -1,7 +1,6 @@
-import { useState, useRef, useEffect } from 'react'
+import { useRef, useEffect } from 'react'
 import Chart from 'chart.js/auto'
 import { useFinanceStore, CAT_META, fmt, fmtShort } from '@/stores/financeStore'
-import { useToast } from '@/stores/toast'
 import { isFlow } from '@/lib/finance/flow'
 import { sumEuros } from '@/lib/finance/money'
 import { flowAmount } from '@/lib/finance/split'
@@ -9,12 +8,6 @@ import { MONTHS_SH, monthKey } from './shared'
 
 export function AnalysisTab() {
   const { txs } = useFinanceStore()
-  const toast = useToast()
-  const [icInit, setIcInit] = useState('1000')
-  const [icRate, setIcRate] = useState('7')
-  const [icYears, setIcYears] = useState('10')
-  const [icMonthly, setIcMonthly] = useState('100')
-  const [icResult, setIcResult] = useState<number | null>(null)
   const barRef = useRef<HTMLCanvasElement>(null)
   const rateRef = useRef<HTMLCanvasElement>(null)
   const chartRefs = useRef<{ bar: Chart | null; rate: Chart | null }>({ bar: null, rate: null })
@@ -130,45 +123,8 @@ export function AnalysisTab() {
         })}
       </div>
 
-      <div className="sec-label" style={{ marginTop: 24 }}>📈 Interés compuesto</div>
-      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, marginBottom: 14 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
-          <div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4 }}>Capital inicial (€)</div>
-            <input className="inp" value={icInit} onChange={e => setIcInit(e.target.value)} type="number" placeholder="1000" style={{ marginBottom: 0 }} />
-          </div>
-          <div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4 }}>Interés anual (%)</div>
-            <input className="inp" value={icRate} onChange={e => setIcRate(e.target.value)} type="number" placeholder="7" style={{ marginBottom: 0 }} />
-          </div>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
-          <div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4 }}>Años</div>
-            <input className="inp" value={icYears} onChange={e => setIcYears(e.target.value)} type="number" placeholder="10" style={{ marginBottom: 0 }} />
-          </div>
-          <div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4 }}>Aportación mensual (€)</div>
-            <input className="inp" value={icMonthly} onChange={e => setIcMonthly(e.target.value)} type="number" placeholder="100" style={{ marginBottom: 0 }} />
-          </div>
-        </div>
-        <button onClick={() => {
-          const init = parseFloat(icInit) || 0
-          const rate = (parseFloat(icRate) || 7) / 100 / 12
-          const months = (parseInt(icYears) || 10) * 12
-          const monthly = parseFloat(icMonthly) || 0
-          let total = init
-          for (let i = 0; i < months; i++) total = total * (1 + rate) + monthly
-          setIcResult(Math.round(total))
-          toast.show(`💰 Total estimado: ${fmt(Math.round(total))}`)
-        }}
-          style={{ width: '100%', padding: 12, borderRadius: 12, background: 'rgba(201,168,76,0.1)', color: 'var(--color-acc-gold)', border: '1px solid rgba(201,168,76,0.2)', fontSize: 14, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>Calcular</button>
-        {icResult !== null && (
-          <div style={{ marginTop: 10, textAlign: 'center' }}>
-            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 28, color: 'var(--color-acc-gold)' }}>{fmt(icResult)}</div>
-            <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 2 }}>en {icYears} años al {icRate}% anual</div>
-          </div>
-        )}
+      <div style={{ fontSize: 12, color: 'var(--color-dim)', marginTop: 16 }}>
+        El simulador de interés compuesto está ahora en 🧮 Simuladores → Ahorro, con curva y efecto de la inflación.
       </div>
     </div>
   )
