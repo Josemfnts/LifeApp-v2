@@ -22,7 +22,11 @@ Stack real: React 19 + Vite 8 + Zustand + Supabase (store_data key-value). Ver A
     `npm test` (node:test) + Finanzas partido en `components/finanzas/`; F1 patrimonio neto con hero animado,
     snapshots diarios (`finances_nw_snapshots`), ajustar saldo y traspasos (`Tx.kind`); F2a-1 motor y store de
     comercios (`finances_merchants`, seed de ~60 comercios).
-  - EN CURSO: F2a-2 UI (alta rápida, editar movimiento, logos).
+  - HECHO F2a-2 UI (alta rápida con autocompletado de comercios, editar/borrar movimiento, logos),
+    verificado E2E en prod el 2026-09-15.
+  - A MEDIAS F2b-1: `src/lib/finance/import/types.ts` commiteado; `n43.ts` + `n43.test.ts` SIN commitear
+    (job de OpenCode cortado cuando cayó dev-mcp; 8/9 tests, falla isN43). Revisar antes de seguir.
+  - Aviso visto: el selector de color de cuenta recibe `var(--color-acc-blue)` (input type=color exige #hex) — preexistente.
 
 ## Lo siguiente
 - F2b importación N43/CSV → F3 inversiones → F4 deudas/inmuebles → F5 planificación → F6 útiles
