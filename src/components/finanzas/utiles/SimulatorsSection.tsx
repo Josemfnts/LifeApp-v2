@@ -110,11 +110,13 @@ function MortgageSim() {
       const month = mk
       incomes.push(sumEuros(store.txs.filter(t => t.type === 'income' && isFlow(t) && t.date.startsWith(month)).map(flowAmount)))
     }
+    // Un saldo líquido negativo (cuenta en descubierto) es deuda, no activos en negativo: si no, el ratio
+    // deuda/activos se dispara (visto en prod: 23.770 % con −32 € líquidos).
     return {
       netWorth: b.net,
       liquid: b.liquid,
-      totalAssets: b.liquid + b.investments + b.property,
-      totalDebt: b.debt,
+      totalAssets: Math.max(0, b.liquid) + b.investments + b.property,
+      totalDebt: b.debt + Math.max(0, -b.liquid),
       monthlyIncome: sumEuros(incomes) / 3,
     }
   }, [store])
