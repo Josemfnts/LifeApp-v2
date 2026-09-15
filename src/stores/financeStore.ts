@@ -3,6 +3,9 @@ import { create } from 'zustand'
 import { onRemoteChange } from '@/lib/mirror'
 import { addEuros } from '@/lib/finance/money'
 import { localISO } from '@/lib/finance/dates'
+import { computeNetWorth } from '@/lib/finance/networth'
+import { upsertTodaySnapshot, backfillEstimated, type NwSnapshot } from '@/lib/finance/snapshots'
+import { buildAdjustment, buildTransfer } from '@/lib/finance/ops'
 
 export type { Tx, TxKind, Hucha, Pufo, Cuenta, Presupuesto, Recurrente } from '@/lib/finance/types'
 import type { Tx, Hucha, Pufo, Cuenta, Presupuesto, Recurrente } from '@/lib/finance/types'
@@ -24,6 +27,8 @@ export const CAT_META: Record<string, { icon: string; color: string; type: strin
   'Educación':       { icon:'📚', color:'var(--color-acc-blue)', type:'expense' },
   'Ahorro':          { icon:'🏦', color:'var(--color-acc-gold)', type:'expense' },
   'Otros gastos':    { icon:'📤', color:'#8a8d96', type:'expense' },
+  'Ajuste':          { icon:'⚖️', color:'var(--color-sub)',        type:'adjust' },
+  'Traspaso':        { icon:'🔁', color:'var(--color-acc-blue)',   type:'transfer' },
 }
 
 export const CUENTA_TYPE: Record<string, { label: string; icon: string; asset: boolean }> = {
@@ -54,6 +59,7 @@ interface FinanceStore {
   cuentas: Cuenta[]
   presupuestos: Presupuesto[]
   recurrentes: Recurrente[]
+  snapshots: NwSnapshot[]
   addTx: (tx: Tx) => void
   removeTx: (idx: number) => void
   updateTx: (idx: number, tx: Partial<Tx>) => void
@@ -70,6 +76,9 @@ interface FinanceStore {
   addRecurrente: (r: Recurrente) => void
   removeRecurrente: (id: number) => void
   processRecurrentes: () => Tx[]
+  recordSnapshot: () => void
+  adjustBalance: (cuentaName: string, newBalance: number, date?: string) => void
+  addTransfer: (from: string, to: string, amount: number, date: string, concept?: string) => void
 }
 
 // Ajusta el saldo de la cuenta referenciada por un movimiento. dir=1 lo aplica
@@ -89,144 +98,235 @@ function cuentasConMovimiento(cuentas: Cuenta[], tx: Tx, dir: 1 | -1): Cuenta[] 
   return next
 }
 
-export const useFinanceStore = create<FinanceStore>((set, get) => ({
-  txs: loadFromStorage('finances_tx', []),
-  huchas: loadFromStorage('finances_huchas', []),
-  pufos: loadFromStorage('finances_pufos', []),
-  cuentas: loadFromStorage('finances_cuentas', []),
-  presupuestos: loadFromStorage('finances_budgets', []),
-  recurrentes: loadFromStorage('finances_recurring', []),
+function applyAll(s: FinanceStore, patch: Partial<FinanceStore>): void {
+  Object.assign(s, patch)
+}
 
-  addTx: (tx) => {
-    const txs = [{ ...tx, id: Date.now() }, ...get().txs]
-    saveToStorage('finances_tx', txs)
-    const cuentas = cuentasConMovimiento(get().cuentas, tx, 1)
-    if (cuentas) saveToStorage('finances_cuentas', cuentas)
-    set(cuentas ? { txs, cuentas } : { txs })
-  },
-  removeTx: (idx) => {
-    const borrada = get().txs[idx]
-    const txs = get().txs.filter((_, i) => i !== idx)
-    saveToStorage('finances_tx', txs)
-    const cuentas = borrada ? cuentasConMovimiento(get().cuentas, borrada, -1) : null
-    if (cuentas) saveToStorage('finances_cuentas', cuentas)
-    set(cuentas ? { txs, cuentas } : { txs })
-  },
-  updateTx: (idx, partial) => {
-    const txs = [...get().txs]
-    const antes = txs[idx]
-    txs[idx] = { ...txs[idx], ...partial }
-    saveToStorage('finances_tx', txs)
-    // Si cambia importe/tipo/cuenta, revierte el efecto anterior y aplica el nuevo.
-    let cuentas = get().cuentas
-    const c1 = antes ? cuentasConMovimiento(cuentas, antes, -1) : null
-    if (c1) cuentas = c1
-    const c2 = cuentasConMovimiento(cuentas, txs[idx], 1)
-    if (c2) cuentas = c2
-    if (c1 || c2) { saveToStorage('finances_cuentas', cuentas); set({ txs, cuentas }) }
-    else set({ txs })
-  },
-  addHucha: (h) => {
-    const huchas = [...get().huchas, h]
-    saveToStorage('finances_huchas', huchas)
-    set({ huchas })
-  },
-  aportarHucha: (i, amount) => {
-    const huchas = [...get().huchas]
-    huchas[i] = { ...huchas[i], current: Math.min(huchas[i].current + amount, huchas[i].goal * 10) }
-    saveToStorage('finances_huchas', huchas)
-    set({ huchas })
-  },
-  removeHucha: (i) => {
-    const huchas = get().huchas.filter((_, idx) => idx !== i)
-    saveToStorage('finances_huchas', huchas)
-    set({ huchas })
-  },
-  addPufo: (p) => {
-    const pufos = [...get().pufos, p]
-    saveToStorage('finances_pufos', pufos)
-    set({ pufos })
-  },
-  settlePufo: (idx) => {
-    const pufos = [...get().pufos]
-    pufos[idx] = { ...pufos[idx], settled: true, settledDate: localISO() }
-    saveToStorage('finances_pufos', pufos)
-    set({ pufos })
-  },
-  removePufo: (idx) => {
-    const pufos = get().pufos.filter((_, i) => i !== idx)
-    saveToStorage('finances_pufos', pufos)
-    set({ pufos })
-  },
-  saveCuenta: (c, editIdx) => {
-    const cuentas = [...get().cuentas]
-    if (editIdx != null) cuentas[editIdx] = c
-    else cuentas.push(c)
-    saveToStorage('finances_cuentas', cuentas)
-    set({ cuentas })
-  },
-  removeCuenta: (idx) => {
-    const cuentas = get().cuentas.filter((_, i) => i !== idx)
-    saveToStorage('finances_cuentas', cuentas)
-    set({ cuentas })
-  },
-  setPresupuesto: (cat, limit) => {
-    const presupuestos = [...get().presupuestos.filter(p => p.category !== cat), { category: cat, limit }]
-    saveToStorage('finances_budgets', presupuestos)
-    set({ presupuestos })
-  },
-  removePresupuesto: (cat) => {
-    const presupuestos = get().presupuestos.filter(p => p.category !== cat)
-    saveToStorage('finances_budgets', presupuestos)
-    set({ presupuestos })
-  },
-  addRecurrente: (r) => {
-    const recurrentes = [...get().recurrentes, r]
-    saveToStorage('finances_recurring', recurrentes)
-    set({ recurrentes })
-  },
-  removeRecurrente: (id) => {
-    const recurrentes = get().recurrentes.filter(r => r.id !== id)
-    saveToStorage('finances_recurring', recurrentes)
-    set({ recurrentes })
-  },
-  processRecurrentes: () => {
-    const { recurrentes, txs } = get()
-    const today = new Date()
-    const todayD = today.getDate()
-    const todayStr = localISO(today)
-    const newTxs: Tx[] = []
+export const useFinanceStore = create<FinanceStore>((set, get) => {
+  const initialSnapshots = loadFromStorage('finances_nw_snapshots', [] as NwSnapshot[])
 
-    recurrentes.filter(r => r.active).forEach(r => {
-      // Check if this recurring tx was already added this month
-      const keyM = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`
-      const alreadyAdded = txs.some(t =>
-        t.date.startsWith(keyM) &&
-        t.concept === r.concept &&
-        t.category === r.category &&
-        t.type === r.type
-      )
-      if (r.day <= todayD && !alreadyAdded) {
-        newTxs.push({
-          id: Date.now() + Math.random(),
-          concept: r.concept,
-          amount: r.amount,
-          type: r.type,
-          category: r.category,
-          date: todayStr,
-          note: '(recurrente)'
-        })
+  const inner: FinanceStore = {
+    txs: loadFromStorage('finances_tx', []),
+    huchas: loadFromStorage('finances_huchas', []),
+    pufos: loadFromStorage('finances_pufos', []),
+    cuentas: loadFromStorage('finances_cuentas', []),
+    presupuestos: loadFromStorage('finances_budgets', []),
+    recurrentes: loadFromStorage('finances_recurring', []),
+    snapshots: initialSnapshots,
+
+    recordSnapshot: () => {
+      const { snapshots, cuentas, txs } = get()
+      let current = snapshots
+      if (current.length === 0 && cuentas.length > 0) {
+        current = backfillEstimated(cuentas, txs, localISO(), 12)
       }
-    })
+      const b = computeNetWorth(cuentas)
+      const r = upsertTodaySnapshot(current, localISO(), b)
+      if (r.changed) {
+        saveToStorage('finances_nw_snapshots', r.snaps)
+        set({ snapshots: r.snaps })
+      }
+    },
 
-    if (newTxs.length > 0) {
-      const updated = [...newTxs, ...txs]
-      saveToStorage('finances_tx', updated)
-      set({ txs: updated })
-    }
-    return newTxs
-  },
-}))
+    addTx: (tx) => {
+      const stamped: Tx = { ...tx, id: Date.now() }
+      const txs = [stamped, ...get().txs]
+      saveToStorage('finances_tx', txs)
+      const cuentas = cuentasConMovimiento(get().cuentas, stamped, 1)
+      if (cuentas) saveToStorage('finances_cuentas', cuentas)
+      set(cuentas ? { txs, cuentas } : { txs })
+      get().recordSnapshot()
+    },
+
+    removeTx: (idx) => {
+      const txsAll = get().txs
+      const borrada = txsAll[idx]
+      if (!borrada) return
+      let txs = txsAll
+      let cuentas = get().cuentas
+      if (borrada.linkId) {
+        const linkId = borrada.linkId
+        const patas = txsAll.filter(t => t.linkId === linkId)
+        txs = txsAll.filter(t => t.linkId !== linkId)
+        for (const p of patas) {
+          const c = cuentasConMovimiento(cuentas, p, -1)
+          if (c) cuentas = c
+        }
+      } else {
+        txs = txsAll.filter((_, i) => i !== idx)
+        const c = cuentasConMovimiento(cuentas, borrada, -1)
+        if (c) cuentas = c
+      }
+      saveToStorage('finances_tx', txs)
+      saveToStorage('finances_cuentas', cuentas)
+      set({ txs, cuentas })
+      get().recordSnapshot()
+    },
+
+    updateTx: (idx, partial) => {
+      const txs = [...get().txs]
+      const antes = txs[idx]
+      txs[idx] = { ...txs[idx], ...partial }
+      saveToStorage('finances_tx', txs)
+      let cuentas = get().cuentas
+      const c1 = antes ? cuentasConMovimiento(cuentas, antes, -1) : null
+      if (c1) cuentas = c1
+      const c2 = cuentasConMovimiento(cuentas, txs[idx], 1)
+      if (c2) cuentas = c2
+      if (c1 || c2) { saveToStorage('finances_cuentas', cuentas); set({ txs, cuentas }) }
+      else set({ txs })
+      get().recordSnapshot()
+    },
+
+    addHucha: (h) => {
+      const huchas = [...get().huchas, h]
+      saveToStorage('finances_huchas', huchas)
+      set({ huchas })
+    },
+    aportarHucha: (i, amount) => {
+      const huchas = [...get().huchas]
+      huchas[i] = { ...huchas[i], current: Math.min(huchas[i].current + amount, huchas[i].goal * 10) }
+      saveToStorage('finances_huchas', huchas)
+      set({ huchas })
+    },
+    removeHucha: (i) => {
+      const huchas = get().huchas.filter((_, idx) => idx !== i)
+      saveToStorage('finances_huchas', huchas)
+      set({ huchas })
+    },
+
+    addPufo: (p) => {
+      const pufos = [...get().pufos, p]
+      saveToStorage('finances_pufos', pufos)
+      set({ pufos })
+    },
+    settlePufo: (idx) => {
+      const pufos = [...get().pufos]
+      pufos[idx] = { ...pufos[idx], settled: true, settledDate: localISO() }
+      saveToStorage('finances_pufos', pufos)
+      set({ pufos })
+    },
+    removePufo: (idx) => {
+      const pufos = get().pufos.filter((_, i) => i !== idx)
+      saveToStorage('finances_pufos', pufos)
+      set({ pufos })
+    },
+
+    saveCuenta: (c, editIdx) => {
+      const prevCuentas = get().cuentas
+      const id = c.id ?? (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : String(Math.random()))
+      const stamped: Cuenta = { ...c, id, updatedAt: localISO() }
+      const cuentas = [...prevCuentas]
+      let oldName: string | null = null
+      if (editIdx != null) {
+        oldName = cuentas[editIdx]?.name ?? null
+        cuentas[editIdx] = stamped
+      } else {
+        cuentas.push(stamped)
+      }
+      saveToStorage('finances_cuentas', cuentas)
+      let txs = get().txs
+      if (oldName && oldName !== stamped.name) {
+        txs = txs.map(t => (t.cuenta === oldName ? { ...t, cuenta: stamped.name } : t))
+        saveToStorage('finances_tx', txs)
+      }
+      set({ cuentas, ...(oldName && oldName !== stamped.name ? { txs } : {}) })
+      get().recordSnapshot()
+    },
+
+    removeCuenta: (idx) => {
+      const cuentas = get().cuentas.filter((_, i) => i !== idx)
+      saveToStorage('finances_cuentas', cuentas)
+      set({ cuentas })
+      get().recordSnapshot()
+    },
+
+    setPresupuesto: (cat, limit) => {
+      const presupuestos = [...get().presupuestos.filter(p => p.category !== cat), { category: cat, limit }]
+      saveToStorage('finances_budgets', presupuestos)
+      set({ presupuestos })
+    },
+    removePresupuesto: (cat) => {
+      const presupuestos = get().presupuestos.filter(p => p.category !== cat)
+      saveToStorage('finances_budgets', presupuestos)
+      set({ presupuestos })
+    },
+
+    addRecurrente: (r) => {
+      const recurrentes = [...get().recurrentes, r]
+      saveToStorage('finances_recurring', recurrentes)
+      set({ recurrentes })
+    },
+    removeRecurrente: (id) => {
+      const recurrentes = get().recurrentes.filter(r => r.id !== id)
+      saveToStorage('finances_recurring', recurrentes)
+      set({ recurrentes })
+    },
+
+    processRecurrentes: () => {
+      const { recurrentes, txs } = get()
+      const today = new Date()
+      const todayD = today.getDate()
+      const todayStr = localISO(today)
+      const newTxs: Tx[] = []
+
+      recurrentes.filter(r => r.active).forEach(r => {
+        const keyM = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`
+        const alreadyAdded = txs.some(t =>
+          t.date.startsWith(keyM) &&
+          t.concept === r.concept &&
+          t.category === r.category &&
+          t.type === r.type
+        )
+        if (r.day <= todayD && !alreadyAdded) {
+          newTxs.push({
+            id: Date.now() + Math.random(),
+            concept: r.concept,
+            amount: r.amount,
+            type: r.type,
+            category: r.category,
+            date: todayStr,
+            note: '(recurrente)',
+          })
+        }
+      })
+
+      if (newTxs.length > 0) {
+        const updated = [...newTxs, ...txs]
+        saveToStorage('finances_tx', updated)
+        set({ txs: updated })
+        get().recordSnapshot()
+      }
+      return newTxs
+    },
+
+    adjustBalance: (cuentaName, newBalance, date) => {
+      const cuenta = get().cuentas.find(c => c.name === cuentaName)
+      if (!cuenta) return
+      const tx = buildAdjustment(cuenta, newBalance, date ?? localISO())
+      if (!tx) return
+      get().addTx(tx)
+    },
+
+    addTransfer: (from, to, amount, date, concept) => {
+      const [fromTx, toTx] = buildTransfer(from, to, amount, date, concept)
+      const stampedFrom: Tx = { ...fromTx, id: Date.now() }
+      const stampedTo: Tx = { ...toTx, id: Date.now() + 1 }
+      const txs = [stampedFrom, stampedTo, ...get().txs]
+      saveToStorage('finances_tx', txs)
+      let cuentas = get().cuentas
+      const c1 = cuentasConMovimiento(cuentas, stampedFrom, 1)
+      if (c1) cuentas = c1
+      const c2 = cuentasConMovimiento(cuentas, stampedTo, 1)
+      if (c2) cuentas = c2
+      saveToStorage('finances_cuentas', cuentas)
+      set({ txs, cuentas })
+      get().recordSnapshot()
+    },
+  }
+  applyAll(inner, {})
+  return inner
+})
 
 // Espejo vivo: recarga desde localStorage la clave que cambió en la nube.
 onRemoteChange({
@@ -236,4 +336,5 @@ onRemoteChange({
   finances_cuentas: () => useFinanceStore.setState({ cuentas: loadFromStorage('finances_cuentas', []) }),
   finances_budgets: () => useFinanceStore.setState({ presupuestos: loadFromStorage('finances_budgets', []) }),
   finances_recurring: () => useFinanceStore.setState({ recurrentes: loadFromStorage('finances_recurring', []) }),
+  finances_nw_snapshots: () => useFinanceStore.setState({ snapshots: loadFromStorage('finances_nw_snapshots', []) }),
 })
