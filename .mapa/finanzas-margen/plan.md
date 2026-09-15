@@ -74,7 +74,7 @@ navegador) y commit+push. Si una fase se corta, se retoma por la primera casilla
       ajustar saldo; traspasos; `kind` excluido de estadísticas; id estable de cuenta.
       (2026-09-15, commits b4973fc·850c82d·81f7927 + fixes de revisión: dinero en céntimos, variación sin histórico.)
 - [ ] **F2 · Que se mantenga solo** — comercios + alta rápida + editar movimiento; importador N43/CSV
-      con revisión, dedupe y deshacer.
+      con revisión, dedupe y deshacer. (F2a hecho (UI+motor): commits f5ef1cd·102f889·b419848·aba9094.)
 - [ ] **F3 · Inversiones** — holdings + lotes + P&L + CoinGecko + precio manual + DCA.
 - [ ] **F4 · Deudas e inmuebles** — amortización francesa, pago con desglose, variable, inmuebles.
 - [ ] **F5 · Planificación** — presupuestos rollover/avisos, recurrentes pro, detección, calendario, notificaciones.
