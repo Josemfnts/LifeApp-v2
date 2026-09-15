@@ -23,7 +23,8 @@ export function NetWorthHero({ onGoPatrimonio }: Props) {
   const priceCache = useFinanceStore(s => s.priceCache)
   const debts = useFinanceStore(s => s.debts)
   const properties = useFinanceStore(s => s.properties)
-  const breakdown = computeNetWorth(cuentas, netWorthExtras({ holdings, priceCache, debts, properties }))
+  const pufos = useFinanceStore(s => s.pufos)
+  const breakdown = computeNetWorth(cuentas, netWorthExtras({ holdings, priceCache, debts, properties, pufos }))
   const today = localISO()
   const v = variation(snapshots, breakdown.net, today, period)
 

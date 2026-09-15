@@ -4,6 +4,7 @@ import { onRemoteChange } from '@/lib/mirror'
 import { addEuros, roundEuros, subEuros, sumEuros, toCents } from '@/lib/finance/money'
 import { nextPaymentSplit, type Debt } from '@/lib/finance/debts'
 import { dueOccurrences } from '@/lib/finance/recurring'
+import { buildFinanceContext } from '@/lib/finance/context'
 import { currentValue, type Property, type Valuation } from '@/lib/finance/properties'
 import { position, portfolio, resolvePrice, dcaDue, type Holding, type Lot, type Sale, type PriceCache } from '@/lib/finance/investments'
 import { fetchCryptoPrices, loadPriceCache, savePriceCache } from '@/lib/finance/prices'
@@ -116,7 +117,7 @@ interface FinanceStore {
   undoImport: (importId: string) => number
   saveImportMap: (bank: string, mapping: CsvMapping) => void
   addTx: (tx: Tx) => void
-  removeTx: (idx: number) => void
+  removeTx: (idx: number, opts?: { removeSplitPufos?: boolean }) => void
   updateTx: (idx: number, tx: Partial<Tx>) => void
   updateTxFull: (idx: number, tx: Partial<Tx>) => void
   addHucha: (h: Hucha) => void
@@ -157,14 +158,32 @@ function cuentasConMovimiento(cuentas: Cuenta[], tx: Tx, dir: 1 | -1): Cuenta[] 
   return next
 }
 
+// finances_context: resumen compacto para CompAI / el Agente personal (SOLO lo escribe la app). Se recalcula
+// tras cada cambio con 2 s de espera y solo se sube si cambió algo más que la hora de generación.
+let contextTimer: ReturnType<typeof setTimeout> | null = null
+function scheduleContextWrite(getState: () => FinanceStore): void {
+  if (contextTimer) clearTimeout(contextTimer)
+  contextTimer = setTimeout(() => {
+    contextTimer = null
+    const ctx = buildFinanceContext(getState(), localISO())
+    const withoutTime = (c: unknown) => JSON.stringify({ ...(c as Record<string, unknown>), generatedAt: undefined })
+    const prev = loadFromStorage<unknown>('finances_context', null)
+    if (prev && withoutTime(prev) === withoutTime(ctx)) return
+    saveToStorage('finances_context', ctx)
+  }, 2000)
+}
+
 // Lo que se suma a las cuentas para el patrimonio neto: cartera de inversión, deudas e inmuebles
 // registrados en sus módulos (respetando includeInNw). Lo usan la foto diaria y el hero.
 export function netWorthExtras(
-  s: { holdings: Holding[]; priceCache: PriceCache; debts: Debt[]; properties: Property[] },
+  s: { holdings: Holding[]; priceCache: PriceCache; debts: Debt[]; properties: Property[]; pufos?: Pufo[] },
   now = Date.now(),
-): { investments: number; debt: number; property: number } {
+): { liquid: number; investments: number; debt: number; property: number } {
   const today = localISO(new Date(now))
+  // Lo que te deben es tuyo y lo que debes no: los pufos activos ajustan el líquido.
+  const active = (s.pufos ?? []).filter(p => !p.settled)
   return {
+    liquid: sumEuros(active.map(p => (p.dir === 'me_debe' ? p.amount : -p.amount))),
     investments: portfolio(s.holdings, s.priceCache, now).value,
     debt: sumEuros(s.debts.filter(d => d.includeInNw !== false).map(d => d.balance)),
     property: sumEuros(s.properties.filter(p => p.includeInNw !== false).map(p => currentValue(p, today))),
@@ -474,6 +493,7 @@ export const useFinanceStore = create<FinanceStore>((set, get) => {
         saveToStorage('finances_nw_snapshots', r.snaps)
         set({ snapshots: r.snaps })
       }
+      scheduleContextWrite(get)
     },
 
     addTx: (tx) => {
@@ -485,10 +505,25 @@ export const useFinanceStore = create<FinanceStore>((set, get) => {
       const cuentas = cuentasConMovimiento(get().cuentas, stamped, 1)
       if (cuentas) saveToStorage('finances_cuentas', cuentas)
       set(cuentas ? { txs, cuentas } : { txs })
+      // Gasto compartido: la parte de cada persona queda como pufo "me debe" ligado al movimiento.
+      if (stamped.split && stamped.type === 'expense') {
+        let nextPufoId = Math.max(Date.now(), ...get().pufos.map(p => p.id + 1))
+        const newPufos: Pufo[] = stamped.split.people
+          .filter(p => toCents(p.share) > 0)
+          .map(p => ({
+            id: nextPufoId++, who: p.name, person: p.name, amount: p.share, dir: 'me_debe' as const,
+            reason: `Parte de ${stamped.concept}`, concept: stamped.concept, date: stamped.date, settled: false, txId: stamped.id,
+          }))
+        if (newPufos.length > 0) {
+          const pufos = [...get().pufos, ...newPufos]
+          saveToStorage('finances_pufos', pufos)
+          set({ pufos })
+        }
+      }
       get().recordSnapshot()
     },
 
-    removeTx: (idx) => {
+    removeTx: (idx, opts) => {
       const txsAll = get().txs
       const borrada = txsAll[idx]
       if (!borrada) return
@@ -506,6 +541,11 @@ export const useFinanceStore = create<FinanceStore>((set, get) => {
         txs = txsAll.filter((_, i) => i !== idx)
         const c = cuentasConMovimiento(cuentas, borrada, -1)
         if (c) cuentas = c
+      }
+      if (opts?.removeSplitPufos && borrada.split) {
+        const pufos = get().pufos.filter(p => !(p.txId === borrada.id && !p.settled))
+        saveToStorage('finances_pufos', pufos)
+        set({ pufos })
       }
       // Si se borra el apunte de una cuota o amortización, la deuda recupera ese capital y el pago
       // desaparece del historial: si no, la deuda quedaría rebajada sin que salga dinero de ninguna cuenta.
@@ -797,5 +837,7 @@ onRemoteChange({
   finances_holdings: () => useFinanceStore.setState({ holdings: loadFromStorage('finances_holdings', []) }),
   finances_debts: () => useFinanceStore.setState({ debts: loadFromStorage('finances_debts', []) }),
   finances_recurring_dismissed: () => useFinanceStore.setState({ recurringDismissed: loadFromStorage('finances_recurring_dismissed', []) }),
+  // Solo lo escribe la app (lo lee CompAI): no hay estado que recargar, se registra para cumplir el invariante.
+  finances_context: () => {},
   finances_properties: () => useFinanceStore.setState({ properties: loadFromStorage('finances_properties', []) }),
 })
