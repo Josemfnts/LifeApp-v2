@@ -1,0 +1,1 @@
+Esta tarea tiene el objetivo de replicar en finanzas todas las funcionalidades que incluye la app margen, detalladas en margen-teardown-y-plan-life-app.md junto con las actuales para mejorar Lifeapp brutalmente

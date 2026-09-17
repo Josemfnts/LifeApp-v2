@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Life OS — Treasury</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+:root {
+  --bg-deep: #0a0a0f;
+  --glass-bg: rgba(255,255,255,0.03);
+  --glass-border: rgba(255,255,255,0.06);
+  --glass-hover: rgba(255,255,255,0.07);
+  --gold: #f59e0b;
+  --gold-glow: rgba(245,158,11,0.25);
+  --emerald: #10b981;
+  --rose: #f43f5e;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { background: var(--bg-deep); }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background:
+    radial-gradient(ellipse 70% 50% at 70% 20%, rgba(245,158,11,0.1), transparent),
+    radial-gradient(ellipse 50% 40% at 30% 80%, rgba(245,158,11,0.05), transparent),
+    var(--bg-deep);
+  color: #e2e8f0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 20px 16px 100px;
+}
+
+.container {
+  width: 100%;
+  max-width: 430px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ===== GLASS CARD ===== */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 20px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  animation: fadeSlideUp 0.5s ease both;
+}
+.glass:hover {
+  background: var(--glass-hover);
+  box-shadow: 0 0 40px var(--gold-glow);
+  transform: translateY(-2px);
+}
+.glass:active { transform: scale(0.97); }
+
+.glass-card-gold {
+  border-color: rgba(245,158,11,0.15);
+}
+
+.stagger-1 { animation-delay: 0.03s; }
+.stagger-2 { animation-delay: 0.06s; }
+.stagger-3 { animation-delay: 0.09s; }
+.stagger-4 { animation-delay: 0.12s; }
+.stagger-5 { animation-delay: 0.15s; }
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== TABS ===== */
+.tabs {
+  display: flex; gap: 4px; padding: 4px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 16px; margin-bottom: 4px;
+}
+.tab {
+  flex: 1; text-align: center; padding: 8px 0;
+  border-radius: 12px; font-size: 0.78rem; font-weight: 500;
+  cursor: pointer; transition: all 0.2s ease;
+  color: #64748b; border: none; background: none;
+  font-family: 'Inter', sans-serif;
+}
+.tab.active {
+  background: rgba(245,158,11,0.12); color: #fbbf24;
+  box-shadow: 0 0 12px rgba(245,158,11,0.15);
+}
+.tab:hover:not(.active) { color: #94a3b8; }
+.tab:active { transform: scale(0.95); }
+
+/* ===== BALANCE COUNTER ===== */
+.balance-hero {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2.5rem; font-weight: 700;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b, #d97706);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+  line-height: 1.1;
+}
+.balance-sub {
+  font-size: 0.75rem; color: #94a3b8;
+}
+.balance-change {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem; color: #34d399;
+  text-shadow: 0 0 10px rgba(16,185,129,0.3);
+}
+
+/* ===== DONUT CHART ===== */
+.donut-container { position: relative; width: 160px; height: 160px; margin: 0 auto; }
+.donut-svg { transform: rotate(-90deg); width: 160px; height: 160px; }
+.donut-ring { fill: none; stroke: rgba(255,255,255,0.04); stroke-width: 14; }
+.donut-segment { fill: none; stroke-width: 14; stroke-linecap: round; transition: stroke-dashoffset 1s ease; }
+.donut-center {
+  position: absolute; inset: 0; display: flex;
+  flex-direction: column; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+}
+.donut-label { font-size: 0.85rem; font-weight: 700; }
+.donut-sub { font-size: 0.6rem; color: #64748b; }
+
+/* ===== TX LIST ===== */
+.tx-item {
+  display: flex; align-items: center; gap: 12px; padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  transition: transform 0.2s ease;
+  cursor: pointer; position: relative; overflow: hidden;
+}
+.tx-item:last-child { border-bottom: none; margin-bottom: -4px; }
+.tx-item:active { transform: translateX(-8px); }
+.tx-icon {
+  width: 40px; height: 40px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; flex-shrink: 0;
+}
+.tx-body { flex: 1; min-width: 0; }
+.tx-name { font-size: 0.82rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tx-date { font-size: 0.68rem; color: #64748b; }
+.tx-amount { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; font-weight: 600; white-space: nowrap; }
+
+/* ===== SWIPE SIM ===== */
+@keyframes swipeHint {
+  0%, 100% { transform: translateX(0); }
+  30%  { transform: translateX(-16px); }
+  60%  { transform: translateX(0); }
+}
+.swipe-demo { animation: swipeHint 3s ease-in-out infinite; }
+
+/* ===== CATEGORY LEGEND ===== */
+.cat-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ===== NAV DOCK ===== */
+.nav-dock {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 6px; padding: 8px 12px;
+  background: rgba(15,15,25,0.85);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 22px; z-index: 100;
+}
+.nav-item {
+  width: 42px; height: 42px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.25rem; cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1.4);
+  color: #64748b;
+}
+.nav-item.active { color: #fbbf24; }
+.nav-item.active::after {
+  content: ''; position: absolute; bottom: 2px; width: 4px; height: 4px;
+  border-radius: 50%; background: #f59e0b;
+  box-shadow: 0 0 8px rgba(245,158,11,0.7);
+}
+.nav-item:hover { color: #e2e8f0; background: rgba(255,255,255,0.04); }
+.nav-item:active { transform: scale(0.82); }
+
+/* ===== ANALYSIS BARS ===== */
+.bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.bar-label { font-size: 0.7rem; width: 80px; text-align: right; color: #94a3b8; flex-shrink: 0; }
+.bar-track { flex: 1; height: 10px; background: rgba(255,255,255,0.04); border-radius: 999px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 999px; transition: width 1.2s ease; }
+.bar-val { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; width: 50px; color: #94a3b8; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER + TABS -->
+  <div class="glass stagger-1 glass-card-gold">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span style="font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:600;">
+        <span style="background:linear-gradient(135deg,#fbbf24,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Tesoro</span>
+      </span>
+      <span style="font-size:0.68rem;color:#64748b;">Julio 2026</span>
+    </div>
+    <div class="tabs">
+      <button class="tab active" data-tab="resumen">Resumen</button>
+      <button class="tab" data-tab="movs">Movimientos</button>
+      <button class="tab" data-tab="analisis">Análisis</button>
+    </div>
+  </div>
+
+  <!-- TAB: RESUMEN -->
+  <div id="tab-resumen">
+    <!-- BALANCE CARD -->
+    <div class="glass stagger-2 glass-card-gold" style="text-align:center;">
+      <p class="balance-sub">BALANCE ACTUAL</p>
+      <div class="balance-hero" id="balanceCounter">1.247,50€</div>
+      <p class="balance-change">▲ +342,18€ este mes</p>
+    </div>
+
+    <!-- DONUT -->
+    <div class="glass stagger-3 glass-card-gold">
+      <p style="font-family:'Space Grotesk',sans-serif;font-size:0.8rem;color:#94a3b8;margin-bottom:8px;">GASTOS POR CATEGORÍA</p>
+      <div class="donut-container">
+        <svg class="donut-svg" viewBox="0 0 160 160">
+          <circle class="donut-ring" cx="80" cy="80" r="68"/>
+          <circle class="donut-segment" cx="80" cy="80" r="68"
+            stroke="url(#gAlq)" stroke-dasharray="427.26"
+            stroke-dashoffset="106.8" style="filter:drop-shadow(0 0 6px rgba(245,158,11,0.5));"/>
+          <circle class="donut-segment" cx="80" cy="80" r="68"
+            stroke="url(#gCasa)" stroke-dasharray="427.26"
+            stroke-dashoffset="256.4" style="filter:drop-shadow(0 0 6px rgba(59,130,246,0.5));"/>
+          <circle class="donut-segment" cx="80" cy="80" r="68"
+            stroke="url(#gOcio)" stroke-dasharray="427.26"
+            stroke-dashoffset="363.2" style="filter:drop-shadow(0 0 6px rgba(236,72,153,0.5));"/>
+          <defs>
+            <linearGradient id="gAlq" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#d97706"/>
+            </linearGradient>
+            <linearGradient id="gCasa" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#2563eb"/>
+            </linearGradient>
+            <linearGradient id="gOcio" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ec4899"/><stop offset="100%" stop-color="#be185d"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="donut-center">
+          <div class="donut-label" style="color:#fbbf24;">1.890€</div>
+          <div class="donut-sub">Total gastado</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.75rem;">
+          <span><span class="cat-dot" style="background:#f59e0b;display:inline-block;"></span> Alimentación</span>
+          <span style="font-family:'JetBrains Mono',monospace;color:#fbbf24;">945€</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.75rem;">
+          <span><span class="cat-dot" style="background:#3b82f6;display:inline-block;"></span> Casa y recibos</span>
+          <span style="font-family:'JetBrains Mono',monospace;color:#94a3b8;">520€</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.75rem;">
+          <span><span class="cat-dot" style="background:#ec4899;display:inline-block;"></span> Ocio y salidas</span>
+          <span style="font-family:'JetBrains Mono',monospace;color:#94a3b8;">325€</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: MOVIMIENTOS -->
+  <div id="tab-movs" style="display:none;">
+    <div class="glass stagger-2 glass-card-gold">
+      <!-- Ingresos section -->
+      <p style="font-family:'Space Grotesk',sans-serif;font-size:0.72rem;color:#34d399;margin-bottom:8px;">▲ INGRESOS</p>
+      <div class="tx-item swipe-demo">
+        <div class="tx-icon" style="background:rgba(16,185,129,0.15);color:#34d399;">💼</div>
+        <div class="tx-body"><div class="tx-name">Nómina TechCorp</div><div class="tx-date">1 jul — Transferencia</div></div>
+        <div class="tx-amount" style="color:#34d399;">+2.300,00€</div>
+      </div>
+      <div class="tx-item">
+        <div class="tx-icon" style="background:rgba(16,185,129,0.1);color:#34d399;">📦</div>
+        <div class="tx-body"><div class="tx-name">Venta Wallapop</div><div class="tx-date">12 jul — Bizum</div></div>
+        <div class="tx-amount" style="color:#34d399;">+85,00€</div>
+      </div>
+
+      <p style="font-family:'Space Grotesk',sans-serif;font-size:0.72rem;color:#f87171;margin-top:16px;margin-bottom:8px;">▼ GASTOS</p>
+      <div class="tx-item">
+        <div class="tx-icon" style="background:rgba(245,158,11,0.15);color:#fbbf24;">🛒</div>
+        <div class="tx-body"><div class="tx-name">Mercadona</div><div class="tx-date">15 jul — Tarjeta</div></div>
+        <div class="tx-amount" style="color:#fbbf24;">-127,40€</div>
+      </div>
+      <div class="tx-item">
+        <div class="tx-icon" style="background:rgba(59,130,246,0.15);color:#60a5fa;">🏠</div>
+        <div class="tx-body"><div class="tx-name">Alquiler julio</div><div class="tx-date">5 jul — Transferencia</div></div>
+        <div class="tx-amount" style="color:#f87171;">-720,00€</div>
+      </div>
+      <div class="tx-item">
+        <div class="tx-icon" style="background:rgba(236,72,153,0.15);color:#f472b6;">🎬</div>
+        <div class="tx-body"><div class="tx-name">Cine + cena</div><div class="tx-date">18 jul — Tarjeta</div></div>
+        <div class="tx-amount" style="color:#fbbf24;">-48,50€</div>
+      </div>
+      <div class="tx-item">
+        <div class="tx-icon" style="background:rgba(16,185,129,0.12);color:#34d399;">⚡</div>
+        <div class="tx-body"><div class="tx-name">Iberdrola</div><div class="tx-date">10 jul — Domiciliado</div></div>
+        <div class="tx-amount" style="color:#fbbf24;">-62,30€</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: ANÁLISIS -->
+  <div id="tab-analisis" style="display:none;">
+    <div class="glass stagger-2 glass-card-gold">
+      <p style="font-family:'Space Grotesk',sans-serif;font-size:0.8rem;color:#94a3b8;margin-bottom:12px;">GASTO MENSUAL</p>
+      <div class="bar-row">
+        <span class="bar-label">Feb</span>
+        <div class="bar-track"><div class="bar-fill" style="width:65%;background:linear-gradient(90deg,#d97706,#f59e0b);box-shadow:0 0 8px rgba(245,158,11,0.4);"></div></div>
+        <span class="bar-val">1.420€</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Mar</span>
+        <div class="bar-track"><div class="bar-fill" style="width:80%;background:linear-gradient(90deg,#d97706,#f59e0b);box-shadow:0 0 8px rgba(245,158,11,0.4);"></div></div>
+        <span class="bar-val">1.760€</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Abr</span>
+        <div class="bar-track"><div class="bar-fill" style="width:55%;background:linear-gradient(90deg,#d97706,#f59e0b);box-shadow:0 0 8px rgba(245,158,11,0.4);"></div></div>
+        <span class="bar-val">1.210€</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">May</span>
+        <div class="bar-track"><div class="bar-fill" style="width:90%;background:linear-gradient(90deg,#d97706,#f59e0b);box-shadow:0 0 8px rgba(245,158,11,0.4);"></div></div>
+        <span class="bar-val">1.990€</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Jun</span>
+        <div class="bar-track"><div class="bar-fill" style="width:72%;background:linear-gradient(90deg,#d97706,#f59e0b);box-shadow:0 0 8px rgba(245,158,11,0.4);"></div></div>
+        <span class="bar-val">1.585€</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Jul</span>
+        <div class="bar-track" style="background:rgba(245,158,11,0.08);"><div class="bar-fill" style="width:85%;background:linear-gradient(90deg,#f59e0b,#fbbf24);box-shadow:0 0 14px rgba(245,158,11,0.6);"></div></div>
+        <span class="bar-val" style="color:#fbbf24;">1.890€</span>
+      </div>
+    </div>
+
+    <div class="glass stagger-3 glass-card-gold" style="text-align:center;">
+      <p style="font-family:'Space Grotesk',sans-serif;font-size:0.8rem;color:#94a3b8;margin-bottom:8px;">TASA DE AHORRO</p>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:2rem;font-weight:700;color:#34d399;text-shadow:0 0 14px rgba(16,185,129,0.3);">34%</div>
+      <p style="font-size:0.7rem;color:#64748b;">Objetivo: 40% · Te faltan 6 puntos</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- NAV DOCK -->
+<nav class="nav-dock">
+  <div class="nav-item" title="Inicio">🏠</div>
+  <div class="nav-item" title="Agenda">📅</div>
+  <div class="nav-item" title="Hábitos">✅</div>
+  <div class="nav-item" title="Físico">🏋️</div>
+  <div class="nav-item" title="Nutrición">🥗</div>
+  <div class="nav-item active" title="Finanzas">💳</div>
+  <div class="nav-item" title="Comunidad">👥</div>
+</nav>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const tabName = tab.dataset.tab;
+    ['resumen','movs','analisis'].forEach(id => {
+      document.getElementById('tab-' + id).style.display = id === tabName ? 'block' : 'none';
+    });
+  });
+});
+
+// Balance counter animation
+const balanceEl = document.getElementById('balanceCounter');
+const targetBalance = 1247.50;
+let currentBalance = 0;
+const step = targetBalance / 40;
+
+function animateBalance() {
+  if (currentBalance < targetBalance) {
+    currentBalance = Math.min(currentBalance + step, targetBalance);
+    balanceEl.textContent = currentBalance.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '€';
+    requestAnimationFrame(animateBalance);
+  }
+}
+animateBalance();
+
+// Nav dock interaction
+document.querySelectorAll('.nav-item').forEach((item, i) => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    item.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

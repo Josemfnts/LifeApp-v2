@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Life OS — Arena Física</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+:root {
+  --bg-deep: #0a0a0f;
+  --glass-bg: rgba(255,255,255,0.03);
+  --glass-border: rgba(255,255,255,0.06);
+  --glass-hover: rgba(255,255,255,0.07);
+  --orange: #f97316;
+  --orange-glow: rgba(249,115,22,0.3);
+  --magma: #ea580c;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { background: var(--bg-deep); }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(249,115,22,0.12), transparent),
+    radial-gradient(ellipse 50% 50% at 80% 50%, rgba(234,88,12,0.06), transparent),
+    var(--bg-deep);
+  color: #e2e8f0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 20px 16px 100px;
+}
+
+.container {
+  width: 100%;
+  max-width: 430px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ===== GLASS CARD ===== */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 20px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  animation: fadeSlideUp 0.5s ease both;
+}
+.glass:hover {
+  background: var(--glass-hover);
+  box-shadow: 0 0 40px var(--orange-glow);
+  transform: translateY(-2px);
+}
+.glass:active { transform: scale(0.97); }
+
+.glass-card-orange { border-color: rgba(249,115,22,0.15); }
+
+.stagger-1 { animation-delay: 0.03s; }
+.stagger-2 { animation-delay: 0.06s; }
+.stagger-3 { animation-delay: 0.09s; }
+.stagger-4 { animation-delay: 0.12s; }
+.stagger-5 { animation-delay: 0.15s; }
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== TABS ===== */
+.tabs {
+  display: flex; gap: 4px; padding: 4px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 16px; margin-bottom: 4px;
+}
+.tab {
+  flex: 1; text-align: center; padding: 8px 0;
+  border-radius: 12px; font-size: 0.72rem; font-weight: 500;
+  cursor: pointer; transition: all 0.2s ease;
+  color: #64748b; border: none; background: none;
+  font-family: 'Inter', sans-serif; white-space: nowrap;
+}
+.tab.active {
+  background: rgba(249,115,22,0.12); color: #fb923c;
+  box-shadow: 0 0 12px rgba(249,115,22,0.15);
+}
+.tab:hover:not(.active) { color: #94a3b8; }
+.tab:active { transform: scale(0.95); }
+
+/* ===== SLOT COUNTERS ===== */
+.slot-row { display: flex; gap: 12px; }
+.slot {
+  flex: 1; text-align: center; padding: 16px 8px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(249,115,22,0.12);
+  border-radius: 16px; position: relative; overflow: hidden;
+}
+.slot::after {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(249,115,22,0.08), transparent);
+  pointer-events: none;
+}
+.slot-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.5rem; font-weight: 700;
+  text-shadow: 0 0 16px rgba(249,115,22,0.4);
+  transition: all 0.3s ease;
+}
+.slot-value.pulse { text-shadow: 0 0 24px rgba(249,115,22,0.7); }
+.slot-label {
+  font-size: 0.62rem; color: #64748b;
+  text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px;
+}
+
+/* ===== START BUTTON ===== */
+.start-btn-wrap {
+  display: flex; justify-content: center; align-items: center;
+  position: relative; margin: 8px 0;
+}
+.start-btn {
+  width: 130px; height: 130px; border-radius: 50%;
+  border: none; cursor: pointer; position: relative;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.2rem; font-weight: 700; color: #fff;
+  letter-spacing: 0.05em;
+  background: radial-gradient(circle at 30% 30%, #fb923c, #f97316 40%, #c2410c 100%);
+  box-shadow: 0 0 40px rgba(249,115,22,0.5), 0 0 80px rgba(249,115,22,0.2);
+  transition: all 0.25s ease;
+  z-index: 2;
+}
+.start-btn:hover {
+  box-shadow: 0 0 60px rgba(249,115,22,0.7), 0 0 120px rgba(249,115,22,0.3);
+  transform: scale(1.04);
+}
+.start-btn:active { transform: scale(0.92); }
+
+/* ===== SPINNING RING ===== */
+.spin-ring {
+  position: absolute; width: 160px; height: 160px;
+  border-radius: 50%;
+  border: 2px dashed rgba(249,115,22,0.4);
+  animation: spinRing 8s linear infinite;
+  pointer-events: none;
+}
+.spin-ring::before {
+  content: ''; position: absolute; top: -4px; left: 50%;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #fb923c; transform: translateX(-50%);
+  box-shadow: 0 0 12px rgba(249,115,22,0.8);
+}
+@keyframes spinRing {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ===== ROUTINE CARDS ===== */
+.routine-card {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(249,115,22,0.1);
+  border-radius: 16px; padding: 14px; cursor: pointer;
+  transition: all 0.2s ease; margin-bottom: 8px;
+}
+.routine-card:last-child { margin-bottom: 0; }
+.routine-card:hover { border-color: rgba(249,115,22,0.25); background: rgba(249,115,22,0.04); }
+.routine-card:active { transform: scale(0.97); }
+.routine-name { font-size: 0.85rem; font-weight: 600; }
+.routine-meta { font-size: 0.68rem; color: #64748b; margin-top: 2px; }
+.routine-bar {
+  height: 4px; border-radius: 999px;
+  background: rgba(255,255,255,0.06); margin-top: 8px; overflow: hidden;
+}
+.routine-fill {
+  height: 100%; border-radius: 999px;
+  background: linear-gradient(90deg, #f97316, #fb923c);
+  box-shadow: 0 0 6px rgba(249,115,22,0.4);
+}
+
+/* ===== TICKET ===== */
+.ticket {
+  background: linear-gradient(135deg, rgba(249,115,22,0.06), rgba(234,88,12,0.03));
+  border: 1px dashed rgba(249,115,22,0.2);
+  border-radius: 16px; padding: 16px; position: relative;
+  overflow: hidden;
+}
+.ticket::before, .ticket::after {
+  content: ''; position: absolute; width: 20px; height: 20px;
+  border-radius: 50%; background: var(--bg-deep);
+  border: 1px solid rgba(249,115,22,0.2); top: 50%; transform: translateY(-50%);
+}
+.ticket::before { left: -10px; }
+.ticket::after  { right: -10px; }
+.ticket-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding-bottom: 10px; border-bottom: 1px dashed rgba(255,255,255,0.08);
+}
+.ticket-title { font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 0.9rem; }
+.ticket-date { font-size: 0.65rem; color: #64748b; }
+.ticket-exercise {
+  display: flex; justify-content: space-between; padding: 6px 0;
+  font-size: 0.72rem; border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.ticket-exercise:last-child { border-bottom: none; }
+.ticket-ex-name { color: #cbd5e1; }
+.ticket-ex-data { font-family: 'JetBrains Mono', monospace; color: #fb923c; }
+
+/* ===== NAV DOCK ===== */
+.nav-dock {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 6px; padding: 8px 12px;
+  background: rgba(15,15,25,0.85);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 22px; z-index: 100;
+}
+.nav-item {
+  width: 42px; height: 42px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.25rem; cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1.4);
+  color: #64748b;
+}
+.nav-item.active { color: #fb923c; }
+.nav-item.active::after {
+  content: ''; position: absolute; bottom: 2px; width: 4px; height: 4px;
+  border-radius: 50%; background: #f97316;
+  box-shadow: 0 0 8px rgba(249,115,22,0.7);
+}
+.nav-item:hover { color: #e2e8f0; background: rgba(255,255,255,0.04); }
+.nav-item:active { transform: scale(0.82); }
+
+/* ===== TAB CONTENT ===== */
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ===== HEALTH METRICS ===== */
+.health-metric {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.health-metric:last-child { border-bottom: none; }
+.health-icon { font-size: 1.4rem; width: 32px; text-align: center; }
+.health-value {
+  font-family: 'JetBrains Mono', monospace; font-weight: 600;
+  font-size: 0.85rem;
+}
+.health-label { font-size: 0.7rem; color: #64748b; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER + TABS -->
+  <div class="glass stagger-1 glass-card-orange">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span style="font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:600;">
+        <span style="background:linear-gradient(135deg,#fb923c,#f97316,#c2410c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Arena</span>
+      </span>
+      <span style="font-size:0.68rem;color:#64748b;">Semana 29</span>
+    </div>
+    <div class="tabs">
+      <button class="tab active" data-tab="fuerza">Fuerza</button>
+      <button class="tab" data-tab="running">Running</button>
+      <button class="tab" data-tab="movilidad">Movilidad</button>
+      <button class="tab" data-tab="salud">Salud</button>
+    </div>
+  </div>
+
+  <!-- TAB: FUERZA -->
+  <div class="tab-content active" id="tab-fuerza">
+
+    <!-- SLOT COUNTERS -->
+    <div class="slot-row stagger-2">
+      <div class="slot">
+        <div class="slot-value" style="color:#fb923c;" id="slotKg">3.240</div>
+        <div class="slot-label">KG Totales</div>
+      </div>
+      <div class="slot">
+        <div class="slot-value" style="color:#f97316;" id="slotSeries">48</div>
+        <div class="slot-label">Series</div>
+      </div>
+      <div class="slot">
+        <div class="slot-value" style="color:#ea580c;" id="slotSesiones">4</div>
+        <div class="slot-label">Sesiones</div>
+      </div>
+    </div>
+
+    <!-- START BUTTON -->
+    <div class="glass stagger-3 glass-card-orange" style="text-align:center;">
+      <div class="start-btn-wrap">
+        <div class="spin-ring" id="spinRing"></div>
+        <button class="start-btn" id="startBtn" onclick="toggleWorkout()">INICIAR</button>
+      </div>
+      <p style="font-size:0.7rem;color:#64748b;margin-top:4px;" id="startStatus">Sin entreno activo</p>
+    </div>
+
+    <!-- ROUTINES -->
+    <div class="glass stagger-4 glass-card-orange">
+      <p style="font-family:'Space Grotesk',sans-serif;font-size:0.8rem;color:#94a3b8;margin-bottom:10px;">MIS RUTINAS</p>
+
+      <div class="routine-card">
+        <div class="routine-name">Push-Pull-Legs A</div>
+        <div class="routine-meta">6 ejercicios · ~55 min · Pecho / Hombro / Tríceps</div>
+        <div class="routine-bar"><div class="routine-fill" style="width:100%;"></div></div>
+      </div>
+
+      <div class="routine-card">
+        <div class="routine-name">Push-Pull-Legs B</div>
+        <div class="routine-meta">6 ejercicios · ~50 min · Espalda / Bíceps</div>
+        <div class="routine-bar"><div class="routine-fill" style="width:100%;"></div></div>
+      </div>
+
+      <div class="routine-card">
+        <div class="routine-name">Pierna full</div>
+        <div class="routine-meta">5 ejercicios · ~45 min · Cuádriceps / Femoral / Gemelo</div>
+        <div class="routine-bar"><div class="routine-fill" style="width:60%;"></div></div>
+      </div>
+    </div>
+
+    <!-- ÚLTIMA SESIÓN TICKET -->
+    <div class="glass stagger-5 glass-card-orange">
+      <p style="font-family:'Space Grotesk',sans-serif;font-size:0.8rem;color:#94a3b8;margin-bottom:10px;">ÚLTIMA SESIÓN</p>
+      <div class="ticket">
+        <div class="ticket-header">
+          <div>
+            <div class="ticket-title">Push-Pull-Legs A</div>
+            <div class="ticket-date">Lunes 21 julio · 18:30 · 52 min</div>
+          </div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#34d399;">+45 XP</span>
+        </div>
+        <div style="padding-top:8px;">
+          <div class="ticket-exercise">
+            <span class="ticket-ex-name">Press banca plano</span>
+            <span class="ticket-ex-data">4×8 80kg</span>
+          </div>
+          <div class="ticket-exercise">
+            <span class="ticket-ex-name">Press militar</span>
+            <span class="ticket-ex-data">4×8 45kg</span>
+          </div>
+          <div class="ticket-exercise">
+            <span class="ticket-ex-name">Aperturas mancuerna</span>
+            <span class="ticket-ex-data">3×12 16kg</span>
+          </div>
+          <div class="ticket-exercise">
+            <span class="ticket-ex-name">Extensiones polea</span>
+            <span class="ticket-ex-data">3×15 25kg</span>
+          </div>
+          <div class="ticket-exercise">
+            <span class="ticket-ex-name">Fondos paralelas</span>
+            <span class="ticket-ex-data">3×Fallo +10kg</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB: RUNNING -->
+  <div class="tab-content" id="tab-running">
+    <div class="glass stagger-2 glass-card-orange" style="text-align:center;">
+      <p style="font-family:'Space Grotesk',sans-serif;font-size:0.8rem;color:#94a3b8;margin-bottom:6px;">ESTA SEMANA</p>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:2rem;font-weight:700;color:#fb923c;text-shadow:0 0 14px rgba(249,115,22,0.3);">14,2 km</div>
+      <div style="display:flex;justify-content:center;gap:24px;margin-top:8px;font-size:0.72rem;color:#94a3b8;">
+        <span>⏱ 1:12:34</span>
+        <span>🏃 5:07 /km</span>
+        <span>🔥 890 cal</span>
+      </div>
+    </div>
+
+    <div class="glass stagger-3 glass-card-orange">
+      <p style="font-family:'Space Grotesk',sans-serif;font-size:0.8rem;color:#94a3b8;margin-bottom:10px;">ÚLTIMAS CARRERAS</p>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div class="routine-card" style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div class="routine-name">5K parque</div>
+            <div class="routine-meta">Mar 22 jul · 07:45</div>
+          </div>
+          <div style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#fb923c;">
+            5,00 km<br><span style="color:#64748b;font-size:0.62rem;">4:58 /km</span>
+          </div>
+        </div>
+        <div class="routine-card" style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div class="routine-name">10K costero</div>
+            <div class="routine-meta">Dom 20 jul · 09:00</div>
+          </div>
+          <div style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#fb923c;">
+            10,20 km<br><span style="color:#64748b;font-size:0.62rem;">5:12 /km</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: MOVILIDAD -->
+  <div class="tab-content" id="tab-movilidad">
+    <div class="glass stagger-2 glass-card-orange" style="text-align:center;">
+      <p style="font-family:'Space Grotesk',sans-serif;font-size:0.8rem;color:#94a3b8;margin-bottom:6px;">RACHA DE MOVILIDAD</p>
+      <div style="font-size:2rem;">🧘</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:1.8rem;font-weight:700;color:#fb923c;text-shadow:0 0 14px rgba(249,115,22,0.3);">12 días</div>
+      <p style="font-size:0.7rem;color:#64748b;">Objetivo: 21 días seguidos</p>
+    </div>
+
+    <div class="glass stagger-3 glass-card-orange">
+      <p style="font-family:'Space Grotesk',sans-serif;font-size:0.8rem;color:#94a3b8;margin-bottom:10px;">RUTINAS DE MOVILIDAD</p>
+      <div class="routine-card">
+        <div class="routine-name">Morning Flow 10 min</div>
+        <div class="routine-meta">Cuello · Hombros · Cadera · Columna</div>
+        <div class="routine-bar"><div class="routine-fill" style="width:85%;"></div></div>
+      </div>
+      <div class="routine-card">
+        <div class="routine-name">Post-entreno estiramientos</div>
+        <div class="routine-meta">Isquios · Cuádriceps · Dorsal · Psoas</div>
+        <div class="routine-bar"><div class="routine-fill" style="width:40%;"></div></div>
+      </div>
+      <div class="routine-card">
+        <div class="routine-name">Yoga Vinyasa 20 min</div>
+        <div class="routine-meta">Saludos al sol · Guerrero · Equilibrios</div>
+        <div class="routine-bar"><div class="routine-fill" style="width:10%;"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: SALUD -->
+  <div class="tab-content" id="tab-salud">
+    <div class="glass stagger-2 glass-card-orange">
+      <p style="font-family:'Space Grotesk',sans-serif;font-size:0.8rem;color:#94a3b8;margin-bottom:10px;">MÉTRICAS DE HOY</p>
+      <div class="health-metric">
+        <span class="health-icon">❤️</span>
+        <span class="health-label">Ritmo cardíaco reposo</span>
+        <span class="health-value" style="color:#f87171;">58 bpm</span>
+      </div>
+      <div class="health-metric">
+        <span class="health-icon">😴</span>
+        <span class="health-label">Sueño anoche</span>
+        <span class="health-value" style="color:#a78bfa;">7h 22min</span>
+      </div>
+      <div class="health-metric">
+        <span class="health-icon">👣</span>
+        <span class="health-label">Pasos</span>
+        <span class="health-value" style="color:#fb923c;">8.420</span>
+      </div>
+      <div class="health-metric">
+        <span class="health-icon">⚖️</span>
+        <span class="health-label">Peso</span>
+        <span class="health-value">78,4 kg</span>
+      </div>
+      <div class="health-metric">
+        <span class="health-icon">💧</span>
+        <span class="health-label">Agua</span>
+        <span class="health-value" style="color:#38bdf8;">1,8 L</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- NAV DOCK -->
+<nav class="nav-dock">
+  <div class="nav-item" title="Inicio">🏠</div>
+  <div class="nav-item" title="Agenda">📅</div>
+  <div class="nav-item" title="Hábitos">✅</div>
+  <div class="nav-item active" title="Físico">🏋️</div>
+  <div class="nav-item" title="Nutrición">🥗</div>
+  <div class="nav-item" title="Finanzas">💳</div>
+  <div class="nav-item" title="Comunidad">👥</div>
+</nav>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const tabName = tab.dataset.tab;
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + tabName).classList.add('active');
+  });
+});
+
+// Workout toggle
+let workoutActive = false;
+let workoutSeconds = 0;
+let workoutInterval = null;
+
+function toggleWorkout() {
+  workoutActive = !workoutActive;
+  const btn = document.getElementById('startBtn');
+  const status = document.getElementById('startStatus');
+  const ring = document.getElementById('spinRing');
+
+  if (workoutActive) {
+    btn.textContent = 'EN CURSO';
+    btn.style.background = 'radial-gradient(circle at 30% 30%, #34d399, #10b981 40%, #059669 100%)';
+    btn.style.boxShadow = '0 0 40px rgba(16,185,129,0.5), 0 0 80px rgba(16,185,129,0.2)';
+    status.textContent = 'Entreno en curso — 00:00';
+    ring.style.borderColor = 'rgba(16,185,129,0.5)';
+    ring.style.animationDuration = '4s';
+    ring.querySelector('::before').style.background = '#34d399';
+    workoutSeconds = 0;
+    workoutInterval = setInterval(() => {
+      workoutSeconds++;
+      const m = String(Math.floor(workoutSeconds / 60)).padStart(2,'0');
+      const s = String(workoutSeconds % 60).padStart(2,'0');
+      status.textContent = 'Entreno en curso — ' + m + ':' + s;
+    }, 1000);
+  } else {
+    btn.textContent = 'INICIAR';
+    btn.style.background = 'radial-gradient(circle at 30% 30%, #fb923c, #f97316 40%, #c2410c 100%)';
+    btn.style.boxShadow = '0 0 40px rgba(249,115,22,0.5), 0 0 80px rgba(249,115,22,0.2)';
+    ring.style.borderColor = 'rgba(249,115,22,0.4)';
+    ring.style.animationDuration = '8s';
+    clearInterval(workoutInterval);
+    const m = String(Math.floor(workoutSeconds / 60)).padStart(2,'0');
+    const s = String(workoutSeconds % 60).padStart(2,'0');
+    status.textContent = 'Último entreno: ' + m + ':' + s + ' · +' + Math.floor(workoutSeconds / 12) + ' XP';
+  }
+}
+
+// Slot machine animation on page load
+function animateSlots() {
+  const slots = [
+    { el: document.getElementById('slotKg'), target: 3240, prefix: '' },
+    { el: document.getElementById('slotSeries'), target: 48, prefix: '' },
+    { el: document.getElementById('slotSesiones'), target: 4, prefix: '' },
+  ];
+
+  slots.forEach(({ el, target, prefix }) => {
+    let current = 0;
+    const steps = 25;
+    const increment = target / steps;
+    let step = 0;
+
+    function tick() {
+      if (step >= steps) {
+        el.textContent = prefix + target.toLocaleString('es-ES');
+        el.classList.add('pulse');
+        return;
+      }
+      current = Math.min(Math.round(current + increment + Math.random() * (target / 10)), target);
+      el.textContent = prefix + current.toLocaleString('es-ES');
+      step++;
+      setTimeout(tick, 40 + step * 3);
+    }
+    tick();
+  });
+}
+// Animate on load with small delay
+setTimeout(animateSlots, 400);
+
+// Nav dock interaction
+document.querySelectorAll('.nav-item').forEach((item, i) => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    item.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

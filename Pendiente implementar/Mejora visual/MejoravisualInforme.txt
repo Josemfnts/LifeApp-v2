@@ -1,0 +1,943 @@
+# Informe de optimización UI/UX — App móvil premium
+
+## 1. Objetivo principal
+
+La meta no es hacer la app más minimalista.
+
+La meta es conseguir que el usuario perciba:
+
+> **“Tengo muchísimas funcionalidades, pero la aplicación nunca me abruma.”**
+
+Para ello hay que separar tres conceptos:
+
+* **Contenido:** debe dominar la pantalla.
+* **Navegación:** debe estar disponible, pero ocupar poco.
+* **Controles secundarios:** deben aparecer únicamente cuando son relevantes.
+
+La regla fundamental será:
+
+### **La interfaz debe adaptarse al contexto y al scroll.**
+
+En reposo orienta.
+Durante la interacción desaparece.
+Cuando el usuario la necesita, reaparece.
+
+---
+
+# 2. El problema actual: exceso de Chrome
+
+La arquitectura que debemos evitar es:
+
+```text
+STATUS BAR
+
+HEADER
+Físico
+Descripción
+
+CATEGORÍAS
+Fuerza · Running · Movilidad · Salud
+
+SUBNAVEGACIÓN
+Hoy · Historial · Rutinas · Ejercicios · Progreso
+
+TÍTULO
+Programas
+
+FILTROS
+
+BUSCADOR
+
+CONTENIDO
+
+BOTTOM NAV
+```
+
+El problema no es que cada elemento individual esté mal.
+
+El problema es que **todos están presentes simultáneamente**.
+
+En un móvil, 5–6 bloques de navegación pueden comerse fácilmente un tercio de la pantalla.
+
+Y eso produce una sensación muy concreta:
+
+> “La aplicación tiene demasiadas cosas.”
+
+Aunque realmente tenga una buena arquitectura.
+
+---
+
+# 3. Nuevo principio: navegación por capas
+
+La aplicación debería funcionar en tres niveles.
+
+### NIVEL 1 — Navegación global
+
+Por ejemplo:
+
+**Agenda · Físico · Nutrición · Finanzas**
+
+Debe estar siempre accesible, pero no necesariamente siempre visible.
+
+### NIVEL 2 — Contexto actual
+
+Dentro de Físico:
+
+**Fuerza · Running · Movilidad · Salud**
+
+No necesariamente tiene que estar presente en todas las pantallas.
+
+### NIVEL 3 — Acción
+
+Dentro de Fuerza:
+
+**Hoy · Rutinas · Ejercicios · Progreso**
+
+Aquí es donde el usuario trabaja.
+
+La regla:
+
+> **Cuanto más profundo está el usuario en una tarea, menos navegación debe ocupar la pantalla.**
+
+---
+
+# 4. Header dinámico
+
+Esta sería una de las modificaciones más importantes.
+
+## Estado inicial
+
+Al entrar:
+
+```text
+┌──────────────────────────────┐
+│ Físico                   ○   │
+│                              │
+│ Fuerza  Running  Movilidad → │
+│                              │
+│ Hoy  Rutinas  Ejercicios ... │
+├──────────────────────────────┤
+│                              │
+│ CONTENIDO                    │
+```
+
+Perfectamente válido.
+
+Pero cuando empieza el scroll:
+
+```text
+┌──────────────────────────────┐
+│ ← Rutinas                🔍  │
+├──────────────────────────────┤
+│                              │
+│ CONTENIDO                    │
+│                              │
+│                              │
+│                              │
+```
+
+El header grande **se transforma**, no simplemente desaparece.
+
+Eso es importante.
+
+El usuario sigue sabiendo dónde está.
+
+---
+
+# 5. Header: qué eliminar
+
+Eliminaría de forma agresiva:
+
+* slogans permanentes;
+* subtítulos decorativos;
+* grandes títulos editoriales;
+* iconos que no tengan función;
+* espacios verticales ornamentales;
+* separadores innecesarios.
+
+Por ejemplo:
+
+### ❌
+
+**FÍSICO**
+
+*Construye la mejor versión de ti.*
+
+### ✅
+
+**Físico**
+
+Mucho más parecido a una herramienta premium de uso diario.
+
+El marketing puede existir en onboarding, home o estados vacíos.
+
+No debería ocupar 80 px cada vez que abres Físico.
+
+---
+
+# 6. Categorías horizontales
+
+Las categorías deben convertirse en un **control horizontal compacto**.
+
+```text
+Fuerza   Running   Movilidad   Salud  →
+```
+
+No deberían formar una cuadrícula.
+
+Tampoco deberían ocupar una tarjeta.
+
+Y muy importante:
+
+### No utilizaría cuatro enormes botones.
+
+El usuario entiende perfectamente que son categorías.
+
+Una línea limpia es suficiente.
+
+---
+
+# 7. Tabs secundarios
+
+Aquí sí puede existir:
+
+```text
+Hoy   Rutinas   Ejercicios   Progreso
+```
+
+Pero con una condición:
+
+### Debe ser contextual.
+
+Si estás dentro de una rutina concreta:
+
+```text
+← Full Body
+```
+
+No necesitamos seguir mostrando:
+
+```text
+Físico
+Fuerza
+Hoy Rutinas Ejercicios Progreso
+```
+
+La navegación superior se comprime conforme aumenta la profundidad.
+
+---
+
+# 8. Arquitectura de una pantalla de Rutinas
+
+Yo la llevaría aproximadamente a esto:
+
+```text
+┌─────────────────────────────┐
+│ Rutinas                 ⋯   │
+│                             │
+│ 16 rutinas              ⚙   │
+│                             │
+│ 🔍 Buscar rutinas...        │
+│                             │
+│ FULL BODY                   │
+│ Iniciación                  │
+│                             │
+│ Gimnasio · 60 min · 8 sem. │
+│                             │
+│ Día A                       │
+│ Sentadilla · Press · Remo   │
+│                             │
+│ Día B                       │
+│ Peso muerto · Press incl.   │
+│                             │
+│ ...                         │
+└─────────────────────────────┘
+```
+
+Y después del scroll:
+
+```text
+┌─────────────────────────────┐
+│ ← Rutinas              🔍   │
+├─────────────────────────────┤
+│                             │
+│ FULL BODY                   │
+│                             │
+│ Día A                       │
+│                             │
+│ Día B                       │
+│                             │
+│ Día C                       │
+│                             │
+│ ...                         │
+└─────────────────────────────┘
+```
+
+Aquí ya tienes una diferencia enorme de percepción.
+
+---
+
+# 9. Buscador
+
+El buscador es otro candidato perfecto para reducir.
+
+No tiene por qué estar siempre abierto.
+
+### Estado normal
+
+```text
+16 rutinas                         🔍
+```
+
+Al pulsar:
+
+```text
+┌──────────────────────────────┐
+│ ←  Buscar rutinas...         │
+└──────────────────────────────┘
+```
+
+Si la búsqueda es frecuente, también puede existir una barra compacta sticky:
+
+```text
+🔍 Buscar rutinas...
+```
+
+Pero nunca una tarjeta enorme de búsqueda + filtros + descripción.
+
+---
+
+# 10. Filtros → Bottom Sheet
+
+Este cambio lo considero prácticamente obligatorio.
+
+En lugar de:
+
+```text
+┌─────────────────────────────┐
+│ FILTROS                     │
+│                             │
+│ Objetivo                    │
+│ Nivel                       │
+│ Lugar                       │
+│ Duración                    │
+│ Equipamiento                │
+└─────────────────────────────┘
+```
+
+usar:
+
+```text
+16 rutinas             ⚙
+```
+
+Al pulsar:
+
+```text
+┌─────────────────────────────┐
+│       FILTRAR RUTINAS       │
+│                             │
+│ Objetivo                    │
+│ [Fuerza] [Hipertrofia]      │
+│                             │
+│ Nivel                       │
+│ [Inicial] [Intermedio]      │
+│                             │
+│ Lugar                       │
+│ [Gym] [Casa]                │
+│                             │
+│ [ APLICAR FILTROS ]         │
+└─────────────────────────────┘
+```
+
+El usuario sigue teniendo exactamente la misma funcionalidad.
+
+Pero **no pagas el coste visual de ella durante todo el tiempo**.
+
+---
+
+# 11. Bottom navigation
+
+No la eliminaría.
+
+La convertiría en una capa mucho más ligera.
+
+```text
+     Agenda     Físico     Nutri
+                  +
+               Finanzas
+```
+
+O:
+
+```text
+┌──────────────────────────────┐
+│ Agenda  Físico  +  Nutri ... │
+└──────────────────────────────┘
+```
+
+### Altura objetivo:
+
+**≈ 60–70 px**
+
+Y el botón `+` puede sobresalir ligeramente.
+
+---
+
+# 12. Bottom bar inteligente
+
+Aquí hay bastante potencial.
+
+### Cuando el usuario está quieto:
+
+Bottom bar visible.
+
+### Scroll hacia abajo:
+
+```text
+        ↓
+NAV BAR desaparece
+```
+
+El contenido gana esos 60–70 px.
+
+### Scroll hacia arriba:
+
+```text
+        ↑
+NAV BAR reaparece
+```
+
+Esto es mucho mejor que ocultarla permanentemente.
+
+El usuario aprende rápidamente el comportamiento.
+
+---
+
+# 13. La pantalla debería ser edge-to-edge
+
+Una app premium moderna debería aprovechar todo el viewport disponible.
+
+No significa que todo tenga que tocar los bordes.
+
+Significa que:
+
+> **El layout no debe tratar el área útil como una caja pequeña encerrada entre márgenes.**
+
+Especialmente:
+
+* fondos;
+* imágenes;
+* listas;
+* gráficos;
+* superficies principales.
+
+El contenido puede extenderse visualmente hasta los límites del dispositivo mientras los elementos interactivos mantienen sus márgenes seguros.
+
+---
+
+# 14. Aprovechar Dynamic Island / zona superior
+
+No pondría un enorme espacio vacío bajo el Dynamic Island.
+
+La jerarquía debería empezar aproximadamente así:
+
+```text
+        Dynamic Island
+
+Físico                         ○
+
+Fuerza   Running   Movilidad
+```
+
+Y no:
+
+```text
+        Dynamic Island
+
+
+        FÍSICO
+
+ Construye la mejor versión...
+
+
+Fuerza
+Running
+Movilidad
+```
+
+La segunda versión parece una landing page.
+
+La primera parece una aplicación madura.
+
+---
+
+# 15. Cards: cuidado
+
+Otro error habitual en apps modernas:
+
+> Convertir absolutamente todo en una card.
+
+Eso genera:
+
+```text
+┌──────────────┐
+│ CARD         │
+│              │
+│ ┌──────────┐ │
+│ │ CARD     │ │
+│ └──────────┘ │
+└──────────────┘
+```
+
+Visualmente se vuelve pesado.
+
+Usaría tres niveles:
+
+### Superficie
+
+Para grandes bloques.
+
+### Card
+
+Para elementos realmente independientes.
+
+### Lista plana
+
+Para información relacionada.
+
+En una pantalla de rutinas, probablemente **la lista plana sea superior a 15 tarjetas independientes**.
+
+---
+
+# 16. Densidad inteligente
+
+Premium no significa necesariamente “gigantesco”.
+
+Esto es muy importante.
+
+Hay dos tipos de espacio.
+
+### Espacio útil
+
+Ayuda a leer.
+
+### Espacio muerto
+
+Solo separa cosas.
+
+Queremos mucho del primero y poco del segundo.
+
+Por ejemplo:
+
+```text
+FULL BODY
+Iniciación
+Gym · 60 min
+```
+
+Puede ser una unidad visual compacta.
+
+No necesita necesariamente una card de 180 px de alto.
+
+---
+
+# 17. Tipografía
+
+La tipografía debe tener una jerarquía extremadamente clara.
+
+Propondría algo parecido a:
+
+```text
+Display / Hero       28–32
+Page title           22–24
+Section              16–18
+Body                 14–16
+Secondary            12–14
+Metadata             11–12
+```
+
+Pero evitaría usar tamaños enormes para demostrar importancia.
+
+La importancia puede comunicarse mediante:
+
+* peso;
+* contraste;
+* posición;
+* espacio;
+* color;
+* tamaño.
+
+No todo a la vez.
+
+---
+
+# 18. Iconografía
+
+Unificar completamente:
+
+* grosor;
+* tamaño óptico;
+* radios;
+* estilo;
+* padding;
+* comportamiento activo/inactivo.
+
+Una app premium se rompe muchísimo cuando tienes:
+
+* un icono outline;
+* otro filled;
+* otro con diferente stroke;
+* otro de otra librería.
+
+El usuario quizá no sabe explicarlo.
+
+Pero percibe que:
+
+> “Algo no termina de verse profesional.”
+
+---
+
+# 19. Color
+
+Utilizaría una jerarquía extremadamente controlada:
+
+### Base
+
+Neutros.
+
+### Marca
+
+Un color protagonista.
+
+### Semántica
+
+* éxito;
+* warning;
+* error;
+* información.
+
+Y evitaría utilizar colores diferentes simplemente para decorar cada categoría.
+
+La app debe tener una identidad cromática reconocible.
+
+---
+
+# 20. Motion / animaciones
+
+Aquí se puede conseguir muchísimo “premium feel”.
+
+Pero no con animaciones espectaculares.
+
+Con microinteracciones.
+
+Ejemplos:
+
+### Abrir filtro
+
+Bottom sheet con una transición suave.
+
+### Cambiar categoría
+
+Contenido hace una transición corta.
+
+### Completar ejercicio
+
+Feedback inmediato.
+
+### Scroll
+
+Header colapsa progresivamente.
+
+### Bottom bar
+
+Se desliza fuera de pantalla.
+
+### Abrir una rutina
+
+La transición puede mantener visualmente la continuidad del elemento seleccionado.
+
+Ese último punto es especialmente potente.
+
+---
+
+# 21. El scroll debe ser parte del diseño
+
+No diseñes una pantalla estática.
+
+Diseña:
+
+### Estado A — Inicio
+
+Mucho contexto.
+
+### Estado B — Usuario navegando
+
+Contexto reducido.
+
+### Estado C — Usuario consumiendo contenido
+
+Contenido casi fullscreen.
+
+### Estado D — Usuario vuelve arriba
+
+Navegación recuperada.
+
+Es prácticamente un **sistema de estados de interfaz**.
+
+---
+
+# 22. Una regla de oro
+
+Cada elemento de UI debería responder:
+
+> **¿Necesita el usuario verlo ahora mismo?**
+
+Si la respuesta es:
+
+### Sí
+
+Visible.
+
+### A veces
+
+Colapsable.
+
+### Cuando lo busca
+
+Bajo demanda.
+
+### Solo sirve para orientarlo
+
+Puede formar parte del header colapsable.
+
+### No aporta ninguna acción
+
+Eliminarlo.
+
+Esta regla por sí sola probablemente eliminará un 20–30% del ruido visual.
+
+---
+
+# 23. Objetivo de superficie útil
+
+Yo establecería como KPI de diseño:
+
+### Antes
+
+```text
+30–40 %
+Chrome / navegación
+
+60–70 %
+Contenido
+```
+
+### Objetivo
+
+```text
+10–20 %
+Chrome
+
+80–90 %
+Contenido
+```
+
+Durante una tarea intensiva:
+
+```text
+≈ 5–10 %
+Chrome
+
+≈ 90–95 %
+Contenido
+```
+
+No literalmente en todas las pantallas, pero sí como dirección.
+
+---
+
+# 24. Arquitectura final recomendada
+
+La pantalla principal de Físico debería evolucionar hacia:
+
+```text
+┌─────────────────────────────┐
+│ Físico                  ○   │
+│                             │
+│ Fuerza Running Movilidad →  │
+│                             │
+│ Hoy Rutinas Ejercicios ...  │
+├─────────────────────────────┤
+│                             │
+│ 16 rutinas              ⚙   │
+│                             │
+│ 🔍 Buscar...                │
+│                             │
+│ FULL BODY                   │
+│ Iniciación                  │
+│                             │
+│ Día A                       │
+│ Sentadilla · Press · Remo   │
+│                             │
+│ Día B                       │
+│ Peso muerto · Press incl.   │
+│                             │
+│                             │
+│                             │
+│                             │
+│                             │
+├─────────────────────────────┤
+│ Agenda  Físico  +  Nutri... │
+└─────────────────────────────┘
+```
+
+Después de scroll:
+
+```text
+┌─────────────────────────────┐
+│ ← Rutinas               🔍  │
+├─────────────────────────────┤
+│                             │
+│ FULL BODY                   │
+│                             │
+│ Día A                       │
+│                             │
+│ Día B                       │
+│                             │
+│ Día C                       │
+│                             │
+│ Ejercicios                  │
+│                             │
+│                             │
+│                             │
+│                             │
+│                             │
+└─────────────────────────────┘
+```
+
+**Ese segundo estado es el que va a hacer que la aplicación se sienta radicalmente más grande.**
+
+---
+
+# 25. Lo que NO haría
+
+No intentaría solucionar el problema simplemente:
+
+* reduciendo todo un 10%;
+* haciendo la fuente más pequeña;
+* eliminando padding indiscriminadamente;
+* metiendo más elementos en filas;
+* haciendo botones diminutos;
+* quitando funcionalidades;
+* utilizando iconos en lugar de texto sin criterio.
+
+Eso produce una aplicación **comprimida**, no una aplicación premium.
+
+La solución correcta es:
+
+> **hacer que los elementos innecesarios desaparezcan según el contexto.**
+
+---
+
+# 26. Prioridad de implementación
+
+Si tuviera que hacerlo por impacto:
+
+### 🔴 PRIORIDAD 1
+
+**Header colapsable + navegación contextual**
+
+Mayor impacto visual.
+
+### 🔴 PRIORIDAD 2
+
+**Eliminar navegación duplicada**
+
+Probablemente el mayor ahorro de espacio estructural.
+
+### 🔴 PRIORIDAD 3
+
+**Filtros → bottom sheet**
+
+Gran mejora inmediata.
+
+### 🔴 PRIORIDAD 4
+
+**Bottom navigation dinámica**
+
+Recupera 60–70 px adicionales.
+
+### 🟠 PRIORIDAD 5
+
+**Sistema de cards/listas**
+
+Eliminar superficies innecesarias.
+
+### 🟠 PRIORIDAD 6
+
+**Tipografía + espaciado**
+
+Aquí aparece la sensación de producto coherente.
+
+### 🟠 PRIORIDAD 7
+
+**Motion**
+
+Es el acabado premium.
+
+### 🟢 PRIORIDAD 8
+
+**Microdetalles**
+
+Iconografía, estados, feedback, haptics, etc.
+
+---
+
+# 27. Resultado que deberíamos perseguir
+
+La experiencia debería transmitir simultáneamente:
+
+**Simple**
+
+> Sé dónde estoy.
+
+**Potente**
+
+> Hay muchas cosas que puedo hacer.
+
+**Espaciosa**
+
+> El contenido ocupa prácticamente toda mi pantalla.
+
+**Premium**
+
+> Todo parece intencionado.
+
+**Rápida**
+
+> No tengo que navegar por menús para hacer algo sencillo.
+
+Y sobre todo:
+
+### **La complejidad debe estar dentro de la arquitectura, no dentro de la pantalla.**
+
+Ese sería el criterio que utilizaría para rediseñar **toda la aplicación**, no solo Físico.
+
+---
+
+## 28. Especificación resumida para el diseñador/agente
+
+Si esto se lo pasara directamente a un diseñador o a un agente de código, le daría estas instrucciones:
+
+> **Rediseña la aplicación siguiendo un principio de progressive disclosure. El contenido debe ser el protagonista y la navegación debe ser contextual. Implementa headers colapsables dependientes del scroll, navegación horizontal compacta, filtros en bottom sheets, búsqueda bajo demanda, bottom navigation floating y ocultable durante scroll, layouts edge-to-edge y un sistema visual coherente de tipografía, espaciado, superficies, iconografía y motion.**
+>
+> **No elimines funcionalidades existentes. Reduce su presencia visual cuando no sean necesarias. La interfaz debe mostrar mucha información sin parecer abarrotada. Prioriza una sensación similar a productos móviles premium de fitness/productividad: limpia, densa donde debe serlo, espaciosa donde importa y extremadamente coherente.**
+>
+> **Diseña primero los estados de la interfaz —initial, scrolling, focused, search, filter, detail— y no únicamente la pantalla estática.**
+
+### En una frase:
+
+**No necesitamos meter más cosas en menos espacio. Necesitamos conseguir que las cosas dejen de ocupar espacio cuando el usuario no las necesita.**
+
+Ese es, en mi opinión, **el cambio arquitectónico que puede hacer que tu app pase de “app con muchas funciones” a “producto premium”**.
