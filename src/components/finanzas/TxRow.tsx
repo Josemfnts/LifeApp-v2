@@ -51,10 +51,7 @@ export function TxRow({ tx, onClick }: Props) {
   }
 
   if (tx.split) subtitle += ` · tu parte ${fmt(tx.split.myShare)}`
-  if (tx.project) {
-    const proj = projectLabel(tx.project)
-    if (proj !== 'Otros') subtitle += ` · ${proj}`
-  }
+  if (tx.project) subtitle += ` · ${projectLabel(tx.project)}`
 
   let amountColor = tx.type === 'income' ? 'var(--color-acc-green)' : 'var(--color-red)'
   if (isTransfer) amountColor = 'var(--color-sub)'

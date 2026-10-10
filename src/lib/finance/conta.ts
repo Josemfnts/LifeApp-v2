@@ -2,7 +2,7 @@ import { isFlow } from './flow.ts'
 import { flowAmount } from './split.ts'
 import { addEuros, subEuros } from './money.ts'
 import { monthKeyOf } from './dates.ts'
-import { PROJECTS, type ProjectFilter, type ProjectId, resolveProjectId } from './projects.ts'
+import { PROJECTS, type ProjectFilter, type ProjectId, matchesProjectFilter, resolveProjectId } from './projects.ts'
 import type { Pufo, Tx } from './types.ts'
 
 type TxLike = Pick<Tx, 'id' | 'date' | 'amount' | 'type' | 'project' | 'kind' | 'split' | 'concept'>
@@ -55,8 +55,7 @@ function beforeExclusive(iso: string, monthEndExclusive: string): boolean {
 }
 
 function matchesFilter(filter: ProjectFilter, project: ProjectId | string | null | undefined): boolean {
-  if (filter === 'all') return true
-  return resolveProjectId(project) === filter
+  return matchesProjectFilter(filter, project)
 }
 
 export function contaMonth(params: {
