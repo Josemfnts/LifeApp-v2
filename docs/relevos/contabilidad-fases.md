@@ -61,64 +61,75 @@ está escrito para esa opción; (b) y (c) quedan descartadas y se conservan solo
 - El proyecto activo **no se persiste** en F0 (estado en memoria). Si molesta, en F5 se guarda en
   `LOCAL_ONLY_KEYS` (preferencia de UI, no dato de usuario: no va a la nube).
 
-## F0 — La entrada (esta tanda)
-Alta de la pantalla y del selector. **Sin cálculos, sin datos nuevos, sin tocar `Tx`.**
+## F0 — La entrada · HECHA (2026-10-10, commit e49b779, en origin/main)
+Alta de la pantalla y del selector. Sin cálculos, sin datos nuevos, sin tocar `Tx`.
 
 - `src/lib/finance/projects.ts` (nuevo, motor puro): `ProjectId`, `PROJECTS`, `OTHER_PROJECT`,
   `PROJECT_FILTER_ALL`, `ProjectFilter`, `isProjectId`, `projectLabel`, `resolveProjectId`,
   `matchesProjectFilter`. Contrato exacto en el test de aceptación.
 - `src/components/finanzas/ContabilidadTab.tsx` (nuevo): selector de proyecto + `Mes`/`Año` +
-  tres bloques con `EmptyState` ("Los cobros llegan en la fase siguiente"), sin cifras falsas.
+  tres bloques con `EmptyState`, sin cifras falsas.
 - `src/pages/Finanzas.tsx`: una entrada más en el array de pestañas (`conta` → "Conta").
-- Pruebas: `src/lib/finance/projects.test.ts` (**intocable**, escrito por el arquitecto, 9 tests)
-  + `npm test` entero (200 → 209 verdes), `npm run build`, `npm run lint`.
-- Verificación visual: el arquitecto abre Finanzas › Conta en el navegador.
+- Pruebas: `src/lib/finance/projects.test.ts` (**intocable**, 8 tests) + `npm test` (207 verdes),
+  `npm run build` y `npm run lint` en verde (contrato de dev-mcp).
+- Deuda que arrastra: en `projects.ts`, `projectLabel` usa `OTHER_LABEL`, declarado **al final**
+  del fichero. Funciona (solo se llama tras inicializar el módulo) pero es TDZ esperando a pasar:
+  se sube esa constante arriba al empezar F1.
+- Sin verificar a ojo: el navegador de esta sesión es de solo lectura (no puede pulsar "Continuar
+  sin cuenta"), así que la pestaña pintada no la ha visto nadie. Lo mira Josema en 3 toques.
 
-## F1 — El modelo y las marcas
-- `Tx.project?: ProjectId` y `Pufo.project?: ProjectId` **opcionales** en
-  `src/lib/finance/types.ts` (no se renombra ni se cambia nada existente).
-- Selector de proyecto en `QuickAddSheet` y `EditTxSheet` (fila opcional, por defecto sin
-  proyecto → el flujo actual no cambia).
-- `src/lib/finance/conta.ts`: `filterConta({ txs, pufos, project, month })` y los agregados del
-  mes. Tests de aceptación del arquitecto: sumas en céntimos, `flowAmount` (no `t.amount`),
-  exclusión de `Tx.kind` (traspasos/inversiones/capital no son cobros ni gastos).
-- Deja la vista Mes leyendo datos reales de solo lectura.
+## F1 — Modelo y marcas (siguiente; tests de aceptación ya escritos y en rojo)
+Deja la contabilidad **marcable**: puedes etiquetar un movimiento con su proyecto desde Movs.
+- `src/lib/finance/types.ts`: `Tx.project?: ProjectId` y `Pufo.project?: ProjectId`, **opcionales**
+  (nada se renombra; `Tx.type` y `Tx.kind` intactos). Import relativo `./projects.ts`.
+- `src/lib/finance/conta.ts` (nuevo): `contaMonth` y `contaYear`. Contrato exacto en
+  `src/lib/finance/conta.test.ts` (**intocable**, 14 tests, ya en el repo en rojo): solo flujo
+  (`isFlow`), importes con `flowAmount` (nunca `tx.amount`), sumas en céntimos, `balanceAnio`,
+  pendientes = pufos `me_debe` activos con fecha ≤ fin de mes, y la tabla proyecto × mes.
+- UI: selector de proyecto (opcional, por defecto ninguno) en `QuickAddSheet` y `EditTxSheet`, y
+  `TxRow` muestra la etiqueta del proyecto cuando la hay.
+- Usable al terminar: marcas un gasto como Yatekomo en Movs y se ve marcado.
 
-## F2 — Cobros (cobrado y pendiente)
-- Bloque Cobros: lo cobrado del mes y lo pendiente (pufos `me_debe` con proyecto), por proyecto.
-- Alta rápida de **cobro recibido** (ingreso con `project` contra una cuenta) y de **cantidad
-  pendiente** (pufo con `project`, sin mover cuenta).
-- Marcar un pendiente como cobrado: liquida el pufo y crea el ingreso con la fecha del cobro.
-- Hoja de alta con "Guardar y añadir otro" (varios apuntes en la misma sesión, sin cerrar).
+## F2 — Las vistas con datos reales
+- Vista Mes: selector de mes (‹ octubre ›), los tres bloques leyendo `contaMonth` (listas con
+  fecha, concepto e importe), cifras del mes en una `.stat-strip` (cobrado · gastos · balance) y
+  lo pendiente aparte, nunca sumado al balance.
+- Vista Año: tabla proyecto × mes desde `contaYear`, con totales de fila y columna.
+- Usable al terminar: ves cobros, gastos y balance por proyecto y mes de lo que ya tengas marcado.
 
-## F3 — Gastos
-- Bloque Gastos del mes: por proyecto y los globales (sin proyecto), con fecha, concepto e
-  importe. Alta rápida de gasto contra el proyecto activo, también con "Guardar y añadir otro".
+## F3 — Registrar rápido (el corazón del encargo)
+- Botón `+` en Conta → hoja con tres atajos contra el **proyecto activo**: cobro recibido
+  (ingreso con `project` contra una cuenta), cantidad pendiente (pufo `me_debe` con `project`,
+  sin mover cuenta) y gasto (`expense` con `project`).
+- "Guardar y añadir otro": la hoja no se cierra, conserva proyecto y fecha y vacía importe y
+  concepto. Varios apuntes en la misma sesión sin pelearse con la UI.
+- Con el filtro en "Todos" el `+` pide elegir proyecto antes de guardar (no se inventa "Otros").
 
-## F4 — Balance y anualidad
-- Balance del mes por proyecto = **cobros realizados − gastos** (lo pendiente se muestra aparte,
-  no entra en el balance) y acumulado del año.
-- Vista Año: tabla proyecto × mes con totales de fila y columna. Motor con tests de aceptación
-  (incluido el e2e de abajo).
+## F4 — Cerrar el ciclo del cobro
+- Marcar un pendiente como cobrado: liquida el pufo (`settled` + `settledDate`) y crea el ingreso
+  con la fecha real del cobro, en una sola acción y sin dobles conteos.
+- Editar/borrar un apunte desde Conta reutilizando `EditTxSheet`.
 
 ## F5 — Cierre
-- `finances_context`: bloque `projects` mínimo (por proyecto: cobrado del año, pendiente,
-  gastos, balance) **midiendo que el JSON sigue < 4 KB**.
-- `AGENTS.md` (sección Finanzas), `ESTADO.md`, `DECISIONES.md` y, si procede, persistir el
-  proyecto activo en `LOCAL_ONLY_KEYS`.
+- `finances_context`: bloque `projects` mínimo (por proyecto: cobrado del año, pendiente, gastos,
+  balance) **midiendo que el JSON sigue < 4 KB**; si no cabe, solo los proyectos con movimiento.
+- `AGENTS.md` (sección Finanzas), `ESTADO.md`, `DECISIONES.md` y, si molesta no recordar el
+  proyecto activo, persistirlo en `LOCAL_ONLY_KEYS` (preferencia de UI, no sube a la nube).
+- Avisar a Josema de que life-mcp (fuera de este repo) no conoce `project`: sus sumas no cambian,
+  pero tampoco sabrá filtrar por proyecto hasta que se le enseñe.
 
-## E2E de referencia (se automatiza en F4, se mira a mano en cada fase)
+## E2E de referencia (automatizado en `conta.test.ts` desde F1; a mano en cada fase)
 "Abrir Contabilidad, anotar un cobro y un gasto del mes contra Yatekomo, ver el balance del mes".
 
-Automatizable como test del motor (`src/lib/finance/conta-e2e.test.ts`, sin DOM: las funciones
-del motor son puras y el store solo las encadena):
-1. Estado vacío: una cuenta con 1.000 €, sin movimientos, hoy = 2026-10-10.
-2. Cobro de 1.210 € de Yatekomo → `Tx` `income`, `project: 'yatekomo'`, sin `kind`.
-3. Gasto de 310,50 € de Yatekomo → `Tx` `expense`, `project: 'yatekomo'`.
-4. Pendiente de 500 € de Yatekomo → `Pufo` `me_debe` con `project`, que **no** mueve la cuenta.
-5. `balanceOfMonth('2026-10', 'yatekomo')` → cobrado 1.210, gastos 310,50, **balance 899,50**,
-   pendiente 500 aparte; el saldo de la cuenta es 1.899,50 €.
-6. El mismo balance filtrado por `all` y por `clocks` (que da 0) para probar el filtro.
+Ya automatizado como test del motor en `src/lib/finance/conta.test.ts` (sin DOM: el motor es puro
+y el store solo lo encadena), con estas cifras:
+1. Cobro de 1.210 € de Yatekomo el 2026-10-05 → `Tx` `income`, `project: 'yatekomo'`, sin `kind`.
+2. Gasto de 310,50 € de Yatekomo el 2026-10-07 → `Tx` `expense`, `project: 'yatekomo'`.
+3. Pendiente de 500 € de Yatekomo → `Pufo` `me_debe` con `project`, que **no** mueve la cuenta.
+4. `contaMonth({ month: '2026-10', filter: 'yatekomo' })` → cobrado 1.210, gastado 310,50,
+   **balance 899,50**, pendiente 500 aparte.
+5. Los mismos datos con `filter: 'all'` (suma los demás proyectos) y con `filter: 'asensio'`
+   (ceros, no `undefined`), más el frontera de mes y la tabla anual.
 
 A mano en el navegador (lo que mira Josema): Finanzas → Conta → Yatekomo → Mes → `+` cobro
 1.210 € → `+` gasto 310,50 € → el Balance del mes marca 899,50 € y el acumulado del año lo

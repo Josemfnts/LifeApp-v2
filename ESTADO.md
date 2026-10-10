@@ -15,6 +15,24 @@ Stack real: React 19 + Vite 8 + Zustand + Supabase (store_data key-value). Ver A
 - Modulos Agenda/Notas/Habitos/Fisico/Nutricion/Finanzas/Comunidad, espejo vivo con CompAI, conector de relojes (ver AGENTS.md §Estado).
 
 ## A medias
+- **Contabilidad por proyecto** (2026-10-10, encargo nuevo de Josema): pestaña "Conta" en Finanzas para
+  llevar la contabilidad de Anantara, Clocks, Asensio, Elevencuts, Yatekomo y Otros — cobrado, pendiente,
+  gastos y balance por proyecto y mes, más resumen anual. Plan por fases F0-F5 y relevo en
+  `docs/relevos/` (`contabilidad-fases.md` = plan, `2026-10-10-conta-f0.md` = relevo con el encargo de F1
+  listo para lanzar).
+  - Modelo decidido por Josema: un cobro es un `Tx income` con `project` y un gasto un `Tx expense` con
+    `project` (mueven cuenta y patrimonio como cualquier movimiento); lo pendiente de cobro es un
+    `Pufo me_debe` con `project` y al marcarlo cobrado se liquida y crea el ingreso. Lo sin marcar cae en
+    "Otros" al filtrar: no hay que reclasificar nada de lo ya apuntado.
+  - HECHO **F0 la entrada** (e49b779, en prod): catálogo `src/lib/finance/projects.ts` (6 proyectos +
+    normalización + filtro), `ContabilidadTab.tsx` (selector de proyecto, Mes/Año, bloques vacíos) y la
+    sexta pestaña en `Finanzas.tsx`. 207 tests verdes. **La pantalla no la ha visto nadie todavía**: el
+    navegador de Claude no puede pasar del login (solo lectura) — la mira Josema en Finanzas → Conta.
+  - SIGUIENTE **F1 modelo y marcas**: `project?` opcional en `Tx`/`Pufo`, motor `conta.ts` y selector de
+    proyecto en el alta/edición de movimientos. Sus tests de aceptación ya están escritos y EN ROJO a
+    propósito en `src/lib/finance/conta.test.ts` (14 tests): `npm test` da 207 verdes + 1 fichero rojo
+    hasta que exista `conta.ts`. No borrar ese test.
+
 - **Finanzas "Margen"** (2026-09-15): replicar todas las funciones de Margen en Finanzas.
   Plan y decisiones en `.mapa/finanzas-margen/` (mapa.md = indice, plan.md = fases F0-F6 con casillas,
   encargos/ = spec de cada fase lista para OpenCode).
