@@ -18,7 +18,7 @@ Stack real: React 19 + Vite 8 + Zustand + Supabase (store_data key-value). Ver A
 - **Contabilidad por proyecto** (2026-10-10, encargo nuevo de Josema): pestaña "Conta" en Finanzas para
   llevar la contabilidad de Anantara, Clocks, Asensio, Elevencuts, Yatekomo y Otros — cobrado, pendiente,
   gastos y balance por proyecto y mes, más resumen anual. Plan por fases F0-F5 y relevo en
-  `docs/relevos/` (`contabilidad-fases.md` = plan, `2026-10-10-conta-f0.md` = relevo con el encargo de F1
+  `docs/relevos/` (`contabilidad-fases.md` = plan, `2026-10-10-conta-f1.md` = relevo con el encargo de F2
   listo para lanzar).
   - Modelo decidido por Josema: un cobro es un `Tx income` con `project` y un gasto un `Tx expense` con
     `project` (mueven cuenta y patrimonio como cualquier movimiento); lo pendiente de cobro es un
@@ -28,10 +28,23 @@ Stack real: React 19 + Vite 8 + Zustand + Supabase (store_data key-value). Ver A
     normalización + filtro), `ContabilidadTab.tsx` (selector de proyecto, Mes/Año, bloques vacíos) y la
     sexta pestaña en `Finanzas.tsx`. 207 tests verdes. **La pantalla no la ha visto nadie todavía**: el
     navegador de Claude no puede pasar del login (solo lectura) — la mira Josema en Finanzas → Conta.
-  - SIGUIENTE **F1 modelo y marcas**: `project?` opcional en `Tx`/`Pufo`, motor `conta.ts` y selector de
-    proyecto en el alta/edición de movimientos. Sus tests de aceptación ya están escritos y EN ROJO a
-    propósito en `src/lib/finance/conta.test.ts` (14 tests): `npm test` da 207 verdes + 1 fichero rojo
-    hasta que exista `conta.ts`. No borrar ese test.
+  - HECHO **F1 modelo y marcas** (c4eeaca, en prod): `Tx.project?` y `Pufo.project?` opcionales, motor
+    `src/lib/finance/conta.ts` (`contaMonth`/`contaYear`: cobrado, gastado, balance, balance del año y
+    pendientes por proyecto y mes, más la tabla proyecto × mes) y selector "Proyecto" en el alta rápida
+    (dentro de "Más opciones") y en editar movimiento, con la etiqueta en la fila de Movs. 221 tests.
+    Revisado a mano: solo cuenta lo que es flujo (`isFlow`), importes con `flowAmount` (de un gasto
+    compartido, mi parte), sumas en céntimos, frontera de mes exacta y lo pendiente nunca en el balance.
+    `project` va dentro de las claves `finances_*` que ya existían: ninguna clave nueva, ningún recargador.
+    En prod comprobado por el bundle desplegado (`Finanzas-LMbUXc-j.js` trae "Sin proyecto"); **a ojo no
+    lo ha visto nadie**: el navegador de Claude no pasa del login. Josema: Finanzas → Movs → + → Más
+    opciones → Proyecto.
+  - SIGUIENTE **F2 las vistas con datos reales**: `src/lib/finance/conta-view.ts` (modelo de la pantalla:
+    navegación de mes, etiquetas, filas y banderas de vacío) y `ContabilidadTab.tsx` reescrito con la
+    `.stat-strip` del mes, los tres bloques y la tabla del año. Sus tests de aceptación ya están escritos
+    y EN ROJO a propósito en `src/lib/finance/conta-view.test.ts` (14 tests): `npm test` da 221 verdes + 1
+    fichero rojo hasta que exista `conta-view.ts`. No borrar ese test. **Esos 14 tests no se han podido
+    ejecutar** (el Bash del arquitecto solo permite git de lectura y no hay `node_modules`): si el ejecutor
+    dice que uno es imposible, leerlo antes de insistir.
 
 - **Finanzas "Margen"** (2026-09-15): replicar todas las funciones de Margen en Finanzas.
   Plan y decisiones en `.mapa/finanzas-margen/` (mapa.md = indice, plan.md = fases F0-F6 con casillas,

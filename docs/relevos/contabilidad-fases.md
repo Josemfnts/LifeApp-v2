@@ -78,7 +78,7 @@ Alta de la pantalla y del selector. Sin cálculos, sin datos nuevos, sin tocar `
 - Sin verificar a ojo: el navegador de esta sesión es de solo lectura (no puede pulsar "Continuar
   sin cuenta"), así que la pestaña pintada no la ha visto nadie. Lo mira Josema en 3 toques.
 
-## F1 — Modelo y marcas (siguiente; tests de aceptación ya escritos y en rojo)
+## F1 — Modelo y marcas · HECHA (2026-10-10, commit c4eeaca, en origin/main y en prod)
 Deja la contabilidad **marcable**: puedes etiquetar un movimiento con su proyecto desde Movs.
 - `src/lib/finance/types.ts`: `Tx.project?: ProjectId` y `Pufo.project?: ProjectId`, **opcionales**
   (nada se renombra; `Tx.type` y `Tx.kind` intactos). Import relativo `./projects.ts`.
@@ -89,13 +89,40 @@ Deja la contabilidad **marcable**: puedes etiquetar un movimiento con su proyect
 - UI: selector de proyecto (opcional, por defecto ninguno) en `QuickAddSheet` y `EditTxSheet`, y
   `TxRow` muestra la etiqueta del proyecto cuando la hay.
 - Usable al terminar: marcas un gasto como Yatekomo en Movs y se ve marcado.
+- Revisado a mano por el arquitecto (lo que el contrato no cubre): las reglas de dinero están
+  bien (solo `isFlow`, importes con `flowAmount`, céntimos, frontera de mes exacta, pendientes
+  fuera del balance) y `project` viaja dentro de las claves `finances_*` que ya existen, así que
+  no hay clave nueva ni recargador que cablear. Verificado además que **ya está en producción**:
+  el bundle desplegado `assets/Finanzas-LMbUXc-j.js` contiene el selector "Sin proyecto".
+- Dos rebabas que se arreglan al empezar F2 (ninguna toca dinero):
+  1. `TxRow` esconde la etiqueta cuando `projectLabel(...)` devuelve "Otros", así que marcar un
+     movimiento como **Otros** no da ninguna señal en la fila. Se compara por id
+     (`tx.project` definido), no por etiqueta.
+  2. `conta.ts` reimplementa `matchesProjectFilter` como función local `matchesFilter`; se
+     sustituye por la del catálogo para no tener dos copias de la misma regla.
 
-## F2 — Las vistas con datos reales
-- Vista Mes: selector de mes (‹ octubre ›), los tres bloques leyendo `contaMonth` (listas con
-  fecha, concepto e importe), cifras del mes en una `.stat-strip` (cobrado · gastos · balance) y
-  lo pendiente aparte, nunca sumado al balance.
-- Vista Año: tabla proyecto × mes desde `contaYear`, con totales de fila y columna.
+## F2 — Las vistas con datos reales (siguiente; tests de aceptación ya escritos y en rojo)
+- **Motor de vista en `src/lib/finance/conta-view.ts`** y componente tonto: la suite es
+  `node:test` sin DOM, así que de una pantalla solo se puede probar el modelo que pinta.
+  Contrato exacto en `src/lib/finance/conta-view.test.ts` (**intocable**, 14 tests):
+  `shiftMonthKey`, `monthKeyLabel`, `monthShortLabels`, `contaMonthView` y `contaYearView`.
+- Vista Mes: navegador de mes (‹ octubre 2026 ›, **sin flecha al futuro**), los tres bloques
+  leyendo `contaMonth` (filas con fecha corta, concepto e importe ya resueltos) y las tres cifras
+  del mes en una `.stat-strip` (cobrado · gastos · balance). Lo pendiente ("Te deben") va en su
+  propio bloque y **nunca** suma al balance. El acumulado del año se ve, pero fuera de la tira.
+- Vista Año: tabla proyecto × mes desde `contaYear`, con totales de fila y columna. **Sin columna
+  de pendientes** (decisión de abajo). Celda de un mes sin movimiento = en blanco, no un 0.
 - Usable al terminar: ves cobros, gastos y balance por proyecto y mes de lo que ya tengas marcado.
+- Decisiones de presentación tomadas por el arquitecto al escribir los tests:
+  - **La tabla anual no habla de pendientes.** `contaMonth.pendiente` es un *stock* (todo lo que
+    te deben a fin de ese mes, venga de agosto o de octubre) y `contaYear` reparte los pendientes
+    por su fecha: dos números distintos con el mismo nombre confunden. Lo que te deben se enseña
+    una sola vez, en la vista Mes. Un proyecto que solo tiene pendientes no genera fila en la
+    tabla anual.
+  - Nada de dinero formateado en el motor de vista: devuelve números y la UI los pasa por `fmt`
+    (`fmt` vive en `financeStore`, que un test de `src/lib/finance/**` no puede importar).
+  - Los nombres de mes se duplican en `conta-view.ts`: `components/finanzas/plan/labels.ts` los
+    tiene, pero importa `@/stores/financeStore` y eso no se puede cargar desde un test puro.
 
 ## F3 — Registrar rápido (el corazón del encargo)
 - Botón `+` en Conta → hoja con tres atajos contra el **proyecto activo**: cobro recibido
