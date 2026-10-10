@@ -4,6 +4,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { useFinanceStore, CAT_META, fmt } from '@/stores/financeStore'
 import { useToast } from '@/stores/toast'
 import { parseEuroInput, roundEuros } from '@/lib/finance/money'
+import { PROJECTS, type ProjectId } from '@/lib/finance/projects'
 
 interface Props {
   open: boolean
@@ -29,6 +30,7 @@ export function EditTxSheet({ open, onClose, txId }: Props) {
   const [cuenta, setCuenta] = useState('')
   const [date, setDate] = useState('')
   const [note, setNote] = useState('')
+  const [project, setProject] = useState<ProjectId | ''>('')
   const [confirmDelete, setConfirmDelete] = useState(false)
 
   useEffect(() => {
@@ -40,6 +42,7 @@ export function EditTxSheet({ open, onClose, txId }: Props) {
     setCuenta(tx.cuenta ?? '')
     setDate(tx.date)
     setNote(tx.note ?? '')
+    setProject(tx.project ?? '')
     setConfirmDelete(false)
   }, [open, txId, tx])
 
@@ -64,6 +67,7 @@ export function EditTxSheet({ open, onClose, txId }: Props) {
       cuenta: cuenta || undefined,
       date,
       note: note ?? '',
+      ...(project ? { project } : { project: undefined }),
     }
     const idx = currentIdx()
     if (idx < 0) { toast.show('Ese movimiento ya no existe'); onClose(); return }
@@ -132,6 +136,18 @@ export function EditTxSheet({ open, onClose, txId }: Props) {
             <select className="inp" value={cuenta} onChange={e => setCuenta(e.target.value)}>
               <option value="">Sin cuenta</option>
               {cuentas.map(cu => <option key={cu.name} value={cu.name}>{cu.name}</option>)}
+            </select>
+          )}
+
+          <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4, marginTop: 8 }}>Proyecto</div>
+          {isTransfer ? (
+            <div style={{ padding: 10, background: 'var(--color-s2)', border: '1px solid var(--color-border)', borderRadius: 10, fontSize: 13, color: 'var(--color-sub)' }}>
+              🔁 Traspaso (no editable)
+            </div>
+          ) : (
+            <select className="inp" value={project} onChange={e => setProject(e.target.value as ProjectId | '')}>
+              <option value="">Sin proyecto</option>
+              {PROJECTS.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
             </select>
           )}
 

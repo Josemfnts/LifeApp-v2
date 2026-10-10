@@ -26,6 +26,8 @@ export type ProjectFilter = ProjectId | typeof PROJECT_FILTER_ALL
 
 const PROJECT_IDS: readonly ProjectId[] = PROJECTS.map(p => p.id)
 
+const OTHER_LABEL = (PROJECTS.find(p => p.id === OTHER_PROJECT) as ProjectDef).label
+
 const DIACRITICS = /\p{Diacritic}/gu
 
 function normalize(value: string): string {
@@ -59,5 +61,3 @@ export function matchesProjectFilter(filter: ProjectFilter, v: string | null | u
   if (filter === PROJECT_FILTER_ALL) return true
   return resolveProjectId(v) === filter
 }
-
-const OTHER_LABEL = (PROJECTS.find(p => p.id === OTHER_PROJECT) as ProjectDef).label

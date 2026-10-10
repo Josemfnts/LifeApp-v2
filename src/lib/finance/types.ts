@@ -1,3 +1,5 @@
+import type { ProjectId } from './projects.ts'
+
 export type TxKind = 'transfer' | 'adjust' | 'investment' | 'debt_principal'
 
 export interface Tx {
@@ -17,6 +19,7 @@ export interface Tx {
   holdingId?: string
   debtId?: string
   recurringId?: number
+  project?: ProjectId // Contabilidad por proyecto (F1); opcional, no rompe nada existente
   split?: TxSplit // gasto compartido: el movimiento entra completo en la cuenta, pero tu gasto es myShare
 }
 
@@ -47,6 +50,7 @@ export interface Pufo {
   settled: boolean
   settledDate?: string
   txId?: number // si nace de un gasto compartido
+  project?: ProjectId // Contabilidad: el pendiente va contra un proyecto; los de split siguen sin llevarlo
 }
 
 export interface Cuenta {

@@ -10,6 +10,7 @@ import { matchMerchant, suggestCategory, type Merchant } from '@/lib/finance/mer
 import { SEED_MERCHANTS } from '@/lib/finance/merchants'
 import { MerchantAvatar } from './MerchantAvatar'
 import { SharePanel } from './SharePanel'
+import { PROJECTS, type ProjectId } from '@/lib/finance/projects'
 
 interface Props {
   open: boolean
@@ -39,6 +40,7 @@ export function QuickAddSheet({ open, onClose }: Props) {
   const [concept, setConcept] = useState('')
   const [category, setCategory] = useState('Otros gastos')
   const [cuenta, setCuenta] = useState('')
+  const [project, setProject] = useState<ProjectId | ''>('')
   const [date, setDate] = useState(localISO())
   const [showMore, setShowMore] = useState(false)
   const [shareOpen, setShareOpen] = useState(false)
@@ -65,6 +67,7 @@ export function QuickAddSheet({ open, onClose }: Props) {
       setDate(localISO())
       const last = txs.find(t => t.cuenta)
       setCuenta(last?.cuenta ?? '')
+      setProject('')
       setTimeout(() => amountRef.current?.focus(), 50)
     }
   }, [open, txs])
@@ -141,6 +144,7 @@ export function QuickAddSheet({ open, onClose }: Props) {
       date,
       note: '',
       cuenta: cuenta || undefined,
+      ...(project ? { project } : {}),
       ...(split ? { split } : {}),
     })
     const cu = cuentas.find(c => c.name === cuenta)
@@ -250,6 +254,11 @@ export function QuickAddSheet({ open, onClose }: Props) {
             <select className="inp" value={cuenta} onChange={e => setCuenta(e.target.value)}>
               <option value="">Sin cuenta</option>
               {cuentas.map(cu => <option key={cu.name} value={cu.name}>{cu.name}</option>)}
+            </select>
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4, marginTop: 8 }}>Proyecto</div>
+            <select className="inp" value={project} onChange={e => setProject(e.target.value as ProjectId | '')}>
+              <option value="">Sin proyecto</option>
+              {PROJECTS.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
             </select>
             <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4, marginTop: 8 }}>Fecha</div>
             <input className="inp" value={date} onChange={e => setDate(e.target.value)} type="date" style={{ fontSize: 13 }} />

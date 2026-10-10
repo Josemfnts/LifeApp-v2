@@ -2,6 +2,7 @@ import { useFinanceStore, CAT_META, fmt } from '@/stores/financeStore'
 import { useMemo } from 'react'
 import { MerchantAvatar } from './MerchantAvatar'
 import { SEED_MERCHANTS } from '@/lib/finance/merchants'
+import { projectLabel } from '@/lib/finance/projects'
 
 interface Props {
   tx: {
@@ -15,6 +16,7 @@ interface Props {
     kind?: string
     linkId?: string
     merchantId?: string
+    project?: string
     split?: { myShare: number }
   }
   onClick?: (id: number) => void
@@ -49,6 +51,10 @@ export function TxRow({ tx, onClick }: Props) {
   }
 
   if (tx.split) subtitle += ` · tu parte ${fmt(tx.split.myShare)}`
+  if (tx.project) {
+    const proj = projectLabel(tx.project)
+    if (proj !== 'Otros') subtitle += ` · ${proj}`
+  }
 
   let amountColor = tx.type === 'income' ? 'var(--color-acc-green)' : 'var(--color-red)'
   if (isTransfer) amountColor = 'var(--color-sub)'
