@@ -6,8 +6,9 @@ import { MovesTab } from '@/components/finanzas/MovesTab'
 import { UtilesTab } from '@/components/finanzas/utiles/UtilesTab'
 import { PatrimonioTab } from '@/components/finanzas/PatrimonioTab'
 import { BudgetsTab } from '@/components/finanzas/BudgetsTab'
+import { ContabilidadTab } from '@/components/finanzas/ContabilidadTab'
 
-type Tab = 'inicio' | 'moves' | 'patrimonio' | 'plan' | 'utiles'
+type Tab = 'inicio' | 'moves' | 'patrimonio' | 'plan' | 'utiles' | 'conta'
 
 export default function Finanzas() {
   const [tab, setTab] = useState<Tab>('inicio')
@@ -37,9 +38,9 @@ export default function Finanzas() {
         <div className="page-title">Finanzas</div>
         {/* Exportar CSV vive en Movs (donde están los movimientos), no en la cabecera. */}
         <div className="tab-bar">
-          {(['inicio','moves','patrimonio','plan','utiles'] as const).map(t => (
+          {(['inicio','moves','patrimonio','plan','utiles','conta'] as const).map(t => (
             <button key={t} onClick={() => setTab(t)} className={`tab-btn tab-gold${tab === t ? ' active' : ''}`}>
-              {{inicio:'Inicio',moves:'Movs',patrimonio:'Patrimonio',plan:'Plan',utiles:'Útiles'}[t]}
+              {{inicio:'Inicio',moves:'Movs',patrimonio:'Patrimonio',plan:'Plan',utiles:'Útiles',conta:'Conta'}[t]}
             </button>
           ))}
         </div>
@@ -50,6 +51,7 @@ export default function Finanzas() {
         {tab === 'patrimonio' && <PatrimonioTab />}
         {tab === 'plan' && <BudgetsTab />}
         {tab === 'utiles' && <UtilesTab />}
+        {tab === 'conta' && <ContabilidadTab />}
       </div>
     </div>
   )
