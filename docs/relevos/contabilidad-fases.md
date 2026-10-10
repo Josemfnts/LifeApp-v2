@@ -28,11 +28,12 @@ van como **intocables** en el contrato; el ejecutor escribe el código de produc
   horizontal: una sexta pestaña cabe.
 - `ErrorBoundary` + `vite:preloadError` (main.tsx): no se tocan.
 
-## Decisión de producto pendiente (BLOQUEO para Josema)
+## Decisión de producto — RESUELTA por Josema (2026-10-10)
 **¿Los cobros y gastos de Contabilidad son movimientos reales de Finanzas o un libro aparte?**
-Afecta a F1 en adelante; F0 es idéntica en los tres casos, así que F0 arranca ya.
+Josema elige **(a)**: "Movimientos de Finanzas + pendientes como te deben". El plan de abajo ya
+está escrito para esa opción; (b) y (c) quedan descartadas y se conservan solo como registro.
 
-- **(a) Recomendada — movimientos reales con etiqueta de proyecto.** Un cobro es un `Tx`
+- **(a) ELEGIDA — movimientos reales con etiqueta de proyecto.** Un cobro es un `Tx`
   `income` y un gasto un `Tx` `expense`, con campo nuevo opcional `project?: ProjectId`; mueven
   la cuenta y cuentan en el patrimonio como hoy. Lo **pendiente** de cobro se apunta como `Pufo`
   `me_debe` con `project` (ya existe en el dominio, ya suma al patrimonio líquido y ya lo ve
@@ -44,8 +45,6 @@ Afecta a F1 en adelante; F0 es idéntica en los tres casos, así que F0 arranca 
   patrimonio salvo que se duplique la lógica.
 - (c) Libro aparte (`finances_accounting`): Contabilidad no toca cuentas ni patrimonio. Cero
   riesgo, pero cada cobro hay que apuntarlo dos veces si además quiere verlo en Finanzas.
-
-El plan de abajo está escrito para **(a)**. Si Josema elige (b) o (c) cambian F1-F4, no F0.
 
 ## Decisiones ya tomadas (no tocan dinero, las toma el arquitecto)
 - **Catálogo de proyectos fijo en código** (`src/lib/finance/projects.ts`), seis entradas con id
