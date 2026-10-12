@@ -12,6 +12,8 @@ import { flowAmount } from './split.ts'
 import { isFlow } from './flow.ts'
 import { roundEuros, sumEuros, toCents, fromCents } from './money.ts'
 import { DISCLAIMER } from './simulators.ts'
+import { contaYear } from './conta.ts'
+import type { ProjectId } from './projects.ts'
 
 export interface FinanceState {
   txs: Tx[]
@@ -37,6 +39,11 @@ export interface FinanceContext {
   portfolio: { value: number; unrealized: number; byKind: Partial<Record<string, number>> }
   debts: { total: number; monthlyPayments: number }
   receivables: { meDeben: number; lesDebo: number }
+  // Cifras del AÑO en curso (sale de todayISO, el mismo del que sale month.key).
+  // Una línea por proyecto con movimiento, en el orden del catálogo. Proyección directa de
+  // contaYear(filter: 'all'): mismo vocabulario, mismas cifras, mismo orden. No es un motor
+  // nuevo: si dos sumas discreparan, el asistente le diría a Josema cosas distintas.
+  projects: { project: ProjectId; label: string; cobrado: number; gastado: number; balance: number; pendiente: number }[]
 }
 
 function flowSums(txs: Tx[], monthKey: string) {
@@ -115,5 +122,11 @@ export function buildFinanceContext(s: FinanceState, todayISO: string, now = Dat
       meDeben: sumEuros(active.filter(p => p.dir === 'me_debe').map(p => p.amount)),
       lesDebo: sumEuros(active.filter(p => p.dir === 'le_debo').map(p => p.amount)),
     },
+    projects: contaYear({
+      txs: s.txs,
+      pufos: s.pufos,
+      year: Number(todayISO.slice(0, 4)),
+      filter: 'all',
+    }).rows.map(r => ({ project: r.project, label: r.label, ...r.total })),
   }
 }

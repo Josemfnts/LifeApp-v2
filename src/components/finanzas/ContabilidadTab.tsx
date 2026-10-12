@@ -15,12 +15,40 @@ import {
 } from '@/lib/finance/projects'
 import { contaMonthView, contaYearView, type ContaMonthBlock, type ContaMonthStat } from '@/lib/finance/conta-view'
 import type { Pufo } from '@/lib/finance/types'
+import { LOCAL_ONLY_KEYS } from '@/lib/storageKeys'
 
 // F2.1 de Contabilidad por proyecto: el componente se limita a pintar el modelo de
 // src/lib/finance/conta-view.ts. El signo y el color del dinero los decide la UI: el modelo
 // solo devuelve números y la bandera `empty` por celda.
+
+// F5: el último proyecto filtrado se recuerda entre sesiones. Vive en LOCAL_ONLY_KEYS — es
+// una preferencia de UI (qué pestaña miraste la última vez), no un dato de usuario: no va a
+// la nube. Si el valor guardado no es un ProjectId válido ni 'all' (versión vieja, schema
+// cambiado), se arranca en 'all'. El mes NO se persiste: la vista Mes siempre abre en el
+// mes de hoy — volver en noviembre y encontrarte septiembre es peor que elegir el mes.
+const CONTA_PROJECT_KEY = LOCAL_ONLY_KEYS.conta_project
+
+function loadContaProject(): ProjectFilter {
+  try {
+    const raw = globalThis.localStorage?.getItem(CONTA_PROJECT_KEY)
+    if (raw === PROJECT_FILTER_ALL) return PROJECT_FILTER_ALL
+    if (isProjectId(raw)) return raw
+  } catch {}
+  return PROJECT_FILTER_ALL
+}
+
+function saveContaProject(value: ProjectFilter) {
+  try {
+    globalThis.localStorage?.setItem(CONTA_PROJECT_KEY, value)
+  } catch {}
+}
+
 export function ContabilidadTab() {
-  const [project, setProject] = useState<ProjectFilter>(PROJECT_FILTER_ALL)
+  const [project, setProjectState] = useState<ProjectFilter>(loadContaProject)
+  const setProject = (next: ProjectFilter) => {
+    saveContaProject(next)
+    setProjectState(next)
+  }
   const [view, setView] = useState<'mes' | 'anio'>('mes')
   const [month, setMonth] = useState<string>(() => monthKeyOf(localISO()))
   const [editTxId, setEditTxId] = useState<number | null>(null)

@@ -81,6 +81,8 @@ export const ALL_STORAGE_KEYS: string[] = Object.values(STORE_KEYS)
 export const LOCAL_ONLY_KEYS = {
   finances_price_cache: 'finances_price_cache',
   finances_alerts_sent: 'finances_alerts_sent',
+  // Pestaña Conta (Finanzas): último proyecto filtrado. Preferencia de UI, no dato de usuario.
+  conta_project: 'conta_project',
 } as const
 
 // Etiquetas legibles para UI (pantalla de almacenamiento en Ajustes).
