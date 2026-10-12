@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react'
-import { ChipTabs, EmptyState } from '@/components/ui'
+import { ChipTabs, EmptyState, ConfirmDialog } from '@/components/ui'
 import { EditTxSheet } from './EditTxSheet'
 import { ContaAddSheet } from './ContaAddSheet'
+import { CobrarPuoSheet } from './CobrarPuoSheet'
 import { useFinanceStore, fmt } from '@/stores/financeStore'
+import { useToast } from '@/stores/toast'
 import { localISO, monthKeyOf } from '@/lib/finance/dates'
 import {
   PROJECTS,
@@ -12,6 +14,7 @@ import {
   type ProjectId,
 } from '@/lib/finance/projects'
 import { contaMonthView, contaYearView, type ContaMonthBlock, type ContaMonthStat } from '@/lib/finance/conta-view'
+import type { Pufo } from '@/lib/finance/types'
 
 // F2.1 de Contabilidad por proyecto: el componente se limita a pintar el modelo de
 // src/lib/finance/conta-view.ts. El signo y el color del dinero los decide la UI: el modelo
@@ -22,9 +25,14 @@ export function ContabilidadTab() {
   const [month, setMonth] = useState<string>(() => monthKeyOf(localISO()))
   const [editTxId, setEditTxId] = useState<number | null>(null)
   const [addOpen, setAddOpen] = useState(false)
+  const [cobrarPufoIdx, setCobrarPufoIdx] = useState<number | null>(null)
+  const [removePufoIdx, setRemovePufoIdx] = useState<number | null>(null)
 
   const txs = useFinanceStore(s => s.txs)
   const pufos = useFinanceStore(s => s.pufos)
+  const cobrarPufo = useFinanceStore(s => s.cobrarPufo)
+  const removePufo = useFinanceStore(s => s.removePufo)
+  const toast = useToast()
   const today = useMemo(() => localISO(), [])
 
   const monthView = useMemo(
@@ -61,6 +69,15 @@ export function ContabilidadTab() {
     { key: 'anio', label: 'Año' },
   ] as const
 
+  // Pufo vivo para el que se está abriendo la hoja de cobro. Se busca por id (estable en la
+  // fila) en `pufos` — si ya no está, no se hace nada.
+  const cobrarPufoTarget: Pufo | null = cobrarPufoIdx !== null
+    ? pufos[cobrarPufoIdx] ?? null
+    : null
+  const removePufoTarget: Pufo | null = removePufoIdx !== null
+    ? pufos[removePufoIdx] ?? null
+    : null
+
   return (
     <div>
       <ChipTabs items={projectItems} value={project} onChange={setProject} variant="chips" />
@@ -79,6 +96,14 @@ export function ContabilidadTab() {
             onNext={() => monthView.nav.next && setMonth(monthView.nav.next)}
             onRowClick={id => id !== undefined && setEditTxId(id)}
             onAdd={() => setAddOpen(true)}
+            onSettleRow={id => {
+              const idx = pufos.findIndex(p => p.id === id)
+              if (idx >= 0) setCobrarPufoIdx(idx)
+            }}
+            onRemoveRow={id => {
+              const idx = pufos.findIndex(p => p.id === id)
+              if (idx >= 0) setRemovePufoIdx(idx)
+            }}
           />
         ) : (
           <YearView
@@ -104,6 +129,34 @@ export function ContabilidadTab() {
         onClose={() => setAddOpen(false)}
         activeProject={activeProject}
         defaultDate={defaultDate}
+      />
+
+      <CobrarPuoSheet
+        open={cobrarPufoTarget !== null}
+        onClose={() => setCobrarPufoIdx(null)}
+        pufo={cobrarPufoTarget}
+        onCobrar={(date, cuenta) => {
+          if (cobrarPufoIdx === null || !cobrarPufoTarget) return
+          cobrarPufo(cobrarPufoIdx, { date, cuenta })
+          toast.show(`✓ Cobro de ${fmt(cobrarPufoTarget.amount)} añadido`)
+          setCobrarPufoIdx(null)
+        }}
+      />
+
+      <ConfirmDialog
+        open={removePufoTarget !== null}
+        title="Borrar pendiente"
+        message={removePufoTarget ? `Vas a borrar el pendiente de ${fmt(removePufoTarget.amount)} de ${removePufoTarget.who || removePufoTarget.concept}. No se puede deshacer.` : ''}
+        confirmLabel="Borrar"
+        cancelLabel="Cancelar"
+        danger
+        onConfirm={() => {
+          if (removePufoIdx === null) return
+          removePufo(removePufoIdx)
+          toast.show('Pendiente borrado')
+          setRemovePufoIdx(null)
+        }}
+        onClose={() => setRemovePufoIdx(null)}
       />
     </div>
   )
@@ -157,9 +210,11 @@ interface MonthViewProps {
   onNext: () => void
   onRowClick: (id: number | undefined) => void
   onAdd: () => void
+  onSettleRow: (id: number | undefined) => void
+  onRemoveRow: (id: number | undefined) => void
 }
 
-function MonthView({ label, prev, next, stats, balanceAnio, blocks, onPrev, onNext, onRowClick, onAdd }: MonthViewProps) {
+function MonthView({ label, prev, next, stats, balanceAnio, blocks: blocksView, onPrev, onNext, onRowClick, onAdd, onSettleRow, onRemoveRow }: MonthViewProps) {
   return (
     <>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '2px 0', marginBottom: 8 }}>
@@ -198,7 +253,7 @@ function MonthView({ label, prev, next, stats, balanceAnio, blocks, onPrev, onNe
         Acumulado del año: {formatAmount(balanceAnio, 'auto')}
       </div>
 
-      {blocks.map(b => (
+      {blocksView.map(b => (
         <section key={b.key} style={{ marginTop: 20 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 8 }}>
             <div className="sec-label">{b.title}</div>
@@ -219,6 +274,9 @@ function MonthView({ label, prev, next, stats, balanceAnio, blocks, onPrev, onNe
                   signMode={blockSignMode(b.key)}
                   clickable={b.key !== 'pendientes' && r.id !== undefined}
                   onClick={() => onRowClick(r.id)}
+                  pendingActions={b.key === 'pendientes' && r.id !== undefined}
+                  onSettle={() => onSettleRow(r.id)}
+                  onRemove={() => onRemoveRow(r.id)}
                 />
               ))}
             </div>
@@ -238,21 +296,44 @@ interface BlockRowProps {
   signMode: 'pos' | 'neg' | 'none'
   clickable: boolean
   onClick: () => void
+  pendingActions?: boolean
+  onSettle?: () => void
+  onRemove?: () => void
 }
 
-function BlockRow({ dateLabel, concept, projectLabel, amount, amountColor, signMode, clickable, onClick }: BlockRowProps) {
+function BlockRow({ dateLabel, concept, projectLabel, amount, amountColor, signMode, clickable, onClick, pendingActions, onSettle, onRemove }: BlockRowProps) {
   return (
     <div
-      onClick={clickable ? onClick : undefined}
-      style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 16px', borderBottom: '1px solid rgba(255,255,255,0.03)', cursor: clickable ? 'pointer' : 'default' }}
+      style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 16px', borderBottom: '1px solid rgba(255,255,255,0.03)' }}
     >
-      <div style={{ width: 42, flexShrink: 0, fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'lowercase' }}>{dateLabel}</div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{concept}</div>
-        {projectLabel && <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 2 }}>{projectLabel}</div>}
+      <div
+        onClick={clickable ? onClick : undefined}
+        style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 0, cursor: clickable ? 'pointer' : 'default' }}
+      >
+        <div style={{ width: 42, flexShrink: 0, fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'lowercase' }}>{dateLabel}</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{concept}</div>
+          {projectLabel && <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 2 }}>{projectLabel}</div>}
+        </div>
+        <div style={{ fontFamily: 'DM Serif Display, serif', fontSize: 20, fontWeight: 400, flexShrink: 0, color: amountColor }}>{formatAmount(amount, signMode)}</div>
+        {clickable && <span aria-hidden style={{ color: 'var(--color-dim)', fontSize: 18, paddingLeft: 4 }}>›</span>}
       </div>
-      <div style={{ fontFamily: 'DM Serif Display, serif', fontSize: 20, fontWeight: 400, flexShrink: 0, color: amountColor }}>{formatAmount(amount, signMode)}</div>
-      {clickable && <span aria-hidden style={{ color: 'var(--color-dim)', fontSize: 18, paddingLeft: 4 }}>›</span>}
+      {pendingActions && (
+        <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+          <button
+            onClick={onSettle}
+            type="button"
+            aria-label="Cobrar pendiente"
+            style={{ padding: '6px 10px', borderRadius: 8, background: 'rgba(82,183,136,0.1)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.2)', fontSize: 11, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}
+          >Cobrar</button>
+          <button
+            onClick={onRemove}
+            type="button"
+            aria-label="Borrar pendiente"
+            style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(224,95,95,0.06)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.12)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >✕</button>
+        </div>
+      )}
     </div>
   )
 }

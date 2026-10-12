@@ -12,6 +12,7 @@ import { localISO } from '@/lib/finance/dates'
 import { computeNetWorth } from '@/lib/finance/networth'
 import { upsertTodaySnapshot, backfillEstimated, type NwSnapshot } from '@/lib/finance/snapshots'
 import { buildAdjustment, buildTransfer, nextTxId } from '@/lib/finance/ops'
+import { buildSettlement } from '@/lib/finance/conta-settle'
 import { matchMerchant, learnMerchant, SEED_MERCHANTS, type Merchant } from '@/lib/finance/merchants'
 import { buildImportTxs, type ImportRecord, type ReviewedRow } from '@/lib/finance/import/apply'
 import type { CsvMapping } from '@/lib/finance/import/csv'
@@ -125,6 +126,7 @@ interface FinanceStore {
   removeHucha: (i: number) => void
   addPufo: (p: Pufo) => void
   settlePufo: (idx: number) => void
+  cobrarPufo: (idx: number, opts: { date: string; cuenta?: string }) => void
   removePufo: (idx: number) => void
   saveCuenta: (c: Cuenta, editIdx?: number | null) => void
   removeCuenta: (idx: number) => void
@@ -677,6 +679,24 @@ export const useFinanceStore = create<FinanceStore>((set, get) => {
       pufos[idx] = { ...pufos[idx], settled: true, settledDate: localISO() }
       saveToStorage('finances_pufos', pufos)
       set({ pufos })
+    },
+    // F4 de Contabilidad por proyecto. Cierra el ciclo del cobro: el pendiente se liquida
+    // (settled + settledDate con la fecha que eligió Josema) Y se crea el ingreso real,
+    // con esa misma fecha, en la misma acción. Si el borrador no vale, no se toca nada
+    // (ni el pufo ni las cuentas): nada a medias llega al estado. Reusa `addTx` para que el
+    // ingreso reciba id, mueva la cuenta con cuentasConMovimiento, persista finances_cuentas
+    // y dispare recordSnapshot — no replicamos nada de eso a mano.
+    cobrarPufo: (idx, opts) => {
+      const pufosAll = get().pufos
+      const pufo = pufosAll[idx]
+      if (!pufo) return
+      const settlement = buildSettlement({ pufo, date: opts.date, cuenta: opts.cuenta ?? '' })
+      if (!settlement) return
+      const pufos = pufosAll.map((p, i) => (i === idx ? { ...p, ...settlement.pufoPatch } : p))
+      saveToStorage('finances_pufos', pufos)
+      set({ pufos })
+      // El id del tx lo pone addTx; aquí solo se pasa el resto.
+      get().addTx(settlement.tx)
     },
     removePufo: (idx) => {
       const pufos = get().pufos.filter((_, i) => i !== idx)
