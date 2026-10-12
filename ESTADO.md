@@ -13,85 +13,23 @@ Stack real: React 19 + Vite 8 + Zustand + Supabase (store_data key-value). Ver A
 
 ## Hecho
 - Modulos Agenda/Notas/Habitos/Fisico/Nutricion/Finanzas/Comunidad, espejo vivo con CompAI, conector de relojes (ver AGENTS.md §Estado).
+- **Contabilidad por proyecto** — pestaña "Conta" en Finanzas. **Plan F0-F5 CERRADO el 2026-10-12**, todo en
+  `origin/main` y en prod. Qué hace: cobros, gastos, pendientes y balance por proyecto (Anantara · Clocks ·
+  Asensio · Elevencuts · Yatekomo · Otros) y mes, tabla del año, apuntar desde la propia pestaña y cobrar un
+  pendiente. Cómo está hecho: `AGENTS.md` §Finanzas → Conta. Plan y detalle fase a fase:
+  `docs/relevos/contabilidad-fases.md` + los relevos `2026-10-1x-conta-f*.md`.
+  - Modelo (decisión de Josema): un cobro es un `Tx income` con `project` y un gasto un `Tx expense` con
+    `project`; lo pendiente es un `Pufo me_debe` con `project` y al cobrarlo se liquida y crea el ingreso.
+    **Ninguna clave nueva de datos, ninguna migración**; lo sin marcar cae en "Otros" al filtrar.
+  - Commits: `e49b779` F0 · `c4eeaca` F1 · `2defa11`+`7aa415a`+`4e5cad0` F2 · `840a36c`+`cc0bdfa`+`e60fcbb` F3 ·
+    `ed4f7c7`+`c8b182d` F4 · `6691e2c` F5. **271 tests** verdes (de 207 al empezar).
+  - F5 añadió el bloque `projects` a `finances_context` (una línea por proyecto con movimiento del año, como
+    proyección de `contaYear`, con el presupuesto de 4 KB medido en test) y `conta_project` en
+    `LOCAL_ONLY_KEYS` (recuerda el proyecto filtrado; el mes NO se persiste, siempre abre en el de hoy).
+  - **Nadie lo ha visto a ojo**: el navegador de Claude es de solo lectura y no pasa del login. Lo que falta
+    está en "Lo siguiente".
 
 ## A medias
-- **Contabilidad por proyecto** (2026-10-10, encargo nuevo de Josema): pestaña "Conta" en Finanzas para
-  llevar la contabilidad de Anantara, Clocks, Asensio, Elevencuts, Yatekomo y Otros — cobrado, pendiente,
-  gastos y balance por proyecto y mes, más resumen anual. Plan por fases F0-F5 y relevo en
-  `docs/relevos/` (`contabilidad-fases.md` = plan, `2026-10-12-conta-f2.md` = relevo con el encargo de F3
-  listo para lanzar).
-  - Modelo decidido por Josema: un cobro es un `Tx income` con `project` y un gasto un `Tx expense` con
-    `project` (mueven cuenta y patrimonio como cualquier movimiento); lo pendiente de cobro es un
-    `Pufo me_debe` con `project` y al marcarlo cobrado se liquida y crea el ingreso. Lo sin marcar cae en
-    "Otros" al filtrar: no hay que reclasificar nada de lo ya apuntado.
-  - HECHO **F0 la entrada** (e49b779, en prod): catálogo `src/lib/finance/projects.ts` (6 proyectos +
-    normalización + filtro), `ContabilidadTab.tsx` (selector de proyecto, Mes/Año, bloques vacíos) y la
-    sexta pestaña en `Finanzas.tsx`. 207 tests verdes. **La pantalla no la ha visto nadie todavía**: el
-    navegador de Claude no puede pasar del login (solo lectura) — la mira Josema en Finanzas → Conta.
-  - HECHO **F1 modelo y marcas** (c4eeaca, en prod): `Tx.project?` y `Pufo.project?` opcionales, motor
-    `src/lib/finance/conta.ts` (`contaMonth`/`contaYear`: cobrado, gastado, balance, balance del año y
-    pendientes por proyecto y mes, más la tabla proyecto × mes) y selector "Proyecto" en el alta rápida
-    (dentro de "Más opciones") y en editar movimiento, con la etiqueta en la fila de Movs. 221 tests.
-    Revisado a mano: solo cuenta lo que es flujo (`isFlow`), importes con `flowAmount` (de un gasto
-    compartido, mi parte), sumas en céntimos, frontera de mes exacta y lo pendiente nunca en el balance.
-    `project` va dentro de las claves `finances_*` que ya existían: ninguna clave nueva, ningún recargador.
-    En prod comprobado por el bundle desplegado (`Finanzas-LMbUXc-j.js` trae "Sin proyecto"); **a ojo no
-    lo ha visto nadie**: el navegador de Claude no pasa del login. Josema: Finanzas → Movs → + → Más
-    opciones → Proyecto.
-  - HECHO **F2 las vistas con datos reales** (2defa11 + 7aa415a + pulido 4e5cad0, en prod): la pestaña Conta
-    ya enseña números de verdad. `src/lib/finance/conta-view.ts` (modelo de la pantalla: navegación de mes,
-    etiquetas, filas, banderas de vacío) y `ContabilidadTab.tsx` reescrito — vista **Mes** con navegador
-    ‹ octubre 2026 › (sin flecha al futuro), `.stat-strip` de cobrado · gastos · balance, bloques Cobros ·
-    Gastos · Te deben (clic en una fila abre editar movimiento) y el acumulado del año al pie; vista **Año**
-    con la tabla proyecto × mes y totales. 235 tests. Revisado a mano: el dinero no se recalcula en ningún
-    sitio nuevo (todo sale de `conta.ts`), Conta **solo lee** y no hay claves nuevas ni migraciones.
-    El pulido F2.1 corrigió lo que el contrato no veía: los gastos se pintaban con `+` (ahora `−`, como en
-    Movs), los totales anuales iban redondeados a 100 € (ahora exactos), una celda con balance 0 parecía un
-    mes vacío y al filtrar por un proyecto desaparecían las etiquetas de la tabla.
-    En prod: el chunk de Finanzas cambió de hash (`Finanzas-twd1KSy5.js`); **a ojo no lo ha visto nadie** —
-    el navegador de Claude no pasa del login. Josema: Finanzas → Conta.
-  - HECHO **F3 registrar rápido** (840a36c + pulidos cc0bdfa y e60fcbb, en prod), el corazón del encargo: ya se
-    puede **apuntar** desde Conta. Botón `+` en la fila del mes → hoja con `ChipTabs` **Cobro · Pendiente ·
-    Gasto** contra el proyecto activo, importe (teclado numérico), concepto, categoría y "Guardar y añadir otro"
-    para meter varios seguidos. Borrador puro en `src/lib/finance/conta-draft.ts` (`emptyDraft`, `draftError`,
-    `buildContaEntry`, `nextDraft`, `defaultCategory`) + hoja `ContaAddSheet.tsx`. **250 tests.**
-    La fecha del apunte es la del mes que estás mirando (hoy si es el mes actual, si no el día 1) y es editable.
-    Revisado a mano: el dinero entra por `addTx`/`addPufo` del store (id, saldo de la cuenta, persistencia y
-    snapshot ya resueltos), el apunte es un `Tx` corriente sin `kind`/`id`/`split`, la validación vive **solo**
-    en el borrador y los importes pasan por `parseEuroInput`+`roundEuros`. Sin claves nuevas ni migraciones.
-    Los pulidos corrigieron lo que el contrato no veía: con el filtro en "Todos" el selector de proyecto estaba
-    escondido en "Más opciones" y el toast "Elige un proyecto" no tenía salida; la fecha de otro mes no se veía
-    en ninguna parte (ahora sale arriba con la nota "Se apunta en el mes que estás viendo"); y la hoja cambiaba
-    de forma bajo el dedo porque esas dos decisiones se calculaban del borrador en cada tecla.
-    En prod: el chunk de Finanzas cambió de hash (`Finanzas-JGQrtH3r.js`); **a ojo no lo ha visto nadie** — el
-    navegador de Claude no pasa del login. Josema: Finanzas → Conta → `+`.
-  - HECHO **F4 cerrar el ciclo del cobro** (ed4f7c7 + pulido c8b182d, en prod): el dinero ya no se pierde por el
-    camino. En "Te deben" cada fila tiene **Cobrar** (hoja `CobrarPufoSheet`: fecha real del cobro + cuenta) y
-    **✕ borrar** (con `ConfirmDialog`). Motor puro `src/lib/finance/conta-settle.ts` (`settleError`,
-    `buildSettlement`) y acción nueva `cobrarPufo(idx, {date, cuenta})` en el store, que liquida el pufo
-    (`settled` + `settledDate` con la fecha elegida, **no** la de hoy) y crea el ingreso llamando a `addTx`.
-    **263 tests.** `settlePufo` sigue intacto: lo usa Patrimonio para marcar liquidado sin generar movimiento.
-    Revisado a mano: el `tx` es corriente (sin `kind`/`id`/`split`), hereda importe, concepto y proyecto del
-    pufo, `cuenta` vacía → sin cuenta (no cadena vacía), la validación vive solo en `settleError` y si
-    `buildSettlement` devuelve `null` no se escribe **nada**. Sin claves nuevas ni migraciones.
-    El pulido F4.1 corrigió lo que el contrato no veía: el diálogo guardaba el **índice** del pendiente en el
-    estado de React y el espejo vivo puede recargar `finances_pufos` con el diálogo abierto, así que un cambio
-    remoto desplazaba el índice y se cobraba o **borraba** otro pendiente; ahora se guarda el `id` y el índice
-    se resuelve al confirmar (si ya no está: "Ese pendiente ya no está" y no se escribe nada). También renombró
-    `CobrarPuoSheet` → `CobrarPufoSheet` (errata).
-    En prod: el chunk de Finanzas cambió de hash (`Finanzas-DelbkweB.js`); **a ojo no lo ha visto nadie** — el
-    navegador de Claude no pasa del login. Josema: Finanzas → Conta → Te deben → Cobrar.
-  - SIGUIENTE **F5 el cierre**: bloque `projects` en `finances_context` (una línea por proyecto con movimiento en
-    el año: cobrado, gastado, pendiente, balance) como **proyección de `contaYear`**, midiendo que el JSON sigue
-    por debajo de 4 KB; `AGENTS.md` §Finanzas; y, si molesta no recordar el proyecto y el mes activos,
-    persistirlos en `LOCAL_ONLY_KEYS`. Sus tests de aceptación ya están escritos y EN ROJO a propósito en
-    `src/lib/finance/conta-context.test.ts` (8 tests): `npm test` da 263 verdes + 1 fichero rojo hasta que
-    `buildFinanceContext` devuelva `projects`. No borrar ese test. **Esos 8 tests no se han podido ejecutar**
-    (el Bash del arquitecto solo permite git de lectura y no hay `node_modules`): si el ejecutor dice que uno
-    es imposible, leerlo antes de insistir. Encargo listo en `docs/relevos/2026-10-12-conta-f4.md`.
-    Al cerrar F5 hay que avisar a Josema de que **life-mcp no conoce `project`** (sus sumas no cambian, pero no
-    sabrá filtrar por proyecto hasta que se le enseñe).
-
 - **Finanzas "Margen"** (2026-09-15): replicar todas las funciones de Margen en Finanzas.
   Plan y decisiones en `.mapa/finanzas-margen/` (mapa.md = indice, plan.md = fases F0-F6 con casillas,
   encargos/ = spec de cada fase lista para OpenCode).
@@ -138,6 +76,16 @@ Stack real: React 19 + Vite 8 + Zustand + Supabase (store_data key-value). Ver A
   como gasto y usa tu parte en compartidos; tool nueva `finanzas_contexto` (lee `finances_context`). Verificado en vivo.
 
 ## Lo siguiente
+- **Conta, en manos de Josema** (es lo único que falta del encargo): mirarlo en el móvil — Finanzas → Conta →
+  apuntar un cobro, un gasto y un pendiente, **cobrar un pendiente de verdad** (lo único de F4 que nadie ha
+  visto a ojo) y ver la tabla del Año en vertical (si la columna `sticky` molesta cuando la tabla cabe entera).
+  Decisiones suyas que quedan en el aire: si quiere que la vista Año enseñe también lo que le deben (hoy, a
+  propósito, solo sale en Mes) y si quiere **cobro parcial** (hoy se cobra el importe entero; es otra fase).
+- **life-mcp no conoce `project`** (vive fuera de este repo): sus sumas no cambian, pero CompAI no sabrá
+  filtrar por proyecto hasta que se le enseñe. `finanzas_contexto` ya lee `finances_context`, así que el
+  bloque `projects` le llega; lo que falta es enseñarle a usarlo. Tanda aparte, si Josema la quiere.
+- Límite conocido (no es regresión): un pufo marcado liquidado **desde Patrimonio** no genera ingreso, como
+  siempre. Solo el botón "Cobrar" de Conta cierra el ciclo. Si confunde al usarlo, se unifica en otra fase.
 - Josema: probar la importación con un extracto REAL de su banco (N43 o CSV) — el parser solo se ha
   probado con ficheros sintéticos.
 - Verificado E2E en prod el 2026-09-15 (2ª tanda): precios de cripto al abrir Finanzas (foto del día al precio de

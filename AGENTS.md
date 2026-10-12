@@ -260,7 +260,8 @@ Replica de la app Margen dentro de Finanzas, por fases F0-F6 (plan.md con casill
   (inmuebles con valoraciones), `finances_recurring_dismissed` (sugerencias de recurrentes descartadas) y
   `finances_context` (resumen <4 KB para CompAI; **solo lo escribe la app**, recalculado tras cada cambio).
 - **`LOCAL_ONLY_KEYS`** (storageKeys.ts, NO en ALL_STORAGE_KEYS, localStorage directo, nunca a la nube):
-  `finances_price_cache` (precios CoinGecko) y `finances_alerts_sent` (avisos ya lanzados).
+  `finances_price_cache` (precios CoinGecko), `finances_alerts_sent` (avisos ya lanzados) y
+  `conta_project` (último proyecto filtrado en Conta; preferencia de UI, no dato de usuario).
 - **Patrimonio neto** = cuentas + `netWorthExtras` (store): cartera a precio resuelto, − deudas, + inmuebles, ± pufos
   activos. Úsalo en cualquier sitio que muestre el patrimonio para que cuadre con la foto diaria.
 - **Gastos compartidos**: `Tx.split` (mi parte en `myShare`) → en TODA suma de flujo usa `flowAmount(t)`, nunca
@@ -274,6 +275,29 @@ Replica de la app Margen dentro de Finanzas, por fases F0-F6 (plan.md con casill
   Otros opcionales: `merchantId`, `importId`, `dedupe`. `Cuenta.id` estable; `Tx.cuenta` sigue siendo el nombre.
   **CompAI/life-mcp** debería ignorar los `kind` en sus sumas (pendiente del lado life-mcp).
 - Los store actions `updateTxFull/removeTx` reciben la **posición** en `txs`, no el id del movimiento.
+
+## Finanzas → Conta: contabilidad por proyecto (2026-10-12, plan cerrado F0-F5 — `docs/relevos/contabilidad-fases.md`)
+Sexta pestaña de Finanzas: qué le han pagado a Josema, quién le debe y en qué se le va el dinero, por
+proyecto (Anantara · Clocks · Asensio · Elevencuts · Yatekomo · Otros) y mes, más la tabla del año.
+- **Ninguna clave nueva de datos**: un cobro es un `Tx income` y un gasto un `Tx expense` con
+  `Tx.project?: ProjectId`, y lo pendiente de cobro es un `Pufo me_debe` con `Pufo.project?` — ambos
+  **opcionales**, dentro de las claves `finances_*` que ya existían. Mueven cuenta y patrimonio como
+  cualquier movimiento, así que el dinero no se apunta dos veces y life-mcp lo ve sin cambios. Un
+  movimiento sin `project` (o con uno desconocido) cae en **Otros** al filtrar: no hay que reclasificar nada.
+- **Motor puro** (`src/lib/finance/`, con su `*.test.ts` cada uno): `projects.ts` (catálogo `PROJECTS`,
+  `resolveProjectId`, `matchesProjectFilter`), `conta.ts` (`contaMonth`/`contaYear`: las sumas; solo cuenta
+  lo que es flujo y usa `flowAmount`), `conta-view.ts` (el modelo que pinta la pantalla), `conta-draft.ts`
+  (el borrador de apuntar y su validación) y `conta-settle.ts` (cobrar un pendiente). `ContabilidadTab.tsx`
+  es tonto: no calcula dinero. El signo y el color los decide la UI (cobros `+`, gastos `−`).
+- **Cobrar** un pendiente va por `cobrarPufo(idx, {date, cuenta})` del store: liquida el pufo con la fecha
+  REAL del cobro y crea el ingreso llamando a `addTx`. `settlePufo` (Patrimonio) sigue marcando liquidado
+  **sin** generar movimiento: son dos cosas distintas, no las unifiques sin decidirlo con Josema.
+- **`finances_context` lleva un bloque `projects`** (una línea por proyecto con movimiento en el año en
+  curso: `cobrado`/`gastado`/`balance`/`pendiente`) que es una **proyección de `contaYear(filter:'all').rows`**,
+  no un motor nuevo. El contexto entero sigue midiéndose `< 4 KB` en `conta-context.test.ts`: si algún día
+  no cabe, se recortan proyectos, no se sube el límite.
+- Diálogos de Conta: en el estado de React vive el **id** de la fila, nunca su índice (el espejo vivo puede
+  recargar `finances_pufos` con el diálogo abierto). Regla general del repo, no solo de aquí.
 
 ## Gotchas
 - **`NODE_ENV=production` en el entorno de esta máquina** (lo ve OpenCode): `npm ci`/`npm install` a secas

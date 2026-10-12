@@ -155,17 +155,20 @@ Deja la contabilidad **marcable**: puedes etiquetar un movimiento con su proyect
     "Introduce un concepto"). `buildContaEntry` devuelve `null` si el borrador no vale: nada a
     medias llega al store.
 
-## F4 — Cerrar el ciclo del cobro
+## F4 — Cerrar el ciclo del cobro · HECHA (2026-10-12, commits ed4f7c7 + pulido c8b182d, en origin/main)
 - Marcar un pendiente como cobrado: liquida el pufo (`settled` + `settledDate`) y crea el ingreso
   con la fecha real del cobro, en una sola acción y sin dobles conteos.
 - Editar/borrar un apunte desde Conta reutilizando `EditTxSheet`.
+- Motor `src/lib/finance/conta-settle.ts` + acción `cobrarPufo` del store + `CobrarPufoSheet.tsx`.
+  `settlePufo` (Patrimonio) **no** se tocó. Detalle y revisión a mano: `2026-10-12-conta-f4.md`.
 
-## F5 — Cierre
-- `finances_context`: bloque `projects` mínimo (por proyecto: cobrado del año, pendiente, gastos,
-  balance) **midiendo que el JSON sigue < 4 KB**; si no cabe, solo los proyectos con movimiento.
-- `AGENTS.md` (sección Finanzas), `ESTADO.md`, `DECISIONES.md` y, si molesta no recordar el
-  proyecto activo, persistirlo en `LOCAL_ONLY_KEYS` (preferencia de UI, no sube a la nube).
-- Avisar a Josema de que life-mcp (fuera de este repo) no conoce `project`: sus sumas no cambian,
+## F5 — Cierre · HECHA (2026-10-12, commit 6691e2c, en origin/main) — PLAN CERRADO
+- `finances_context`: bloque `projects` (por proyecto con movimiento del año: cobrado, gastado,
+  balance, pendiente) como proyección de `contaYear(filter:'all')`, con el presupuesto de 4 KB
+  medido en `conta-context.test.ts`. 271 tests.
+- `conta_project` en `LOCAL_ONLY_KEYS`: Conta recuerda el proyecto filtrado. El mes NO se persiste.
+- `AGENTS.md` (§Finanzas → Conta), `ESTADO.md` y `DECISIONES.md` al día.
+- Avisado a Josema de que life-mcp (fuera de este repo) no conoce `project`: sus sumas no cambian,
   pero tampoco sabrá filtrar por proyecto hasta que se le enseñe.
 
 ## E2E de referencia (automatizado en `conta.test.ts` desde F1; a mano en cada fase)
