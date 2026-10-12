@@ -1,9 +1,16 @@
 import { useMemo, useState } from 'react'
 import { ChipTabs, EmptyState } from '@/components/ui'
 import { EditTxSheet } from './EditTxSheet'
+import { ContaAddSheet } from './ContaAddSheet'
 import { useFinanceStore, fmt } from '@/stores/financeStore'
 import { localISO, monthKeyOf } from '@/lib/finance/dates'
-import { PROJECTS, PROJECT_FILTER_ALL, type ProjectFilter } from '@/lib/finance/projects'
+import {
+  PROJECTS,
+  PROJECT_FILTER_ALL,
+  isProjectId,
+  type ProjectFilter,
+  type ProjectId,
+} from '@/lib/finance/projects'
 import { contaMonthView, contaYearView, type ContaMonthBlock, type ContaMonthStat } from '@/lib/finance/conta-view'
 
 // F2.1 de Contabilidad por proyecto: el componente se limita a pintar el modelo de
@@ -14,6 +21,7 @@ export function ContabilidadTab() {
   const [view, setView] = useState<'mes' | 'anio'>('mes')
   const [month, setMonth] = useState<string>(() => monthKeyOf(localISO()))
   const [editTxId, setEditTxId] = useState<number | null>(null)
+  const [addOpen, setAddOpen] = useState(false)
 
   const txs = useFinanceStore(s => s.txs)
   const pufos = useFinanceStore(s => s.pufos)
@@ -23,6 +31,17 @@ export function ContabilidadTab() {
     () => contaMonthView({ txs, pufos, month, filter: project, today }),
     [txs, pufos, month, project, today],
   )
+
+  // Proyecto activo de la pestaña: si el filtro está en "Todos", null (la hoja pide elegir).
+  const activeProject: ProjectId | null =
+    project !== PROJECT_FILTER_ALL && isProjectId(project) ? project : null
+
+  // Fecha por defecto del apunte: hoy si el mes visible es el de hoy; si no, día 1 del mes
+  // visible — apuntar en el mes que se está mirando es lo que se espera.
+  const defaultDate = useMemo(() => {
+    if (month === monthKeyOf(today)) return today
+    return `${month}-01`
+  }, [month, today])
 
   const yearView = useMemo(
     () => contaYearView({ txs, pufos, year: Number(month.slice(0, 4)), filter: project }),
@@ -59,6 +78,7 @@ export function ContabilidadTab() {
             onPrev={() => monthView.nav.prev && setMonth(monthView.nav.prev)}
             onNext={() => monthView.nav.next && setMonth(monthView.nav.next)}
             onRowClick={id => id !== undefined && setEditTxId(id)}
+            onAdd={() => setAddOpen(true)}
           />
         ) : (
           <YearView
@@ -77,6 +97,13 @@ export function ContabilidadTab() {
         open={editTxId !== null}
         onClose={() => setEditTxId(null)}
         txId={editTxId}
+      />
+
+      <ContaAddSheet
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        activeProject={activeProject}
+        defaultDate={defaultDate}
       />
     </div>
   )
@@ -129,25 +156,34 @@ interface MonthViewProps {
   onPrev: () => void
   onNext: () => void
   onRowClick: (id: number | undefined) => void
+  onAdd: () => void
 }
 
-function MonthView({ label, prev, next, stats, balanceAnio, blocks, onPrev, onNext, onRowClick }: MonthViewProps) {
+function MonthView({ label, prev, next, stats, balanceAnio, blocks, onPrev, onNext, onRowClick, onAdd }: MonthViewProps) {
   return (
     <>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '2px 0', marginBottom: 8 }}>
-        <button
-          onClick={onPrev}
-          disabled={!prev}
-          style={{ width: 32, height: 32, borderRadius: 9, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-sub)', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: prev ? 'pointer' : 'not-allowed', opacity: prev ? 1 : 0.4 }}
-          aria-label="Mes anterior"
-        >‹</button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button
+            onClick={onPrev}
+            disabled={!prev}
+            style={{ width: 32, height: 32, borderRadius: 9, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-sub)', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: prev ? 'pointer' : 'not-allowed', opacity: prev ? 1 : 0.4 }}
+            aria-label="Mes anterior"
+          >‹</button>
+          <button
+            onClick={onNext}
+            disabled={!next}
+            style={{ width: 32, height: 32, borderRadius: 9, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-sub)', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: next ? 'pointer' : 'not-allowed', opacity: next ? 1 : 0.4 }}
+            aria-label="Mes siguiente"
+          >›</button>
+        </div>
         <div style={{ fontFamily: 'DM Serif Display, serif', fontSize: 18, color: 'var(--color-text)' }}>{label}</div>
         <button
-          onClick={onNext}
-          disabled={!next}
-          style={{ width: 32, height: 32, borderRadius: 9, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-sub)', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: next ? 'pointer' : 'not-allowed', opacity: next ? 1 : 0.4 }}
-          aria-label="Mes siguiente"
-        >›</button>
+          onClick={onAdd}
+          title="Apuntar al proyecto"
+          style={{ width: 32, height: 32, borderRadius: 9, background: 'var(--color-acc-gold)', border: 'none', color: '#111', fontSize: 18, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}
+          aria-label="Apuntar al proyecto"
+        >+</button>
       </div>
 
       <div className="stat-strip" style={{ marginBottom: 6 }}>
