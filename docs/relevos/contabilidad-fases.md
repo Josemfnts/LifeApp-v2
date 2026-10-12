@@ -101,7 +101,7 @@ Deja la contabilidad **marcable**: puedes etiquetar un movimiento con su proyect
   2. `conta.ts` reimplementa `matchesProjectFilter` como función local `matchesFilter`; se
      sustituye por la del catálogo para no tener dos copias de la misma regla.
 
-## F2 — Las vistas con datos reales (siguiente; tests de aceptación ya escritos y en rojo)
+## F2 — Las vistas con datos reales · HECHA (2026-10-12, commits 2defa11 + 7aa415a + 4e5cad0, en origin/main)
 - **Motor de vista en `src/lib/finance/conta-view.ts`** y componente tonto: la suite es
   `node:test` sin DOM, así que de una pantalla solo se puede probar el modelo que pinta.
   Contrato exacto en `src/lib/finance/conta-view.test.ts` (**intocable**, 14 tests):
@@ -123,14 +123,37 @@ Deja la contabilidad **marcable**: puedes etiquetar un movimiento con su proyect
     (`fmt` vive en `financeStore`, que un test de `src/lib/finance/**` no puede importar).
   - Los nombres de mes se duplican en `conta-view.ts`: `components/finanzas/plan/labels.ts` los
     tiene, pero importa `@/stores/financeStore` y eso no se puede cargar desde un test puro.
+- **F2.1 (pulido tras la revisión del arquitecto, mismo día):** el signo del dinero lo decide
+  **lo que es** la cifra y no su valor (cobros `+`, gastos `−`, "Te deben" sin signo, balance por
+  valor), como en `TxRow.tsx:37`; los totales anuales por proyecto y del año van con `fmt` exacto
+  y solo las celdas de mes en compacto; la columna Proyecto es `sticky` y está siempre; una celda
+  con movimiento y balance 0 pinta `0` (en blanco solo si no hay nada).
 
-## F3 — Registrar rápido (el corazón del encargo)
+## F3 — Registrar rápido (siguiente; tests de aceptación ya escritos y en rojo)
 - Botón `+` en Conta → hoja con tres atajos contra el **proyecto activo**: cobro recibido
   (ingreso con `project` contra una cuenta), cantidad pendiente (pufo `me_debe` con `project`,
   sin mover cuenta) y gasto (`expense` con `project`).
 - "Guardar y añadir otro": la hoja no se cierra, conserva proyecto y fecha y vacía importe y
   concepto. Varios apuntes en la misma sesión sin pelearse con la UI.
 - Con el filtro en "Todos" el `+` pide elegir proyecto antes de guardar (no se inventa "Otros").
+- **Borrador puro en `src/lib/finance/conta-draft.ts`** y hoja tonta encima, por el mismo motivo
+  que F2: la suite no tiene DOM y F3 **escribe dinero**. Contrato exacto en
+  `src/lib/finance/conta-draft.test.ts` (**intocable**, 15 tests): `emptyDraft`, `draftError`,
+  `buildContaEntry` y `nextDraft`.
+- Decisiones de F3 tomadas por el arquitecto al escribir los tests:
+  - **El apunte que sale del borrador es un movimiento corriente**: `Tx` con exactamente
+    `date`, `amount`, `type`, `category`, `concept`, `note`, `cuenta`, `project` — **sin `kind`**
+    (con `kind` dejaría de ser flujo y se caería del balance) y sin `id` (lo pone el store).
+  - **Categoría por defecto**: un cobro de proyecto nace como `Freelance` (es facturación de
+    cliente, no "Otros ingresos"); un gasto, como `Otros gastos`. Josema puede cambiarla y la
+    suya manda. Los literales se duplican en `conta-draft.ts`: `INCOME_CATS`/`EXPENSE_CATS` viven
+    en `QuickAddSheet.tsx` y un test de `src/lib/finance/**` no puede importar componentes.
+  - **El pendiente es un `Pufo` `me_debe`** con `who`/`person` = etiqueta del proyecto, sin
+    `cuenta` y sin `settledDate`: no toca saldos hasta que F4 lo cobre.
+  - **Validación en un solo sitio y en este orden**: proyecto → importe → concepto, con el
+    mensaje en español que ya usa la app ("Elige un proyecto", "Introduce un importe",
+    "Introduce un concepto"). `buildContaEntry` devuelve `null` si el borrador no vale: nada a
+    medias llega al store.
 
 ## F4 — Cerrar el ciclo del cobro
 - Marcar un pendiente como cobrado: liquida el pufo (`settled` + `settledDate`) y crea el ingreso
