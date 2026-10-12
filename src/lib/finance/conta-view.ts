@@ -35,10 +35,6 @@ function parseMonthKey(monthKey: string): { y: number; m: number } | null {
   return { y: Number(re[1]), m: Number(re[2]) }
 }
 
-function formatMonthKey(y: number, m: number): string {
-  return `${y}-${String(m).padStart(2, '0')}`
-}
-
 // Suma n meses (n puede ser negativo) a un monthKey cruzando el año por los dos lados.
 export function shiftMonthKey(monthKey: string, n: number): string {
   const parsed = parseMonthKey(monthKey)
@@ -175,10 +171,6 @@ function yearEmptyMessage(): string {
   return 'Sin movimientos este año.'
 }
 
-function projectFromFilter(filter: ProjectFilter): ProjectId | null {
-  return filter === 'all' ? null : (filter as ProjectId)
-}
-
 function rowFromContaItem(
   item: { id: number | undefined; date: string; concept: string; amount: number; project: ProjectId },
   showProject: boolean,
@@ -265,17 +257,16 @@ export function contaMonthView(params: {
   }
 }
 
-function cellFromYearMonth(m: { month: string; cobrado: number; gastado: number; balance: number; pendiente: number }, project: ProjectId | null): ContaYearCell {
-  // La tabla es de cobros y gastos: un mes sin ambos es empty aunque tenga pendientes.
-  const empty = project === OTHER_PROJECT
-    ? m.cobrado === 0 && m.gastado === 0 && m.pendiente === 0
-    : m.cobrado === 0 && m.gastado === 0
+// La tabla del año es de cobros y gastos: una celda está vacía si el mes no tiene ni cobros
+// ni gastos, con independencia del filtro o de si hay pendientes. El bloque "Te deben" se
+// ve solo en la vista Mes.
+function cellFromYearMonth(m: { month: string; cobrado: number; gastado: number; balance: number }): ContaYearCell {
   return {
     monthKey: m.month,
     cobrado: m.cobrado,
     gastado: m.gastado,
     balance: m.balance,
-    empty,
+    empty: m.cobrado === 0 && m.gastado === 0,
   }
 }
 
@@ -289,14 +280,12 @@ export function contaYearView(params: {
   const filter: ProjectFilter = params.filter ?? 'all'
   const result = contaYear({ txs, pufos, year, filter })
 
-  const onlyProject = projectFromFilter(filter)
-
   // La tabla es de cobros y gastos. Un proyecto que en el año solo tiene pendientes no genera
   // fila (decisión F2: lo pendiente se ve una sola vez, en la vista Mes).
   const rows: ContaYearRow[] = result.rows
     .filter(r => !(r.total.cobrado === 0 && r.total.gastado === 0))
     .map(r => {
-      const months: ContaYearCell[] = r.months.map(m => cellFromYearMonth(m, onlyProject))
+      const months: ContaYearCell[] = r.months.map(cellFromYearMonth)
       return {
         project: r.project,
         label: r.label,
@@ -334,10 +323,3 @@ export function contaYearView(params: {
   }
 }
 
-// Helpers de meses para la UI: no se prueban directamente, pero viven aquí para que el modelo
-// tenga a mano el vocabulario que la cabecera de Mes consume.
-export function monthKeyList(year: number): string[] {
-  const out: string[] = []
-  for (let i = 1; i <= 12; i++) out.push(formatMonthKey(year, i))
-  return out
-}

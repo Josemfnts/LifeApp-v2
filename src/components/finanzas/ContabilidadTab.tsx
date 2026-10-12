@@ -6,8 +6,9 @@ import { localISO, monthKeyOf } from '@/lib/finance/dates'
 import { PROJECTS, PROJECT_FILTER_ALL, type ProjectFilter } from '@/lib/finance/projects'
 import { contaMonthView, contaYearView, type ContaMonthBlock, type ContaMonthStat } from '@/lib/finance/conta-view'
 
-// F2 de Contabilidad por proyecto: el componente se limita a pintar el modelo de
-// src/lib/finance/conta-view.ts. Sin cálculos de dinero aquí: los números vienen del modelo.
+// F2.1 de Contabilidad por proyecto: el componente se limita a pintar el modelo de
+// src/lib/finance/conta-view.ts. El signo y el color del dinero los decide la UI: el modelo
+// solo devuelve números y la bandera `empty` por celda.
 export function ContabilidadTab() {
   const [project, setProject] = useState<ProjectFilter>(PROJECT_FILTER_ALL)
   const [view, setView] = useState<'mes' | 'anio'>('mes')
@@ -55,7 +56,6 @@ export function ContabilidadTab() {
             stats={monthView.stats}
             balanceAnio={monthView.balanceAnio}
             blocks={monthView.blocks}
-            showProject={project === PROJECT_FILTER_ALL}
             onPrev={() => monthView.nav.prev && setMonth(monthView.nav.prev)}
             onNext={() => monthView.nav.next && setMonth(monthView.nav.next)}
             onRowClick={id => id !== undefined && setEditTxId(id)}
@@ -69,7 +69,6 @@ export function ContabilidadTab() {
             total={yearView.total}
             empty={yearView.empty}
             emptyMessage={yearView.emptyMessage}
-            showProject={project === PROJECT_FILTER_ALL}
           />
         )}
       </div>
@@ -89,10 +88,35 @@ function toneColor(tone: ContaMonthStat['tone']): string {
   return 'var(--color-text)'
 }
 
-function formatAmount(value: number): string {
+// `mode` decide el signo POR LO QUE ES la cifra, no por su valor:
+//   - 'pos'  → '+' a cualquier valor no cero (cobros, balance positivo, etc.)
+//   - 'neg'  → '−' a cualquier valor no cero (gastos)
+//   - 'auto' → '+' o '−' según el signo del valor (balance, balanceAnio)
+//   - 'none' → sin signo (Te deben: dinero que aún no se ha movido)
+// `0` se pinta a secas siempre.
+function formatAmount(value: number, mode: 'pos' | 'neg' | 'auto' | 'none' = 'auto'): string {
   if (value === 0) return '0'
-  const sign = value > 0 ? '+' : '−'
+  if (mode === 'none') return fmt(Math.abs(value))
+  const sign = mode === 'pos' ? '+' : mode === 'neg' ? '−' : value > 0 ? '+' : '−'
   return `${sign}${fmt(Math.abs(value))}`
+}
+
+function statSignMode(key: ContaMonthStat['key']): 'pos' | 'neg' | 'auto' {
+  if (key === 'cobrado') return 'pos'
+  if (key === 'gastado') return 'neg'
+  return 'auto'
+}
+
+function blockSignMode(key: ContaMonthBlock['key']): 'pos' | 'neg' | 'none' {
+  if (key === 'cobros') return 'pos'
+  if (key === 'gastos') return 'neg'
+  return 'none'
+}
+
+function rowAmountColor(key: ContaMonthBlock['key']): string {
+  if (key === 'cobros') return 'var(--color-acc-green)'
+  if (key === 'gastos') return 'var(--color-red)'
+  return 'var(--color-text)'
 }
 
 interface MonthViewProps {
@@ -102,13 +126,12 @@ interface MonthViewProps {
   stats: ContaMonthStat[]
   balanceAnio: number
   blocks: ContaMonthBlock[]
-  showProject: boolean
   onPrev: () => void
   onNext: () => void
   onRowClick: (id: number | undefined) => void
 }
 
-function MonthView({ label, prev, next, stats, balanceAnio, blocks, showProject, onPrev, onNext, onRowClick }: MonthViewProps) {
+function MonthView({ label, prev, next, stats, balanceAnio, blocks, onPrev, onNext, onRowClick }: MonthViewProps) {
   return (
     <>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '2px 0', marginBottom: 8 }}>
@@ -130,20 +153,20 @@ function MonthView({ label, prev, next, stats, balanceAnio, blocks, showProject,
       <div className="stat-strip" style={{ marginBottom: 6 }}>
         {stats.map(s => (
           <div key={s.key}>
-            <div className="stat-num" style={{ color: toneColor(s.tone) }}>{formatAmount(s.value)}</div>
+            <div className="stat-num" style={{ color: toneColor(s.tone) }}>{formatAmount(s.value, statSignMode(s.key))}</div>
             <div className="stat-lbl">{s.label}</div>
           </div>
         ))}
       </div>
       <div style={{ fontSize: 11, color: 'var(--color-dim)', textAlign: 'right', marginBottom: 14 }}>
-        Acumulado del año: {formatAmount(balanceAnio)}
+        Acumulado del año: {formatAmount(balanceAnio, 'auto')}
       </div>
 
       {blocks.map(b => (
         <section key={b.key} style={{ marginTop: 20 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 8 }}>
             <div className="sec-label">{b.title}</div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-sub)' }}>{formatAmount(b.total)}</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-sub)' }}>{formatAmount(b.total, blockSignMode(b.key))}</div>
           </div>
           {b.empty ? (
             <EmptyState message={b.emptyMessage} />
@@ -154,9 +177,10 @@ function MonthView({ label, prev, next, stats, balanceAnio, blocks, showProject,
                   key={`${b.key}-${r.id ?? `${r.date}-${r.concept}`}`}
                   dateLabel={r.dateLabel}
                   concept={r.concept}
-                  projectLabel={showProject ? r.projectLabel : ''}
+                  projectLabel={r.projectLabel}
                   amount={r.amount}
-                  tone={b.key === 'gastos' ? 'neg' : 'pos'}
+                  amountColor={rowAmountColor(b.key)}
+                  signMode={blockSignMode(b.key)}
                   clickable={b.key !== 'pendientes' && r.id !== undefined}
                   onClick={() => onRowClick(r.id)}
                 />
@@ -174,14 +198,13 @@ interface BlockRowProps {
   concept: string
   projectLabel: string
   amount: number
-  tone: ContaMonthStat['tone']
+  amountColor: string
+  signMode: 'pos' | 'neg' | 'none'
   clickable: boolean
   onClick: () => void
 }
 
-function BlockRow({ dateLabel, concept, projectLabel, amount, tone, clickable, onClick }: BlockRowProps) {
-  const amountColor = tone === 'pos' ? 'var(--color-acc-green)' : tone === 'neg' ? 'var(--color-red)' : 'var(--color-text)'
-  const subtitle = projectLabel ? concept + ' · ' + projectLabel : concept
+function BlockRow({ dateLabel, concept, projectLabel, amount, amountColor, signMode, clickable, onClick }: BlockRowProps) {
   return (
     <div
       onClick={clickable ? onClick : undefined}
@@ -192,9 +215,8 @@ function BlockRow({ dateLabel, concept, projectLabel, amount, tone, clickable, o
         <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{concept}</div>
         {projectLabel && <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 2 }}>{projectLabel}</div>}
       </div>
-      <div style={{ fontFamily: 'DM Serif Display, serif', fontSize: 20, fontWeight: 400, flexShrink: 0, color: amountColor }}>{formatAmount(amount)}</div>
+      <div style={{ fontFamily: 'DM Serif Display, serif', fontSize: 20, fontWeight: 400, flexShrink: 0, color: amountColor }}>{formatAmount(amount, signMode)}</div>
       {clickable && <span aria-hidden style={{ color: 'var(--color-dim)', fontSize: 18, paddingLeft: 4 }}>›</span>}
-      {!clickable && subtitle !== concept && null}
     </div>
   )
 }
@@ -207,10 +229,9 @@ interface YearViewProps {
   total: ReturnType<typeof contaYearView>['total']
   empty: boolean
   emptyMessage: string
-  showProject: boolean
 }
 
-function YearView({ yearLabel, monthLabels, rows, totalByMonth, total, empty, emptyMessage, showProject }: YearViewProps) {
+function YearView({ yearLabel, monthLabels, rows, totalByMonth, total, empty, emptyMessage }: YearViewProps) {
   if (empty) {
     return (
       <div style={{ marginTop: 20 }}>
@@ -223,39 +244,39 @@ function YearView({ yearLabel, monthLabels, rows, totalByMonth, total, empty, em
     <div style={{ marginTop: 20 }}>
       <div className="sec-label" style={{ marginBottom: 8 }}>Año {yearLabel}</div>
       <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-        <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: showProject ? 600 : 480, fontSize: 12 }}>
+        <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 600, fontSize: 12 }}>
           <thead>
             <tr>
-              {showProject && <th style={thStyle('left', true)}>Proyecto</th>}
+              <th style={thStyle('left', true)}>Proyecto</th>
               {monthLabels.map(m => (
                 <th key={m} style={thStyle('right', false)}>{m}</th>
               ))}
-              <th style={thStyle('right', true)}>Total</th>
+              <th style={thStyle('right', false)}>Total</th>
             </tr>
           </thead>
           <tbody>
             {rows.map(r => (
               <tr key={r.project}>
-                {showProject && <td style={tdStyle('left', true)}>{r.label}</td>}
+                <td style={tdStickyStyle('left', true)}>{r.label}</td>
                 {r.months.map(m => (
                   <td key={m.monthKey} style={tdStyle('right', false)}>
                     {m.empty ? ' ' : compact(m.balance)}
                   </td>
                 ))}
                 <td style={tdTotalStyle('right', r.total.balance)}>
-                  {compact(r.total.balance)}
+                  {fmtSignedExact(r.total.balance)}
                 </td>
               </tr>
             ))}
             <tr style={{ borderTop: '1px solid var(--color-border)' }}>
-              {showProject && <td style={tdStyle('left', true)}>Total</td>}
+              <td style={tdStickyStyle('left', true)}>Total</td>
               {totalByMonth.map(m => (
                 <td key={m.monthKey} style={tdTotalStyle('right', m.balance)}>
                   {compact(m.balance)}
                 </td>
               ))}
               <td style={tdTotalStyle('right', total.balance)}>
-                {compact(total.balance)}
+                {fmtSignedExact(total.balance)}
               </td>
             </tr>
           </tbody>
@@ -266,7 +287,7 @@ function YearView({ yearLabel, monthLabels, rows, totalByMonth, total, empty, em
 }
 
 function thStyle(align: 'left' | 'right', sticky: boolean): React.CSSProperties {
-  return {
+  const base: React.CSSProperties = {
     textAlign: align,
     padding: '6px 8px',
     fontSize: 10,
@@ -276,9 +297,10 @@ function thStyle(align: 'left' | 'right', sticky: boolean): React.CSSProperties 
     letterSpacing: '0.5px',
     borderBottom: '1px solid var(--color-border)',
     background: 'var(--color-bg)',
-    position: sticky === false ? undefined : 'static',
     whiteSpace: 'nowrap',
   }
+  if (!sticky) return base
+  return { ...base, position: 'sticky', left: 0, zIndex: 1 }
 }
 
 function tdStyle(align: 'left' | 'right', bold: boolean): React.CSSProperties {
@@ -292,6 +314,18 @@ function tdStyle(align: 'left' | 'right', bold: boolean): React.CSSProperties {
   }
 }
 
+// Sticky para la primera columna (etiquetas de proyecto). El total del año NO es sticky
+// porque vive en la esquina derecha: ya queda visible con scroll horizontal.
+function tdStickyStyle(align: 'left' | 'right', bold: boolean): React.CSSProperties {
+  return {
+    ...tdStyle(align, bold),
+    position: 'sticky',
+    left: 0,
+    background: 'var(--color-bg)',
+    zIndex: 1,
+  }
+}
+
 function tdTotalStyle(align: 'left' | 'right', value: number): React.CSSProperties {
   const color = value > 0 ? 'var(--color-acc-green)' : value < 0 ? 'var(--color-red)' : 'var(--color-text)'
   return {
@@ -301,9 +335,17 @@ function tdTotalStyle(align: 'left' | 'right', value: number): React.CSSProperti
 }
 
 function compact(value: number): string {
-  if (value === 0) return ' '
+  if (value === 0) return '0'
   const abs = Math.abs(value)
   const sign = value > 0 ? '+' : '−'
   if (abs >= 1000) return `${sign}${Math.round(abs / 100) / 10}k`
   return `${sign}${Math.round(abs)}`
+}
+
+// Importe exacto (con decimales) para los totales anuales: la cifra que Josema va a leer.
+// `0` se pinta a secas; el resto con `+`/`−` por valor.
+function fmtSignedExact(value: number): string {
+  if (value === 0) return '0'
+  const sign = value > 0 ? '+' : '−'
+  return `${sign}${fmt(Math.abs(value))}`
 }
