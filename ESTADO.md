@@ -65,15 +65,32 @@ Stack real: React 19 + Vite 8 + Zustand + Supabase (store_data key-value). Ver A
     de forma bajo el dedo porque esas dos decisiones se calculaban del borrador en cada tecla.
     En prod: el chunk de Finanzas cambió de hash (`Finanzas-JGQrtH3r.js`); **a ojo no lo ha visto nadie** — el
     navegador de Claude no pasa del login. Josema: Finanzas → Conta → `+`.
-  - SIGUIENTE **F4 cerrar el ciclo del cobro**: marcar un pendiente de "Te deben" como cobrado (liquida el pufo
-    con la **fecha real** y crea el ingreso en una sola acción) y borrar un pendiente apuntado por error.
-    Comprobado en el store: `settlePufo` (`financeStore.ts:675`) solo marca `settled` con la fecha de hoy y **no
-    crea movimiento**, así que F4 añade una acción nueva y **no toca `settlePufo`** (lo usa Patrimonio; cambiarlo
-    haría aparecer ingresos de la nada en los pufos ya guardados). Sus tests de aceptación ya están escritos y
-    EN ROJO a propósito en `src/lib/finance/conta-settle.test.ts` (13 tests): `npm test` da 250 verdes + 1
-    fichero rojo hasta que exista `conta-settle.ts`. No borrar ese test. **Esos 13 tests no se han podido
-    ejecutar** (el Bash del arquitecto solo permite git de lectura y no hay `node_modules`): si el ejecutor
-    dice que uno es imposible, leerlo antes de insistir. Encargo listo en `docs/relevos/2026-10-12-conta-f3.md`.
+  - HECHO **F4 cerrar el ciclo del cobro** (ed4f7c7 + pulido c8b182d, en prod): el dinero ya no se pierde por el
+    camino. En "Te deben" cada fila tiene **Cobrar** (hoja `CobrarPufoSheet`: fecha real del cobro + cuenta) y
+    **✕ borrar** (con `ConfirmDialog`). Motor puro `src/lib/finance/conta-settle.ts` (`settleError`,
+    `buildSettlement`) y acción nueva `cobrarPufo(idx, {date, cuenta})` en el store, que liquida el pufo
+    (`settled` + `settledDate` con la fecha elegida, **no** la de hoy) y crea el ingreso llamando a `addTx`.
+    **263 tests.** `settlePufo` sigue intacto: lo usa Patrimonio para marcar liquidado sin generar movimiento.
+    Revisado a mano: el `tx` es corriente (sin `kind`/`id`/`split`), hereda importe, concepto y proyecto del
+    pufo, `cuenta` vacía → sin cuenta (no cadena vacía), la validación vive solo en `settleError` y si
+    `buildSettlement` devuelve `null` no se escribe **nada**. Sin claves nuevas ni migraciones.
+    El pulido F4.1 corrigió lo que el contrato no veía: el diálogo guardaba el **índice** del pendiente en el
+    estado de React y el espejo vivo puede recargar `finances_pufos` con el diálogo abierto, así que un cambio
+    remoto desplazaba el índice y se cobraba o **borraba** otro pendiente; ahora se guarda el `id` y el índice
+    se resuelve al confirmar (si ya no está: "Ese pendiente ya no está" y no se escribe nada). También renombró
+    `CobrarPuoSheet` → `CobrarPufoSheet` (errata).
+    En prod: el chunk de Finanzas cambió de hash (`Finanzas-DelbkweB.js`); **a ojo no lo ha visto nadie** — el
+    navegador de Claude no pasa del login. Josema: Finanzas → Conta → Te deben → Cobrar.
+  - SIGUIENTE **F5 el cierre**: bloque `projects` en `finances_context` (una línea por proyecto con movimiento en
+    el año: cobrado, gastado, pendiente, balance) como **proyección de `contaYear`**, midiendo que el JSON sigue
+    por debajo de 4 KB; `AGENTS.md` §Finanzas; y, si molesta no recordar el proyecto y el mes activos,
+    persistirlos en `LOCAL_ONLY_KEYS`. Sus tests de aceptación ya están escritos y EN ROJO a propósito en
+    `src/lib/finance/conta-context.test.ts` (8 tests): `npm test` da 263 verdes + 1 fichero rojo hasta que
+    `buildFinanceContext` devuelva `projects`. No borrar ese test. **Esos 8 tests no se han podido ejecutar**
+    (el Bash del arquitecto solo permite git de lectura y no hay `node_modules`): si el ejecutor dice que uno
+    es imposible, leerlo antes de insistir. Encargo listo en `docs/relevos/2026-10-12-conta-f4.md`.
+    Al cerrar F5 hay que avisar a Josema de que **life-mcp no conoce `project`** (sus sumas no cambian, pero no
+    sabrá filtrar por proyecto hasta que se le enseñe).
 
 - **Finanzas "Margen"** (2026-09-15): replicar todas las funciones de Margen en Finanzas.
   Plan y decisiones en `.mapa/finanzas-margen/` (mapa.md = indice, plan.md = fases F0-F6 con casillas,
