@@ -81,9 +81,10 @@ Stack real: React 19 + Vite 8 + Zustand + Supabase (store_data key-value). Ver A
   visto a ojo) y ver la tabla del Año en vertical (si la columna `sticky` molesta cuando la tabla cabe entera).
   Decisiones suyas que quedan en el aire: si quiere que la vista Año enseñe también lo que le deben (hoy, a
   propósito, solo sale en Mes) y si quiere **cobro parcial** (hoy se cobra el importe entero; es otra fase).
-- **life-mcp no conoce `project`** (vive fuera de este repo): sus sumas no cambian, pero CompAI no sabrá
-  filtrar por proyecto hasta que se le enseñe. `finanzas_contexto` ya lee `finances_context`, así que el
-  bloque `projects` le llega; lo que falta es enseñarle a usarlo. Tanda aparte, si Josema la quiere.
+- **life-mcp aprendiendo `project`**: Josema lo autorizó el 2026-10-12 y está lanzado como
+  `job_mv5b7m7hegjp` sobre el proyecto **`compai`** (`life-mcp/`), fuera de este repo — filtro por
+  proyecto en la tool `finanzas`, tool nueva `finanzas_proyectos` y el bloque `projects` del contexto
+  pintado en texto. Solo lectura. Qué revisar cuando caiga: `docs/relevos/2026-10-12-conta-f5.md`.
 - Límite conocido (no es regresión): un pufo marcado liquidado **desde Patrimonio** no genera ingreso, como
   siempre. Solo el botón "Cobrar" de Conta cierra el ciclo. Si confunde al usarlo, se unifica en otra fase.
 - Josema: probar la importación con un extracto REAL de su banco (N43 o CSV) — el parser solo se ha
