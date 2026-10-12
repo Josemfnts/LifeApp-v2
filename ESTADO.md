@@ -50,13 +50,30 @@ Stack real: React 19 + Vite 8 + Zustand + Supabase (store_data key-value). Ver A
     mes vacío y al filtrar por un proyecto desaparecían las etiquetas de la tabla.
     En prod: el chunk de Finanzas cambió de hash (`Finanzas-twd1KSy5.js`); **a ojo no lo ha visto nadie** —
     el navegador de Claude no pasa del login. Josema: Finanzas → Conta.
-  - SIGUIENTE **F3 registrar rápido** (el corazón del encargo): botón `+` en Conta con tres atajos contra el
-    proyecto activo (cobro recibido, cantidad pendiente, gasto) y "Guardar y añadir otro". Borrador puro en
-    `src/lib/finance/conta-draft.ts` + hoja `ContaAddSheet.tsx`. Sus tests de aceptación ya están escritos y
-    EN ROJO a propósito en `src/lib/finance/conta-draft.test.ts` (15 tests): `npm test` da 235 verdes + 1
-    fichero rojo hasta que exista `conta-draft.ts`. No borrar ese test. **Esos 15 tests no se han podido
+  - HECHO **F3 registrar rápido** (840a36c + pulidos cc0bdfa y e60fcbb, en prod), el corazón del encargo: ya se
+    puede **apuntar** desde Conta. Botón `+` en la fila del mes → hoja con `ChipTabs` **Cobro · Pendiente ·
+    Gasto** contra el proyecto activo, importe (teclado numérico), concepto, categoría y "Guardar y añadir otro"
+    para meter varios seguidos. Borrador puro en `src/lib/finance/conta-draft.ts` (`emptyDraft`, `draftError`,
+    `buildContaEntry`, `nextDraft`, `defaultCategory`) + hoja `ContaAddSheet.tsx`. **250 tests.**
+    La fecha del apunte es la del mes que estás mirando (hoy si es el mes actual, si no el día 1) y es editable.
+    Revisado a mano: el dinero entra por `addTx`/`addPufo` del store (id, saldo de la cuenta, persistencia y
+    snapshot ya resueltos), el apunte es un `Tx` corriente sin `kind`/`id`/`split`, la validación vive **solo**
+    en el borrador y los importes pasan por `parseEuroInput`+`roundEuros`. Sin claves nuevas ni migraciones.
+    Los pulidos corrigieron lo que el contrato no veía: con el filtro en "Todos" el selector de proyecto estaba
+    escondido en "Más opciones" y el toast "Elige un proyecto" no tenía salida; la fecha de otro mes no se veía
+    en ninguna parte (ahora sale arriba con la nota "Se apunta en el mes que estás viendo"); y la hoja cambiaba
+    de forma bajo el dedo porque esas dos decisiones se calculaban del borrador en cada tecla.
+    En prod: el chunk de Finanzas cambió de hash (`Finanzas-JGQrtH3r.js`); **a ojo no lo ha visto nadie** — el
+    navegador de Claude no pasa del login. Josema: Finanzas → Conta → `+`.
+  - SIGUIENTE **F4 cerrar el ciclo del cobro**: marcar un pendiente de "Te deben" como cobrado (liquida el pufo
+    con la **fecha real** y crea el ingreso en una sola acción) y borrar un pendiente apuntado por error.
+    Comprobado en el store: `settlePufo` (`financeStore.ts:675`) solo marca `settled` con la fecha de hoy y **no
+    crea movimiento**, así que F4 añade una acción nueva y **no toca `settlePufo`** (lo usa Patrimonio; cambiarlo
+    haría aparecer ingresos de la nada en los pufos ya guardados). Sus tests de aceptación ya están escritos y
+    EN ROJO a propósito en `src/lib/finance/conta-settle.test.ts` (13 tests): `npm test` da 250 verdes + 1
+    fichero rojo hasta que exista `conta-settle.ts`. No borrar ese test. **Esos 13 tests no se han podido
     ejecutar** (el Bash del arquitecto solo permite git de lectura y no hay `node_modules`): si el ejecutor
-    dice que uno es imposible, leerlo antes de insistir. Encargo listo en `docs/relevos/2026-10-12-conta-f2.md`.
+    dice que uno es imposible, leerlo antes de insistir. Encargo listo en `docs/relevos/2026-10-12-conta-f3.md`.
 
 - **Finanzas "Margen"** (2026-09-15): replicar todas las funciones de Margen en Finanzas.
   Plan y decisiones en `.mapa/finanzas-margen/` (mapa.md = indice, plan.md = fases F0-F6 con casillas,
