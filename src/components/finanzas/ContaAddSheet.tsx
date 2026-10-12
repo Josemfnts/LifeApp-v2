@@ -121,16 +121,21 @@ export function ContaAddSheet({ open, onClose, activeProject, defaultDate }: Pro
   const cats = draft.kind === 'cobro' ? INCOME_CATS : draft.kind === 'gasto' ? EXPENSE_CATS : []
   const currentCategory = draft.category.trim() || defaultCategory(draft.kind)
 
-  // F3.1: con el filtro en "Todos" no hay proyecto elegido y la validación
+  // F3.2: la forma de la hoja se decide al abrir y NO cambia con cada tecleo.
+  // Si dependiera del borrador, los campos saltarían de sitio bajo el dedo justo
+  // cuando Josema está eligiéndolos (peor con "Guardar y añadir otro", que conserva
+  // el proyecto y la fecha). Las dos banderas salen de los props, que son estables
+  // mientras la hoja está abierta.
+  //
+  // F3.1 original: con el filtro en "Todos" no hay proyecto elegido y la validación
   // exige uno; enseñamos el selector arriba para no esconder la salida.
   // Cuando sí hay proyecto activo, el selector vive en "Más opciones" (poder cambiarlo).
-  const showProjectAbove = draft.project === null
+  const showProjectAbove = activeProject === null
 
-  // F3.1: si la fecha por defecto no es hoy (mes visible ≠ mes actual) se enseña
-  // arriba para que Josema la vea y la corrija de un toque. Cuando es hoy, queda
-  // escondida — es el caso normal y no estorba.
-  const today = localISO()
-  const showDateAbove = draft.date !== today
+  // F3.1 original: si la fecha por defecto no es hoy (mes visible ≠ mes actual) se
+  // enseña arriba para que Josema la vea y la corrija de un toque. Cuando es hoy,
+  // queda escondida — es el caso normal y no estorba.
+  const showDateAbove = defaultDate !== localISO()
 
   const projectSelector = useMemo(() => (
     <select className="inp" value={draft.project ?? ''} onChange={e => {
