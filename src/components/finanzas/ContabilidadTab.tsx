@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { ChipTabs, EmptyState, ConfirmDialog } from '@/components/ui'
 import { EditTxSheet } from './EditTxSheet'
 import { ContaAddSheet } from './ContaAddSheet'
-import { CobrarPuoSheet } from './CobrarPuoSheet'
+import { CobrarPufoSheet } from './CobrarPufoSheet'
 import { useFinanceStore, fmt } from '@/stores/financeStore'
 import { useToast } from '@/stores/toast'
 import { localISO, monthKeyOf } from '@/lib/finance/dates'
@@ -25,8 +25,8 @@ export function ContabilidadTab() {
   const [month, setMonth] = useState<string>(() => monthKeyOf(localISO()))
   const [editTxId, setEditTxId] = useState<number | null>(null)
   const [addOpen, setAddOpen] = useState(false)
-  const [cobrarPufoIdx, setCobrarPufoIdx] = useState<number | null>(null)
-  const [removePufoIdx, setRemovePufoIdx] = useState<number | null>(null)
+  const [cobrarPufoId, setCobrarPufoId] = useState<number | null>(null)
+  const [removePufoId, setRemovePufoId] = useState<number | null>(null)
 
   const txs = useFinanceStore(s => s.txs)
   const pufos = useFinanceStore(s => s.pufos)
@@ -69,13 +69,15 @@ export function ContabilidadTab() {
     { key: 'anio', label: 'Año' },
   ] as const
 
-  // Pufo vivo para el que se está abriendo la hoja de cobro. Se busca por id (estable en la
-  // fila) en `pufos` — si ya no está, no se hace nada.
-  const cobrarPufoTarget: Pufo | null = cobrarPufoIdx !== null
-    ? pufos[cobrarPufoIdx] ?? null
+  // Pufo vivo para el que se está abriendo la hoja de cobro. Se guarda el id (estable en la
+  // fila) y NO el índice: el espejo vivo de CompAI puede recargar `pufos` mientras el diálogo
+  // está abierto, dejando un índice guardado apuntando a OTRO pendiente. El índice se resuelve
+  // en el momento de confirmar (más abajo), con `getState().pufos.findIndex(...)`.
+  const cobrarPufoTarget: Pufo | null = cobrarPufoId !== null
+    ? pufos.find(p => p.id === cobrarPufoId) ?? null
     : null
-  const removePufoTarget: Pufo | null = removePufoIdx !== null
-    ? pufos[removePufoIdx] ?? null
+  const removePufoTarget: Pufo | null = removePufoId !== null
+    ? pufos.find(p => p.id === removePufoId) ?? null
     : null
 
   return (
@@ -97,12 +99,10 @@ export function ContabilidadTab() {
             onRowClick={id => id !== undefined && setEditTxId(id)}
             onAdd={() => setAddOpen(true)}
             onSettleRow={id => {
-              const idx = pufos.findIndex(p => p.id === id)
-              if (idx >= 0) setCobrarPufoIdx(idx)
+              if (id !== undefined) setCobrarPufoId(id)
             }}
             onRemoveRow={id => {
-              const idx = pufos.findIndex(p => p.id === id)
-              if (idx >= 0) setRemovePufoIdx(idx)
+              if (id !== undefined) setRemovePufoId(id)
             }}
           />
         ) : (
@@ -131,15 +131,24 @@ export function ContabilidadTab() {
         defaultDate={defaultDate}
       />
 
-      <CobrarPuoSheet
+      <CobrarPufoSheet
         open={cobrarPufoTarget !== null}
-        onClose={() => setCobrarPufoIdx(null)}
+        onClose={() => setCobrarPufoId(null)}
         pufo={cobrarPufoTarget}
         onCobrar={(date, cuenta) => {
-          if (cobrarPufoIdx === null || !cobrarPufoTarget) return
-          cobrarPufo(cobrarPufoIdx, { date, cuenta })
-          toast.show(`✓ Cobro de ${fmt(cobrarPufoTarget.amount)} añadido`)
-          setCobrarPufoIdx(null)
+          if (cobrarPufoId === null) return
+          // Se resuelve el índice AHORA (no antes): el espejo vivo puede haber recargado
+          // `pufos` mientras la hoja estaba abierta y un índice guardado sería de otro pufo.
+          const idx = useFinanceStore.getState().pufos.findIndex(p => p.id === cobrarPufoId)
+          if (idx < 0) {
+            toast.show('Ese pendiente ya no está')
+            setCobrarPufoId(null)
+            return
+          }
+          cobrarPufo(idx, { date, cuenta })
+          const target = useFinanceStore.getState().pufos[idx]
+          toast.show(`✓ Cobro de ${fmt(target.amount)} añadido`)
+          setCobrarPufoId(null)
         }}
       />
 
@@ -151,12 +160,19 @@ export function ContabilidadTab() {
         cancelLabel="Cancelar"
         danger
         onConfirm={() => {
-          if (removePufoIdx === null) return
-          removePufo(removePufoIdx)
+          if (removePufoId === null) return
+          // Igual que en el cobro: índice fresco, no cacheado. Si ya no está, no se borra nada.
+          const idx = useFinanceStore.getState().pufos.findIndex(p => p.id === removePufoId)
+          if (idx < 0) {
+            toast.show('Ese pendiente ya no está')
+            setRemovePufoId(null)
+            return
+          }
+          removePufo(idx)
           toast.show('Pendiente borrado')
-          setRemovePufoIdx(null)
+          setRemovePufoId(null)
         }}
-        onClose={() => setRemovePufoIdx(null)}
+        onClose={() => setRemovePufoId(null)}
       />
     </div>
   )

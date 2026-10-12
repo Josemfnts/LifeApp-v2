@@ -19,7 +19,7 @@ interface Props {
 // se heredan del pendiente (el motor puro decide en src/lib/finance/conta-settle.ts). Aquí
 // se reutiliza `settleError` para validar — no se duplica la regla: si devuelve mensaje,
 // toast.show y se sale sin escribir.
-export function CobrarPuoSheet({ open, onClose, pufo, onCobrar }: Props) {
+export function CobrarPufoSheet({ open, onClose, pufo, onCobrar }: Props) {
   const cuentas = useFinanceStore(s => s.cuentas)
   const toast = useToast()
 
