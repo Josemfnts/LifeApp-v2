@@ -81,10 +81,13 @@ Stack real: React 19 + Vite 8 + Zustand + Supabase (store_data key-value). Ver A
   visto a ojo) y ver la tabla del Año en vertical (si la columna `sticky` molesta cuando la tabla cabe entera).
   Decisiones suyas que quedan en el aire: si quiere que la vista Año enseñe también lo que le deben (hoy, a
   propósito, solo sale en Mes) y si quiere **cobro parcial** (hoy se cobra el importe entero; es otra fase).
-- **life-mcp aprendiendo `project`**: Josema lo autorizó el 2026-10-12 y está lanzado como
-  `job_mv5b7m7hegjp` sobre el proyecto **`compai`** (`life-mcp/`), fuera de este repo — filtro por
-  proyecto en la tool `finanzas`, tool nueva `finanzas_proyectos` y el bloque `projects` del contexto
-  pintado en texto. Solo lectura. Qué revisar cuando caiga: `docs/relevos/2026-10-12-conta-f5.md`.
+- **life-mcp ya entiende `project`** (fuera de este repo: proyecto **`compai`**, `life-mcp/`,
+  commit `e064f97`, 20 tests): filtro `proyecto` en la tool `finanzas`, tool nueva
+  `finanzas_proyectos` (un año por proyecto) y el bloque `projects` del contexto pintado en texto.
+  Solo lectura. Revisado a mano en `docs/relevos/2026-10-12-conta-f5.md`. **Falta el reinicio del
+  servicio** (`pm2 restart life-mcp`, solo por nombre) — lanzado como `job_mv5bv2bl92m9`; hasta que
+  salga en verde CompAI contesta con el código viejo. Y falta la línea en el `AGENTS.md`/`DECISIONES.md`
+  de `compai`, que solo puede escribir una sesión abierta ahí.
 - Límite conocido (no es regresión): un pufo marcado liquidado **desde Patrimonio** no genera ingreso, como
   siempre. Solo el botón "Cobrar" de Conta cierra el ciclo. Si confunde al usarlo, se unifica en otra fase.
 - Josema: probar la importación con un extracto REAL de su banco (N43 o CSV) — el parser solo se ha
