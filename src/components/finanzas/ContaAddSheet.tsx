@@ -5,6 +5,7 @@ import { useFinanceStore, fmt, CAT_META } from '@/stores/financeStore'
 import { useToast } from '@/stores/toast'
 import { parseEuroInput } from '@/lib/finance/money'
 import { PROJECTS, type ProjectId } from '@/lib/finance/projects'
+import { localISO } from '@/lib/finance/dates'
 import {
   buildContaEntry,
   defaultCategory,
@@ -120,6 +121,17 @@ export function ContaAddSheet({ open, onClose, activeProject, defaultDate }: Pro
   const cats = draft.kind === 'cobro' ? INCOME_CATS : draft.kind === 'gasto' ? EXPENSE_CATS : []
   const currentCategory = draft.category.trim() || defaultCategory(draft.kind)
 
+  // F3.1: con el filtro en "Todos" no hay proyecto elegido y la validación
+  // exige uno; enseñamos el selector arriba para no esconder la salida.
+  // Cuando sí hay proyecto activo, el selector vive en "Más opciones" (poder cambiarlo).
+  const showProjectAbove = draft.project === null
+
+  // F3.1: si la fecha por defecto no es hoy (mes visible ≠ mes actual) se enseña
+  // arriba para que Josema la vea y la corrija de un toque. Cuando es hoy, queda
+  // escondida — es el caso normal y no estorba.
+  const today = localISO()
+  const showDateAbove = draft.date !== today
+
   const projectSelector = useMemo(() => (
     <select className="inp" value={draft.project ?? ''} onChange={e => {
       const v = e.target.value
@@ -135,7 +147,14 @@ export function ContaAddSheet({ open, onClose, activeProject, defaultDate }: Pro
       <div style={{ padding: '0 20px 8px' }}>
         <ChipItems />
 
-        <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4 }}>Importe (€)</div>
+        {showProjectAbove && (
+          <>
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4 }}>Proyecto</div>
+            {projectSelector}
+          </>
+        )}
+
+        <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4, marginTop: showProjectAbove ? 10 : 4 }}>Importe (€)</div>
         <input
           ref={amountRef}
           className="inp"
@@ -160,6 +179,20 @@ export function ContaAddSheet({ open, onClose, activeProject, defaultDate }: Pro
           placeholder="Ej: Factura octubre, Servidor…"
           autoComplete="off"
         />
+
+        {showDateAbove && (
+          <>
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4, marginTop: 10 }}>Fecha</div>
+            <input
+              className="inp"
+              value={draft.date}
+              onChange={e => patch({ date: e.target.value })}
+              type="date"
+              style={{ fontSize: 13 }}
+            />
+            <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 4 }}>Se apunta en el mes que estás viendo</div>
+          </>
+        )}
 
         {draft.kind !== 'pendiente' && (
           <>
@@ -197,10 +230,18 @@ export function ContaAddSheet({ open, onClose, activeProject, defaultDate }: Pro
                 </select>
               </>
             )}
-            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4, marginTop: 8 }}>Proyecto</div>
-            {projectSelector}
-            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4, marginTop: 8 }}>Fecha</div>
-            <input className="inp" value={draft.date} onChange={e => patch({ date: e.target.value })} type="date" style={{ fontSize: 13 }} />
+            {!showProjectAbove && (
+              <>
+                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4, marginTop: 8 }}>Proyecto</div>
+                {projectSelector}
+              </>
+            )}
+            {!showDateAbove && (
+              <>
+                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4, marginTop: 8 }}>Fecha</div>
+                <input className="inp" value={draft.date} onChange={e => patch({ date: e.target.value })} type="date" style={{ fontSize: 13 }} />
+              </>
+            )}
           </div>
         )}
       </div>
