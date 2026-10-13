@@ -19,7 +19,14 @@ ingreso**. Ese botón ya existe y ya crea el `Tx income` con su proyecto, su fec
 movimiento de cuenta (`cobrarPufo` en el store, F4). Esta fase solo añade quién genera los
 pendientes.
 
-## Tests de aceptación (INTOCABLES, ya commiteados y en rojo)
+## Estado: el MOTOR YA ESTÁ HECHO (14/10, commit `d10ebaf`)
+`src/lib/finance/quotas.ts` existe y sus tests pasan: `dueQuotaPufos` y `quotaMonthlyTotal` con el
+rango `startDate`/`lastRun`→hoy, la idempotencia, el cinturón de duplicados por mes, el tope de 24
+y el redondeo de las anuales. `Pufo.quotaId?: number` ya está en `types.ts`.
+**Lo que queda de esta fase es todo lo demás**: la clave `finances_quotas` con su recargador, la
+generación al abrir Finanzas y la pantalla en Conta. El contrato del motor NO se toca.
+
+## Tests de aceptación (INTOCABLES)
 `src/lib/finance/quotas.test.ts`. No se edita ni una línea. Si algo parece imposible o
 contradictorio, se lee y se pregunta en el informe.
 
