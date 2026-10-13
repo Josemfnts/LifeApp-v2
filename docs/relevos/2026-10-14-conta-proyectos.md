@@ -73,14 +73,19 @@ los encargos llevan prohibido tocar cualquier cosa dentro de `.git`.
    peta**. Lo provocó mi propia ficha, que le prohibía tocar `conta.ts`; la prohibición queda
    levantada. Tests de aceptación en `src/lib/finance/conta-catalogo.test.ts` (`598fcd7`).
 
-### Lo que queda, en orden
-1. Que caiga `job_mv79o6h52v9a` y comprobar: `npm test` entero, que `PROJECTS`/`BASE_PROJECTS`
-   han desaparecido (dos listas en el mismo módulo divergen) y que la tabla del año incluye los
-   archivados con histórico.
-2. **Fase B**: el motor de cuotas ya está (`quotas.ts`, con sus 15 tests). Falta lo de
-   `encargo-B.md` que no es motor: clave `finances_quotas` + recargador, generación al abrir
-   Finanzas, pantalla de cuotas en Conta y el atajo "dar por cobrado lo anterior a este mes".
-3. **Fase C** en `compai`: `life-mcp` con `proyecto` libre (su enum de seis se queda corto en
-   cuanto Josema cree uno) y escritura de cuotas, para cargar las cifras dictándoselas a CompAI.
-4. Verificación a ojo en el móvil: nadie ha visto la pantalla nueva (el navegador MCP no pasa del
-   login y aquí no hay `node_modules` para arrancar la app).
+### Estado al cerrar (01:00 del 14/10)
+- **Fase A + A.1: HECHAS, integradas y publicadas** (`b39c7dc`). El arreglo de `conta.ts` está
+  revisado a mano: el orden de filas sale de `getProjectCatalog()` (incluye archivados, así un
+  proyecto archivado con histórico conserva su fila), `ensureRow(pid)` crea la fila al vuelo para
+  un id huérfano en vez de reventar, las etiquetas salen de `projectLabel` y **`PROJECTS` y
+  `BASE_PROJECTS` están borrados**: una sola fuente de verdad. **306/306 tests**, build limpio.
+- **Fase B: LANZADA** como `job_mv79u4ckrhen` (ficha `encargo-B.md`, ya actualizada a que el motor
+  está hecho). Lo que hace: clave `finances_quotas` + recargador, generación al abrir Finanzas,
+  pantalla de cuotas en Conta y el atajo "dar por cobrado lo anterior a este mes".
+  **Al recogerla hay que revisar**: (1) que el recargador de `finances_quotas` esté puesto
+  (invariante del espejo vivo), (2) que no se escriba ninguna clave cuando no hay nada que
+  generar, y (3) que el atajo de cobro masivo vaya con confirmación y ponga a cada ingreso la
+  fecha de SU mes, no la de hoy.
+- **Fase C: fichada, sin lanzar** — `encargo-C.md`, en el repo `compai`.
+- **Nadie lo ha visto a ojo**: el navegador MCP no pasa del login y aquí no hay `node_modules`.
+  La pantalla la tiene que mirar Josema, y conviene que lo haga **después** de que B entre.
