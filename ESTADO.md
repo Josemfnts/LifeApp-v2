@@ -30,6 +30,21 @@ Stack real: React 19 + Vite 8 + Zustand + Supabase (store_data key-value). Ver A
     está en "Lo siguiente".
 
 ## A medias
+- **Conta, segunda vuelta** (2026-10-14, plan en `.mapa/conta-proyectos/plan.md`): nace de lo que
+  pidió Josema ese día — registrar lo que cada cliente **tiene que** pagarle al mes, marcarlo
+  cobrado, y poder **crear proyectos** ("por ejemplo el de 3D").
+  - **Fase A — catálogo vivo** (clave `finances_projects`, alta/renombrar/archivar desde Conta,
+    `ProjectId` deja de ser unión literal): tests de aceptación commiteados en rojo (`99eb5c2`,
+    `src/lib/finance/projects-catalog.test.ts`) y **lanzada** como `job_mv78uwmtf266`.
+  - **Fase B — cuotas mensuales**: tests en rojo commiteados (`e7a7005`,
+    `src/lib/finance/quotas.test.ts`) y ficha en `encargo-B.md`. **Sin lanzar**: toca los mismos
+    ficheros que A, así que va después. Modelo: la cuota genera un pendiente, no un ingreso.
+  - **Fase C (repo `compai`)**: `life-mcp` valida el proyecto contra un enum de seis ids y se
+    queda corto en cuanto Josema cree uno; además su `gasto_add` no tiene `proyecto` y no sabe
+    escribir cuotas. Es la vía para cargarle las cifras sin teclear y sin pasar por el repo.
+  - Las cifras de sus clientes **no entran en este repo** (es público): viven en Supabase y en el
+    grafo de memoria (hechos #122558-#122560 del 14/10).
+
 - **Finanzas "Margen"** (2026-09-15): replicar todas las funciones de Margen en Finanzas.
   Plan y decisiones en `.mapa/finanzas-margen/` (mapa.md = indice, plan.md = fases F0-F6 con casillas,
   encargos/ = spec de cada fase lista para OpenCode).
