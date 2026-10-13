@@ -50,6 +50,7 @@ export interface Pufo {
   settled: boolean
   settledDate?: string
   txId?: number // si nace de un gasto compartido
+  quotaId?: number // si nace de una cuota mensual (F7): de qué cuota. Opcional.
   project?: ProjectId // Contabilidad: el pendiente va contra un proyecto; los de split siguen sin llevarlo
 }
 
