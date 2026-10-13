@@ -84,12 +84,17 @@ Stack real: React 19 + Vite 8 + Zustand + Supabase (store_data key-value). Ver A
 - **life-mcp ya entiende `project`** (fuera de este repo: proyecto **`compai`**, `life-mcp/`,
   commit `e064f97`, 20 tests): filtro `proyecto` en la tool `finanzas`, tool nueva
   `finanzas_proyectos` (un año por proyecto) y el bloque `projects` del contexto pintado en texto.
-  Solo lectura. Revisado a mano en `docs/relevos/2026-10-12-conta-f5.md`. **Falta el reinicio del
-  servicio y lo tiene que hacer Josema** (o CompAI/Hermes): `pm2 restart life-mcp`, solo por nombre.
-  `job_mv5bv2bl92m9` lo intentó y no pudo — el proceso vivo (pid 2851430, uptime 5 d) cuelga del
-  demonio de pm2 de josema y el del ejecutor no lo ve; otro job chocaría igual. Hasta ese reinicio,
-  CompAI contesta con el código viejo. Y falta la línea en el `AGENTS.md`/`DECISIONES.md` de `compai`,
-  que solo puede escribir una sesión abierta ahí.
+  Solo lectura. Revisado a mano en `docs/relevos/2026-10-12-conta-f5.md`. **Reiniciado y corriendo**
+  desde el 13/10 10:27 (`/health` 200). Aviso de dato, no de código: Josema **no tiene ningún
+  movimiento** en `finances_tx` y su `finances_context` es del 08/10 sin el bloque `projects`, así
+  que CompAI contestará "sin movimientos por proyecto" hasta que apunte el primer cobro en Conta
+  (el store reescribe el contexto 2 s después de un cambio, no al abrir). Sus 5 pendientes de
+  1.035 € no llevan `project` y **un pufo ya creado no se puede marcar** (solo los movimientos, con
+  `EditTxSheet`): candidato a fase siguiente. Falta también la línea en el `AGENTS.md`/`DECISIONES.md`
+  de `compai`, que solo puede escribir una sesión abierta ahí.
+  - Para la próxima tanda de life-mcp: el reinicio NO lo puede hacer un job de dev-mcp (su pm2 es
+    otro demonio; `job_mv5bv2bl92m9` lo intentó y falló con el contrato en verde) y se comprueba por
+    **uptime**, no por "el comando no dio error".
 - Límite conocido (no es regresión): un pufo marcado liquidado **desde Patrimonio** no genera ingreso, como
   siempre. Solo el botón "Cobrar" de Conta cierra el ciclo. Si confunde al usarlo, se unifica en otra fase.
 - Josema: probar la importación con un extracto REAL de su banco (N43 o CSV) — el parser solo se ha
