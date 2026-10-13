@@ -52,3 +52,35 @@ los encargos llevan prohibido tocar cualquier cosa dentro de `.git`.
 - Sus 5 pendientes vivos (1.035 €) son **dinero personal**: se quedan en "Otros", no se tocan.
 - Cuando A y B estén: 4 cuotas que registrar (o dictárselas a CompAI tras la fase C) y marcar
   cobrado agosto y septiembre; octubre de Clocks y Asensio está pendiente de verdad.
+
+---
+
+## Cierre de la tanda (madrugada del 14/10)
+**Integrado y publicado** (`d10ebaf`): catálogo vivo + `ProjectsSheet` + el motor `quotas.ts`,
+301 tests en verde. Dos cosas que hay que saber:
+
+1. **Mi error de proceso**: dejé los tests de la fase B (rojos) en el repo mientras el contrato de
+   la fase A era `npm test` entero, así que la suite tenía que fallar y el job salió "no-pasa" dos
+   veces. Al retomarlo, el ejecutor implementó `quotas.ts` para ponerla en verde — fuera de su
+   encargo, pero correcto. Lección: **los tests en rojo de una fase futura no se commitean si hay
+   un contrato `npm test` en vuelo**; o van en la misma tanda, o esperan.
+   El "tocó DECISIONES.md/ESTADO.md" del contrato era un falso positivo del rebase: esos cambios
+   eran míos.
+2. **Bug crítico que dejó la fase A, ya con arreglo lanzado** (`job_mv79o6h52v9a`): `conta.ts`
+   seguía iterando la constante `PROJECTS` (seis fijos) mientras `resolveProjectId` resuelve
+   contra el catálogo vivo, así que un movimiento de `3d` o de cualquier proyecto nuevo da un pid
+   que no está en la rejilla → `monthByProject[pid][idx]` sobre `undefined` → **la pestaña Conta
+   peta**. Lo provocó mi propia ficha, que le prohibía tocar `conta.ts`; la prohibición queda
+   levantada. Tests de aceptación en `src/lib/finance/conta-catalogo.test.ts` (`598fcd7`).
+
+### Lo que queda, en orden
+1. Que caiga `job_mv79o6h52v9a` y comprobar: `npm test` entero, que `PROJECTS`/`BASE_PROJECTS`
+   han desaparecido (dos listas en el mismo módulo divergen) y que la tabla del año incluye los
+   archivados con histórico.
+2. **Fase B**: el motor de cuotas ya está (`quotas.ts`, con sus 15 tests). Falta lo de
+   `encargo-B.md` que no es motor: clave `finances_quotas` + recargador, generación al abrir
+   Finanzas, pantalla de cuotas en Conta y el atajo "dar por cobrado lo anterior a este mes".
+3. **Fase C** en `compai`: `life-mcp` con `proyecto` libre (su enum de seis se queda corto en
+   cuanto Josema cree uno) y escritura de cuotas, para cargar las cifras dictándoselas a CompAI.
+4. Verificación a ojo en el móvil: nadie ha visto la pantalla nueva (el navegador MCP no pasa del
+   login y aquí no hay `node_modules` para arrancar la app).
