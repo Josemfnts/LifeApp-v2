@@ -3,13 +3,14 @@ import { ChipTabs, EmptyState, ConfirmDialog } from '@/components/ui'
 import { EditTxSheet } from './EditTxSheet'
 import { ContaAddSheet } from './ContaAddSheet'
 import { CobrarPufoSheet } from './CobrarPufoSheet'
+import { ProjectsSheet } from './ProjectsSheet'
 import { useFinanceStore, fmt } from '@/stores/financeStore'
 import { useToast } from '@/stores/toast'
 import { localISO, monthKeyOf } from '@/lib/finance/dates'
 import {
-  PROJECTS,
   PROJECT_FILTER_ALL,
-  isProjectId,
+  isActiveProjectId,
+  selectActiveProjects,
   type ProjectFilter,
   type ProjectId,
 } from '@/lib/finance/projects'
@@ -23,16 +24,19 @@ import { LOCAL_ONLY_KEYS } from '@/lib/storageKeys'
 
 // F5: el último proyecto filtrado se recuerda entre sesiones. Vive en LOCAL_ONLY_KEYS — es
 // una preferencia de UI (qué pestaña miraste la última vez), no un dato de usuario: no va a
-// la nube. Si el valor guardado no es un ProjectId válido ni 'all' (versión vieja, schema
-// cambiado), se arranca en 'all'. El mes NO se persiste: la vista Mes siempre abre en el
-// mes de hoy — volver en noviembre y encontrarte septiembre es peor que elegir el mes.
+// la nube. Si el valor guardado no es un ProjectId válido, o lo fue y se archivó, se
+// arranca en 'all' (un archivado no debe filtrar lo que ya no se ofrece para apuntar). El
+// mes NO se persiste: la vista Mes siempre abre en el mes de hoy — volver en noviembre y
+// encontrarte septiembre es peor que elegir el mes.
 const CONTA_PROJECT_KEY = LOCAL_ONLY_KEYS.conta_project
 
 function loadContaProject(): ProjectFilter {
   try {
     const raw = globalThis.localStorage?.getItem(CONTA_PROJECT_KEY)
     if (raw === PROJECT_FILTER_ALL) return PROJECT_FILTER_ALL
-    if (isProjectId(raw)) return raw
+    // isActiveProjectId lee el catálogo activo: si el id guardado ya no está activo
+    // (archivado o desaparecido), cae a 'all' en vez de seguir filtrando con un fantasma.
+    if (isActiveProjectId(raw)) return raw
   } catch {}
   return PROJECT_FILTER_ALL
 }
@@ -55,9 +59,11 @@ export function ContabilidadTab() {
   const [addOpen, setAddOpen] = useState(false)
   const [cobrarPufoId, setCobrarPufoId] = useState<number | null>(null)
   const [removePufoId, setRemovePufoId] = useState<number | null>(null)
+  const [projectsOpen, setProjectsOpen] = useState(false)
 
   const txs = useFinanceStore(s => s.txs)
   const pufos = useFinanceStore(s => s.pufos)
+  const projects = useFinanceStore(s => s.projects)
   const cobrarPufo = useFinanceStore(s => s.cobrarPufo)
   const removePufo = useFinanceStore(s => s.removePufo)
   const toast = useToast()
@@ -68,9 +74,10 @@ export function ContabilidadTab() {
     [txs, pufos, month, project, today],
   )
 
-  // Proyecto activo de la pestaña: si el filtro está en "Todos", null (la hoja pide elegir).
+  // Proyecto activo de la pestaña: si el filtro está en "Todos" o el id está archivado,
+  // null (la hoja pide elegir uno de los activos).
   const activeProject: ProjectId | null =
-    project !== PROJECT_FILTER_ALL && isProjectId(project) ? project : null
+    project !== PROJECT_FILTER_ALL && isActiveProjectId(project) ? project : null
 
   // Fecha por defecto del apunte: hoy si el mes visible es el de hoy; si no, día 1 del mes
   // visible — apuntar en el mes que se está mirando es lo que se espera.
@@ -87,9 +94,9 @@ export function ContabilidadTab() {
   const projectItems = useMemo(
     () => [
       { key: PROJECT_FILTER_ALL, label: 'Todos' },
-      ...PROJECTS.map(p => ({ key: p.id, label: p.label, color: p.color })),
+      ...selectActiveProjects(projects).map(p => ({ key: p.id, label: p.label, color: p.color })),
     ] as const,
-    [],
+    [projects],
   )
 
   const viewItems = [
@@ -126,6 +133,7 @@ export function ContabilidadTab() {
             onNext={() => monthView.nav.next && setMonth(monthView.nav.next)}
             onRowClick={id => id !== undefined && setEditTxId(id)}
             onAdd={() => setAddOpen(true)}
+            onManageProjects={() => setProjectsOpen(true)}
             onSettleRow={id => {
               if (id !== undefined) setCobrarPufoId(id)
             }}
@@ -202,6 +210,8 @@ export function ContabilidadTab() {
         }}
         onClose={() => setRemovePufoId(null)}
       />
+
+      <ProjectsSheet open={projectsOpen} onClose={() => setProjectsOpen(false)} />
     </div>
   )
 }
@@ -254,11 +264,12 @@ interface MonthViewProps {
   onNext: () => void
   onRowClick: (id: number | undefined) => void
   onAdd: () => void
+  onManageProjects: () => void
   onSettleRow: (id: number | undefined) => void
   onRemoveRow: (id: number | undefined) => void
 }
 
-function MonthView({ label, prev, next, stats, balanceAnio, blocks: blocksView, onPrev, onNext, onRowClick, onAdd, onSettleRow, onRemoveRow }: MonthViewProps) {
+function MonthView({ label, prev, next, stats, balanceAnio, blocks: blocksView, onPrev, onNext, onRowClick, onAdd, onManageProjects, onSettleRow, onRemoveRow }: MonthViewProps) {
   return (
     <>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '2px 0', marginBottom: 8 }}>
@@ -277,12 +288,20 @@ function MonthView({ label, prev, next, stats, balanceAnio, blocks: blocksView, 
           >›</button>
         </div>
         <div style={{ fontFamily: 'DM Serif Display, serif', fontSize: 18, color: 'var(--color-text)' }}>{label}</div>
-        <button
-          onClick={onAdd}
-          title="Apuntar al proyecto"
-          style={{ width: 32, height: 32, borderRadius: 9, background: 'var(--color-acc-gold)', border: 'none', color: '#111', fontSize: 18, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}
-          aria-label="Apuntar al proyecto"
-        >+</button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button
+            onClick={onManageProjects}
+            title="Gestionar proyectos"
+            style={{ width: 32, height: 32, borderRadius: 9, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-sub)', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+            aria-label="Gestionar proyectos"
+          >⚙</button>
+          <button
+            onClick={onAdd}
+            title="Apuntar al proyecto"
+            style={{ width: 32, height: 32, borderRadius: 9, background: 'var(--color-acc-gold)', border: 'none', color: '#111', fontSize: 18, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}
+            aria-label="Apuntar al proyecto"
+          >+</button>
+        </div>
       </div>
 
       <div className="stat-strip" style={{ marginBottom: 6 }}>
