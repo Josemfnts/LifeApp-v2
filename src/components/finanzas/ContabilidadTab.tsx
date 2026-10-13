@@ -4,6 +4,7 @@ import { EditTxSheet } from './EditTxSheet'
 import { ContaAddSheet } from './ContaAddSheet'
 import { CobrarPufoSheet } from './CobrarPufoSheet'
 import { ProjectsSheet } from './ProjectsSheet'
+import { QuotasSection } from './QuotasSection'
 import { useFinanceStore, fmt } from '@/stores/financeStore'
 import { useToast } from '@/stores/toast'
 import { localISO, monthKeyOf } from '@/lib/finance/dates'
@@ -129,6 +130,8 @@ export function ContabilidadTab() {
             stats={monthView.stats}
             balanceAnio={monthView.balanceAnio}
             blocks={monthView.blocks}
+            month={month}
+            projectFilter={project}
             onPrev={() => monthView.nav.prev && setMonth(monthView.nav.prev)}
             onNext={() => monthView.nav.next && setMonth(monthView.nav.next)}
             onRowClick={id => id !== undefined && setEditTxId(id)}
@@ -260,6 +263,8 @@ interface MonthViewProps {
   stats: ContaMonthStat[]
   balanceAnio: number
   blocks: ContaMonthBlock[]
+  month: string
+  projectFilter: ProjectFilter
   onPrev: () => void
   onNext: () => void
   onRowClick: (id: number | undefined) => void
@@ -269,7 +274,7 @@ interface MonthViewProps {
   onRemoveRow: (id: number | undefined) => void
 }
 
-function MonthView({ label, prev, next, stats, balanceAnio, blocks: blocksView, onPrev, onNext, onRowClick, onAdd, onManageProjects, onSettleRow, onRemoveRow }: MonthViewProps) {
+function MonthView({ label, prev, next, stats, balanceAnio, blocks: blocksView, month, projectFilter, onPrev, onNext, onRowClick, onAdd, onManageProjects, onSettleRow, onRemoveRow }: MonthViewProps) {
   return (
     <>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '2px 0', marginBottom: 8 }}>
@@ -315,6 +320,8 @@ function MonthView({ label, prev, next, stats, balanceAnio, blocks: blocksView, 
       <div style={{ fontSize: 11, color: 'var(--color-dim)', textAlign: 'right', marginBottom: 14 }}>
         Acumulado del año: {formatAmount(balanceAnio, 'auto')}
       </div>
+
+      <QuotasSection month={month} projectFilter={projectFilter} />
 
       {blocksView.map(b => (
         <section key={b.key} style={{ marginTop: 20 }}>

@@ -54,6 +54,7 @@ export const STORE_KEYS = {
   finances_recurring_dismissed: 'finances_recurring_dismissed',
   finances_context: 'finances_context',
   finances_projects: 'finances_projects',
+  finances_quotas: 'finances_quotas',
 
   lifeos_habits: 'lifeos_habits',
   lifeos_habits_log: 'lifeos_habits_log',

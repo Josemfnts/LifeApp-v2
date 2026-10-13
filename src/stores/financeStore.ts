@@ -24,6 +24,7 @@ import { buildSettlement } from '@/lib/finance/conta-settle'
 import { matchMerchant, learnMerchant, SEED_MERCHANTS, type Merchant } from '@/lib/finance/merchants'
 import { buildImportTxs, type ImportRecord, type ReviewedRow } from '@/lib/finance/import/apply'
 import type { CsvMapping } from '@/lib/finance/import/csv'
+import { dueQuotaPufos, type Quota } from '@/lib/finance/quotas'
 
 // Los comercios del usuario van primero: en empate de patrón, matchMerchant se queda con el
 // primero, así un override de usuario gana al seed.
@@ -45,6 +46,7 @@ function investmentTx(txs: Tx[], p: { type: 'income' | 'expense'; amount: number
 }
 
 export type { Tx, TxKind, Hucha, Pufo, Cuenta, Presupuesto, Recurrente } from '@/lib/finance/types'
+export type { Quota } from '@/lib/finance/quotas'
 import type { Tx, Hucha, Pufo, Cuenta, Presupuesto, Recurrente } from '@/lib/finance/types'
 
 export const CAT_META: Record<string, { icon: string; color: string; type: string }> = {
@@ -129,6 +131,18 @@ interface FinanceStore {
   addProject: (label: string, color?: string) => { ok: boolean; error?: string }
   renameProject: (id: string, label: string) => { ok: boolean; error?: string }
   archiveProject: (id: string, archived: boolean) => { ok: boolean; error?: string }
+  // Cuotas (Conta F7): lo que le TIENEN que pagar a Josema cada mes. Viven en finances_quotas
+  // y, al abrir Finanzas, generateDueQuotas crea los pendientes que faltan (Pufo me_debe con
+  // project y quotaId). El motor puro (dueQuotaPufos/quotaMonthlyTotal) decide qué entra; el
+  // store solo guarda ids y aplica los lastRun.
+  quotas: Quota[]
+  addQuota: (q: Omit<Quota, 'id' | 'lastRun'> & { id?: number }) => Quota
+  updateQuota: (id: number, partial: Partial<Quota>) => void
+  toggleQuotaActive: (id: number, active: boolean) => void
+  removeQuota: (id: number) => void
+  // Genera los pufos de las cuotas que tocan hasta hoy. Sin escrituras si nada cambia (si no,
+  // cada apertura mete ruido en el espejo vivo y CompAI).
+  generateDueQuotas: () => Pufo[]
   applyImport: (p: { cuenta: string; filename: string; format: 'n43' | 'csv'; rows: ReviewedRow[]; skipped: number }) => ImportRecord
   undoImport: (importId: string) => number
   saveImportMap: (bank: string, mapping: CsvMapping) => void
@@ -227,6 +241,7 @@ export const useFinanceStore = create<FinanceStore>((set, get) => {
     properties: loadFromStorage('finances_properties', [] as Property[]),
     recurringDismissed: loadFromStorage('finances_recurring_dismissed', [] as string[]),
     projects: loadFromStorage('finances_projects', [] as ProjectDef[]),
+    quotas: loadFromStorage('finances_quotas', [] as Quota[]),
 
     // ── Catálogo de proyectos (Conta) ─────────────────────────────────────────
     // Las funciones puras de projects.ts no mutan la entrada y devuelven {projects, error} (o
@@ -261,6 +276,79 @@ export const useFinanceStore = create<FinanceStore>((set, get) => {
       set({ projects: r.projects })
       setProjectCatalog(r.projects)
       return { ok: true }
+    },
+
+    // ── Cuotas (Conta F7) ───────────────────────────────────────────────────────
+    // Las cuotas son PURAS en el motor: addQuota/updateQuota solo aplican las decisiones del
+    // usuario (importe, periodicidad, día, desde…) y guardan. La generación de los pufos
+    // debidos se hace aparte, en generateDueQuotas, al abrir Finanzas (ver espejo vivo:
+    // recargador al final del módulo).
+    addQuota: (q) => {
+      const id = q.id ?? Date.now()
+      const next: Quota = {
+        id,
+        project: q.project,
+        amount: roundEuros(q.amount),
+        day: Math.min(31, Math.max(1, q.day)),
+        freq: q.freq ?? 'monthly',
+        startDate: q.startDate,
+        active: q.active,
+        ...(q.concept ? { concept: q.concept } : {}),
+      }
+      const quotas = [...get().quotas, next]
+      saveToStorage('finances_quotas', quotas)
+      set({ quotas })
+      return next
+    },
+
+    updateQuota: (id, partial) => {
+      const next = get().quotas.map(q => (q.id === id ? { ...q, ...partial, id } : q))
+      saveToStorage('finances_quotas', next)
+      set({ quotas: next })
+    },
+
+    toggleQuotaActive: (id, active) => {
+      const current = get().quotas.find(q => q.id === id)
+      if (!current || current.active === active) return
+      get().updateQuota(id, { active })
+    },
+
+    removeQuota: (id) => {
+      const next = get().quotas.filter(q => q.id !== id)
+      saveToStorage('finances_quotas', next)
+      set({ quotas: next })
+    },
+
+    // Convierte las ocurrencias pendientes de cada cuota en Pufo me_debe (con su project y
+    // quotaId). Mismo patrón que processRecurrentes: una sola escritura por clave afectada,
+    // y solo si hay trabajo real (si no, abrir la app 10 veces produce 10 escrituras vacías
+    // en el espejo vivo y CompAI lo nota).
+    generateDueQuotas: () => {
+      const today = localISO()
+      const run = dueQuotaPufos(get().quotas, get().pufos, today)
+      if (run.pufos.length === 0) {
+        // Ni pufos que crear, ni lastRun nuevos: nada que escribir.
+        if (Object.keys(run.lastRunByQuota).length === 0) return []
+      }
+      // ids únicos: mismo truco que en addTx (split) — Date.now() siempre por encima del
+      // máximo actual, +1 por cada pufo nuevo para que dos del mismo tick no colisionen.
+      let nextPufoId = Math.max(Date.now(), ...get().pufos.map(p => p.id + 1))
+      const newPufos: Pufo[] = run.pufos.map(p => ({ ...p, id: nextPufoId++ }))
+      const pufosAll = get().pufos.length === 0
+        ? [...newPufos]
+        : [...newPufos, ...get().pufos]
+      // Mantener el orden estable de la lista de Patrimonio: lo más reciente arriba.
+      pufosAll.sort((a, b) => (b.date ?? '').localeCompare(a.date ?? ''))
+      saveToStorage('finances_pufos', pufosAll)
+      // Si hay lastRun nuevos, los pisamos sobre los existentes (los demás no se tocan).
+      if (Object.keys(run.lastRunByQuota).length > 0) {
+        const quotas = get().quotas.map(q => (run.lastRunByQuota[q.id] ? { ...q, lastRun: run.lastRunByQuota[q.id] } : q))
+        saveToStorage('finances_quotas', quotas)
+        set({ quotas, pufos: pufosAll })
+      } else {
+        set({ pufos: pufosAll })
+      }
+      return newPufos
     },
 
     // ── Deudas ─────────────────────────────────────────────────────────────────
@@ -926,4 +1014,7 @@ onRemoteChange({
     useFinanceStore.setState({ projects: [...next] })
     setProjectCatalog(next)
   },
+  // Cuotas: clave nueva ⇒ recargador obligatorio. Sin esto, si CompAI toca una cuota en la
+  // nube (alta, edición, pause, baja), la app abierta no lo vería hasta recargar.
+  finances_quotas: () => useFinanceStore.setState({ quotas: loadFromStorage('finances_quotas', [] as Quota[]) }),
 })
