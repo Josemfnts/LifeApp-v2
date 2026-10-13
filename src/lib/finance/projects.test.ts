@@ -1,27 +1,35 @@
 // Tests de aceptación de F0 (Contabilidad por proyecto). Los escribe el arquitecto ANTES de
 // la implementación: fijan el contrato de src/lib/finance/projects.ts. No se editan.
+//
+// 14/10/2026 (F6): el catálogo dejó de ser fijo — ahora Josema crea sus proyectos y la lista
+// es un dato suyo. Lo que se comprueba aquí sigue valiendo TAL CUAL con el catálogo de fábrica
+// cargado, que es el que la app usa mientras no haya nada guardado. El contrato del catálogo
+// vivo (alta, renombrar, archivar) está en projects-catalog.test.ts.
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
-  PROJECTS,
+  DEFAULT_PROJECTS,
   OTHER_PROJECT,
   PROJECT_FILTER_ALL,
   isProjectId,
   projectLabel,
   resolveProjectId,
   matchesProjectFilter,
+  setProjectCatalog,
 } from './projects.ts'
 
-test('PROJECTS: los seis proyectos de Josema, en orden y con Otros al final', () => {
-  assert.deepEqual(PROJECTS.map(p => p.id), ['anantara', 'clocks', 'asensio', 'elevencuts', 'yatekomo', 'otros'])
-  assert.deepEqual(PROJECTS.map(p => p.label), ['Anantara', 'Clocks', 'Asensio', 'Elevencuts', 'Yatekomo', 'Otros'])
+setProjectCatalog(DEFAULT_PROJECTS)
+
+test('el catálogo de fábrica trae los cinco clientes, el de 3D y Otros al final', () => {
+  assert.deepEqual(DEFAULT_PROJECTS.map(p => p.id),
+    ['anantara', 'clocks', 'asensio', 'elevencuts', 'yatekomo', '3d', 'otros'])
   assert.equal(OTHER_PROJECT, 'otros')
-  assert.equal(PROJECTS[PROJECTS.length - 1].id, OTHER_PROJECT)
+  assert.equal(DEFAULT_PROJECTS[DEFAULT_PROJECTS.length - 1].id, OTHER_PROJECT)
 })
 
 test('PROJECT_FILTER_ALL no colisiona con ningún id de proyecto', () => {
   assert.equal(PROJECT_FILTER_ALL, 'all')
-  assert.ok(!PROJECTS.some(p => p.id === PROJECT_FILTER_ALL))
+  assert.ok(!DEFAULT_PROJECTS.some(p => p.id === PROJECT_FILTER_ALL))
 })
 
 test('isProjectId: solo los ids del catálogo', () => {
