@@ -1,6 +1,14 @@
 import { saveToStorage, loadFromStorage } from '@/lib/storage'
 import { create } from 'zustand'
 import { onRemoteChange } from '@/lib/mirror'
+import {
+  DEFAULT_PROJECTS,
+  addProject,
+  renameProject,
+  setProjectCatalog,
+  setProjectArchived,
+  type ProjectDef,
+} from '@/lib/finance/projects'
 import { addEuros, roundEuros, subEuros, sumEuros, toCents } from '@/lib/finance/money'
 import { nextPaymentSplit, simulateExtra, type Debt } from '@/lib/finance/debts'
 import { dueOccurrences } from '@/lib/finance/recurring'
@@ -107,6 +115,7 @@ interface FinanceStore {
   runDueDca: () => { done: string[]; skipped: string[] }
   debts: Debt[]
   properties: Property[]
+  projects: ProjectDef[]
   saveDebt: (d: Debt) => void
   removeDebt: (id: string) => void
   payDebt: (id: string, opts?: { date?: string; cuenta?: string }) => void
@@ -114,6 +123,12 @@ interface FinanceStore {
   saveProperty: (p: Property) => void
   removeProperty: (id: string) => void
   addValuation: (propertyId: string, v: Valuation) => void
+  // Catálogo vivo de proyectos (Conta). Lee/escribe en finances_projects y reinyecta el catálogo
+  // activo que usan los selectores y projectLabel/resolveProjectId (es estado del módulo en
+  // projects.ts: sin reinyectar, un addProject guardado no aparece hasta recargar la app).
+  addProject: (label: string, color?: string) => { ok: boolean; error?: string }
+  renameProject: (id: string, label: string) => { ok: boolean; error?: string }
+  archiveProject: (id: string, archived: boolean) => { ok: boolean; error?: string }
   applyImport: (p: { cuenta: string; filename: string; format: 'n43' | 'csv'; rows: ReviewedRow[]; skipped: number }) => ImportRecord
   undoImport: (importId: string) => number
   saveImportMap: (bank: string, mapping: CsvMapping) => void
@@ -211,6 +226,42 @@ export const useFinanceStore = create<FinanceStore>((set, get) => {
     debts: loadFromStorage('finances_debts', [] as Debt[]),
     properties: loadFromStorage('finances_properties', [] as Property[]),
     recurringDismissed: loadFromStorage('finances_recurring_dismissed', [] as string[]),
+    projects: loadFromStorage('finances_projects', [] as ProjectDef[]),
+
+    // ── Catálogo de proyectos (Conta) ─────────────────────────────────────────
+    // Las funciones puras de projects.ts no mutan la entrada y devuelven {projects, error} (o
+    // {project}). Aquí solo se aplica el resultado al store, se guarda y se reinyecta el
+    // catálogo activo para que projectLabel/resolveProjectId/activeProjects lo vean sin
+    // recargar la pestaña.
+    addProject: (label, color) => {
+      const current = get().projects
+      const r = addProject(current, label, color)
+      if (r.error) return { ok: false, error: r.error }
+      saveToStorage('finances_projects', r.projects)
+      set({ projects: r.projects })
+      setProjectCatalog(r.projects)
+      return { ok: true }
+    },
+    renameProject: (id, label) => {
+      const current = get().projects
+      const r = renameProject(current, id, label)
+      if (r.error) return { ok: false, error: r.error }
+      saveToStorage('finances_projects', r.projects)
+      set({ projects: r.projects })
+      setProjectCatalog(r.projects)
+      return { ok: true }
+    },
+    archiveProject: (id, archived) => {
+      const current = get().projects
+      const r = setProjectArchived(current, id, archived)
+      if (r.error) return { ok: false, error: r.error }
+      // No-op: si pidió el estado en el que ya está, no guardamos ni escribimos nada.
+      if (r.projects === current) return { ok: true }
+      saveToStorage('finances_projects', r.projects)
+      set({ projects: r.projects })
+      setProjectCatalog(r.projects)
+      return { ok: true }
+    },
 
     // ── Deudas ─────────────────────────────────────────────────────────────────
     saveDebt: (d) => {
@@ -842,6 +893,10 @@ export const useFinanceStore = create<FinanceStore>((set, get) => {
       get().recordSnapshot()
     },
   }
+  // Catálogo activo: si Josema no tiene nada guardado, usamos la semilla (los 5 clientes + 3D
+  // + Otros). Así los selectores pueden pintar antes de que el store termine de hidratar y
+  // sin tener que escribir la clave en localStorage en cada dispositivo nuevo.
+  setProjectCatalog(inner.projects.length > 0 ? inner.projects : DEFAULT_PROJECTS)
   return inner
 })
 
@@ -863,4 +918,12 @@ onRemoteChange({
   // Solo lo escribe la app (lo lee CompAI): no hay estado que recargar, se registra para cumplir el invariante.
   finances_context: () => {},
   finances_properties: () => useFinanceStore.setState({ properties: loadFromStorage('finances_properties', []) }),
+  // El catálogo de proyectos lo inyecta el store al arrancar; cada recarga del espejo vivo
+  // tiene que reinyectarlo también, si no los selectores no ven lo que CompAI acaba de crear.
+  finances_projects: () => {
+    const projects = loadFromStorage('finances_projects', [] as ProjectDef[])
+    const next = projects.length > 0 ? projects : DEFAULT_PROJECTS
+    useFinanceStore.setState({ projects: [...next] })
+    setProjectCatalog(next)
+  },
 })

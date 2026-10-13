@@ -10,7 +10,7 @@ import { matchMerchant, suggestCategory, type Merchant } from '@/lib/finance/mer
 import { SEED_MERCHANTS } from '@/lib/finance/merchants'
 import { MerchantAvatar } from './MerchantAvatar'
 import { SharePanel } from './SharePanel'
-import { PROJECTS, type ProjectId } from '@/lib/finance/projects'
+import { selectActiveProjects, type ProjectId } from '@/lib/finance/projects'
 
 interface Props {
   open: boolean
@@ -32,8 +32,12 @@ export function QuickAddSheet({ open, onClose }: Props) {
   const txs = useFinanceStore(s => s.txs)
   const cuentas = useFinanceStore(s => s.cuentas)
   const pufos = useFinanceStore(s => s.pufos)
+  const projects = useFinanceStore(s => s.projects)
   const addTx = useFinanceStore(s => s.addTx)
   const toast = useToast()
+  // Catálogo activo (sin archivados, Otros al final): se recalcula cuando el store cambia
+  // (Josema añadió uno, lo archivó, etc.) o cuando llega del espejo vivo.
+  const projectOptions = useMemo(() => selectActiveProjects(projects), [projects])
 
   const [type, setType] = useState<'income' | 'expense'>('expense')
   const [amount, setAmount] = useState('')
@@ -258,7 +262,7 @@ export function QuickAddSheet({ open, onClose }: Props) {
             <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4, marginTop: 8 }}>Proyecto</div>
             <select className="inp" value={project} onChange={e => setProject(e.target.value as ProjectId | '')}>
               <option value="">Sin proyecto</option>
-              {PROJECTS.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
+              {projectOptions.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
             </select>
             <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4, marginTop: 8 }}>Fecha</div>
             <input className="inp" value={date} onChange={e => setDate(e.target.value)} type="date" style={{ fontSize: 13 }} />

@@ -4,7 +4,7 @@ import { ChipTabs } from '@/components/ui/ChipTabs'
 import { useFinanceStore, fmt, CAT_META } from '@/stores/financeStore'
 import { useToast } from '@/stores/toast'
 import { parseEuroInput } from '@/lib/finance/money'
-import { PROJECTS, type ProjectId } from '@/lib/finance/projects'
+import { selectActiveProjects, type ProjectId } from '@/lib/finance/projects'
 import { localISO } from '@/lib/finance/dates'
 import {
   buildContaEntry,
@@ -37,9 +37,11 @@ const KIND_ITEMS = [
 
 export function ContaAddSheet({ open, onClose, activeProject, defaultDate }: Props) {
   const cuentas = useFinanceStore(s => s.cuentas)
+  const projects = useFinanceStore(s => s.projects)
   const addTx = useFinanceStore(s => s.addTx)
   const addPufo = useFinanceStore(s => s.addPufo)
   const toast = useToast()
+  const projectOptions = useMemo(() => selectActiveProjects(projects), [projects])
 
   const [draft, setDraft] = useState<ContaDraft>(() =>
     emptyDraft({ kind: 'cobro', project: activeProject, today: defaultDate }),
@@ -143,9 +145,9 @@ export function ContaAddSheet({ open, onClose, activeProject, defaultDate }: Pro
       patch({ project: (v ? v as ProjectId : null) })
     }}>
       <option value="">Sin proyecto</option>
-      {PROJECTS.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
+      {projectOptions.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
     </select>
-  ), [draft.project])
+  ), [draft.project, projectOptions])
 
   return (
     <Modal open={open} onClose={onClose} title="Apuntar al proyecto">

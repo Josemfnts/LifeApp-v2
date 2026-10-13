@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Modal } from '@/components/ui/Modal'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { useFinanceStore, CAT_META, fmt } from '@/stores/financeStore'
 import { useToast } from '@/stores/toast'
 import { parseEuroInput, roundEuros } from '@/lib/finance/money'
-import { PROJECTS, type ProjectId } from '@/lib/finance/projects'
+import { selectActiveProjects, type ProjectId } from '@/lib/finance/projects'
 
 interface Props {
   open: boolean
@@ -18,9 +18,11 @@ const EXPENSE_CATS = ['Vivienda', 'Alimentación', 'Transporte', 'Salud', 'Ocio'
 export function EditTxSheet({ open, onClose, txId }: Props) {
   const txs = useFinanceStore(s => s.txs)
   const cuentas = useFinanceStore(s => s.cuentas)
+  const projects = useFinanceStore(s => s.projects)
   const updateTxFull = useFinanceStore(s => s.updateTxFull)
   const removeTx = useFinanceStore(s => s.removeTx)
   const toast = useToast()
+  const projectOptions = useMemo(() => selectActiveProjects(projects), [projects])
   const tx = txId != null ? txs.find(t => t.id === txId) : undefined
 
   const [type, setType] = useState<'income' | 'expense'>('expense')
@@ -147,7 +149,7 @@ export function EditTxSheet({ open, onClose, txId }: Props) {
           ) : (
             <select className="inp" value={project} onChange={e => setProject(e.target.value as ProjectId | '')}>
               <option value="">Sin proyecto</option>
-              {PROJECTS.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
+              {projectOptions.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
             </select>
           )}
 
