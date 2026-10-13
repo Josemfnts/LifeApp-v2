@@ -127,7 +127,7 @@ export function ProjectsSheet({ open, onClose }: Props) {
             className="btn-primary"
             style={{
               background: newLabel.trim().length === 0 ? 'var(--color-s2)' : 'var(--color-acc-gold)',
-              color: newLabel.trim().length === 0 ? 'var(--color-dim)' : '#111',
+              color: newLabel.trim().length === 0 ? 'var(--color-dim)' : 'var(--color-bg)',
               cursor: newLabel.trim().length === 0 ? 'not-allowed' : 'pointer',
               padding: '0 16px',
             }}
