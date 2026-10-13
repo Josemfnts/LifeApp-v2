@@ -2,7 +2,7 @@ import { isFlow } from './flow.ts'
 import { flowAmount } from './split.ts'
 import { addEuros, subEuros } from './money.ts'
 import { monthKeyOf } from './dates.ts'
-import { PROJECTS, type ProjectFilter, type ProjectId, matchesProjectFilter, resolveProjectId } from './projects.ts'
+import { OTHER_PROJECT, getProjectCatalog, projectLabel, type ProjectFilter, type ProjectId, matchesProjectFilter, resolveProjectId } from './projects.ts'
 import type { Pufo, Tx } from './types.ts'
 
 type TxLike = Pick<Tx, 'id' | 'date' | 'amount' | 'type' | 'project' | 'kind' | 'split' | 'concept'>
@@ -176,10 +176,25 @@ export function contaYear(params: {
   const monthKeys: string[] = []
   for (let i = 0; i < 12; i++) monthKeys.push(`${year}-${String(i + 1).padStart(2, '0')}`)
 
-  const order = PROJECTS.map(p => p.id)
+  // Orden y rejilla: SALEN del catálogo vivo. Incluye archivados (un proyecto archivado con
+  // histórico conserva su fila en la tabla del año, lo decide la ficha de F6.1). El catálogo
+  // lo inyecta el store al arrancar; si nadie lo ha inyectado, contiene DEFAULT_PROJECTS.
+  const order = getProjectCatalog().map(p => p.id)
   const monthByProject: Record<ProjectId, ContaYearMonth[]> = {} as Record<ProjectId, ContaYearMonth[]>
   for (const pid of order) monthByProject[pid] = monthKeys.map(emptyMonth)
   const touched = new Set<ProjectId>()
+
+  // Crea la fila para un pid que no estaba en el catálogo (caso: un movimiento cuyo project
+  // resuelve a un id que ya no está, o a 'otros' por si las flys). Sin esto, el `idx` siguiente
+  // daba TypeError y la pestaña Conta se quedaba en blanco.
+  function ensureRow(pid: ProjectId): ContaYearMonth[] {
+    let row = monthByProject[pid]
+    if (!row) {
+      row = monthKeys.map(emptyMonth)
+      monthByProject[pid] = row
+    }
+    return row
+  }
 
   for (const t of txs) {
     if (t.date < yearStart) continue
@@ -188,7 +203,8 @@ export function contaYear(params: {
     const pid = resolveProjectId(t.project)
     if (!matchesFilter(filter, pid)) continue
     const idx = Number(monthKeyOf(t.date).slice(5, 7)) - 1
-    const cur = monthByProject[pid][idx]
+    const row = ensureRow(pid)
+    const cur = row[idx]
     const amount = flowAmount(t)
     const incCobrado = addEuros(cur.cobrado, amount)
     const incGastado = addEuros(cur.gastado, amount)
@@ -200,7 +216,7 @@ export function contaYear(params: {
       pendiente: cur.pendiente,
     }
     next.balance = subEuros(next.cobrado, next.gastado)
-    monthByProject[pid][idx] = next
+    row[idx] = next
     touched.add(pid)
   }
 
@@ -212,10 +228,17 @@ export function contaYear(params: {
     const pid = resolveProjectId(p.project)
     if (!matchesFilter(filter, pid)) continue
     const idx = Number(monthKeyOf(p.date).slice(5, 7)) - 1
+    monthByProject[pid] = ensureRow(pid)
     monthByProject[pid][idx] = addPending(monthByProject[pid][idx], p)
     touched.add(pid)
   }
 
+  // Las filas del año salen en el ORDEN del catálogo (archivados incluidos, su histórico se ve).
+  // Si un pid quedó tocado sin estar en el catálogo (lo creó ensureRow), se cuelga al final:
+  // son movimientos huérfanos cuyo `resolveProjectId` devolvió un id que ya no existe (caso
+  // raro: alguien manipuló activeList a mano o un movimiento apunta a un slug borrado).
+  // 'otros' ya está cubierto por su fila del catálogo, así que lo filtramos para no duplicar.
+  const catalogIds = new Set(order)
   const rows: ContaYearRow[] = []
   for (const pid of order) {
     if (!touched.has(pid)) continue
@@ -226,10 +249,26 @@ export function contaYear(params: {
       gastado = addEuros(gastado, m.gastado)
       pendiente = addEuros(pendiente, m.pendiente)
     }
-    const projMeta = PROJECTS.find(p => p.id === pid)
     rows.push({
       project: pid,
-      label: projMeta?.label ?? pid,
+      label: projectLabel(pid),
+      months,
+      total: { cobrado, gastado, balance: subEuros(cobrado, gastado), pendiente },
+    })
+  }
+  for (const pid of touched) {
+    if (catalogIds.has(pid)) continue
+    if (pid === OTHER_PROJECT) continue
+    const months = monthByProject[pid]
+    let cobrado = 0, gastado = 0, pendiente = 0
+    for (const m of months) {
+      cobrado = addEuros(cobrado, m.cobrado)
+      gastado = addEuros(gastado, m.gastado)
+      pendiente = addEuros(pendiente, m.pendiente)
+    }
+    rows.push({
+      project: pid,
+      label: projectLabel(pid),
       months,
       total: { cobrado, gastado, balance: subEuros(cobrado, gastado), pendiente },
     })

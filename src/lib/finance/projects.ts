@@ -26,31 +26,6 @@ export const DEFAULT_PROJECTS: readonly ProjectDef[] = [
   { id: 'otros', label: 'Otros' },
 ]
 
-// Catálogo base que usa `src/lib/finance/conta.ts` para ordenar las filas y resolver la
-// etiqueta de cada proyecto en la tabla del año. NO se toca en esta fase (la ficha prohíbe
-// editar `conta.ts`): cuando la contabilidad deba conocer proyectos creados por el usuario
-// (p. ej. la fase B de cuotas), este base se ampliará y se adaptarán los tests de `conta`.
-// Los seis originales coinciden con los seis primeros de `DEFAULT_PROJECTS` SIN contar '3d':
-// la contabilidad no sabe aún de 3D, así que su fila no aparece en la tabla del año (los
-// movimientos con project: '3d' se siguen viendo en el selector y en los selectores
-// individuales; solo no entran en la rejilla proyecto × mes, que es lo que la ficha dice:
-// "la contabilidad no cambia").
-const BASE_PROJECTS: readonly ProjectDef[] = [
-  { id: 'anantara', label: 'Anantara', color: 'var(--color-acc-blue)' },
-  { id: 'clocks', label: 'Clocks', color: 'var(--color-acc-gold)' },
-  { id: 'asensio', label: 'Asensio', color: 'var(--color-acc-purple)' },
-  { id: 'elevencuts', label: 'Elevencuts', color: 'var(--color-acc-orange)' },
-  { id: 'yatekomo', label: 'Yatekomo', color: 'var(--color-acc-green)' },
-  { id: 'otros', label: 'Otros' },
-]
-
-// `PROJECTS` se conserva con su firma anterior: `conta.ts` lo importa para construir el
-// orden de las filas del año y para resolver la etiqueta de cada proyecto. Mantener su
-// forma (los 6 originales, sin 3d) es lo que hace que `conta.test.ts` siga en verde sin
-// tocarlo. NO USAR `PROJECTS` para nada nuevo: el catálogo activo vive en este módulo y
-// se consulta con `getProjectCatalog()` / `activeProjects()`.
-export const PROJECTS: readonly ProjectDef[] = BASE_PROJECTS
-
 export const OTHER_PROJECT: ProjectId = 'otros'
 
 export const PROJECT_FILTER_ALL = 'all' as const
