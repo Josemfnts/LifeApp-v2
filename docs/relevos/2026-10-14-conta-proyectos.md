@@ -86,6 +86,20 @@ los encargos llevan prohibido tocar cualquier cosa dentro de `.git`.
   (invariante del espejo vivo), (2) que no se escriba ninguna clave cuando no hay nada que
   generar, y (3) que el atajo de cobro masivo vaya con confirmación y ponga a cada ingreso la
   fecha de SU mes, no la de hoy.
-- **Fase C: fichada, sin lanzar** — `encargo-C.md`, en el repo `compai`.
+- **Fase B: HECHA e integrada** (`finances_quotas` + recargador, generación al abrir Finanzas,
+  pantalla de Cuotas en Conta y el atajo de dar por cobrado lo anterior). Revisado a mano: el
+  recargador está puesto, no escribe la clave si no hay nada que generar y cada ingreso del cobro
+  masivo va con la fecha de su mes.
+- **Fase C: LANZADA** como `job_mv7s3bvrxg8h` sobre `compai` (ficha `encargo-C.md`): catálogo leído
+  de `finances_projects` en vez del enum de seis, y tools nuevas `cuota_set`, `cuota_listar` y
+  `pendiente_add` con escritura CAS. **Al recoger**: revisar los tests nuevos, escribir la línea de
+  memoria en el `AGENTS.md`/`DECISIONES.md` de compai (OpenCode no puede) y que **Josema** haga
+  `pm2 restart life-mcp` (solo por nombre; un job no puede, se comprueba por uptime).
+- **Los datos de Josema ya están cargados** (14/10, escritos por Claude con el Management API y
+  autorizados por él en el momento; NO están en el repo): `finances_tx` con los 8 cobros ya hechos
+  (780 € en 2026: Anantara 380, Elevencuts 250, Clocks 100, Asensio 50) y `finances_quotas` con las
+  4 cuotas (140 €/mes + 250 anuales). Los `lastRun` están puestos para que la app genere sola solo
+  lo que de verdad está pendiente: Clocks 50 y Asensio 25 de octubre. Los cobros van **sin cuenta**
+  (no mueven saldos ni descuadran el patrimonio) y los 5 pufos personales no se tocaron.
 - **Nadie lo ha visto a ojo**: el navegador MCP no pasa del login y aquí no hay `node_modules`.
   La pantalla la tiene que mirar Josema, y conviene que lo haga **después** de que B entre.
