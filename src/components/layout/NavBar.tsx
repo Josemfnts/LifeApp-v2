@@ -1,4 +1,13 @@
 import { NavLink, useNavigate } from 'react-router-dom'
+import { CalendarDays, Zap, House, UtensilsCrossed, Euro } from 'lucide-react'
+
+const ITEMS = [
+  { to: '/agenda',     label: 'Agenda',   Icon: CalendarDays    },
+  { to: '/fisico',     label: 'Físico',   Icon: Zap             },
+  { to: '/',           label: 'Inicio',   Icon: House           },
+  { to: '/nutricion',  label: 'Nutrición',Icon: UtensilsCrossed },
+  { to: '/finanzas',   label: 'Finanzas', Icon: Euro            },
+] as const
 
 export function NavBar() {
   const navigate = useNavigate()
@@ -12,35 +21,27 @@ export function NavBar() {
   }
 
   return (
-    <nav className="nav-bar">
-      <NavLink to="/agenda" onClick={go('/agenda')} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-        Agenda
-      </NavLink>
-      <NavLink to="/fisico" onClick={go('/fisico')} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-        </svg>
-        Físico
-      </NavLink>
-      <NavLink to="/" onClick={go('/')} className="nav-center">
-        <div className="nav-home">👤</div>
-        <div className="nav-center-label">Inicio</div>
-      </NavLink>
-      <NavLink to="/nutricion" onClick={go('/nutricion')} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        Nutrición
-      </NavLink>
-      <NavLink to="/finanzas" onClick={go('/finanzas')} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        Finanzas
-      </NavLink>
-    </nav>
+    <div className="nav-wrap" data-nav-hidden-target>
+      <nav className="nav-bar" aria-label="Navegación principal">
+        {ITEMS.map(({ to, label, Icon }) => (
+          <NavLink
+            key={to}
+            to={to}
+            onClick={go(to)}
+            end={to === '/'}
+            className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}
+            aria-label={label}
+            aria-current={undefined}
+          >
+            {({ isActive }) => (
+              <>
+                <Icon aria-hidden="true" />
+                <span aria-current={isActive ? 'page' : undefined}>{label}</span>
+              </>
+            )}
+          </NavLink>
+        ))}
+      </nav>
+    </div>
   )
 }

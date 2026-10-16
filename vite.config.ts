@@ -10,13 +10,13 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.png', 'apple-touch-icon.png'],
+      includeAssets: ['favicon.png', 'apple-touch-icon.png', 'fonts/*.woff2'],
       manifest: {
         name: 'Life OS',
         short_name: 'Life OS',
         description: 'Tu sistema de vida personal',
-        theme_color: '#111318',
-        background_color: '#000000',
+        theme_color: '#F4F3EB',
+        background_color: '#F4F3EB',
         display: 'standalone',
         orientation: 'portrait',
         start_url: '/',
@@ -36,18 +36,6 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,woff2}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: { cacheName: 'google-fonts', expiration: { maxEntries: 4, maxAgeSeconds: 365 * 24 * 3600 } },
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: { cacheName: 'google-fonts-static', expiration: { maxEntries: 4, maxAgeSeconds: 365 * 24 * 3600 } },
-          },
-        ],
       },
     }),
   ],

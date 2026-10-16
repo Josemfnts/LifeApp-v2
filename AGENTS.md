@@ -299,6 +299,27 @@ proyecto (Anantara · Clocks · Asensio · Elevencuts · Yatekomo · Otros) y me
 - Diálogos de Conta: en el estado de React vive el **id** de la fila, nunca su índice (el espejo vivo puede
   recargar `finances_pufos` con el diálogo abierto). Regla general del repo, no solo de aquí.
 
+## Rediseño visual IMPULSO (2026-10-16, base entregada, fases 2-4 pendientes)
+Aplica la guía `Guia_Visual/CLAUDE-PROMPT.md` y capturas 01-10 al shell real sin tocar persistencia ni motores.
+- **Tipografía**: Inter (texto) + Space Grotesk (display) en `public/fonts/` con OFL;
+  `@font-face` en `globals.css`. `--font-serif` queda alias del display para compat.
+- **Tema por defecto cream** (`#F4F3EB` papel, `#181B10` tinta, `#FFFFFF` superficie, `#C9F43C` volt).
+  Tokens nuevos: `--color-volt`, `--color-ink`, `--color-on-accent`, `--color-on-primary`. Las preferencias
+  `lifeos_theme_v2` válidas (onyx/cream/abyss) se respetan; sin preferencia previa → cream.
+- **Físico nocturno** SIN cambiar la preferencia: `Shell` aplica `data-surface="fitness"` en
+  `<html>` cuando `pathname` empieza por `/fisico`. Las portales a body (`.nav-wrap`, modales,
+  toast) heredan el ámbito por selector `[data-surface="fitness"]` en `globals.css`. Limpieza
+  al salir y al desmontar.
+- **NavBar flotante** cinco destinos equivalentes (CalendarDays / Zap / House / UtensilsCrossed /
+  Euro de lucide-react), todos `aria-current="page"` cuando activos, targets ≥44 px,
+  inset 12-16 + safe-area, max-width 480-520 px en escritorio. El ocultado por scroll se
+  aplica al wrapper `.nav-wrap` (no al `.nav-bar`) para no romper el centrado horizontal.
+- **CTA claro** = tinta con texto blanco; **CTA fitness** = lima con texto tinta. Nunca lima
+  como texto pequeño sobre blanco. Inputs ≥16 px (sin zoom iOS).
+- **Cards 24 px** radio + `--shadow-impulso` (3 sombras suaves) + display en titulares 28-32 px.
+- **Selección** lima/55%, **foco visible** lima 2 px, **reduced-motion** apaga animaciones existentes.
+- **Sin carcasa iPhone, isla dinámica, clima/push simulados** ni datos del showcase como reales.
+
 ## Gotchas
 - **`NODE_ENV=production` en el entorno de esta máquina** (lo ve OpenCode): `npm ci`/`npm install` a secas
   OMITEN las devDependencies (vite, typescript, oxlint…) y el build se rompe. Instala SIEMPRE con

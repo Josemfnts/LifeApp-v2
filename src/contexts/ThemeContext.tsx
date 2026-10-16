@@ -4,7 +4,7 @@ type Theme = 'onyx' | 'cream' | 'abyss'
 
 interface ThemeState { theme: Theme; set: (t: Theme) => void }
 
-const ThemeContext = createContext<ThemeState>({ theme: 'onyx', set: () => {} })
+const ThemeContext = createContext<ThemeState>({ theme: 'cream', set: () => {} })
 
 // Acentos oscuros (onyx/abyss) y su variante ajustada para fondo claro (cream),
 // con más profundidad para mantener contraste sobre papel.
@@ -28,10 +28,10 @@ const THEMES: Record<Theme, Record<string, string>> = {
     ...DARK_ACCENTS,
   },
   cream: {
-    '--color-bg': '#f2efe9', '--color-s1': '#ffffff', '--color-s2': '#ece7df', '--color-s3': '#e3ddd2',
-    '--color-border': 'rgba(28,24,18,0.09)', '--color-border2': 'rgba(28,24,18,0.15)',
-    '--color-text': '#211e19', '--color-sub': '#6d685f', '--color-dim': '#a8a298',
-    '--color-glass': 'rgba(246,243,237,0.85)',
+    '--color-bg': '#F4F3EB', '--color-s1': '#FFFFFF', '--color-s2': '#ECE7DF', '--color-s3': '#E3DDD2',
+    '--color-border': 'rgba(24,27,16,0.08)', '--color-border2': 'rgba(24,27,16,0.14)',
+    '--color-text': '#181B10', '--color-sub': '#4A4E3C', '--color-dim': '#8A8B7E',
+    '--color-glass': 'rgba(244,243,235,0.82)',
     ...LIGHT_ACCENTS,
   },
   abyss: {
@@ -55,7 +55,9 @@ export type { Theme }
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => {
     const saved = localStorage.getItem('lifeos_theme_v2')
-    return (saved === 'cream' || saved === 'abyss' ? saved : 'onyx') as Theme
+    // Nuevas instalaciones → cream (experiencia por defecto del rediseño IMPULSO).
+    // Las preferencias guardadas válidas (onyx/cream/abyss) se respetan.
+    return (saved === 'onyx' || saved === 'cream' || saved === 'abyss' ? saved : 'cream') as Theme
   })
 
   useEffect(() => {

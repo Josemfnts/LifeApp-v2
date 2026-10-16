@@ -15,7 +15,7 @@ Referencia vinculante: Guia_Visual/CLAUDE-PROMPT.md y capturas 01–10. El showc
 
 ## Entregas
 
-- [ ] Base visual: tokens, tipografía, temas, shell, navegación y componentes comunes.
+- [x] Base visual (2026-10-16): tokens, tipografía, temas, shell, navegación y componentes comunes.
 - [ ] Inicio y Agenda: nueva jerarquía y componentes usando datos y acciones reales.
 - [ ] Físico y Nutrición: aplicación de las capturas a estados y flujos existentes.
 - [ ] Finanzas y cobertura: seis pestañas, Hábitos, Comunidad, Notas y Login.

@@ -13,9 +13,10 @@ export function Card({ children, className, onClick, padded }: CardProps) {
     <div
       onClick={onClick}
       className={clsx(
-        'bg-[var(--color-s1)] border border-[var(--color-border)] rounded-2xl overflow-hidden',
-        padded && 'p-4',
-        onClick && 'cursor-pointer transition-colors duration-200 active:bg-white/[0.03]',
+        'bg-[var(--color-s1)] border border-[var(--color-border)] rounded-3xl overflow-hidden',
+        'shadow-[var(--shadow-impulso)]',
+        padded && 'p-5',
+        onClick && 'cursor-pointer transition-colors duration-200 active:bg-[color-mix(in_srgb,var(--color-ink)_4%,transparent)]',
         className
       )}
     >
