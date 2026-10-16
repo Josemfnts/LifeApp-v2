@@ -433,7 +433,7 @@ function DishesTab() {
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: showCreator ? 12 : 0 }}>
           <div className="sec-label" style={{ marginBottom: 0 }}>{showCreator ? 'Crear plato' : 'Mis platos'}</div>
           <button onClick={() => setShowCreator(!showCreator)}
-            style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', background: 'none', border: 'none', fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>
+            style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', background: 'none', border: 'none', fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>
             {showCreator ? '↑ Contraer' : '+ Crear plato'}
           </button>
         </div>
@@ -481,10 +481,10 @@ function DishesTab() {
           <input className="inp" value={maxTimeFilter} onChange={e => setMaxTimeFilter(e.target.value)} type="number" placeholder="Max min" style={{ width: 70, marginBottom: 0 }} />
         </div>
         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 8 }}>
-          <button onClick={() => setTagFilter('')} style={{ padding: '3px 8px', borderRadius: 99, fontSize: 10, fontWeight: 600, cursor: 'pointer', border: '1px solid', background: !tagFilter ? 'rgba(82,183,136,0.15)' : 'var(--color-s2)', color: !tagFilter ? 'var(--color-acc-green)' : 'var(--color-dim)', borderColor: !tagFilter ? 'rgba(82,183,136,0.3)' : 'var(--color-border)', fontFamily: 'DM Sans,sans-serif' }}>Todas</button>
+          <button onClick={() => setTagFilter('')} style={{ padding: '3px 8px', borderRadius: 99, fontSize: 10, fontWeight: 600, cursor: 'pointer', border: '1px solid', background: !tagFilter ? 'rgba(82,183,136,0.15)' : 'var(--color-s2)', color: !tagFilter ? 'var(--color-acc-green)' : 'var(--color-dim)', borderColor: !tagFilter ? 'rgba(82,183,136,0.3)' : 'var(--color-border)', fontFamily: 'var(--font-sans)' }}>Todas</button>
           {RECIPE_TAGS.slice(0, 12).map(t => (
             <button key={t} onClick={() => setTagFilter(t === tagFilter ? '' : t)}
-              style={{ padding: '3px 8px', borderRadius: 99, fontSize: 10, fontWeight: 600, cursor: 'pointer', border: '1px solid', background: tagFilter === t ? 'rgba(82,183,136,0.15)' : 'var(--color-s2)', color: tagFilter === t ? 'var(--color-acc-green)' : 'var(--color-dim)', borderColor: tagFilter === t ? 'rgba(82,183,136,0.3)' : 'var(--color-border)', fontFamily: 'DM Sans,sans-serif' }}>{t.replace(/_/g, ' ')}</button>
+              style={{ padding: '3px 8px', borderRadius: 99, fontSize: 10, fontWeight: 600, cursor: 'pointer', border: '1px solid', background: tagFilter === t ? 'rgba(82,183,136,0.15)' : 'var(--color-s2)', color: tagFilter === t ? 'var(--color-acc-green)' : 'var(--color-dim)', borderColor: tagFilter === t ? 'rgba(82,183,136,0.3)' : 'var(--color-border)', fontFamily: 'var(--font-sans)' }}>{t.replace(/_/g, ' ')}</button>
           ))}
         </div>
         <input className="inp" value={searchFilter} onChange={e => setSearchFilter(e.target.value)} placeholder="🔍 Buscar receta..." style={{ marginBottom: 0 }} />
@@ -493,7 +493,7 @@ function DishesTab() {
       {filteredRecipes.map(r => (
         <div key={r.id} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, marginBottom: 8 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
-            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 17, color: 'var(--color-text)' }}>{r.nombre}</div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 17, color: 'var(--color-text)' }}>{r.nombre}</div>
             <div style={{ display: 'flex', gap: 4 }}>
               {r.etiquetas.slice(0, 3).map(t => (
                 <span key={t} style={{ fontSize: 9, fontWeight: 600, padding: '2px 6px', borderRadius: 4, background: 'rgba(82,183,136,0.1)', color: 'var(--color-acc-green)', whiteSpace: 'nowrap' }}>{t.replace(/_/g, ' ')}</span>
@@ -526,7 +526,7 @@ function DishesTab() {
               }
               toast.show(`✓ "${r.nombre}" añadido al diario`)
             }}
-              style={{ flex: 1, padding: 8, borderRadius: 10, background: 'rgba(82,183,136,0.1)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.2)', fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>Usar en diario</button>
+              style={{ flex: 1, padding: 8, borderRadius: 10, background: 'rgba(82,183,136,0.1)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.2)', fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>Usar en diario</button>
           </div>
         </div>
       ))}
@@ -536,7 +536,7 @@ function DishesTab() {
 
       {dishes.map(d => (
         <div key={d.id} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, marginBottom: 8, position: 'relative' }}>
-          <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 17, color: 'var(--color-text)', marginBottom: 4 }}>{d.name}</div>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 17, color: 'var(--color-text)', marginBottom: 4 }}>{d.name}</div>
           <div style={{ fontSize: 12, color: 'var(--color-sub)', marginBottom: 10 }}>{d.totalKcal} kcal · P:{d.totalP}g C:{d.totalC}g G:{d.totalF}g · {d.ingredients.length} ingredientes</div>
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={() => {
@@ -548,7 +548,7 @@ function DishesTab() {
               }))
               toast.show(`✓ "${d.name}" añadido al diario`)
             }}
-              style={{ flex: 1, padding: 8, borderRadius: 10, background: 'rgba(82,183,136,0.1)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.2)', fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>Usar en diario</button>
+              style={{ flex: 1, padding: 8, borderRadius: 10, background: 'rgba(82,183,136,0.1)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.2)', fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>Usar en diario</button>
             <button title="Compartir en comunidad" onClick={() => setSharePost(dishToPost(d))}
               style={{ width: 36, borderRadius: 10, background: 'color-mix(in srgb, var(--color-acc-purple) 12%, transparent)', color: 'var(--color-acc-purple)', border: '1px solid color-mix(in srgb, var(--color-acc-purple) 22%, transparent)', fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>↗</button>
             <button onClick={() => { removeDish(d.id); toast.show('Plato eliminado') }}
@@ -697,7 +697,7 @@ function SearchTab() {
         <button onClick={searchOnline} disabled={loading} className="btn-ghost" style={{ flex: 1, padding: '8px 12px', fontSize: 13, color: 'var(--color-blue)', borderColor: 'rgba(91,138,240,0.3)' }}>
           {loading ? '🔍 Buscando...' : '🌐 Buscar en OpenFoodFacts'}
         </button>
-        <button onClick={() => setShowBarcode(!showBarcode)} style={{ padding: '8px 12px', borderRadius: 12, fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid rgba(82,183,136,0.2)', background: 'rgba(82,183,136,0.08)', color: 'var(--color-acc-green)' }}>📷 Escanear</button>
+        <button onClick={() => setShowBarcode(!showBarcode)} style={{ padding: '8px 12px', borderRadius: 12, fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', border: '1px solid rgba(82,183,136,0.2)', background: 'rgba(82,183,136,0.08)', color: 'var(--color-acc-green)' }}>📷 Escanear</button>
       </div>
       {showBarcode && (
         <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
@@ -706,10 +706,10 @@ function SearchTab() {
             <div style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', marginBottom: 10 }}>
               <video ref={videoRef} style={{ width: '100%', borderRadius: 12, display: 'block' }} playsInline muted />
               <div style={{ position: 'absolute', inset: 0, border: '2px solid rgba(82,183,136,0.5)', borderRadius: 12, pointerEvents: 'none' }} />
-              <button onClick={stopCamera} style={{ position: 'absolute', bottom: 10, left: '50%', transform: 'translateX(-50%)', padding: '8px 20px', borderRadius: 99, background: 'rgba(0,0,0,0.7)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>✕ Cancelar</button>
+              <button onClick={stopCamera} style={{ position: 'absolute', bottom: 10, left: '50%', transform: 'translateX(-50%)', padding: '8px 20px', borderRadius: 99, background: 'rgba(0,0,0,0.7)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>✕ Cancelar</button>
             </div>
           ) : (
-            <button onClick={startCameraScan} style={{ width: '100%', padding: 16, borderRadius: 12, background: 'var(--color-s2)', border: '1px dashed var(--color-border)', color: 'var(--color-sub)', fontSize: 14, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', marginBottom: 10 }}>
+            <button onClick={startCameraScan} style={{ width: '100%', padding: 16, borderRadius: 12, background: 'var(--color-s2)', border: '1px dashed var(--color-border)', color: 'var(--color-sub)', fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', marginBottom: 10 }}>
               📷 Abrir cámara
             </button>
           )}
@@ -756,14 +756,14 @@ function FoodResultRow({ food, isFav, onToggleFav, onAdd }: {
       <div style={{ fontSize: 12, color: 'var(--color-sub)', marginBottom: 10 }}>100g: {food.kcal} kcal | P:{food.p}g C:{food.c}g G:{food.f}g</div>
       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
         <input value={grams} onChange={e => setGrams(e.target.value)} type="number" inputMode="numeric"
-          style={{ width: 70, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-text)', borderRadius: 10, padding: '8px 10px', fontSize: 14, fontFamily: 'DM Sans,sans-serif', outline: 'none', textAlign: 'center' }} />
+          style={{ width: 70, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-text)', borderRadius: 10, padding: '8px 10px', fontSize: 14, fontFamily: 'var(--font-sans)', outline: 'none', textAlign: 'center' }} />
         <span style={{ fontSize: 12, color: 'var(--color-dim)' }}>g</span>
         <div style={{ flex: 1, textAlign: 'right' }}>
-          <span style={{ fontFamily: 'DM Serif Display,serif', fontSize: 20, fontStyle: 'italic', color: 'var(--color-acc-green)' }}>{k}</span>
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontStyle: 'italic', color: 'var(--color-acc-green)' }}>{k}</span>
           <span style={{ fontSize: 12, color: 'var(--color-dim)' }}> kcal</span>
         </div>
         <button onClick={() => onAdd(g || 100)}
-          style={{ padding: '8px 18px', borderRadius: 10, background: 'rgba(82,183,136,0.1)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.2)', fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>Añadir</button>
+          style={{ padding: '8px 18px', borderRadius: 10, background: 'rgba(82,183,136,0.1)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.2)', fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>Añadir</button>
       </div>
     </div>
   )
@@ -894,7 +894,7 @@ function GoalsTab() {
         <div style={{ background: 'var(--color-s2)', borderRadius: 12, padding: 12, marginBottom: 10 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
             <span style={{ fontSize: 12, color: 'var(--color-dim)' }}>Gasto (TDEE) {est.tdee} kcal</span>
-            <span style={{ fontFamily: 'DM Serif Display,serif', fontSize: 24, color: 'var(--color-acc-green)' }}>{est.kcal} kcal</span>
+            <span style={{ fontFamily: 'var(--font-display)', fontSize: 24, color: 'var(--color-acc-green)' }}>{est.kcal} kcal</span>
           </div>
           <div style={{ display: 'flex', gap: 12, fontSize: 12, color: 'var(--color-sub)' }}>
             <span style={{ color: 'var(--color-acc-blue)', fontWeight: 600 }}>P {est.p}g</span>
@@ -931,7 +931,7 @@ function GoalsTab() {
                 title={`${meta.hint} (${sem} sem)`}
                 style={{ flex: '1 1 45%', minWidth: 120, padding: '8px 10px', borderRadius: 10, cursor: 'pointer', textAlign: 'left',
                   border: `1px solid ${active ? meta.color : 'var(--color-border)'}`,
-                  background: active ? `color-mix(in srgb, ${meta.color} 14%, transparent)` : 'var(--color-s2)', fontFamily: 'DM Sans,sans-serif' }}>
+                  background: active ? `color-mix(in srgb, ${meta.color} 14%, transparent)` : 'var(--color-s2)', fontFamily: 'var(--font-sans)' }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: meta.color }}>{meta.label} · {kg} kg/sem</div>
                 <div style={{ fontSize: 10, color: 'var(--color-dim)' }}>{sem} semanas</div>
               </button>
@@ -942,7 +942,7 @@ function GoalsTab() {
         <div style={{ background: 'var(--color-s2)', borderRadius: 12, padding: 12, marginBottom: 10 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
             <span style={{ fontSize: 12, color: 'var(--color-dim)' }}>Déficit diario</span>
-            <span style={{ fontFamily: 'DM Serif Display,serif', fontSize: 22, color: RITMO_META[deficit.ritmo].color }}>−{deficit.deficitDiario} kcal</span>
+            <span style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: RITMO_META[deficit.ritmo].color }}>−{deficit.deficitDiario} kcal</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--color-sub)', marginTop: 4 }}>
             <span>Objetivo: <b style={{ color: 'var(--color-text)' }}>{deficit.kcalObjetivo} kcal</b></span>
@@ -991,7 +991,7 @@ function GoalsTab() {
             const active = dietConfig.fastingPreset === fp.preset
             return (
               <button key={fp.preset} onClick={() => setDietConfig({ fastingPreset: fp.preset, fastingWindowHours: windowHoursForPreset(fp.preset, dietConfig.fastingWindowHours) })}
-                style={{ padding: '6px 12px', borderRadius: 99, fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer',
+                style={{ padding: '6px 12px', borderRadius: 99, fontSize: 12, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer',
                   border: `1px solid ${active ? 'rgba(91,138,240,0.4)' : 'var(--color-border)'}`,
                   background: active ? 'rgba(91,138,240,0.12)' : 'var(--color-s2)', color: active ? 'var(--color-blue)' : 'var(--color-dim)' }}>
                 {fp.label}
@@ -1233,7 +1233,7 @@ function PlanTab() {
             const active = dietConfig.numMeals === n
             return (
               <button key={n} onClick={() => setDietConfig({ numMeals: n, mealPcts: [] })}
-                style={{ flex: 1, minWidth: 44, padding: '8px 0', borderRadius: 10, fontSize: 13, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer',
+                style={{ flex: 1, minWidth: 44, padding: '8px 0', borderRadius: 10, fontSize: 13, fontWeight: 700, fontFamily: 'var(--font-sans)', cursor: 'pointer',
                   border: `1px solid ${active ? 'rgba(82,183,136,0.4)' : 'var(--color-border)'}`,
                   background: active ? 'rgba(82,183,136,0.14)' : 'var(--color-s2)', color: active ? 'var(--color-acc-green)' : 'var(--color-dim)' }}>
                 {n === 1 ? 'OMAD' : n}
@@ -1248,7 +1248,7 @@ function PlanTab() {
             const active = dietConfig.distribucion === preset && dietConfig.mealPcts.length === 0
             return (
               <button key={preset} onClick={() => setDietConfig({ distribucion: preset, mealPcts: [] })}
-                style={{ padding: '6px 12px', borderRadius: 99, fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer',
+                style={{ padding: '6px 12px', borderRadius: 99, fontSize: 12, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer',
                   border: `1px solid ${active ? 'rgba(82,183,136,0.4)' : 'var(--color-border)'}`,
                   background: active ? 'rgba(82,183,136,0.12)' : 'var(--color-s2)', color: active ? 'var(--color-acc-green)' : 'var(--color-dim)' }}>
                 {DISTRIBUCION_LABELS[preset]}
@@ -1287,7 +1287,7 @@ function PlanTab() {
                 const set = active ? dietConfig.trainingDays.filter(x => x !== d) : [...dietConfig.trainingDays, d]
                 setDietConfig({ trainingDays: set })
               }}
-                style={{ flex: 1, padding: '8px 0', borderRadius: 8, fontSize: 12, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer',
+                style={{ flex: 1, padding: '8px 0', borderRadius: 8, fontSize: 12, fontWeight: 700, fontFamily: 'var(--font-sans)', cursor: 'pointer',
                   border: `1px solid ${active ? 'rgba(91,138,240,0.4)' : 'var(--color-border)'}`,
                   background: active ? 'rgba(91,138,240,0.14)' : 'var(--color-s2)', color: active ? 'var(--color-blue)' : 'var(--color-dim)' }}>
                 {DOW_S[d]}
@@ -1306,7 +1306,7 @@ function PlanTab() {
           const isTraining = dietConfig.trainingDays.includes(d)
           return (
             <button key={d} onClick={() => setViewDay(d)}
-              style={{ flex: 1, padding: '8px 2px', borderRadius: 8, fontSize: 12, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', position: 'relative',
+              style={{ flex: 1, padding: '8px 2px', borderRadius: 8, fontSize: 12, fontWeight: 700, fontFamily: 'var(--font-sans)', cursor: 'pointer', position: 'relative',
                 border: `1px solid ${viewDay === d ? 'rgba(82,183,136,0.4)' : 'var(--color-border)'}`,
                 background: viewDay === d ? 'rgba(82,183,136,0.14)' : 'var(--color-s2)', color: viewDay === d ? 'var(--color-acc-green)' : 'var(--color-dim)' }}>
               {DOW_S[d]}
@@ -1320,7 +1320,7 @@ function PlanTab() {
         🎲 Generar plan del {DOW_LONG[viewDay]} ({profile === 'training' ? 'entreno' : 'descanso'})
       </button>
       <button onClick={saveWeekToMenu}
-        style={{ width: '100%', padding: '12px 0', borderRadius: 12, background: 'var(--color-s2)', border: '1px solid rgba(82,183,136,0.3)', color: 'var(--color-acc-green)', fontSize: 13, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', marginBottom: 12 }}>
+        style={{ width: '100%', padding: '12px 0', borderRadius: 12, background: 'var(--color-s2)', border: '1px solid rgba(82,183,136,0.3)', color: 'var(--color-acc-green)', fontSize: 13, fontWeight: 700, fontFamily: 'var(--font-sans)', cursor: 'pointer', marginBottom: 12 }}>
         📅 Generar y guardar la semana entera en el Menú
       </button>
 
@@ -1329,11 +1329,11 @@ function PlanTab() {
           <PlanDayView day={day} onRegen={regenMeal} onSub={subMeal} />
           <div style={{ display: 'flex', gap: 8, marginTop: 4, marginBottom: 12 }}>
             <button onClick={saveToMenu}
-              style={{ flex: 1, padding: '11px 0', borderRadius: 12, background: 'rgba(82,183,136,0.12)', border: '1px solid rgba(82,183,136,0.3)', color: 'var(--color-acc-green)', fontSize: 13, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>
+              style={{ flex: 1, padding: '11px 0', borderRadius: 12, background: 'rgba(82,183,136,0.12)', border: '1px solid rgba(82,183,136,0.3)', color: 'var(--color-acc-green)', fontSize: 13, fontWeight: 700, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>
               📅 Guardar en Menú
             </button>
             <button onClick={applyToDiary}
-              style={{ flex: 1, padding: '11px 0', borderRadius: 12, background: 'rgba(91,138,240,0.1)', border: '1px solid rgba(91,138,240,0.25)', color: 'var(--color-blue)', fontSize: 13, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>
+              style={{ flex: 1, padding: '11px 0', borderRadius: 12, background: 'rgba(91,138,240,0.1)', border: '1px solid rgba(91,138,240,0.25)', color: 'var(--color-blue)', fontSize: 13, fontWeight: 700, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>
               ➕ Volcar al Diario
             </button>
           </div>
@@ -1385,7 +1385,7 @@ function PlanDayView({ day, onRegen, onSub }: {
         <div style={{ position: 'relative', width: 90, height: 90, flexShrink: 0 }}>
           <canvas ref={ringRef} width={90} height={90} />
           <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 20, color: 'var(--color-text)', lineHeight: 1 }}>{day.totalKcal}</div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, color: 'var(--color-text)', lineHeight: 1 }}>{day.totalKcal}</div>
             <div style={{ fontSize: 9, fontWeight: 600, color: 'var(--color-dim)' }}>kcal</div>
           </div>
         </div>
@@ -1420,9 +1420,9 @@ function PlanDayView({ day, onRegen, onSub }: {
           </div>
           <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
             <button onClick={() => onRegen(i)} title="Regenerar esta comida"
-              style={{ flex: 1, padding: '6px 0', borderRadius: 8, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-sub)', fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>🎲 Regenerar</button>
+              style={{ flex: 1, padding: '6px 0', borderRadius: 8, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-sub)', fontSize: 12, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>🎲 Regenerar</button>
             <button onClick={() => onSub(i)} title="Sustituir por macros parecidas"
-              style={{ flex: 1, padding: '6px 0', borderRadius: 8, background: 'rgba(91,138,240,0.08)', border: '1px solid rgba(91,138,240,0.2)', color: 'var(--color-blue)', fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>↺ Sustituir</button>
+              style={{ flex: 1, padding: '6px 0', borderRadius: 8, background: 'rgba(91,138,240,0.08)', border: '1px solid rgba(91,138,240,0.2)', color: 'var(--color-blue)', fontSize: 12, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>↺ Sustituir</button>
           </div>
         </div>
       ))}
@@ -1557,7 +1557,7 @@ function MenuTab() {
           <button key={d} onClick={() => setViewDay(d)}
             style={{
               flex: 1, padding: '8px 4px', borderRadius: 8, fontSize: 12, fontWeight: 700,
-              fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid',
+              fontFamily: 'var(--font-sans)', cursor: 'pointer', border: '1px solid',
               background: viewDay === d ? 'rgba(82,183,136,0.15)' : 'var(--color-s2)',
               color: viewDay === d ? 'var(--color-acc-green)' : 'var(--color-dim)',
               borderColor: viewDay === d ? 'rgba(82,183,136,0.3)' : 'var(--color-border)',
@@ -1569,11 +1569,11 @@ function MenuTab() {
         <div className="sec-label">{['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'][viewDay]}</div>
         <div style={{ display: 'flex', gap: 6 }}>
           <button onClick={randomDay}
-            style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 8, background: 'rgba(82,183,136,0.1)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.2)', cursor: 'pointer', fontFamily: 'DM Sans,sans-serif' }}>
+            style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 8, background: 'rgba(82,183,136,0.1)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.2)', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
             🎲 Día
           </button>
           <button onClick={randomWeek}
-            style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 8, background: 'rgba(82,183,136,0.1)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.2)', cursor: 'pointer', fontFamily: 'DM Sans,sans-serif' }}>
+            style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 8, background: 'rgba(82,183,136,0.1)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.2)', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
             🎲 Semana
           </button>
           <button onClick={() => {
@@ -1581,7 +1581,7 @@ function MenuTab() {
             if (!post) { toast.show('Añade platos al menú primero'); return }
             setSharePost(post)
           }}
-            style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 8, background: 'color-mix(in srgb, var(--color-acc-purple) 10%, transparent)', color: 'var(--color-acc-purple)', border: '1px solid color-mix(in srgb, var(--color-acc-purple) 20%, transparent)', cursor: 'pointer', fontFamily: 'DM Sans,sans-serif' }}>
+            style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 8, background: 'color-mix(in srgb, var(--color-acc-purple) 10%, transparent)', color: 'var(--color-acc-purple)', border: '1px solid color-mix(in srgb, var(--color-acc-purple) 20%, transparent)', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
             ↗ Compartir semana
           </button>
         </div>
@@ -1650,7 +1650,7 @@ function MenuTab() {
           const n = curMeals.filter(x => x.meal === m).length
           return (
             <button key={m} onClick={() => setActiveMeal(m)}
-              style={{ flexShrink: 0, padding: '6px 12px', borderRadius: 99, fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid', whiteSpace: 'nowrap',
+              style={{ flexShrink: 0, padding: '6px 12px', borderRadius: 99, fontSize: 12, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', border: '1px solid', whiteSpace: 'nowrap',
                 background: activeMeal === m ? 'rgba(82,183,136,0.15)' : 'var(--color-s2)',
                 color: activeMeal === m ? 'var(--color-acc-green)' : 'var(--color-dim)',
                 borderColor: activeMeal === m ? 'rgba(82,183,136,0.3)' : 'var(--color-border)' }}>
@@ -1770,12 +1770,12 @@ function ToolsTab() {
         <div className="sec-label">⏱ Ayuno intermitente</div>
         {isFasting ? (
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 40, color: 'var(--color-blue)', lineHeight: 1 }}>{elapsed}h</div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 40, color: 'var(--color-blue)', lineHeight: 1 }}>{elapsed}h</div>
             <div style={{ fontSize: 12, color: 'var(--color-sub)', marginTop: 4 }}>
               en ayuno desde {startDate?.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
             </div>
             <button onClick={() => { endFast(); toast.show(`✓ Ayuno de ${elapsed}h registrado`) }}
-              style={{ marginTop: 12, width: '100%', padding: 12, borderRadius: 12, background: 'var(--color-blue)', color: '#fff', border: 'none', fontSize: 14, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>
+              style={{ marginTop: 12, width: '100%', padding: 12, borderRadius: 12, background: 'var(--color-primary)', color: 'var(--color-on-primary)', border: 'none', fontSize: 14, fontWeight: 700, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>
               Terminar ayuno
             </button>
           </div>
@@ -1783,7 +1783,7 @@ function ToolsTab() {
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 13, color: 'var(--color-sub)', marginBottom: 12 }}>Objetivo: {fasting.targetHours}h</div>
             <button onClick={() => { startFast(); toast.show('✓ Ayuno iniciado') }}
-              style={{ width: '100%', padding: 12, borderRadius: 12, background: 'rgba(91,138,240,0.1)', color: 'var(--color-blue)', border: '1px solid rgba(91,138,240,0.2)', fontSize: 14, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>
+              style={{ width: '100%', padding: 12, borderRadius: 12, background: 'rgba(91,138,240,0.1)', color: 'var(--color-blue)', border: '1px solid rgba(91,138,240,0.2)', fontSize: 14, fontWeight: 700, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>
               Iniciar ayuno
             </button>
           </div>
