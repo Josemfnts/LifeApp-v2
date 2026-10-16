@@ -127,3 +127,5 @@ Stack real: React 19 + Vite 8 + Zustand + Supabase (store_data key-value). Ver A
 ## Rediseño visual IMPULSO — 16/10/2026
 
 En curso por petición de Josema. Referencia: `Guia_Visual/`; dirección y alcance en `DESIGN.md` y `PRODUCT.md`, mapa en `.mapa/rediseno-impulso/mapa.md`. Josema confirmó mantener el nombre LifeApp y todas las funciones. La implementación se delega a OpenCode por entregas, con revisión de Codex. Esta sección no da por cerradas fases aún no verificadas.
+
+Base visual IMPULSO integrada: `a92b597` + `c6430bd` (306 tests, build y lint verdes por contrato). Corrección: temas Claro/Oscuro/Negro OLED globales, sin tema por ruta. Inicio y Agenda en ejecución (`job_mvb9e50tal8d`); resto pendiente. Revisión final móvil/escritorio aún no realizada.

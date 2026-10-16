@@ -10,7 +10,7 @@ Estado: dirección aprobada el 16/10/2026; implementación por fases en `.mapa/r
 
 - Marca volt: `#C9F43C`; profundidad `#8FCE12`; superficie suave `#EFF8D2`.
 - Tinta: `#181B10`; secundaria `#4A4E3C`; papel: `#F4F3EB`; superficie clara `#FFFFFF`.
-- Noche Físico: `#0D0F08`; superficies oscuras cálidas `#171B10` y `#22271A`.
+- Noche (tema global): `#0D0F08`; superficies oscuras cálidas `#171B10` y `#22271A`.
 - Datos: teal `#2FB8A6`, amber `#F0A22E`, coral `#F26D5B`, night `#9B7BF0`, ingreso `#1FA45B`.
 - Los acentos de datos tienen variantes de texto con contraste AA sobre papel. La lima nunca se usa como texto pequeño sobre blanco. CTA claro: tinta con texto blanco/lima; CTA nocturno: lima con tinta. Aliases legacy deben mantener su semántica y legibilidad.
 - Cream adopta el papel; Onyx/Abyss siguen disponibles con la misma marca. **Ningún módulo fuerza tema**: el usuario elige Claro / Oscuro / Negro OLED para TODA la app, incluido Físico. La captura de Físico en la guía es solo un ejemplo del tono oscuro, no una regla. Las portales a body (modales, toast, nav-bar fija) heredan el tema GLOBAL vía `color-scheme` + `data-theme` en `<html>`.
@@ -33,7 +33,7 @@ Foco visible, etiquetas accesibles para iconos, objetivos táctiles ~44 px y est
 
 - Inicio: saludo y acceso a ajustes; resumen real del día con progreso y accesos 2×2; racha/XP y registro rápido real; Hábitos/Notas/Comunidad claramente accesibles. Conservar objetivos y herramientas existentes. No añadir clima o pasos sin fuente real.
 - Agenda: calendario sobre papel, selección tinta/lima, códigos de turno y lista del día; conservar edición de turnos, semana, estadísticas, Kanban, Planes y Notas.
-- Físico: noche cálida, pestañas lima, entrenamiento y series legibles, CTAs lima; conservar historial, rutinas, ejercicios, running, movilidad y Salud sin inventar métricas.
+- Físico: el tema global elegido (claro u oscuro), pestañas y CTAs con tokens de marca, entrenamiento y series legibles; conservar historial, rutinas, ejercicios, running, movilidad y Salud sin inventar métricas.
 - Nutrición: calorías y macros protagonistas, lista de comidas real; usar fotos del usuario cuando existan y estados sin foto cuidados; conservar scanner, alimentos, platos, menús y progreso.
 - Finanzas: hero lima de patrimonio real, balance/ingreso/gasto agrupados, categorías y listas ordenadas; seis pestañas incluidas Útiles y Conta. Cálculos permanecen en el motor existente.
 - Hábitos, Comunidad, Notas, Login y hojas: misma identidad; mantener editor full-screen, gates, preferencias, auth y acciones.

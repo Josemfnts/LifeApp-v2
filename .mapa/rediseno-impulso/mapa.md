@@ -24,3 +24,8 @@ Referencia vinculante: Guia_Visual/CLAUDE-PROMPT.md y capturas 01–10. El showc
 ## Niebla
 
 Ninguna decisión de producto bloquea la ejecución. Las diferencias entre mockup y datos reales se resuelven conservando los flujos actuales y sin inventar capacidades (clima, recomendaciones médicas o push simulados).
+
+## Verificado por entrega
+
+- Base `a92b597` y corrección `c6430bd`: contratos build/lint/306 tests verdes. La corrección elimina el tema por ruta y adapta los tres temas a IMPULSO. Revisión de código y comprobación visual pendientes de cierre.
+- Inicio y Agenda en ejecución: `job_mvb9e50tal8d`. El ejecutor no modifica memoria ni planes; los actualiza Codex arquitecto.
