@@ -149,7 +149,7 @@ body{
    position:fixed hijos (hojas/modales) dentro del scroll y los deja detrás de la
    barra inferior (botones cortados). En iOS moderno el scroll con inercia ya es
    el de por defecto. */
-#sw{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(var(--nav-h) + var(--nav-inset) + 14px)}
+#sw{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(96px + env(safe-area-inset-bottom,0px) + var(--nav-inset))}
 
 .page-header{padding:24px 20px 0;background:var(--color-bg);border-bottom:1px solid var(--color-border);flex-shrink:0}
 .page-module{font-size:var(--fs-meta);font-weight:600;letter-spacing:0.3px;margin-bottom:3px}
@@ -180,7 +180,7 @@ body{
 
 .greeting{font-size:var(--fs-meta);font-weight:600;color:var(--color-sub);letter-spacing:0.4px;margin-bottom:6px;text-transform:uppercase}
 .greeting-name{font-family:var(--font-display);font-size:30px;font-weight:600;color:var(--color-text);line-height:1.1;letter-spacing:-0.02em}
-.greeting-name em{font-style:italic;background:linear-gradient(135deg,var(--color-volt-deep),var(--color-acc-blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.greeting-name em{font-style:normal;color:var(--color-text)}
 .streak-row{display:flex;align-items:center;gap:6px;margin-top:8px}
 .top-meta{display:flex;align-items:center;justify-content:space-between;margin-top:12px;margin-bottom:14px}
 .date-chip{font-size:var(--fs-secondary);font-weight:500;color:var(--color-sub)}
@@ -333,7 +333,7 @@ select.inp option{background:var(--color-s1);color:var(--color-text)}
 .btn-primary::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,0.06);opacity:0;border-radius:inherit;transition:opacity 0.15s}
 .btn-primary:active::after{opacity:1}
 .btn-ghost{
-  width:100%;background:color-mix(in srgb,var(--color-volt) 22%,transparent);color:var(--color-on-accent);
+  width:100%;background:color-mix(in srgb,var(--color-volt) 22%,transparent);color:var(--color-text);
   border:1px solid color-mix(in srgb,var(--color-volt) 40%,transparent);border-radius:14px;
   padding:13px 18px;font-size:14px;font-weight:600;font-family:var(--font-sans);cursor:pointer;transition:background 0.15s
 }
@@ -375,7 +375,7 @@ select.inp option{background:var(--color-s1);color:var(--color-text)}
 
 .add-form{background:var(--color-s1);border:1px solid var(--color-border);border-radius:var(--radius-card);padding:20px;margin-bottom:14px;box-shadow:var(--shadow-impulso)}
 .add-form-title{font-size:13px;font-weight:600;color:var(--color-sub);margin-bottom:14px}
-.btn-add{width:100%;background:color-mix(in srgb,var(--color-volt) 22%,transparent);border:1px solid color-mix(in srgb,var(--color-volt) 40%,transparent);color:var(--color-on-accent);font-family:var(--font-sans);font-size:14px;font-weight:600;padding:12px;border-radius:14px;cursor:pointer}
+.btn-add{width:100%;background:color-mix(in srgb,var(--color-volt) 22%,transparent);border:1px solid color-mix(in srgb,var(--color-volt) 40%,transparent);color:var(--color-text);font-family:var(--font-sans);font-size:14px;font-weight:600;padding:12px;border-radius:14px;cursor:pointer}
 
 @media (orientation:landscape) and (max-height:600px) {
   .page-header{padding-top:12px}

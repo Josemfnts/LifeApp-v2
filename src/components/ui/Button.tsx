@@ -19,7 +19,7 @@ const base = 'inline-flex items-center justify-center gap-2 font-semibold rounde
 
 const variants: Record<string, string> = {
   primary: 'bg-[var(--color-primary)] text-[var(--color-on-primary)] border-[var(--color-primary)] shadow-[0_6px_18px_-8px_color-mix(in_srgb,var(--color-primary)_50%,transparent)] hover:brightness-95',
-  ghost: 'bg-[var(--color-volt)]/[0.18] text-[var(--color-on-accent)] border-[var(--color-volt)]/40 hover:bg-[var(--color-volt)]/[0.28]',
+  ghost: 'bg-[var(--color-volt)]/[0.18] text-[var(--color-text)] border-[var(--color-volt)]/40 hover:bg-[var(--color-volt)]/[0.28]',
   danger: 'bg-[var(--color-red)]/[0.08] text-[var(--color-red)] border-[var(--color-red)]/20 hover:bg-[var(--color-red)]/[0.14]',
   accent: '',
 }
@@ -36,7 +36,7 @@ export function Button({ children, onClick, variant = 'primary', color, full, cl
   const style = color
     ? ({
         background: `color-mix(in srgb, ${color} 18%, transparent)`,
-        color: 'var(--color-on-accent)',
+        color: 'var(--color-text)',
         borderColor: `color-mix(in srgb, ${color} 36%, transparent)`,
       } as React.CSSProperties)
     : undefined
