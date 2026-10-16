@@ -15,4 +15,4 @@ La referencia ya fue entregada y elegida por el usuario: no se abre un concurso 
 - OWN-WORLD: Inter y Space Grotesk locales, crema/tinta/lima, noche cálida global y superficies redondeadas según Guia_Visual.
 - STORY: resumen real → módulo → registro o consulta, con todas las funciones conservadas.
 - FIRST VIEWPORT: accesos encontrables, cifras reales o vacíos honestos y legibilidad móvil.
-- FORM: seed `b3365834`, autoridad visual de la guía elegida por Josema, tarjetas/píldoras y contenido de escritorio centrado a880px. Adaptación code-led a producto existente; no réplica de los datos de demostración.
+- FORM: seed `b3365834`, autoridad visual de la guía elegida por Josema, tarjetas/píldoras y contenido de escritorio centrado a 880 px. Adaptación code-led a producto existente; no réplica de los datos de demostración.

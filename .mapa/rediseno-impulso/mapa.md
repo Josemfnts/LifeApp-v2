@@ -19,7 +19,7 @@ Referencia vinculante: Guia_Visual/CLAUDE-PROMPT.md y capturas 01–10. El showc
 - [x] Inicio y Agenda: nueva jerarquía y componentes usando datos y acciones reales.
 - [x] Físico y Nutrición: aplicación de las capturas a estados y flujos existentes.
 - [x] Finanzas y cobertura: seis pestañas, Hábitos, Comunidad, Notas y Login.
-- [ ] Revisión final: capturas móvil/escritorio, navegación, acciones representativas, build/lint/tests y documentación.
+- [x] Revisión final: capturas móvil/escritorio, navegación, acciones representativas, build/lint/tests y documentación.
 
 ## Niebla
 
@@ -30,7 +30,8 @@ Ninguna decisión de producto bloquea la ejecución. Las diferencias entre mocku
 - Base `a92b597` y corrección `c6430bd`: contratos build/lint/306 tests verdes. La corrección elimina el tema por ruta y adapta los tres temas a IMPULSO. Revisión de código y comprobación visual pendientes de cierre.
 - Inicio y Agenda en ejecución: `job_mvb9e50tal8d`. El ejecutor no modifica memoria ni planes; los actualiza Codex arquitecto.
 
-- Inicio y Agenda `8b061c8` + correcciones `b5aa214`: build/lint/306 tests verdes, revisión React sin P1/P2 pendientes en esta entrega. Verificación navegador con datos sintéticos: balance +80 € excluye traspaso y usa split, meta nutrición1000/consumo250 muestra25%, semana conserva texto/prioridad/estado y header sticky.
+- Inicio y Agenda `8b061c8` + correcciones `b5aa214`: build/lint/306 tests verdes, revisión React sin P1/P2 pendientes en esta entrega. Verificación navegador con datos sintéticos: balance +80 € excluye traspaso y usa split, meta nutrición 1000/consumo 250 muestra 25%, semana conserva texto/prioridad/estado y header sticky.
 - Físico y Nutrición `ec9f230` + correcciones `c727c6a`: build/lint/306 tests verdes. Revisión React sin P1/P2 pendientes. Prueba móvil aislada: sesión libre vacía, añadir ejercicio y serie, cancelar, registrar alimento, cierre de hoja, calendario y cabeceras sticky; cero errores de página. Hojas al portal y CSS compartido explícito para entrada directa.
-- Finanzas y cobertura `264dac6`: contrato verde, revisión React y TypeScript completada. Corregido contraste de Cobrado en `6db0bef`. Prueba móvil360: seis pestañas sin overflow; pendiente sintético125€ cobrado desde Conta liquida el pendiente, crea un ingreso125€ y deja cuenta125€.
-- Revisión visual independiente: primer veredicto `fix`, tres hallazgos (ámbar en texto pequeño, iconos secundarios y posición de metadatos). Corregidos en `6db0bef`; segundo veredicto sobre recapturas pendiente. Build/lint/306tests verdes tras la tanda. DESIGN.md y .impeccable/design.json extraídos del código por documenter independiente.
+- Finanzas y cobertura `264dac6`: contrato verde, revisión React y TypeScript completada. Corregido contraste de Cobrado en `6db0bef`. Prueba móvil360: seis pestañas sin overflow; pendiente sintético 125 € cobrado desde Conta liquida el pendiente, crea un ingreso 125 € y deja cuenta 125 €.
+- Revisión visual independiente: primer veredicto `fix`, tres hallazgos (ámbar en texto pequeño, iconos secundarios y posición de metadatos). Corregidos en `6db0bef`; segundo veredicto `ship`, tres resueltos y 22 capturas válidas. Build/lint/306 tests verdes tras la tanda. DESIGN.md y .impeccable/design.json extraídos del código por documenter independiente.
+- Producción comprobada: HTTP 200, CSS final con ancho 880 px y amber-text, cuatro rutas principales navegadas en oscuro sin overflow ni errores; gates de Notas y Comunidad correctos. No se repitió el E2E autenticado contra Supabase. Resultado y límites en `.impeccable/review/resultado.md`.
