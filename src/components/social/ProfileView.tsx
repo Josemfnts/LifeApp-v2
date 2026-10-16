@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   getProfile, fetchUserPosts, follow, unfollow, updateMyProfile, uploadImage,
@@ -19,7 +20,7 @@ interface Props {
 function StatCol({ label, value, onClick }: { label: string; value: number | string; onClick?: () => void }) {
   return (
     <div style={{ textAlign: 'center', cursor: onClick ? 'pointer' : 'default' }} onClick={onClick}>
-      <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 20, color: 'var(--color-text)', lineHeight: 1 }}>{value}</div>
+      <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, color: 'var(--color-text)', lineHeight: 1 }}>{value}</div>
       <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginTop: 3 }}>{label}</div>
     </div>
   )
@@ -87,7 +88,7 @@ export function ProfileView(props: Props) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
           <Avatar name={profile.display_name || profile.username} url={profile.avatar_url} size={64} />
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 22, color: 'var(--color-text)' }}>{profile.display_name || profile.username}</div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: 'var(--color-text)' }}>{profile.display_name || profile.username}</div>
             <div style={{ fontSize: 13, color: 'var(--color-dim)' }}>@{profile.username}</div>
           </div>
         </div>
@@ -161,11 +162,11 @@ function EditProfile({ profile, onClose, onSaved }: { profile: Profile; onClose:
     finally { setBusy(false) }
   }
 
-  return (
+  return createPortal(
     <div onClick={e => { if (e.target === e.currentTarget) onClose() }} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 9000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
-      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 480, padding: '20px 20px 40px', maxHeight: '90dvh', overflowY: 'auto' }}>
+      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 480, padding: '20px 20px calc(28px + env(safe-area-inset-bottom, 0px))', maxHeight: '90dvh', overflowY: 'auto' }}>
         <div style={{ width: 36, height: 4, background: 'var(--color-border2)', borderRadius: 99, margin: '0 auto 16px' }} />
-        <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 20, marginBottom: 16 }}>Editar perfil</div>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, marginBottom: 16 }}>Editar perfil</div>
 
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
           <div onClick={() => fileRef.current?.click()} style={{ cursor: 'pointer', textAlign: 'center' }}>
@@ -181,9 +182,10 @@ function EditProfile({ profile, onClose, onSaved }: { profile: Profile; onClose:
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
           <button onClick={onClose} className="btn-ghost">Cancelar</button>
-          <button onClick={save} disabled={busy} className="btn-primary" style={{ background: 'var(--color-acc-purple)', opacity: busy ? 0.6 : 1 }}>{busy ? 'Guardando…' : 'Guardar'}</button>
+          <button onClick={save} disabled={busy} className="btn-primary" style={{ background: 'var(--color-primary)', opacity: busy ? 0.6 : 1 }}>{busy ? 'Guardando…' : 'Guardar'}</button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

@@ -23,10 +23,10 @@ export function PlanesView() {
         ]).map(s => (
           <button key={s.k} onClick={() => setSubtab(s.k)}
             style={{ flex: '0 0 auto', whiteSpace: 'nowrap', padding: '8px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700,
-              fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid',
-              background: subtab === s.k ? 'rgba(91,138,240,0.15)' : 'transparent',
+              fontFamily: 'var(--font-sans)', cursor: 'pointer', border: '1px solid',
+              background: subtab === s.k ? 'color-mix(in srgb, var(--color-volt) 15%, transparent)' : 'transparent',
               color: subtab === s.k ? 'var(--color-acc-blue)' : 'var(--color-dim)',
-              borderColor: subtab === s.k ? 'rgba(91,138,240,0.3)' : 'var(--color-border)' }}>{s.l}</button>
+              borderColor: subtab === s.k ? 'color-mix(in srgb, var(--color-volt) 30%, transparent)' : 'var(--color-border)' }}>{s.l}</button>
         ))}
       </div>
       {subtab === 'viajes' && <ViajesTab />}
@@ -104,7 +104,7 @@ function ActividadesTab() {
           </select>
         </div>
         <input className="inp" value={nota} onChange={e => setNota(e.target.value)} placeholder="Nota (dónde, con quién...)" />
-        <button onClick={add} className="btn-primary" style={{ background: 'var(--color-acc-blue)' }}>+ Añadir actividad</button>
+        <button onClick={add} className="btn-primary">+ Añadir actividad</button>
       </div>
       {acts.map(a => (
         <div key={a.id} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 12, padding: 12, marginBottom: 8 }}>
@@ -136,7 +136,7 @@ function ComprasTab() {
     <div>
       <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
         <input className="inp" value={text} onChange={e => setText(e.target.value)} placeholder="Añadir a la lista..." style={{ flex: 1, marginBottom: 0 }} onKeyDown={e => { if (e.key === 'Enter') add() }} />
-        <button onClick={add} className="btn-ghost" style={{ width: 'auto', padding: '10px 20px', background: 'var(--color-acc-blue)', color: '#fff', border: 'none', borderRadius: 10 }}>+</button>
+        <button onClick={add} className="btn-primary" style={{ width: 'auto', padding: '10px 20px' }}>+</button>
       </div>
       {items.filter(i => !i.done).map(i => (
         <div key={i.id} onClick={() => toggle(i.id)} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 10, padding: '10px 14px', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
@@ -172,7 +172,7 @@ function InboxTab() {
     <div>
       <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
         <input className="inp" value={text} onChange={e => setText(e.target.value)} placeholder="Captura una idea..." style={{ flex: 1, marginBottom: 0 }} onKeyDown={e => { if (e.key === 'Enter') add() }} />
-        <button onClick={add} className="btn-ghost" style={{ width: 'auto', padding: '10px 20px', background: 'var(--color-acc-purple)', color: '#fff', border: 'none', borderRadius: 10 }}>+</button>
+        <button onClick={add} className="btn-primary" style={{ width: 'auto', padding: '10px 20px' }}>+</button>
       </div>
       {ideas.map(i => (
         <div key={i.id} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 10, padding: '12px 14px', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -208,7 +208,7 @@ function ProyectosTab() {
         <div className="sec-label" style={{ marginBottom: 10 }}>Nuevo proyecto</div>
         <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
           <input className="inp" value={name} onChange={e => setName(e.target.value)} placeholder="Nombre del proyecto..." style={{ flex: 1, marginBottom: 0 }} />
-          <button onClick={add} className="btn-ghost" style={{ width: 'auto', padding: '10px 16px', background: 'var(--color-acc-blue)', color: '#fff', border: 'none', borderRadius: 10 }}>Crear</button>
+          <button onClick={add} className="btn-primary" style={{ width: 'auto', padding: '10px 16px' }}>Crear</button>
         </div>
       </div>
       {projs.map(p => {
@@ -227,14 +227,14 @@ function ProyectosTab() {
             {p.tareas.length > 0 && (
               <div style={{ padding: '4px 14px' }}>
                 {p.tareas.map((t, i) => (
-                  <div key={i} onClick={() => toggleTarea(p.id, i)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', cursor: 'pointer', borderBottom: i < p.tareas.length - 1 ? '1px solid rgba(255,255,255,0.03)' : 'none' }}>
+                  <div key={i} onClick={() => toggleTarea(p.id, i)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', cursor: 'pointer', borderBottom: i < p.tareas.length - 1 ? '1px solid var(--color-border)' : 'none' }}>
                     <div style={{ width: 18, height: 18, borderRadius: 5, border: `1.5px solid ${t.done ? p.color : 'var(--color-border2)'}`, background: t.done ? p.color + '33' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, flexShrink: 0 }}>{t.done ? '✓' : ''}</div>
                     <span style={{ flex: 1, fontSize: 12, color: t.done ? 'var(--color-dim)' : 'var(--color-text)', textDecoration: t.done ? 'line-through' : 'none' }}>{t.text}</span>
                   </div>
                 ))}
               </div>
             )}
-            <div style={{ padding: '8px 14px', borderTop: '1px solid rgba(255,255,255,0.03)', background: 'var(--color-s2)', display: 'flex', gap: 6 }}>
+            <div style={{ padding: '8px 14px', borderTop: '1px solid var(--color-border)', background: 'var(--color-s2)', display: 'flex', gap: 6 }}>
               <input className="inp" placeholder="Nueva tarea..." style={{ flex: 1, marginBottom: 0, padding: '6px 10px', fontSize: 12 }} onKeyDown={e => { if (e.key === 'Enter') { addTarea(p.id, (e.target as HTMLInputElement).value); (e.target as HTMLInputElement).value = '' } }} />
             </div>
             <div style={{ padding: '0 14px 12px' }}>

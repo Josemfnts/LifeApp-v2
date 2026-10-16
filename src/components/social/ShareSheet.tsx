@@ -48,7 +48,7 @@ export function ShareSheet({ post, onClose, onShared }: {
     <div onClick={e => { if (e.target === e.currentTarget) onClose() }} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 9000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
       <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 480, padding: '20px 20px calc(28px + env(safe-area-inset-bottom,0px))', maxHeight: '90dvh', overflowY: 'auto' }}>
         <div style={{ width: 36, height: 4, background: 'var(--color-border2)', borderRadius: 99, margin: '0 auto 16px' }} />
-        <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 20, marginBottom: 4 }}>Compartir en la comunidad</div>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, marginBottom: 4 }}>Compartir en la comunidad</div>
         <div style={{ fontSize: 12.5, color: 'var(--color-dim)', marginBottom: 14 }}>Así lo verán los demás:</div>
 
         {/* Vista previa con el renderer real del feed */}
@@ -72,14 +72,14 @@ export function ShareSheet({ post, onClose, onShared }: {
         {signed === false ? (
           <div style={{ textAlign: 'center', padding: '4px 0 8px' }}>
             <div style={{ fontSize: 13, color: 'var(--color-sub)', marginBottom: 12 }}>Inicia sesión para compartir en la comunidad.</div>
-            <button onClick={() => { onClose(); window.dispatchEvent(new CustomEvent('show-login')) }} className="btn-primary" style={{ background: 'var(--color-acc-purple)' }}>Iniciar sesión</button>
+            <button onClick={() => { onClose(); window.dispatchEvent(new CustomEvent('show-login')) }} className="btn-primary" style={{ background: 'var(--color-primary)' }}>Iniciar sesión</button>
           </div>
         ) : (
           <>
             <textarea className="inp" value={comment} onChange={e => setComment(e.target.value)} placeholder="Añade un comentario (opcional)" style={{ height: 70, resize: 'none', marginBottom: 12 }} />
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
               <button onClick={onClose} className="btn-ghost">Cancelar</button>
-              <button onClick={publish} disabled={busy || signed === null} className="btn-primary" style={{ background: 'var(--color-acc-purple)', opacity: busy ? 0.6 : 1 }}>
+              <button onClick={publish} disabled={busy || signed === null} className="btn-primary" style={{ background: 'var(--color-primary)', opacity: busy ? 0.6 : 1 }}>
                 {busy ? 'Compartiendo…' : 'Compartir'}
               </button>
             </div>

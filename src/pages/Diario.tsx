@@ -59,9 +59,9 @@ export default function Diario() {
           value={text}
           onChange={e => setText(e.target.value)}
           placeholder="¿Qué tal el día? Escribe libremente..."
-          style={{ height: 200, resize: 'vertical', fontFamily: 'DM Sans,sans-serif', fontSize: 14, lineHeight: 1.6 }}
+          style={{ height: 200, resize: 'vertical', fontFamily: 'var(--font-sans)', fontSize: 14, lineHeight: 1.6 }}
         />
-        <button onClick={save} className="btn-primary" style={{ background: 'var(--color-acc-purple)', marginBottom: 20 }}>
+        <button onClick={save} className="btn-primary" style={{ background: 'var(--color-primary)', marginBottom: 20 }}>
           {editingDate === today ? 'Guardar entrada' : 'Actualizar entrada'}
         </button>
 

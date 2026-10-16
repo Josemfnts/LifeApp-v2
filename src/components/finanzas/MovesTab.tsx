@@ -62,7 +62,7 @@ export function MovesTab() {
         <button onClick={() => setImportOpen(true)} title="Importar extracto" aria-label="Importar extracto"
           style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--color-s1)', border: '1px solid var(--color-border)', color: 'var(--color-sub)', cursor: 'pointer', fontSize: 16 }}>⬆</button>
         <button onClick={() => setQuickAddOpen(true)}
-          style={{ background: 'var(--color-acc-gold)', color: '#111', border: 'none', borderRadius: 10, padding: '0 14px', height: 36, fontSize: 13, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>+ Añadir</button>
+          style={{ background: 'var(--color-primary)', color: 'var(--color-on-primary)', border: 'none', borderRadius: 12, padding: '0 14px', minHeight: 44, fontSize: 13, fontWeight: 700, fontFamily: 'var(--font-sans)', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>+ Añadir</button>
       </div>
 
       {showSearch && (
@@ -93,7 +93,7 @@ export function MovesTab() {
           const dt = new Date(d + 'T12:00:00')
           return (
             <div key={d}>
-              <div style={{ padding: '8px 16px 0', fontSize: 10, fontWeight: 700, color: 'var(--color-dim)', letterSpacing: '0.5px', textTransform: 'uppercase', borderTop: '1px solid rgba(255,255,255,0.03)' }}>
+              <div style={{ padding: '8px 16px 0', fontSize: 10, fontWeight: 700, color: 'var(--color-dim)', letterSpacing: '0.5px', textTransform: 'uppercase', borderTop: '1px solid var(--color-border)' }}>
                 {dt.getDate()} {MONTHS_SH[dt.getMonth()]}
               </div>
               {txList.map(t => <TxRow key={`${d}-${t.id}`} tx={t} onClick={(id) => setEditId(id)} />)}
@@ -114,7 +114,7 @@ export function MovesTab() {
               const active = typeFilter === o.k
               return (
                 <button key={o.k} onClick={() => setTypeFilter(o.k)}
-                  style={{ padding: 9, borderRadius: 10, fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid',
+                  style={{ padding: 9, borderRadius: 10, fontSize: 12, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', border: '1px solid',
                     background: active ? 'rgba(201,168,76,0.1)' : 'var(--color-s2)',
                     color: active ? 'var(--color-acc-gold)' : 'var(--color-sub)',
                     borderColor: active ? 'rgba(201,168,76,0.3)' : 'var(--color-border)' }}>{o.label}</button>
@@ -140,7 +140,7 @@ export function MovesTab() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, padding: '12px 20px 0' }}>
           <button onClick={() => { setFilter('Todos'); setTypeFilter('all') }}
             className="btn-ghost" style={{ width: '100%' }}>Limpiar</button>
-          <button onClick={() => setFilterOpen(false)} className="btn-primary" style={{ background: 'var(--color-acc-blue)', width: 'auto' }}>Aplicar</button>
+          <button onClick={() => setFilterOpen(false)} className="btn-primary" style={{ width: 'auto' }}>Aplicar</button>
         </div>
       </Modal>
 

@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom'
 import { useState, useEffect, useCallback } from 'react'
 import {
   fetchFeed, FEED_PAGE, toggleLike, deletePost, repost, isSignedIn, ensureMyProfile,
@@ -15,6 +16,7 @@ import { NotificationsSheet } from '@/components/social/NotificationsSheet'
 import { ProfileView } from '@/components/social/ProfileView'
 import { UserSearch } from '@/components/social/UserSearch'
 import { Avatar } from '@/components/social/Avatar'
+import { Bell, Plus, Search, UserRound } from 'lucide-react'
 
 const FILTERS: PostType[] = ['workout', 'routine', 'recipe', 'diet', 'goal', 'progress', 'photo', 'text']
 
@@ -124,10 +126,10 @@ export default function Comunidad() {
     return (
       <Header>
         <div style={{ padding: 16 }}>
-          <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 28, textAlign: 'center' }}>
-            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 20, color: 'var(--color-text)', marginBottom: 8 }}>Únete a la comunidad</div>
+          <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-impulso)', padding: 28, textAlign: 'center' }}>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, color: 'var(--color-text)', marginBottom: 8 }}>Únete a la comunidad</div>
             <div style={{ fontSize: 13, color: 'var(--color-sub)', marginBottom: 18, lineHeight: 1.5 }}>Inicia sesión para seguir a otros, compartir tus rutinas, recetas, dietas, objetivos y entrenos, y descubrir contenido nuevo.</div>
-            <button onClick={() => window.dispatchEvent(new CustomEvent('show-login'))} className="btn-primary" style={{ background: 'var(--color-acc-purple)' }}>Iniciar sesión</button>
+            <button onClick={() => window.dispatchEvent(new CustomEvent('show-login'))} className="btn-primary">Iniciar sesión</button>
           </div>
         </div>
       </Header>
@@ -140,9 +142,9 @@ export default function Comunidad() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div className="page-title">Comunidad</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <IconBtn active={view === 'search'} onClick={() => setView(view === 'search' ? 'feed' : 'search')}>🔍</IconBtn>
-            <IconBtn onClick={() => setNotifOpen(true)} badge={unread}>🔔</IconBtn>
-            {myId && <IconBtn active={view === 'profile' && profileId === myId} onClick={() => openProfile(myId)}>👤</IconBtn>}
+            <IconBtn label="Buscar usuarios" active={view === 'search'} onClick={() => setView(view === 'search' ? 'feed' : 'search')}><Search size={19} /></IconBtn>
+            <IconBtn label="Notificaciones" onClick={() => setNotifOpen(true)} badge={unread}><Bell size={19} /></IconBtn>
+            {myId && <IconBtn label="Mi perfil" active={view === 'profile' && profileId === myId} onClick={() => openProfile(myId)}><UserRound size={19} /></IconBtn>}
           </div>
         </div>
         <div style={{ height: 12 }} />
@@ -163,10 +165,10 @@ export default function Comunidad() {
           <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
             {(['following', 'explore'] as FeedMode[]).map(m => (
               <button key={m} onClick={() => setMode(m)} style={{
-                flex: 1, padding: '9px 4px', borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid',
-                background: mode === m ? 'color-mix(in srgb, var(--color-acc-purple) 14%, transparent)' : 'var(--color-s2)',
-                color: mode === m ? 'var(--color-acc-purple)' : 'var(--color-dim)',
-                borderColor: mode === m ? 'color-mix(in srgb, var(--color-acc-purple) 30%, transparent)' : 'var(--color-border)',
+                flex: 1, padding: '9px 4px', borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', border: '1px solid',
+                background: mode === m ? 'var(--color-primary)' : 'var(--color-s2)',
+                color: mode === m ? 'var(--color-on-primary)' : 'var(--color-sub)',
+                borderColor: mode === m ? 'var(--color-primary)' : 'var(--color-border)',
               }}>{m === 'following' ? 'Siguiendo' : 'Explorar'}</button>
             ))}
           </div>
@@ -207,8 +209,8 @@ export default function Comunidad() {
       )}
 
       {view === 'feed' && !composerOpen && (
-        <button onClick={() => setComposerOpen(true)}
-          style={{ position: 'fixed', right: 18, bottom: 96, zIndex: 500, width: 54, height: 54, borderRadius: 18, border: 'none', cursor: 'pointer', background: 'linear-gradient(145deg,var(--color-acc-purple),var(--color-acc-blue))', color: '#fff', fontSize: 26, fontWeight: 300, boxShadow: '0 6px 22px color-mix(in srgb, var(--color-acc-purple) 40%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+        <button aria-label="Crear publicación" onClick={() => setComposerOpen(true)}
+          style={{ position: 'fixed', right: 18, bottom: 'calc(96px + env(safe-area-inset-bottom, 0px))', zIndex: 500, width: 54, height: 54, borderRadius: 18, border: 'none', cursor: 'pointer', background: 'var(--color-primary)', color: 'var(--color-on-primary)', boxShadow: 'var(--shadow-impulso)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Plus size={24} /></button>
       )}
 
       {composerOpen && <Composer onClose={() => setComposerOpen(false)} onPosted={() => { setComposerOpen(false); loadFeed() }} />}
@@ -239,13 +241,14 @@ function Header({ children }: { children: React.ReactNode }) {
   )
 }
 
-function IconBtn({ children, onClick, active, badge }: { children: React.ReactNode; onClick: () => void; active?: boolean; badge?: number }) {
+function IconBtn({ children, label, onClick, active, badge }: { children: React.ReactNode; label: string; onClick: () => void; active?: boolean; badge?: number }) {
   return (
-    <button onClick={onClick} style={{
-      position: 'relative', width: 38, height: 38, borderRadius: 12, cursor: 'pointer', fontSize: 17,
+    <button aria-label={label} onClick={onClick} style={{
+      position: 'relative', width: 44, height: 44, borderRadius: 12, cursor: 'pointer', fontSize: 17,
       border: '1px solid', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      background: active ? 'color-mix(in srgb, var(--color-acc-purple) 14%, transparent)' : 'var(--color-s2)',
-      borderColor: active ? 'color-mix(in srgb, var(--color-acc-purple) 30%, transparent)' : 'var(--color-border)',
+      background: active ? 'var(--color-primary)' : 'var(--color-s2)',
+      color: active ? 'var(--color-on-primary)' : 'var(--color-text)',
+      borderColor: active ? 'var(--color-primary)' : 'var(--color-border)',
     }}>
       {children}
       {!!badge && badge > 0 && (
@@ -258,9 +261,9 @@ function IconBtn({ children, onClick, active, badge }: { children: React.ReactNo
 function FilterChip({ label, active, color, onClick }: { label: string; active: boolean; color: string; onClick: () => void }) {
   return (
     <button onClick={onClick} style={{
-      flexShrink: 0, padding: '6px 12px', borderRadius: 99, fontSize: 12.5, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid', whiteSpace: 'nowrap',
+      flexShrink: 0, padding: '6px 12px', borderRadius: 99, fontSize: 12.5, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', border: '1px solid', whiteSpace: 'nowrap',
       background: active ? `color-mix(in srgb, ${color} 16%, transparent)` : 'var(--color-s2)',
-      color: active ? color : 'var(--color-dim)',
+      color: active ? 'var(--color-text)' : 'var(--color-sub)',
       borderColor: active ? `color-mix(in srgb, ${color} 32%, transparent)` : 'var(--color-border)',
     }}>{label}</button>
   )
@@ -281,11 +284,11 @@ function RepostSheet({ post, onClose, onDone }: { post: SocialPost; onClose: () 
     finally { setBusy(false) }
   }
 
-  return (
+  return createPortal(
     <div onClick={e => { if (e.target === e.currentTarget) onClose() }} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 9000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
-      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 480, padding: '20px 20px 40px' }}>
+      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 480, padding: '20px 20px calc(28px + env(safe-area-inset-bottom, 0px))' }}>
         <div style={{ width: 36, height: 4, background: 'var(--color-border2)', borderRadius: 99, margin: '0 auto 16px' }} />
-        <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 20, marginBottom: 12 }}>Compartir publicación</div>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, marginBottom: 12 }}>Compartir publicación</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, padding: '8px 10px', background: 'var(--color-s2)', borderRadius: 10 }}>
           <Avatar name={post.author} size={28} />
           <span style={{ fontSize: 13, color: 'var(--color-sub)' }}>Publicación de <b style={{ color: 'var(--color-text)' }}>{post.author}</b></span>
@@ -293,9 +296,10 @@ function RepostSheet({ post, onClose, onDone }: { post: SocialPost; onClose: () 
         <textarea className="inp" value={comment} onChange={e => setComment(e.target.value)} placeholder="Añade un comentario (opcional)" style={{ height: 80, resize: 'none', marginBottom: 12 }} />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
           <button onClick={onClose} className="btn-ghost">Cancelar</button>
-          <button onClick={submit} disabled={busy} className="btn-primary" style={{ background: 'var(--color-acc-purple)', opacity: busy ? 0.6 : 1 }}>{busy ? 'Compartiendo…' : 'Compartir'}</button>
+          <button onClick={submit} disabled={busy} className="btn-primary" style={{ background: 'var(--color-primary)', opacity: busy ? 0.6 : 1 }}>{busy ? 'Compartiendo…' : 'Compartir'}</button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

@@ -6,6 +6,7 @@ import { variation } from '@/lib/finance/snapshots'
 import { localISO } from '@/lib/finance/dates'
 import { sumEuros } from '@/lib/finance/money'
 import { AnimatedNumber } from './AnimatedNumber'
+import { useTheme } from '@/contexts/ThemeContext'
 
 type Period = '1M' | '3M' | '1A' | 'Todo'
 
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export function NetWorthHero({ onGoPatrimonio }: Props) {
+  const { theme } = useTheme()
   const cuentas = useFinanceStore(s => s.cuentas)
   const snapshots = useFinanceStore(s => s.snapshots)
   const [period, setPeriod] = useState<Period>('1M')
@@ -33,6 +35,8 @@ export function NetWorthHero({ onGoPatrimonio }: Props) {
     if (!canvasRef.current) return
     if (chartRef.current) chartRef.current.destroy()
     if (snapshots.length === 0) return
+    const ink = getComputedStyle(document.documentElement).getPropertyValue('--color-ink').trim()
+    const volt = getComputedStyle(document.documentElement).getPropertyValue('--color-volt').trim()
     const labels = snapshots.map(s => s.date)
     const data = snapshots.map(s => s.net)
     chartRef.current = new Chart(canvasRef.current.getContext('2d')!, {
@@ -42,9 +46,9 @@ export function NetWorthHero({ onGoPatrimonio }: Props) {
         datasets: [
           {
             data,
-            borderColor: 'rgba(91,138,240,0.85)',
-            backgroundColor: 'rgba(91,138,240,0.08)',
-            borderWidth: 2,
+            borderColor: ink,
+            backgroundColor: `color-mix(in srgb, ${ink} 18%, transparent)`,
+            borderWidth: 2.5,
             tension: 0.3,
             pointRadius: 0,
             fill: true,
@@ -65,11 +69,11 @@ export function NetWorthHero({ onGoPatrimonio }: Props) {
         plugins: {
           legend: { display: false },
           tooltip: {
-            backgroundColor: '#191c22',
-            borderColor: 'rgba(255,255,255,0.07)',
+            backgroundColor: ink,
+            borderColor: ink,
             borderWidth: 1,
-            titleColor: '#e8e9ee',
-            bodyColor: '#8a8d96',
+            titleColor: volt,
+            bodyColor: '#FFFFFF',
             callbacks: {
               label: (c: { raw: unknown; dataIndex: number }) => {
                 const v = c.raw as number
@@ -85,24 +89,22 @@ export function NetWorthHero({ onGoPatrimonio }: Props) {
         },
       },
     })
-  }, [snapshots])
+    return () => { chartRef.current?.destroy(); chartRef.current = null }
+  }, [snapshots, theme])
 
-  if (cuentas.length === 0 && holdings.length === 0 && debts.length === 0 && properties.length === 0) {
+  if (cuentas.length === 0 && holdings.length === 0 && debts.length === 0 && properties.length === 0 && !pufos.some(p => !p.settled)) {
     return (
-      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 20, padding: 24, marginBottom: 14, textAlign: 'center' }}>
-        <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: 8 }}>Patrimonio neto</div>
-        <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 32, color: 'var(--color-text)', marginBottom: 12 }}>—</div>
-        <div style={{ fontSize: 13, color: 'var(--color-sub)', marginBottom: 16 }}>Añade tu primera cuenta para ver tu patrimonio</div>
+      <div className="finance-hero finance-hero__empty">
+        <div className="finance-hero__label">Patrimonio neto</div>
+        <div className="finance-hero__value">—</div>
+        <div>Añade tu primera cuenta para ver tu patrimonio.</div>
         {onGoPatrimonio && (
-          <button onClick={onGoPatrimonio} style={{ background: 'rgba(91,138,240,0.1)', color: 'var(--color-acc-blue)', border: '1px solid rgba(91,138,240,0.2)', borderRadius: 10, padding: '10px 18px', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'DM Sans,sans-serif' }}>
-            Ir a Patrimonio
-          </button>
+          <button className="finance-hero__action" onClick={onGoPatrimonio}>Añadir cuenta</button>
         )}
       </div>
     )
   }
 
-  const variationColor = v.abs >= 0 ? 'var(--color-acc-green)' : 'var(--color-red)'
   const variationSign = v.abs >= 0 ? '+' : ''
   const hasHistory = v.fromDate !== null
   const segmentRows: Array<[string, number]> = []
@@ -114,42 +116,37 @@ export function NetWorthHero({ onGoPatrimonio }: Props) {
   if (breakdown.debt !== 0) segmentRows.push(['Deudas', breakdown.debt])
 
   return (
-    <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 20, padding: '20px 20px 16px', marginBottom: 14, position: 'relative', overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', top: -40, right: -40, width: 160, height: 160, background: 'radial-gradient(circle, rgba(91,138,240,0.07) 0%, transparent 70%)', pointerEvents: 'none' }} />
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-        <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Patrimonio neto</div>
-        <div style={{ display: 'flex', gap: 4 }}>
+    <div className="finance-hero">
+      <div className="finance-hero__top">
+        <div className="finance-hero__label">Patrimonio neto</div>
+        <div className="finance-hero__periods" aria-label="Periodo del patrimonio">
           {(['1M', '3M', '1A', 'Todo'] as const).map(p => (
-            <button key={p} onClick={() => setPeriod(p)}
-              style={{ padding: '3px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', border: '1px solid', cursor: 'pointer',
-                background: period === p ? 'rgba(91,138,240,0.1)' : 'transparent',
-                color: period === p ? 'var(--color-acc-blue)' : 'var(--color-dim)',
-                borderColor: period === p ? 'rgba(91,138,240,0.3)' : 'var(--color-border)' }}>
+            <button className="finance-hero__period" aria-pressed={period === p} key={p} onClick={() => setPeriod(p)}>
               {p}
             </button>
           ))}
         </div>
       </div>
-      <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 42, lineHeight: 1, color: 'var(--color-text)', marginBottom: 8 }}>
+      <div className="finance-hero__value">
         <AnimatedNumber value={breakdown.net} format={fmt} />
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+      <div className="finance-hero__variation">
         {hasHistory ? (
           <>
-            <span style={{ fontSize: 12, fontWeight: 700, color: variationColor, background: 'var(--color-s2)', border: '1px solid var(--color-border)', padding: '2px 10px', borderRadius: 99 }}>
+            <span className="finance-hero__chip">
               {variationSign}{fmt(v.abs)} {v.pct !== null && `(${v.pct >= 0 ? '+' : ''}${v.pct.toFixed(1)}%)`}
             </span>
-            <span style={{ fontSize: 11, color: 'var(--color-dim)' }}>variación del patrimonio, no rentabilidad</span>
+            <span className="finance-hero__note">variación del patrimonio, no rentabilidad</span>
           </>
         ) : (
-          <span style={{ fontSize: 11, color: 'var(--color-dim)' }}>Sin histórico todavía — se calcula a partir de mañana</span>
+          <span className="finance-hero__note">Sin histórico todavía — se calcula a partir de mañana</span>
         )}
       </div>
-      <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginBottom: 12 }}>
+      <div className="finance-hero__segments">
         {segmentRows.map(([name, val]) => (
-          <div key={name} style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: 10, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.4px' }}>{name}</span>
-            <span style={{ fontFamily: 'DM Serif Display,serif', fontSize: 16, color: name === 'Deudas' ? 'var(--color-red)' : 'var(--color-text)' }}>{fmtShort(val)}</span>
+          <div className="finance-hero__segment" key={name}>
+            <span>{name}</span>
+            <strong>{fmtShort(val)}</strong>
           </div>
         ))}
       </div>
@@ -157,17 +154,17 @@ export function NetWorthHero({ onGoPatrimonio }: Props) {
         const receivables = sumEuros(pufos.filter(p => !p.settled).map(p => (p.dir === 'me_debe' ? p.amount : -p.amount)))
         if (receivables === 0) return null
         return (
-          <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: -6, marginBottom: 10 }}>
+          <div className="finance-hero__note" style={{ fontSize: 11, marginTop: 10 }}>
             {receivables > 0 ? `Incluye ${fmt(receivables)} que te deben` : `Descuenta ${fmt(-receivables)} que debes`}
           </div>
         )
       })()}
       {snapshots.length > 1 && (
-        <div style={{ position: 'relative', height: 110 }}>
+        <div className="finance-hero__chart">
           <canvas ref={canvasRef} />
           {snapshots.some(s => s.estimated) && (
-            <div style={{ position: 'absolute', top: 4, right: 4, fontSize: 9, color: 'var(--color-dim)', display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span style={{ display: 'inline-block', width: 10, borderTop: '2px dashed var(--color-dim)' }} /> estimado
+            <div style={{ position: 'absolute', top: 4, right: 4, fontSize: 10, color: 'var(--color-ink)', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span style={{ display: 'inline-block', width: 10, borderTop: '2px dashed var(--color-ink)' }} /> estimado
             </div>
           )}
         </div>

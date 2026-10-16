@@ -133,7 +133,7 @@ export function RecurrenteSheet({ open, recurrenteId, onClose }: Props) {
           <div style={{ display: 'grid', gridTemplateColumns: existing ? '1fr 1fr 1fr' : '1fr 1fr', gap: 8, marginTop: 14 }}>
             {existing && <button className="btn-ghost" style={{ width: '100%', color: 'var(--color-red)' }} onClick={() => setConfirmDelete(true)}>Borrar</button>}
             <button className="btn-ghost" style={{ width: '100%' }} onClick={onClose}>Cancelar</button>
-            <button className="btn-primary" style={{ background: 'var(--color-acc-blue)', width: 'auto' }} onClick={save}>Guardar</button>
+            <button className="btn-primary" style={{ width: 'auto' }} onClick={save}>Guardar</button>
           </div>
         </div>
       </Modal>

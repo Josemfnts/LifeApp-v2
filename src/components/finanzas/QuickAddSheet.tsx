@@ -169,12 +169,12 @@ export function QuickAddSheet({ open, onClose }: Props) {
       <div style={{ padding: '0 20px 8px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 14 }}>
           <button onClick={() => setType('income')}
-            style={{ padding: 9, borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', textAlign: 'center', cursor: 'pointer', border: '1px solid',
+            style={{ padding: 9, borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)', textAlign: 'center', cursor: 'pointer', border: '1px solid',
               background: type === 'income' ? 'rgba(82,183,136,0.12)' : 'var(--color-s2)',
               color: type === 'income' ? 'var(--color-acc-green)' : 'var(--color-dim)',
               borderColor: type === 'income' ? 'rgba(82,183,136,0.3)' : 'var(--color-border)' }}>↑ Ingreso</button>
           <button onClick={() => setType('expense')}
-            style={{ padding: 9, borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', textAlign: 'center', cursor: 'pointer', border: '1px solid',
+            style={{ padding: 9, borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)', textAlign: 'center', cursor: 'pointer', border: '1px solid',
               background: type === 'expense' ? 'rgba(224,95,95,0.1)' : 'var(--color-s2)',
               color: type === 'expense' ? 'var(--color-red)' : 'var(--color-dim)',
               borderColor: type === 'expense' ? 'rgba(224,95,95,0.25)' : 'var(--color-border)' }}>↓ Gasto</button>
@@ -191,7 +191,7 @@ export function QuickAddSheet({ open, onClose }: Props) {
           inputMode="decimal"
           placeholder="0,00"
           autoFocus
-          style={{ fontFamily: 'DM Serif Display, serif', fontSize: 28, padding: '12px 14px' }}
+          style={{ fontFamily: 'var(--font-display)', fontSize: 28, padding: '12px 14px' }}
         />
 
         <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4, marginTop: 10 }}>Concepto</div>
@@ -248,7 +248,7 @@ export function QuickAddSheet({ open, onClose }: Props) {
         )}
 
         <button onClick={() => setShowMore(v => !v)} type="button"
-          style={{ marginTop: 14, width: '100%', padding: '8px 10px', borderRadius: 10, background: 'transparent', border: '1px solid var(--color-border)', color: 'var(--color-dim)', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'DM Sans,sans-serif' }}>
+          style={{ marginTop: 14, width: '100%', padding: '8px 10px', borderRadius: 10, background: 'transparent', border: '1px solid var(--color-border)', color: 'var(--color-dim)', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
           {showMore ? '▾ Menos opciones' : '▸ Más opciones'}
         </button>
 
@@ -272,7 +272,7 @@ export function QuickAddSheet({ open, onClose }: Props) {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, padding: '12px 20px 0' }}>
         <button onClick={onClose} className="btn-ghost" style={{ width: '100%' }}>Cancelar</button>
-        <button onClick={handleSave} className="btn-primary" style={{ background: 'var(--color-acc-gold)', color: '#111', width: 'auto' }}>Guardar</button>
+        <button onClick={handleSave} className="btn-primary" style={{ background: 'var(--color-primary)', color: 'var(--color-on-primary)', width: 'auto' }}>Guardar</button>
       </div>
     </Modal>
   )

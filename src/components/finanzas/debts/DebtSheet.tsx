@@ -140,7 +140,7 @@ export function DebtSheet({ open, debtId, onClose }: Props) {
                     <div><div style={label}>Fecha</div><input className="inp" type="date" value={payDate} onChange={e => setPayDate(e.target.value)} style={{ fontSize: 13 }} /></div>
                     <div><div style={label}>Cuenta</div><select className="inp" value={payCuenta} onChange={e => setPayCuenta(e.target.value)}><option value="">Ninguna</option>{cuentaOptions}</select></div>
                   </div>
-                  <button className="btn-primary" style={{ background: 'var(--color-acc-blue)', width: '100%', marginTop: 8 }}
+                  <button className="btn-primary" style={{ width: '100%', marginTop: 8 }}
                     onClick={() => { payDebt(existing.id, { date: payDate, cuenta: payCuenta || undefined }); toast.show(`✓ Cuota pagada: ${fmt(split.interest)} intereses · ${fmt(split.principal)} capital`) }}>
                     Pagar {fmt(split.total)}
                   </button>
@@ -156,9 +156,9 @@ export function DebtSheet({ open, debtId, onClose }: Props) {
                     {(['reduce_term', 'reduce_payment'] as const).map(m => (
                       <button key={m} type="button" onClick={() => setExtraMode(m)}
                         style={{ padding: 8, borderRadius: 10, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: '1px solid',
-                          background: extraMode === m ? 'rgba(91,138,240,0.12)' : 'var(--color-s1)',
+                          background: extraMode === m ? 'color-mix(in srgb, var(--color-volt) 12%, transparent)' : 'var(--color-s1)',
                           color: extraMode === m ? 'var(--color-acc-blue)' : 'var(--color-sub)',
-                          borderColor: extraMode === m ? 'rgba(91,138,240,0.3)' : 'var(--color-border)' }}>
+                          borderColor: extraMode === m ? 'color-mix(in srgb, var(--color-volt) 30%, transparent)' : 'var(--color-border)' }}>
                         {m === 'reduce_term' ? 'Reducir plazo' : 'Reducir cuota'}
                       </button>
                     ))}
@@ -232,9 +232,9 @@ export function DebtSheet({ open, debtId, onClose }: Props) {
                 {(Object.keys(DEBT_KIND) as DebtKind[]).map(k => (
                   <button key={k} type="button" onClick={() => setKind(k)}
                     style={{ padding: '6px 12px', borderRadius: 99, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: '1px solid',
-                      background: kind === k ? 'rgba(91,138,240,0.12)' : 'var(--color-s2)',
+                      background: kind === k ? 'color-mix(in srgb, var(--color-volt) 12%, transparent)' : 'var(--color-s2)',
                       color: kind === k ? 'var(--color-acc-blue)' : 'var(--color-sub)',
-                      borderColor: kind === k ? 'rgba(91,138,240,0.3)' : 'var(--color-border)' }}>
+                      borderColor: kind === k ? 'color-mix(in srgb, var(--color-volt) 30%, transparent)' : 'var(--color-border)' }}>
                     {DEBT_KIND[k].icon} {DEBT_KIND[k].label}
                   </button>
                 ))}
@@ -282,7 +282,7 @@ export function DebtSheet({ open, debtId, onClose }: Props) {
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 14 }}>
                 <button className="btn-ghost" style={{ width: '100%' }} onClick={() => (existing ? setEditing(false) : onClose())}>Cancelar</button>
-                <button className="btn-primary" style={{ background: 'var(--color-acc-blue)', width: 'auto' }} onClick={handleSave}>Guardar</button>
+                <button className="btn-primary" style={{ width: 'auto' }} onClick={handleSave}>Guardar</button>
               </div>
             </>
           )}

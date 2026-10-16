@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
-import { detectEditorTheme } from '@/lib/appTheme'
+import { useTheme } from '@/contexts/ThemeContext'
 import { NotesPanel } from '@/modules/notes'
 
 /** Pantalla Notas a pantalla completa (ruta /notas, fuera del Shell/nav). */
 export default function Notas() {
+  const { theme } = useTheme()
   const navigate = useNavigate()
   const [authed, setAuthed] = useState<boolean | null>(null)
 
@@ -38,5 +39,5 @@ export default function Notas() {
       </div>
     )
 
-  return <NotesPanel supabase={supabase} theme={detectEditorTheme()} onBack={back} />
+  return <NotesPanel supabase={supabase} theme={theme === 'cream' ? 'light' : 'dark'} onBack={back} />
 }

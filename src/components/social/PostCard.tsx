@@ -99,7 +99,7 @@ export function PostCard({ post, onLike, onComment, onRepost, onDelete, onOpenPr
         <div style={{ padding: '0 14px 12px' }}>
           <button onClick={handleImport} style={{
             width: '100%', padding: '9px 12px', borderRadius: 10, cursor: 'pointer',
-            fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif',
+            fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)',
             background: 'color-mix(in srgb, var(--color-acc-green) 10%, transparent)',
             color: 'var(--color-acc-green)',
             border: '1px solid color-mix(in srgb, var(--color-acc-green) 25%, transparent)',
@@ -129,7 +129,7 @@ function ActionBtn({ icon, label, onClick, active, activeColor }: {
     <button onClick={onClick} style={{
       display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: 'pointer',
       color: active ? (activeColor ?? 'var(--color-acc-blue)') : 'var(--color-dim)',
-      fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', padding: '5px 10px',
+      fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)', padding: '5px 10px',
     }}>
       <span style={{ fontSize: 15 }}>{icon}</span>{label}
     </button>

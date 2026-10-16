@@ -1,7 +1,7 @@
 /* ============================================================
    LIFE OS · Módulo Notas — estilos
    Los tokens del módulo heredan del design system de la app
-   (grafito/índigo). Editar aquí re-tiñe todo el módulo.
+   (papel/tinta/lima). Editar aquí re-tiñe todo el módulo.
    ============================================================ */
 
 .notes-screen,
@@ -11,7 +11,7 @@
   --_muted: var(--color-dim);
   --_border: var(--color-border);
   --_accent: var(--color-acc-blue);
-  --_radius: 14px;
+  --_radius: var(--radius-card);
   color: var(--_fg);
   /* el body de la app fuerza user-select:none; el editor necesita selección */
   -webkit-user-select: text;
@@ -74,8 +74,8 @@
   flex: 1;
   min-width: 0;
   text-align: center;
-  font-family: 'DM Serif Display', serif;
-  font-size: 16px;
+  font-family: var(--font-display);
+  font-size: 18px;
   color: var(--_fg);
   overflow: hidden;
   white-space: nowrap;
@@ -156,7 +156,7 @@
   border-radius: 8px;
   color: var(--_fg);
   padding: 7px 10px;
-  font-size: 13px;
+  font-size: 16px;
   outline: none;
   font-family: inherit;
 }
@@ -340,6 +340,7 @@
   background: none;
   border: none;
   outline: none;
+  font-family:var(--font-display);
   color: var(--_fg);
   font-size: 26px;
   font-weight: 700;
@@ -348,6 +349,11 @@
 }
 .lifeos-notes-editor__title::placeholder {
   color: var(--_muted);
+}
+.notes-screen button:focus-visible, .notes-screen input:focus-visible,
+.lifeos-entity-notes button:focus-visible, .lifeos-entity-notes input:focus-visible {
+  outline:2px solid var(--color-volt);
+  outline-offset:2px;
 }
 .lifeos-notes-editor__status {
   color: var(--_muted);
@@ -498,7 +504,7 @@ button.notes-crumbs__item:hover { background: color-mix(in srgb, var(--_fg) 7%, 
   padding: 32px 22px calc(48px + env(safe-area-inset-bottom, 0px));
 }
 .notes-home__title {
-  font-family: 'DM Serif Display', serif;
+  font-family: var(--font-display);
   font-size: 26px;
   margin-bottom: 20px;
 }

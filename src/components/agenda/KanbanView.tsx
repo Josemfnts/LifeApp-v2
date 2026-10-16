@@ -126,7 +126,7 @@ export function KanbanView() {
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12, alignItems: 'center' }}>
         {projects.map(p => (
           <button key={p.id} onClick={() => setActiveProject(p.id)}
-            style={{ padding: '6px 14px', borderRadius: 99, fontSize: 12, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid', whiteSpace: 'nowrap',
+            style={{ padding: '6px 14px', borderRadius: 99, fontSize: 12, fontWeight: 700, fontFamily: 'var(--font-sans)', cursor: 'pointer', border: '1px solid', whiteSpace: 'nowrap',
               background: activeProject === p.id ? p.color + '22' : 'var(--color-s2)',
               color: activeProject === p.id ? p.color : 'var(--color-dim)',
               borderColor: activeProject === p.id ? p.color + '44' : 'var(--color-border)',
@@ -137,7 +137,7 @@ export function KanbanView() {
           </button>
         ))}
         <button onClick={() => setShowProjForm(!showProjForm)}
-          style={{ padding: '6px 14px', borderRadius: 99, fontSize: 12, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px dashed var(--color-border)', background: 'transparent', color: 'var(--color-dim)' }}>
+          style={{ padding: '6px 14px', borderRadius: 99, fontSize: 12, fontWeight: 700, fontFamily: 'var(--font-sans)', cursor: 'pointer', border: '1px dashed var(--color-border)', background: 'transparent', color: 'var(--color-dim)' }}>
           + Proyecto
         </button>
       </div>
@@ -199,10 +199,10 @@ export function KanbanView() {
                         </div>
                       )}
                       {/* Move buttons */}
-                      <div style={{ display: 'flex', gap: 3, marginTop: 6, borderTop: '1px solid rgba(255,255,255,0.03)', paddingTop: 6 }}>
+                      <div style={{ display: 'flex', gap: 3, marginTop: 6, borderTop: '1px solid var(--color-border)', paddingTop: 6 }}>
                         {COLUMNS.filter(c => c.key !== card.column).slice(0, 2).map(c => (
                           <button key={c.key} onClick={e => { e.stopPropagation(); moveCard(card.id, c.key) }}
-                            style={{ flex: 1, fontSize: 9, fontWeight: 600, padding: '2px 4px', borderRadius: 4, cursor: 'pointer', border: '1px solid var(--color-border)', background: 'var(--color-s2)', color: 'var(--color-dim)', fontFamily: 'DM Sans,sans-serif' }}>
+                            style={{ flex: 1, fontSize: 9, fontWeight: 600, padding: '2px 4px', borderRadius: 4, cursor: 'pointer', border: '1px solid var(--color-border)', background: 'var(--color-s2)', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)' }}>
                             → {c.label.slice(0, 8)}
                           </button>
                         ))}
@@ -226,9 +226,9 @@ export function KanbanView() {
           style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 9000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
           <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 480, padding: '20px 20px 40px', maxHeight: '85dvh', overflowY: 'auto' }}>
             <div style={{ width: 36, height: 4, background: 'var(--color-border2)', borderRadius: 99, margin: '0 auto 16px' }} />
-            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 18, marginBottom: 14 }}>Editar tarea</div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, marginBottom: 14 }}>Editar tarea</div>
             <input className="inp" value={editText} onChange={e => setEditText(e.target.value)} placeholder="Título de la tarea" />
-            <textarea className="inp" value={editDesc} onChange={e => setEditDesc(e.target.value)} placeholder="Descripción..." style={{ height: 80, resize: 'vertical', fontFamily: 'DM Sans,sans-serif', fontSize: 14 }} />
+            <textarea className="inp" value={editDesc} onChange={e => setEditDesc(e.target.value)} placeholder="Descripción..." style={{ height: 80, resize: 'vertical', fontFamily: 'var(--font-sans)', fontSize: 14 }} />
 
             {/* Fecha y prioridad en filas independientes: el input date nativo de
                 iOS es ancho y, en rejilla, se solapaba con el selector. */}
@@ -247,10 +247,10 @@ export function KanbanView() {
             <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 10 }}>
               {LABELS.map(l => (
                 <button key={l} onClick={() => setEditLabels(prev => prev.includes(l) ? prev.filter(x => x !== l) : [...prev, l])}
-                  style={{ padding: '3px 8px', borderRadius: 99, fontSize: 10, fontWeight: 600, cursor: 'pointer', border: '1px solid', fontFamily: 'DM Sans,sans-serif',
-                    background: editLabels.includes(l) ? 'rgba(91,138,240,0.15)' : 'var(--color-s2)',
+                  style={{ padding: '3px 8px', borderRadius: 99, fontSize: 10, fontWeight: 600, cursor: 'pointer', border: '1px solid', fontFamily: 'var(--font-sans)',
+                    background: editLabels.includes(l) ? 'color-mix(in srgb, var(--color-volt) 15%, transparent)' : 'var(--color-s2)',
                     color: editLabels.includes(l) ? 'var(--color-acc-blue)' : 'var(--color-dim)',
-                    borderColor: editLabels.includes(l) ? 'rgba(91,138,240,0.3)' : 'var(--color-border)',
+                    borderColor: editLabels.includes(l) ? 'color-mix(in srgb, var(--color-volt) 30%, transparent)' : 'var(--color-border)',
                   }}>{l}</button>
               ))}
             </div>
@@ -260,7 +260,7 @@ export function KanbanView() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 14 }}>
               {COLUMNS.map(c => (
                 <button key={c.key} onClick={() => moveCard(editingCard.id, c.key)}
-                  style={{ padding: 8, borderRadius: 8, fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid',
+                  style={{ padding: 8, borderRadius: 8, fontSize: 12, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', border: '1px solid',
                     background: editingCard.column === c.key ? c.color + '22' : 'var(--color-s2)',
                     color: editingCard.column === c.key ? c.color : 'var(--color-dim)',
                     borderColor: editingCard.column === c.key ? c.color + '44' : 'var(--color-border)',
@@ -270,9 +270,9 @@ export function KanbanView() {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
               <button onClick={() => setEditingCard(null)} className="btn-ghost" style={{ width: '100%', minWidth: 0 }}>Cancelar</button>
-              <button onClick={saveCardEdit} className="btn-primary" style={{ background: 'var(--color-acc-blue)', width: '100%', minWidth: 0 }}>Guardar</button>
+              <button onClick={saveCardEdit} className="btn-primary" style={{ width: '100%', minWidth: 0 }}>Guardar</button>
             </div>
-            <button onClick={() => deleteCard(editingCard.id)} style={{ width: '100%', marginTop: 10, padding: 10, borderRadius: 10, background: 'rgba(224,95,95,0.08)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.15)', fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>
+            <button onClick={() => deleteCard(editingCard.id)} style={{ width: '100%', marginTop: 10, padding: 10, borderRadius: 10, background: 'rgba(224,95,95,0.08)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.15)', fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>
               🗑 Eliminar tarea
             </button>
           </div>

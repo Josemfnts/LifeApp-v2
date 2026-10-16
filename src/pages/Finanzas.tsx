@@ -7,11 +7,13 @@ import { UtilesTab } from '@/components/finanzas/utiles/UtilesTab'
 import { PatrimonioTab } from '@/components/finanzas/PatrimonioTab'
 import { BudgetsTab } from '@/components/finanzas/BudgetsTab'
 import { ContabilidadTab } from '@/components/finanzas/ContabilidadTab'
+import '@/components/finanzas/finanzas.css'
 
 type Tab = 'inicio' | 'moves' | 'patrimonio' | 'plan' | 'utiles' | 'conta'
 
 export default function Finanzas() {
   const [tab, setTab] = useState<Tab>('inicio')
+  const [patrimonioInitial, setPatrimonioInitial] = useState<'cuentas' | 'huchas'>('cuentas')
   const processRecurrentes = useFinanceStore(s => s.processRecurrentes)
   const recordSnapshot = useFinanceStore(s => s.recordSnapshot)
   const runDueDca = useFinanceStore(s => s.runDueDca)
@@ -38,23 +40,24 @@ export default function Finanzas() {
   }, [processRecurrentes, recordSnapshot, refreshPrices, runDueDca, generateDueQuotas, toastShow])
 
   return (
-    <div>
+    <div className="finance-page">
       <div className="page-header">
         <div className="page-title">Finanzas</div>
+        <div className="finance-page-date">{new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(new Date())}</div>
         {/* Exportar CSV vive en Movs (donde están los movimientos), no en la cabecera. */}
         <div className="tab-bar">
           {(['inicio','moves','patrimonio','plan','utiles','conta'] as const).map(t => (
-            <button key={t} onClick={() => setTab(t)} className={`tab-btn tab-gold${tab === t ? ' active' : ''}`}>
-              {{inicio:'Inicio',moves:'Movs',patrimonio:'Patrimonio',plan:'Plan',utiles:'Útiles',conta:'Conta'}[t]}
+            <button key={t} onClick={() => { if (t === 'patrimonio') setPatrimonioInitial('cuentas'); setTab(t) }} className={`tab-btn tab-gold${tab === t ? ' active' : ''}`}>
+              {{inicio:'Resumen',moves:'Movimientos',patrimonio:'Patrimonio',plan:'Plan',utiles:'Útiles',conta:'Conta'}[t]}
             </button>
           ))}
         </div>
       </div>
       <div key={tab} className="animate-tab" style={{ padding: 16 }}>
-        {tab === 'inicio' && <SummaryTab onGoPatrimonio={() => setTab('patrimonio')} />}
+        {tab === 'inicio' && <SummaryTab onGoPatrimonio={() => { setPatrimonioInitial('cuentas'); setTab('patrimonio') }} />}
         {tab === 'moves' && <MovesTab />}
-        {tab === 'patrimonio' && <PatrimonioTab />}
-        {tab === 'plan' && <BudgetsTab />}
+        {tab === 'patrimonio' && <PatrimonioTab initialSub={patrimonioInitial} />}
+        {tab === 'plan' && <BudgetsTab onGoGoals={() => { setPatrimonioInitial('huchas'); setTab('patrimonio') }} />}
         {tab === 'utiles' && <UtilesTab />}
         {tab === 'conta' && <ContabilidadTab />}
       </div>

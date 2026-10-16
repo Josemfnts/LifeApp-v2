@@ -59,7 +59,7 @@ export function TransferSheet({ open, onClose }: Props) {
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, padding: '12px 20px 0' }}>
         <button onClick={onClose} className="btn-ghost" style={{ width: '100%' }}>Cancelar</button>
-        <button onClick={handleConfirm} className="btn-primary" style={{ background: 'var(--color-acc-blue)', width: 'auto' }}>Confirmar</button>
+        <button onClick={handleConfirm} className="btn-primary" style={{ width: 'auto' }}>Confirmar</button>
       </div>
     </Modal>
   )

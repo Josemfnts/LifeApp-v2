@@ -45,7 +45,7 @@ export function BudgetsSection() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
         <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Presupuestos del mes</div>
         <button onClick={() => openForm()}
-          style={{ background: 'rgba(91,138,240,0.1)', color: 'var(--color-acc-blue)', border: '1px solid rgba(91,138,240,0.2)', borderRadius: 8, padding: '5px 12px', fontSize: 11, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>+ Presupuesto</button>
+          style={{ background: 'color-mix(in srgb, var(--color-volt) 10%, transparent)', color: 'var(--color-acc-blue)', border: '1px solid color-mix(in srgb, var(--color-volt) 20%, transparent)', borderRadius: 8, padding: '5px 12px', fontSize: 11, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>+ Presupuesto</button>
       </div>
 
       {presupuestos.length === 0 ? (
@@ -96,7 +96,7 @@ export function BudgetsSection() {
               <button className="btn-ghost" style={{ width: '100%', color: 'var(--color-red)' }} onClick={() => { setConfirmCat(editing); setOpen(false) }}>Borrar</button>
             )}
             <button className="btn-ghost" style={{ width: '100%' }} onClick={() => setOpen(false)}>Cancelar</button>
-            <button className="btn-primary" style={{ background: 'var(--color-acc-blue)', width: 'auto' }} onClick={save}>Guardar</button>
+            <button className="btn-primary" style={{ width: 'auto' }} onClick={save}>Guardar</button>
           </div>
         </div>
       </Modal>

@@ -292,7 +292,7 @@ function MonthView({ label, prev, next, stats, balanceAnio, blocks: blocksView, 
             aria-label="Mes siguiente"
           >›</button>
         </div>
-        <div style={{ fontFamily: 'DM Serif Display, serif', fontSize: 18, color: 'var(--color-text)' }}>{label}</div>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, color: 'var(--color-text)' }}>{label}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <button
             onClick={onManageProjects}
@@ -303,7 +303,7 @@ function MonthView({ label, prev, next, stats, balanceAnio, blocks: blocksView, 
           <button
             onClick={onAdd}
             title="Apuntar al proyecto"
-            style={{ width: 32, height: 32, borderRadius: 9, background: 'var(--color-acc-gold)', border: 'none', color: '#111', fontSize: 18, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}
+            style={{ width: 44, height: 44, borderRadius: 12, background: 'var(--color-primary)', border: 'none', color: 'var(--color-on-primary)', fontSize: 18, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}
             aria-label="Apuntar al proyecto"
           >+</button>
         </div>
@@ -374,7 +374,7 @@ interface BlockRowProps {
 function BlockRow({ dateLabel, concept, projectLabel, amount, amountColor, signMode, clickable, onClick, pendingActions, onSettle, onRemove }: BlockRowProps) {
   return (
     <div
-      style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 16px', borderBottom: '1px solid rgba(255,255,255,0.03)' }}
+      style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 16px', borderBottom: '1px solid var(--color-border)' }}
     >
       <div
         onClick={clickable ? onClick : undefined}
@@ -385,7 +385,7 @@ function BlockRow({ dateLabel, concept, projectLabel, amount, amountColor, signM
           <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{concept}</div>
           {projectLabel && <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 2 }}>{projectLabel}</div>}
         </div>
-        <div style={{ fontFamily: 'DM Serif Display, serif', fontSize: 20, fontWeight: 400, flexShrink: 0, color: amountColor }}>{formatAmount(amount, signMode)}</div>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 400, flexShrink: 0, color: amountColor }}>{formatAmount(amount, signMode)}</div>
         {clickable && <span aria-hidden style={{ color: 'var(--color-dim)', fontSize: 18, paddingLeft: 4 }}>›</span>}
       </div>
       {pendingActions && (
@@ -394,7 +394,7 @@ function BlockRow({ dateLabel, concept, projectLabel, amount, amountColor, signM
             onClick={onSettle}
             type="button"
             aria-label="Cobrar pendiente"
-            style={{ padding: '6px 10px', borderRadius: 8, background: 'rgba(82,183,136,0.1)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.2)', fontSize: 11, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}
+            style={{ padding: '6px 10px', borderRadius: 8, background: 'rgba(82,183,136,0.1)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.2)', fontSize: 11, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}
           >Cobrar</button>
           <button
             onClick={onRemove}
@@ -494,7 +494,7 @@ function tdStyle(align: 'left' | 'right', bold: boolean): React.CSSProperties {
   return {
     textAlign: align,
     padding: '8px 8px',
-    borderBottom: '1px solid rgba(255,255,255,0.04)',
+    borderBottom: '1px solid var(--color-border)',
     color: 'var(--color-text)',
     fontWeight: bold ? 600 : 400,
     whiteSpace: 'nowrap',

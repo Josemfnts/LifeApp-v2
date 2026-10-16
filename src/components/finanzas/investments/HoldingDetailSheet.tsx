@@ -98,9 +98,9 @@ export function HoldingDetailSheet({ holdingId, onClose }: Props) {
   const btn = (m: Exclude<Mode, null>, text: string) => (
     <button type="button" onClick={() => openMode(mode === m ? null : m)}
       style={{ padding: '7px 12px', borderRadius: 10, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: '1px solid',
-        background: mode === m ? 'rgba(91,138,240,0.12)' : 'var(--color-s2)',
+        background: mode === m ? 'color-mix(in srgb, var(--color-volt) 12%, transparent)' : 'var(--color-s2)',
         color: mode === m ? 'var(--color-acc-blue)' : 'var(--color-sub)',
-        borderColor: mode === m ? 'rgba(91,138,240,0.3)' : 'var(--color-border)' }}>{text}</button>
+        borderColor: mode === m ? 'color-mix(in srgb, var(--color-volt) 30%, transparent)' : 'var(--color-border)' }}>{text}</button>
   )
 
   const cuentaSelect = (
@@ -202,7 +202,7 @@ export function HoldingDetailSheet({ holdingId, onClose }: Props) {
           )}
 
           {mode && (
-            <button onClick={submit} className="btn-primary" style={{ background: 'var(--color-acc-blue)', width: '100%', marginTop: 12 }}>Guardar</button>
+            <button onClick={submit} className="btn-primary" style={{ width: '100%', marginTop: 12 }}>Guardar</button>
           )}
 
           <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-sub)', margin: '16px 0 6px' }}>Movimientos</div>

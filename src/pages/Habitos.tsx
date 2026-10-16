@@ -57,28 +57,28 @@ export default function Habitos() {
       <div key={tab} className="animate-tab" style={{ padding: 16 }}>
         {tab === 'today' && (
           <>
-            <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 14 }}>
+            <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-card)', padding: 20, marginBottom: 14, boxShadow: 'var(--shadow-impulso)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
                 <div>
                   <div className="sec-label" style={{ marginBottom: 4 }}>Progreso de hoy</div>
-                  <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 28, lineHeight: 1 }}>
-                    <span style={{ color: 'var(--color-acc-purple)' }}>{doneToday}</span>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, lineHeight: 1 }}>
+                    <span style={{ color: 'var(--color-text)' }}>{doneToday}</span>
                     <span style={{ fontSize: 16, color: 'var(--color-sub)' }}> / {activeToday.length}</span>
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 36, color: 'var(--color-acc-purple)', lineHeight: 1 }}>{pctToday}%</div>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 36, color: 'var(--color-text)', lineHeight: 1 }}>{pctToday}%</div>
                   <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 2 }}>{dateLabel}</div>
                 </div>
               </div>
               <div className="pbar-track">
-                <div className="pbar-fill" style={{ width: `${pctToday}%`, background: 'linear-gradient(90deg,var(--color-acc-purple),#c9a84c)' }} />
+                <div className="pbar-fill" style={{ width: `${pctToday}%`, background: 'var(--color-volt)' }} />
               </div>
             </div>
             {habits.length > 0 && <WeeklyStrip habits={habits} getLogValue={getLogValue} />}
             {bestStreak.streak >= 2 && (
               <button onClick={() => setSharePost(habitStreakToPost(bestStreak.name, bestStreak.streak))}
-                style={{ width: '100%', marginTop: 4, marginBottom: 12, padding: '9px 12px', borderRadius: 10, cursor: 'pointer', fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', background: 'color-mix(in srgb, var(--color-acc-purple) 10%, transparent)', color: 'var(--color-acc-purple)', border: '1px solid color-mix(in srgb, var(--color-acc-purple) 25%, transparent)' }}>
+                style={{ width: '100%', marginTop: 4, marginBottom: 12, padding: '11px 12px', borderRadius: 12, cursor: 'pointer', fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)', background: 'color-mix(in srgb, var(--color-volt) 16%, transparent)', color: 'var(--color-text)', border: '1px solid color-mix(in srgb, var(--color-volt) 35%, transparent)' }}>
                 🔥 Compartir racha ({bestStreak.streak} días)
               </button>
             )}
@@ -86,7 +86,7 @@ export default function Habitos() {
               <div className="empty-state">
                 <div style={{ fontSize: 40, marginBottom: 12 }}>✨</div>
                 <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-sub)', marginBottom: 6 }}>Sin hábitos todavía</div>
-                <div style={{ fontSize: 13, lineHeight: 1.6 }}>Ve a <strong style={{ color: 'var(--color-acc-purple)' }}>Gestionar</strong><br />y crea tu primer hábito</div>
+                <div style={{ fontSize: 13, lineHeight: 1.6 }}>Ve a <strong style={{ color: 'var(--color-text)' }}>Gestionar</strong><br />y crea tu primer hábito</div>
               </div>
             ) : (
               activeToday.map(h => (
@@ -108,7 +108,7 @@ export default function Habitos() {
                 return (
                   <div key={h.id} className="card" style={{ marginBottom: 8 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px' }}>
-                      <div style={{ width: 44, height: 44, borderRadius: 14, background: h.color + '18', border: '1px solid ' + h.color + '30', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>{h.emoji}</div>
+                      <div style={{ width: 44, height: 44, borderRadius: 14, background: `color-mix(in srgb, ${h.color} 10%, transparent)`, border: `1px solid color-mix(in srgb, ${h.color} 20%, transparent)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>{h.emoji}</div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>{h.name}</div>
                         <div style={{ fontSize: 12, color: 'var(--color-dim)', marginTop: 2 }}>{fl} · {h.type === 'count' ? `Meta: ${h.goal} ${h.unit}` : 'Sí/No'}{h.note ? ' · ' + h.note : ''}</div>

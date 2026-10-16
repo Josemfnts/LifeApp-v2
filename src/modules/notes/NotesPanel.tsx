@@ -6,6 +6,7 @@ import { PageTree } from "./PageTree";
 import { PageEditor } from "./PageEditor";
 import type { PageMeta } from "./types";
 import "./notes.css";
+import { useTheme } from '@/contexts/ThemeContext';
 
 export interface NotesPanelProps {
   supabase: SupabaseClient;
@@ -21,7 +22,9 @@ const WIDE = 900;
  * (drawer) deslizante y editor inmersivo. Buscador, favoritos, papelera,
  * drag&drop y "Diario de hoy".
  */
-export function NotesPanel({ supabase, theme = "dark", onBack }: NotesPanelProps) {
+export function NotesPanel({ supabase, onBack }: NotesPanelProps) {
+  const { theme: globalTheme } = useTheme();
+  const editorTheme = globalTheme === 'cream' ? 'light' : 'dark';
   const api = useMemo(() => createNotesApi(supabase), [supabase]);
   const { tree, pages, loading, error, createPage, trashPage, patchLocal, toggleFavorite, movePage, refresh } =
     usePagesTree(api);
@@ -263,7 +266,7 @@ export function NotesPanel({ supabase, theme = "dark", onBack }: NotesPanelProps
                   <PageEditor
                     api={api}
                     pageId={pageId}
-                    theme={theme}
+                    theme={editorTheme}
                     onTitleChange={(id, title) => patchLocal(id, { title })}
                     onIconChange={(id, icon) => patchLocal(id, { icon })}
                   />

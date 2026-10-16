@@ -90,9 +90,9 @@ export function AddHoldingSheet({ open, onClose }: Props) {
           {(Object.keys(KIND_META) as HoldingKind[]).map(k => (
             <button key={k} type="button" onClick={() => { setKind(k); setCoin(null) }}
               style={{ padding: '6px 12px', borderRadius: 99, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: '1px solid',
-                background: kind === k ? 'rgba(91,138,240,0.12)' : 'var(--color-s2)',
+                background: kind === k ? 'color-mix(in srgb, var(--color-volt) 12%, transparent)' : 'var(--color-s2)',
                 color: kind === k ? 'var(--color-acc-blue)' : 'var(--color-sub)',
-                borderColor: kind === k ? 'rgba(91,138,240,0.3)' : 'var(--color-border)' }}>
+                borderColor: kind === k ? 'color-mix(in srgb, var(--color-volt) 30%, transparent)' : 'var(--color-border)' }}>
               {KIND_META[k].icon} {KIND_META[k].label}
             </button>
           ))}
@@ -172,7 +172,7 @@ export function AddHoldingSheet({ open, onClose }: Props) {
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, padding: '12px 20px 0' }}>
         <button onClick={close} className="btn-ghost" style={{ width: '100%' }}>Cancelar</button>
-        <button onClick={handleSave} className="btn-primary" style={{ background: 'var(--color-acc-blue)', width: 'auto' }}>Guardar</button>
+        <button onClick={handleSave} className="btn-primary" style={{ width: 'auto' }}>Guardar</button>
       </div>
     </Modal>
   )

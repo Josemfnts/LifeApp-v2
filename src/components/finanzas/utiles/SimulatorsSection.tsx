@@ -35,9 +35,9 @@ export function SimulatorsSection() {
         {([['loan', 'Préstamo'], ['mortgage', 'Hipoteca'], ['savings', 'Ahorro']] as const).map(([k, l]) => (
           <button key={k} type="button" onClick={() => setMode(k)}
             style={{ padding: 9, borderRadius: 10, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: '1px solid',
-              background: mode === k ? 'rgba(91,138,240,0.12)' : 'var(--color-s1)',
+              background: mode === k ? 'color-mix(in srgb, var(--color-volt) 12%, transparent)' : 'var(--color-s1)',
               color: mode === k ? 'var(--color-acc-blue)' : 'var(--color-sub)',
-              borderColor: mode === k ? 'rgba(91,138,240,0.3)' : 'var(--color-border)' }}>{l}</button>
+              borderColor: mode === k ? 'color-mix(in srgb, var(--color-volt) 30%, transparent)' : 'var(--color-border)' }}>{l}</button>
         ))}
       </div>
       {mode === 'loan' && <LoanSim />}

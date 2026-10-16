@@ -88,7 +88,7 @@ export function MonthlyReport() {
         <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-text)', textTransform: 'capitalize' }}>{MONTHS[m - 1]} {y}</div>
         <button className="btn-ghost" style={{ width: 36, padding: 6 }} disabled={isCurrent} onClick={() => setMk(nextMonthKey(mk))}>›</button>
       </div>
-      <button className="btn-primary no-print" style={{ background: 'var(--color-acc-blue)', width: '100%', marginBottom: 12 }} onClick={() => window.print()}>
+      <button className="btn-primary no-print" style={{ width: '100%', marginBottom: 12 }} onClick={() => window.print()}>
         🖨️ Imprimir / guardar PDF
       </button>
 

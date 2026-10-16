@@ -95,12 +95,12 @@ export function EditTxSheet({ open, onClose, txId }: Props) {
           {!isTransfer && (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 10 }}>
               <button onClick={() => { setType('income'); if (!INCOME_CATS.includes(category)) setCategory('Otros ingresos') }}
-                style={{ padding: 9, borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', textAlign: 'center', cursor: 'pointer', border: '1px solid',
+                style={{ padding: 9, borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)', textAlign: 'center', cursor: 'pointer', border: '1px solid',
                   background: type === 'income' ? 'rgba(82,183,136,0.12)' : 'var(--color-s2)',
                   color: type === 'income' ? 'var(--color-acc-green)' : 'var(--color-dim)',
                   borderColor: type === 'income' ? 'rgba(82,183,136,0.3)' : 'var(--color-border)' }}>↑ Ingreso</button>
               <button onClick={() => { setType('expense'); if (!EXPENSE_CATS.includes(category)) setCategory('Otros gastos') }}
-                style={{ padding: 9, borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', textAlign: 'center', cursor: 'pointer', border: '1px solid',
+                style={{ padding: 9, borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)', textAlign: 'center', cursor: 'pointer', border: '1px solid',
                   background: type === 'expense' ? 'rgba(224,95,95,0.1)' : 'var(--color-s2)',
                   color: type === 'expense' ? 'var(--color-red)' : 'var(--color-dim)',
                   borderColor: type === 'expense' ? 'rgba(224,95,95,0.25)' : 'var(--color-border)' }}>↓ Gasto</button>
@@ -169,7 +169,7 @@ export function EditTxSheet({ open, onClose, txId }: Props) {
             className="btn-ghost" style={{ width: '100%', background: 'rgba(224,95,95,0.08)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.2)' }}>
             Borrar
           </button>
-          <button onClick={handleSave} className="btn-primary" style={{ background: 'var(--color-acc-blue)', width: 'auto' }}>
+          <button onClick={handleSave} className="btn-primary" style={{ width: 'auto' }}>
             Guardar
           </button>
         </div>

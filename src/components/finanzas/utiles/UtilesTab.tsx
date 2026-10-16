@@ -18,10 +18,10 @@ export function UtilesTab() {
         ]).map(s => (
           <button key={s.k} onClick={() => setSub(s.k)}
             style={{ flex: '0 0 auto', whiteSpace: 'nowrap', padding: '10px 16px', borderRadius: 10, fontSize: 12, fontWeight: 700,
-              fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid',
-              background: sub === s.k ? 'rgba(91,138,240,0.12)' : 'transparent',
+              fontFamily: 'var(--font-sans)', cursor: 'pointer', border: '1px solid',
+              background: sub === s.k ? 'color-mix(in srgb, var(--color-volt) 12%, transparent)' : 'transparent',
               color: sub === s.k ? 'var(--color-acc-blue)' : 'var(--color-dim)',
-              borderColor: sub === s.k ? 'rgba(91,138,240,0.3)' : 'var(--color-border)' }}>{s.l}</button>
+              borderColor: sub === s.k ? 'color-mix(in srgb, var(--color-volt) 30%, transparent)' : 'var(--color-border)' }}>{s.l}</button>
         ))}
       </div>
       {sub === 'analisis' && <AnalysisTab />}

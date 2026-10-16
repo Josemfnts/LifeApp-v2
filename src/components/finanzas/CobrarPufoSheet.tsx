@@ -66,7 +66,7 @@ export function CobrarPufoSheet({ open, onClose, pufo, onCobrar }: Props) {
                 {pufo.concept || pufo.reason || 'Sin concepto'}
               </div>
             </div>
-            <div style={{ fontFamily: 'DM Serif Display, serif', fontSize: 22, color: 'var(--color-acc-green)', flexShrink: 0 }}>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: 'var(--color-acc-green)', flexShrink: 0 }}>
               {fmt(pufo.amount)}
             </div>
           </div>
@@ -94,7 +94,7 @@ export function CobrarPufoSheet({ open, onClose, pufo, onCobrar }: Props) {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, padding: '12px 20px 0' }}>
         <button onClick={onClose} className="btn-ghost" style={{ width: '100%' }}>Cancelar</button>
-        <button onClick={handleConfirm} className="btn-primary" style={{ width: '100%', background: 'var(--color-acc-gold)', color: '#111' }}>Cobrado</button>
+        <button onClick={handleConfirm} className="btn-primary" style={{ width: '100%', background: 'var(--color-primary)', color: '#111' }}>Cobrado</button>
       </div>
     </Modal>
   )

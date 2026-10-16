@@ -119,7 +119,7 @@ export function QuotasSection({ month, projectFilter }: Props) {
           <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total mensual previsto</div>
           <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 4 }}>Suma de las cuotas activas (anuales /12)</div>
         </div>
-        <div style={{ fontFamily: 'DM Serif Display, serif', fontSize: 24, color: 'var(--color-acc-green)' }}>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, color: 'var(--color-acc-green)' }}>
           {fmt(totalMensual)}
         </div>
       </div>
@@ -138,12 +138,12 @@ export function QuotasSection({ month, projectFilter }: Props) {
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
         <button onClick={() => setAdding(true)} type="button"
-          style={{ background: 'rgba(82,183,136,0.1)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.2)', borderRadius: 8, padding: '7px 14px', fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>
+          style={{ background: 'rgba(82,183,136,0.1)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.2)', borderRadius: 8, padding: '7px 14px', fontSize: 12, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>
           + Cuota
         </button>
         {anteriores.length > 0 && (
           <button onClick={openBulkConfirm} type="button"
-            style={{ background: 'rgba(201,168,76,0.1)', color: 'var(--color-acc-gold)', border: '1px solid rgba(201,168,76,0.25)', borderRadius: 8, padding: '7px 14px', fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>
+            style={{ background: 'rgba(201,168,76,0.1)', color: 'var(--color-acc-gold)', border: '1px solid rgba(201,168,76,0.25)', borderRadius: 8, padding: '7px 14px', fontSize: 12, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>
             Dar por cobrado lo anterior a este mes ({anteriores.length})
           </button>
         )}
@@ -154,7 +154,7 @@ export function QuotasSection({ month, projectFilter }: Props) {
           <div className="sec-label" style={{ marginBottom: 8 }}>Pendiente este mes</div>
           <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, overflow: 'hidden' }}>
             {pendientesMes.map(p => (
-              <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+              <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid var(--color-border)' }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {p.concept || `Cuota ${projectLabel(p.project ?? '')}`}
@@ -163,11 +163,11 @@ export function QuotasSection({ month, projectFilter }: Props) {
                     {projectLabel(p.project ?? '')} · {shortDate(p.date)}
                   </div>
                 </div>
-                <div style={{ fontFamily: 'DM Serif Display, serif', fontSize: 18, color: 'var(--color-acc-green)', flexShrink: 0 }}>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, color: 'var(--color-acc-green)', flexShrink: 0 }}>
                   {fmt(p.amount)}
                 </div>
                 <button onClick={() => setCobrarPufoId(p.id)} type="button"
-                  style={{ padding: '6px 12px', borderRadius: 8, background: 'rgba(82,183,136,0.12)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.25)', fontSize: 11, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', flexShrink: 0 }}>
+                  style={{ padding: '6px 12px', borderRadius: 8, background: 'rgba(82,183,136,0.12)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.25)', fontSize: 11, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', flexShrink: 0 }}>
                   Cobrar
                 </button>
               </div>
@@ -221,7 +221,7 @@ function QuotaRow({ quota: q, onEdit }: QuotaRowProps) {
   return (
     <div style={{
       display: 'flex', alignItems: 'center', gap: 12, padding: '11px 16px',
-      borderBottom: '1px solid rgba(255,255,255,0.04)', opacity: q.active ? 1 : 0.55,
+      borderBottom: '1px solid var(--color-border)', opacity: q.active ? 1 : 0.55,
     }}>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>

@@ -1,0 +1,35 @@
+.finance-page-date { color:var(--color-sub); font-size:13px; margin:4px 0 12px; text-transform:capitalize; }
+.finance-page .inp,.modal-sheet .inp { font-size:16px !important; }
+.finance-page .card { box-shadow:var(--shadow-impulso); }
+.finance-hero { background:linear-gradient(140deg,var(--color-volt),var(--color-volt-deep)); color:var(--color-ink); border-radius:var(--radius-card); padding:22px 20px 18px; margin-bottom:14px; box-shadow:var(--shadow-impulso); overflow:hidden; }
+.finance-hero__top { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.finance-hero__label { font-size:12px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--color-ink); opacity:.7; }
+.finance-hero__periods { display:flex; gap:4px; }
+.finance-hero__period { border:1px solid color-mix(in srgb,var(--color-ink) 25%,transparent); border-radius:999px; background:transparent; color:var(--color-ink); font:600 12px var(--font-sans); min-width:36px; min-height:32px; cursor:pointer; }
+.finance-hero__period[aria-pressed="true"] { background:var(--color-ink); color:var(--color-volt); }
+.finance-hero__value { font:600 clamp(32px,8vw,48px)/1.1 var(--font-display); letter-spacing:-.035em; font-variant-numeric:tabular-nums; margin:12px 0; overflow-wrap:anywhere; }
+.finance-hero__variation { display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12px; }
+.finance-hero__chip { background:var(--color-ink); color:var(--color-volt); border-radius:999px; padding:6px 10px; font-weight:700; }
+.finance-hero__note { color:var(--color-ink); opacity:.75; }
+.finance-hero__segments { display:flex; gap:16px; flex-wrap:wrap; margin-top:18px; padding-top:14px; border-top:1px solid color-mix(in srgb,var(--color-ink) 20%,transparent); }
+.finance-hero__segment { display:grid; gap:3px; font-size:12px; }
+.finance-hero__segment strong { font:600 16px var(--font-display); font-variant-numeric:tabular-nums; }
+.finance-hero__chart { height:110px; position:relative; margin-top:14px; }
+.finance-hero__empty { padding:26px 22px; }
+.finance-hero__empty .finance-hero__value { margin:8px 0; }
+.finance-hero__action { background:var(--color-ink); color:var(--color-volt); border:0; border-radius:12px; min-height:44px; padding:10px 18px; font:600 14px var(--font-sans); cursor:pointer; margin-top:18px; }
+.finance-summary-strip { margin-bottom:14px; }
+.finance-account-summary { background:var(--color-s1); border:1px solid var(--color-border); border-radius:var(--radius-card); padding:18px; margin-bottom:14px; box-shadow:var(--shadow-impulso); text-align:center; }
+.finance-summary-strip .stat-num { font-size:clamp(16px,4vw,23px); font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
+.finance-summary-strip .finance-stat-label { display:flex; align-items:center; justify-content:center; gap:4px; color:var(--color-sub); font-size:11px; font-weight:600; margin-bottom:6px; }
+.finance-summary-strip .finance-stat-count { color:var(--color-dim); font-size:11px; margin-top:5px; }
+.finance-categories { background:var(--color-s1); border:1px solid var(--color-border); border-radius:var(--radius-card); padding:18px; margin-bottom:14px; box-shadow:var(--shadow-impulso); }
+.finance-categories__row { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:6px 12px; padding:8px 0; font-size:13px; }
+.finance-categories__row .name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.finance-categories__row .value { font:600 14px var(--font-display); font-variant-numeric:tabular-nums; }
+.finance-categories__track { grid-column:1/-1; height:6px; border-radius:99px; background:var(--color-s2); overflow:hidden; }
+.finance-categories__fill { height:100%; border-radius:inherit; }
+.finance-goal { display:grid; gap:9px; background:var(--color-s2); border-radius:18px; padding:16px; margin:10px 0; font:500 14px var(--font-sans); }
+.finance-goal strong { font:600 16px var(--font-display); }
+.finance-hero button:focus-visible,.finance-categories button:focus-visible { outline:2px solid var(--color-ink); outline-offset:2px; }
+@media (max-width:360px) { .finance-hero__top { display:block; } .finance-hero__periods { margin-top:12px; } }

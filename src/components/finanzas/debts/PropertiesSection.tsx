@@ -23,14 +23,14 @@ export function PropertiesSection() {
     <div>
       <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 20, padding: 20, marginBottom: 12 }}>
         <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 6 }}>Inmuebles</div>
-        <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 38, lineHeight: 1, color: 'var(--color-text)' }}>{fmt(total)}</div>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: 38, lineHeight: 1, color: 'var(--color-text)' }}>{fmt(total)}</div>
         <div style={{ fontSize: 12, color: 'var(--color-sub)', marginTop: 8 }}>Descontando hipotecas ligadas: {fmt(net)}</div>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
         <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Mis inmuebles</div>
         <button onClick={() => open(null)}
-          style={{ background: 'rgba(91,138,240,0.1)', color: 'var(--color-acc-blue)', border: '1px solid rgba(91,138,240,0.2)', borderRadius: 8, padding: '5px 12px', fontSize: 11, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>+ Añadir</button>
+          style={{ background: 'color-mix(in srgb, var(--color-volt) 10%, transparent)', color: 'var(--color-acc-blue)', border: '1px solid color-mix(in srgb, var(--color-volt) 20%, transparent)', borderRadius: 8, padding: '5px 12px', fontSize: 11, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>+ Añadir</button>
       </div>
 
       {properties.length === 0 ? (
@@ -57,7 +57,7 @@ export function PropertiesSection() {
                   </div>
                 </div>
                 <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                  <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 17, color: 'var(--color-text)' }}>{fmtShort(value)}</div>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 17, color: 'var(--color-text)' }}>{fmtShort(value)}</div>
                   <div style={{ fontSize: 11, fontWeight: 600, color: up ? 'var(--color-acc-green)' : 'var(--color-red)' }}>{up ? '+' : ''}{gainPct.toFixed(1)}%</div>
                 </div>
               </div>

@@ -53,12 +53,12 @@ export function AdjustSheet({ open, onClose, cuentaName }: Props) {
         <input className="inp" value={date} onChange={e => setDate(e.target.value)} type="date" style={{ fontSize: 13 }} />
         <div style={{ marginTop: 14, padding: 12, background: 'var(--color-s2)', border: '1px solid var(--color-border)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span style={{ fontSize: 12, color: 'var(--color-sub)' }}>Diferencia apuntada</span>
-          <span style={{ fontFamily: 'DM Serif Display,serif', fontSize: 18, color: diffColor }}>{diffLabel}</span>
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: 18, color: diffColor }}>{diffLabel}</span>
         </div>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, padding: '12px 20px 0' }}>
         <button onClick={onClose} className="btn-ghost" style={{ width: '100%' }}>Cancelar</button>
-        <button onClick={handleConfirm} className="btn-primary" style={{ background: 'var(--color-acc-blue)', width: 'auto' }} disabled={diff === 0}>
+        <button onClick={handleConfirm} className="btn-primary" style={{ width: 'auto' }} disabled={diff === 0}>
           {diff === 0 ? 'Sin cambios' : 'Confirmar'}
         </button>
       </div>

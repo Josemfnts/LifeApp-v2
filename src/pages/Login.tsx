@@ -49,27 +49,27 @@ export default function Login({ onDone }: LoginProps) {
       alignItems: 'center', justifyContent: 'center', padding: 24,
       background: 'var(--color-bg)',
     }}>
-      <div style={{ textAlign: 'center', marginBottom: 32 }}>
-        <img src="/icon-512.png" alt="Life OS" width={176} height={176} style={{ display: 'block', margin: '0 auto 16px', background: 'transparent' }} />
-        <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 30, color: 'var(--color-text)' }}>Life OS</div>
+      <div style={{ textAlign: 'center', marginBottom: 24 }}>
+        <img src="/icon-512.png" alt="Life OS" width={104} height={104} style={{ display: 'block', margin: '0 auto 16px', background: 'transparent' }} />
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: 32, color: 'var(--color-text)', fontWeight: 700 }}>Life OS</div>
       </div>
 
-      <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: 360 }}>
+      <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: 380, background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-impulso)', padding: 22 }}>
         <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
           <button type="button" onClick={() => setMode('login')}
             style={{
               flex: 1, padding: 11, borderRadius: 12, fontSize: 14, fontWeight: 600,
-              fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid',
+              fontFamily: 'var(--font-sans)', cursor: 'pointer', border: '1px solid',
               background: mode === 'login' ? 'color-mix(in srgb, var(--color-acc-blue) 12%, transparent)' : 'transparent',
-              color: mode === 'login' ? 'var(--color-acc-blue)' : 'var(--color-dim)',
+              color: mode === 'login' ? 'var(--color-text)' : 'var(--color-sub)',
               borderColor: mode === 'login' ? 'color-mix(in srgb, var(--color-acc-blue) 30%, transparent)' : 'var(--color-border)',
             }}>Iniciar sesión</button>
           <button type="button" onClick={() => setMode('register')}
             style={{
               flex: 1, padding: 11, borderRadius: 12, fontSize: 14, fontWeight: 600,
-              fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid',
+              fontFamily: 'var(--font-sans)', cursor: 'pointer', border: '1px solid',
               background: mode === 'register' ? 'color-mix(in srgb, var(--color-acc-blue) 12%, transparent)' : 'transparent',
-              color: mode === 'register' ? 'var(--color-acc-blue)' : 'var(--color-dim)',
+              color: mode === 'register' ? 'var(--color-text)' : 'var(--color-sub)',
               borderColor: mode === 'register' ? 'color-mix(in srgb, var(--color-acc-blue) 30%, transparent)' : 'var(--color-border)',
             }}>Crear cuenta</button>
         </div>
@@ -105,7 +105,7 @@ export default function Login({ onDone }: LoginProps) {
         style={{
           marginTop: 24, background: 'none', border: 'none',
           color: 'var(--color-dim)', fontSize: 13, fontWeight: 500,
-          fontFamily: 'DM Sans,sans-serif', cursor: 'pointer',
+          fontFamily: 'var(--font-sans)', cursor: 'pointer',
         }}>
         Continuar sin cuenta
       </button>

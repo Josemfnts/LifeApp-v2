@@ -351,10 +351,10 @@ export function ImportSheet({ open, onClose }: Props) {
           {step === 'map' ? 'Atrás' : 'Cancelar'}
         </button>
         {step === 'map' && (
-          <button onClick={previewMapping} className="btn-primary" style={{ background: 'var(--color-acc-blue)', width: 'auto' }}>Previsualizar</button>
+          <button onClick={previewMapping} className="btn-primary" style={{ width: 'auto' }}>Previsualizar</button>
         )}
         {step === 'review' && (
-          <button onClick={handleApply} disabled={fresh.length === 0} className="btn-primary" style={{ background: 'var(--color-acc-gold)', color: 'var(--color-bg)', width: 'auto' }}>
+          <button onClick={handleApply} disabled={fresh.length === 0} className="btn-primary" style={{ background: 'var(--color-primary)', color: 'var(--color-on-primary)', width: 'auto' }}>
             Importar {fresh.length}
           </button>
         )}

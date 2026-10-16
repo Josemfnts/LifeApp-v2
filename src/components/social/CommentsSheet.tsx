@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom'
 import { useState, useEffect, useCallback } from 'react'
 import { fetchComments, addComment, deleteComment, type SocialPost, type Comment } from '@/lib/social'
 import { useToast } from '@/stores/toast'
@@ -40,11 +41,11 @@ export function CommentsSheet({ post, onClose, onChanged }: {
     catch { toast.show('No se pudo eliminar'); load() }
   }
 
-  return (
+  return createPortal(
     <div onClick={e => { if (e.target === e.currentTarget) onClose() }} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 9000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
       <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 480, padding: '20px 16px 24px', maxHeight: '85dvh', display: 'flex', flexDirection: 'column' }}>
         <div style={{ width: 36, height: 4, background: 'var(--color-border2)', borderRadius: 99, margin: '0 auto 16px' }} />
-        <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 18, marginBottom: 12 }}>Comentarios</div>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, marginBottom: 12 }}>Comentarios</div>
 
         <div style={{ flex: 1, overflowY: 'auto', minHeight: 80 }}>
           {loading ? (
@@ -68,9 +69,10 @@ export function CommentsSheet({ post, onClose, onChanged }: {
 
         <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
           <input className="inp" style={{ margin: 0, flex: 1 }} value={text} onChange={e => setText(e.target.value)} placeholder="Escribe un comentario…" onKeyDown={e => { if (e.key === 'Enter') submit() }} />
-          <button onClick={submit} disabled={busy || !text.trim()} className="btn-primary" style={{ background: 'var(--color-acc-purple)', opacity: busy || !text.trim() ? 0.5 : 1 }}>Enviar</button>
+          <button onClick={submit} disabled={busy || !text.trim()} className="btn-primary" style={{ background: 'var(--color-primary)', opacity: busy || !text.trim() ? 0.5 : 1 }}>Enviar</button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

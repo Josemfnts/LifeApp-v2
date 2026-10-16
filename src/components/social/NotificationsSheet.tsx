@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom'
 import { useState, useEffect } from 'react'
 import { fetchNotifications, markNotificationsRead, type Notification } from '@/lib/social'
 import { Avatar } from './Avatar'
@@ -28,11 +29,11 @@ export function NotificationsSheet({ onClose, onRead }: { onClose: () => void; o
     return () => { alive = false }
   }, [onRead])
 
-  return (
+  return createPortal(
     <div onClick={e => { if (e.target === e.currentTarget) onClose() }} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 9000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
       <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 480, padding: '20px 16px 32px', maxHeight: '85dvh', overflowY: 'auto' }}>
         <div style={{ width: 36, height: 4, background: 'var(--color-border2)', borderRadius: 99, margin: '0 auto 16px' }} />
-        <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 18, marginBottom: 12 }}>Notificaciones</div>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, marginBottom: 12 }}>Notificaciones</div>
         {loading ? (
           <div className="empty-state">Cargando…</div>
         ) : items.length === 0 ? (
@@ -48,6 +49,7 @@ export function NotificationsSheet({ onClose, onRead }: { onClose: () => void; o
           </div>
         ))}
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

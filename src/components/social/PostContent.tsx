@@ -34,7 +34,7 @@ export function StatGrid({ stats }: { stats: [string, string][] }) {
     <div style={{ display: 'flex', gap: 18, padding: '10px 14px', borderTop: '1px solid var(--color-border)', flexWrap: 'wrap' }}>
       {stats.map(([label, value]) => (
         <div key={label}>
-          <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 18, color: 'var(--color-text)', lineHeight: 1 }}>{value}</div>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, color: 'var(--color-text)', lineHeight: 1 }}>{value}</div>
           <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: 3 }}>{label}</div>
         </div>
       ))}

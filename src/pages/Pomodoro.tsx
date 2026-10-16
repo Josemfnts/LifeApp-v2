@@ -54,7 +54,7 @@ export default function Pomodoro() {
               strokeLinecap="round" style={{ transition: 'stroke-dashoffset 0.9s linear' }} />
           </svg>
           <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 48, color: 'var(--color-text)', lineHeight: 1 }}>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 48, color: 'var(--color-text)', lineHeight: 1 }}>
               {String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}
             </div>
             <div style={{ fontSize: 12, color: 'var(--color-sub)', marginTop: 4 }}>
@@ -65,14 +65,14 @@ export default function Pomodoro() {
 
         <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
           <button onClick={() => setRunning(!running)}
-            style={{ padding: '14px 32px', borderRadius: 16, fontSize: 16, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: 'none',
+            style={{ padding: '14px 32px', borderRadius: 16, fontSize: 16, fontWeight: 700, fontFamily: 'var(--font-sans)', cursor: 'pointer', border: 'none',
               background: running ? 'rgba(224,95,95,0.12)' : 'var(--color-red)',
               color: running ? 'var(--color-red)' : '#fff',
             }}>
             {running ? '⏸ Pausa' : '▶ Iniciar'}
           </button>
           <button onClick={() => { setRunning(false); setTimeLeft(25 * 60); setMode('focus') }}
-            style={{ padding: '14px 24px', borderRadius: 16, fontSize: 16, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid var(--color-border)', background: 'var(--color-s1)', color: 'var(--color-dim)' }}>
+            style={{ padding: '14px 24px', borderRadius: 16, fontSize: 16, fontWeight: 700, fontFamily: 'var(--font-sans)', cursor: 'pointer', border: '1px solid var(--color-border)', background: 'var(--color-s1)', color: 'var(--color-dim)' }}>
             ↺
           </button>
         </div>
@@ -80,11 +80,11 @@ export default function Pomodoro() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, width: '100%', maxWidth: 300 }}>
           <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 12, padding: 12, textAlign: 'center' }}>
             <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Sesiones hoy</div>
-            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 28, color: 'var(--color-red)', lineHeight: 1 }}>{sessions}</div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--color-red)', lineHeight: 1 }}>{sessions}</div>
           </div>
           <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 12, padding: 12, textAlign: 'center' }}>
             <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Modo</div>
-            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 28, color: mode === 'focus' ? 'var(--color-red)' : 'var(--color-acc-green)', lineHeight: 1 }}>{mode === 'focus' ? '🎯' : '☕'}</div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: mode === 'focus' ? 'var(--color-red)' : 'var(--color-acc-green)', lineHeight: 1 }}>{mode === 'focus' ? '🎯' : '☕'}</div>
           </div>
         </div>
       </div>

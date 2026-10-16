@@ -5,8 +5,10 @@ import { isFlow } from '@/lib/finance/flow'
 import { sumEuros } from '@/lib/finance/money'
 import { flowAmount } from '@/lib/finance/split'
 import { MONTHS_SH, monthKey } from './shared'
+import { useTheme } from '@/contexts/ThemeContext'
 
 export function AnalysisTab() {
+  const { theme } = useTheme()
   const { txs } = useFinanceStore()
   const barRef = useRef<HTMLCanvasElement>(null)
   const rateRef = useRef<HTMLCanvasElement>(null)
@@ -19,29 +21,37 @@ export function AnalysisTab() {
   const savingsRate = totalIncome > 0 ? Math.round((totalSaved / totalIncome) * 100) : 0
 
   const now = new Date()
-  const months6 = Array.from({ length: 6 }, (_, i) => {
-    let y = now.getFullYear(), m = now.getMonth() - (5 - i)
-    while (m < 0) { m += 12; y-- }
-    const keyM = monthKey(y, m)
-    const monthFlow = txs.filter(t => t.date.startsWith(keyM) && isFlow(t))
-    return {
-      label: MONTHS_SH[m],
-      income: sumEuros(monthFlow.filter(t => t.type === 'income').map(flowAmount)),
-      expense: sumEuros(monthFlow.filter(t => t.type === 'expense').map(flowAmount)),
-    }
-  })
-
-  const chartDefaults = {
-    responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#191c22', borderColor: 'rgba(255,255,255,0.07)', borderWidth: 1, titleColor: '#e8e9ee', bodyColor: '#8a8d96' } },
-    scales: {
-      x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#4a4d56', font: { size: 10 } } },
-      y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#4a4d56', font: { size: 10 } }, beginAtZero: true }
-    }
-  }
-
   useEffect(() => {
     if (!barRef.current || !rateRef.current) return
+    const chartNow = new Date()
+    const months6 = Array.from({ length: 6 }, (_, i) => {
+      let y = chartNow.getFullYear(), m = chartNow.getMonth() - (5 - i)
+      while (m < 0) { m += 12; y-- }
+      const keyM = monthKey(y, m)
+      const monthFlow = txs.filter(t => t.date.startsWith(keyM) && isFlow(t))
+      return {
+        label: MONTHS_SH[m],
+        income: sumEuros(monthFlow.filter(t => t.type === 'income').map(flowAmount)),
+        expense: sumEuros(monthFlow.filter(t => t.type === 'expense').map(flowAmount)),
+      }
+    })
+    const styles = getComputedStyle(document.documentElement)
+    const token = (name: string) => styles.getPropertyValue(name).trim()
+    const ink = token('--color-ink')
+    const grid = token('--color-border')
+    const dim = token('--color-sub')
+    const green = token('--color-teal')
+    const red = token('--color-coral')
+    const amber = token('--color-amber')
+    const volt = token('--color-volt')
+    const chartDefaults = {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: ink, borderColor: ink, borderWidth: 1, titleColor: volt, bodyColor: '#FFFFFF' } },
+      scales: {
+        x: { grid: { color: grid }, ticks: { color: dim, font: { size: 10 } } },
+        y: { grid: { color: grid }, ticks: { color: dim, font: { size: 10 } }, beginAtZero: true }
+      }
+    }
     const c = chartRefs.current
     if (c.bar) c.bar.destroy()
     if (c.rate) c.rate.destroy()
@@ -51,22 +61,23 @@ export function AnalysisTab() {
       data: {
         labels: months6.map(m => m.label),
         datasets: [
-          { label: 'Ingresos', data: months6.map(m => m.income), backgroundColor: 'rgba(82,183,136,0.2)', borderColor: 'rgba(82,183,136,0.6)', borderWidth: 1.5, borderRadius: 5, borderSkipped: false },
-          { label: 'Gastos', data: months6.map(m => m.expense), backgroundColor: 'rgba(224,95,95,0.18)', borderColor: 'rgba(224,95,95,0.55)', borderWidth: 1.5, borderRadius: 5, borderSkipped: false },
+          { label: 'Ingresos', data: months6.map(m => m.income), backgroundColor: green, borderColor: green, borderWidth: 1.5, borderRadius: 5, borderSkipped: false },
+          { label: 'Gastos', data: months6.map(m => m.expense), backgroundColor: red, borderColor: red, borderWidth: 1.5, borderRadius: 5, borderSkipped: false },
         ]
       },
-      options: { ...chartDefaults, plugins: { ...chartDefaults.plugins, legend: { display: true, labels: { color: '#8a8d96', boxWidth: 10, boxHeight: 10, font: { size: 11 } } } } }
+      options: { ...chartDefaults, plugins: { ...chartDefaults.plugins, legend: { display: true, labels: { color: dim, boxWidth: 10, boxHeight: 10, font: { size: 11 } } } } }
     })
 
     c.rate = new Chart(rateRef.current.getContext('2d')!, {
       type: 'line',
       data: {
         labels: months6.map(m => m.label),
-        datasets: [{ data: months6.map(m => m.income > 0 ? Math.round(((m.income - m.expense) / m.income) * 100) : 0), borderColor: 'rgba(201,168,76,0.8)', backgroundColor: 'rgba(201,168,76,0.06)', borderWidth: 2, tension: 0.35, pointBackgroundColor: 'rgba(201,168,76,0.9)', pointRadius: 4, fill: true }]
+        datasets: [{ data: months6.map(m => m.income > 0 ? Math.round(((m.income - m.expense) / m.income) * 100) : 0), borderColor: amber, backgroundColor: `color-mix(in srgb, ${amber} 12%, transparent)`, borderWidth: 2, tension: 0.35, pointBackgroundColor: amber, pointRadius: 4, fill: true }]
       },
       options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, ticks: { ...chartDefaults.scales.y.ticks, callback: (v: string | number) => (typeof v === 'number' ? v : parseFloat(v as string)) + '%' } } } }
     })
-  }, [txs])
+    return () => { c.bar?.destroy(); c.rate?.destroy(); c.bar = null; c.rate = null }
+  }, [txs, theme])
 
   const expFlow = txs.filter(t => t.type === 'expense' && isFlow(t) && t.date.startsWith(monthKey(now.getFullYear(), now.getMonth())))
   const totalExp = sumEuros(expFlow.map(flowAmount))
@@ -86,7 +97,7 @@ export function AnalysisTab() {
           <div key={s.label} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, position: 'relative', overflow: 'hidden' }}>
             <div style={{ position: 'absolute', top: 0, left: 12, right: '40%', height: 2, borderRadius: '0 0 2px 2px', background: s.color }} />
             <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>{s.label}</div>
-            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 26, lineHeight: 1, color: s.color }}>{s.val}</div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 26, lineHeight: 1, color: s.color }}>{s.val}</div>
             <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 4 }}>{s.unit}</div>
           </div>
         ))}
@@ -108,11 +119,11 @@ export function AnalysisTab() {
           const pct = Math.round(amt / totalExp * 100)
           const meta = CAT_META[cat] || { icon: '📤', color: '#8a8d96' }
           return (
-            <div key={cat} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+            <div key={cat} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', borderBottom: '1px solid var(--color-border)' }}>
               <div style={{ width: 10, height: 10, borderRadius: '50%', flexShrink: 0, background: meta.color }} />
               <span style={{ flex: 1, fontSize: 13, fontWeight: 500, color: 'var(--color-text)' }}>{meta.icon} {cat}</span>
               <div style={{ flex: '0 0 80px' }}>
-                <div style={{ height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 99, overflow: 'hidden' }}>
+                <div style={{ height: 4, background: 'var(--color-border)', borderRadius: 99, overflow: 'hidden' }}>
                   <div style={{ height: '100%', borderRadius: 99, width: `${pct}%`, background: meta.color }} />
                 </div>
               </div>

@@ -62,17 +62,17 @@ export function TxRow({ tx, onClick }: Props) {
 
   return (
     <div onClick={handleClick}
-      style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 16px', borderBottom: '1px solid rgba(255,255,255,0.03)', cursor: onClick ? 'pointer' : 'default' }}>
+      style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 16px', borderBottom: '1px solid var(--color-border)', cursor: onClick ? 'pointer' : 'default' }}>
       {merchant ? (
         <MerchantAvatar merchant={merchant} category={tx.category} size={38} />
       ) : (
-        <div style={{ width: 38, height: 38, borderRadius: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17, flexShrink: 0, background: meta.color + '18', border: '1px solid ' + meta.color + '30' }}>{isAdjust ? '⚖️' : meta.icon}</div>
+        <div style={{ width: 38, height: 38, borderRadius: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17, flexShrink: 0, background: `color-mix(in srgb, ${meta.color} 10%, transparent)`, border: `1px solid color-mix(in srgb, ${meta.color} 20%, transparent)` }}>{isAdjust ? '⚖️' : meta.icon}</div>
       )}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{tx.concept}</div>
         <div style={{ fontSize: 11, color: 'var(--color-dim)', marginTop: 2 }}>{subtitle}</div>
       </div>
-      <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 20, fontWeight: 400, flexShrink: 0, color: amountColor }}>
+      <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 400, flexShrink: 0, color: amountColor }}>
         {isTransfer ? '' : sign}{fmt(tx.amount)}
       </div>
       {onClick && idx >= 0 && (

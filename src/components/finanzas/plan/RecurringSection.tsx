@@ -22,12 +22,12 @@ export function RecurringSection() {
   return (
     <div>
       {suggestions.map(s => (
-        <div key={s.key} style={{ background: 'var(--color-s1)', border: '1px solid rgba(91,138,240,0.3)', borderRadius: 14, padding: 14, marginBottom: 8 }}>
+        <div key={s.key} style={{ background: 'var(--color-s1)', border: '1px solid color-mix(in srgb, var(--color-volt) 30%, transparent)', borderRadius: 14, padding: 14, marginBottom: 8 }}>
           <div style={{ fontSize: 13, color: 'var(--color-text)', lineHeight: 1.45 }}>
             💡 Parece que {s.type === 'income' ? 'cobras' : 'pagas'} <strong>{s.concept}</strong> {FREQ_TEXT[s.freq]} ({fmt(s.amount)})
           </div>
           <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
-            <button className="btn-primary" style={{ background: 'var(--color-acc-blue)', width: 'auto', padding: '7px 12px', fontSize: 12 }}
+            <button className="btn-primary" style={{ width: 'auto', padding: '7px 12px', fontSize: 12 }}
               onClick={() => {
                 addRecurrente({
                   id: Date.now(), concept: s.concept, amount: s.amount, type: s.type, category: s.category, day: s.day,
@@ -43,7 +43,7 @@ export function RecurringSection() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '6px 0 10px' }}>
         <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Recurrentes</div>
         <button onClick={() => open(null)}
-          style={{ background: 'rgba(91,138,240,0.1)', color: 'var(--color-acc-blue)', border: '1px solid rgba(91,138,240,0.2)', borderRadius: 8, padding: '5px 12px', fontSize: 11, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>+ Recurrente</button>
+          style={{ background: 'color-mix(in srgb, var(--color-volt) 10%, transparent)', color: 'var(--color-acc-blue)', border: '1px solid color-mix(in srgb, var(--color-volt) 20%, transparent)', borderRadius: 8, padding: '5px 12px', fontSize: 11, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>+ Recurrente</button>
       </div>
 
       {recurrentes.length === 0 ? (

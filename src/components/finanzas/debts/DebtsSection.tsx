@@ -22,7 +22,7 @@ export function DebtsSection() {
     <div>
       <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 20, padding: 20, marginBottom: 12 }}>
         <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 6 }}>Deuda pendiente</div>
-        <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 38, lineHeight: 1, color: total > 0 ? 'var(--color-red)' : 'var(--color-text)' }}>{fmt(total)}</div>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: 38, lineHeight: 1, color: total > 0 ? 'var(--color-red)' : 'var(--color-text)' }}>{fmt(total)}</div>
         <div style={{ fontSize: 12, color: 'var(--color-sub)', marginTop: 8 }}>Cuotas este mes: {fmt(monthly)}</div>
         <div style={{ fontSize: 10, color: 'var(--color-dim)', marginTop: 8 }}>Al pagar una cuota solo los intereses son gasto; el capital baja la deuda y tu patrimonio no cambia.</div>
       </div>
@@ -30,7 +30,7 @@ export function DebtsSection() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
         <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Mis deudas</div>
         <button onClick={() => open(null)}
-          style={{ background: 'rgba(91,138,240,0.1)', color: 'var(--color-acc-blue)', border: '1px solid rgba(91,138,240,0.2)', borderRadius: 8, padding: '5px 12px', fontSize: 11, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>+ Añadir</button>
+          style={{ background: 'color-mix(in srgb, var(--color-volt) 10%, transparent)', color: 'var(--color-acc-blue)', border: '1px solid color-mix(in srgb, var(--color-volt) 20%, transparent)', borderRadius: 8, padding: '5px 12px', fontSize: 11, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>+ Añadir</button>
       </div>
 
       {debts.length === 0 ? (
@@ -54,7 +54,7 @@ export function DebtsSection() {
                       {split.total > 0 ? `Próxima cuota ${fmt(split.total)} · ${fmtShort(split.interest)} intereses` : 'Pagada'}
                     </div>
                   </div>
-                  <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 17, color: 'var(--color-red)', flexShrink: 0 }}>{fmtShort(d.balance)}</div>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 17, color: 'var(--color-red)', flexShrink: 0 }}>{fmtShort(d.balance)}</div>
                 </div>
                 <div style={{ height: 5, background: 'var(--color-s2)', borderRadius: 99, overflow: 'hidden', marginTop: 8 }}>
                   <div style={{ height: '100%', width: `${pct}%`, background: 'var(--color-acc-green)', borderRadius: 99 }} />

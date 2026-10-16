@@ -7,6 +7,7 @@ import "@blocknote/mantine/style.css";
 import type { NotesApi } from "./api";
 import { usePage } from "./hooks";
 import type { BlockDoc } from "./types";
+import { useTheme } from '@/contexts/ThemeContext';
 
 /** Saca texto plano del documento BlockNote (para pages.search_text) */
 export function extractPlainText(blocks: any[]): string {
@@ -159,7 +160,9 @@ export interface PageEditorProps {
 }
 
 /** Componente público: carga la página, autoguarda, remonta el editor al cambiar de página */
-export function PageEditor({ api, pageId, theme, onTitleChange, onIconChange }: PageEditorProps) {
+export function PageEditor({ api, pageId, onTitleChange, onIconChange }: PageEditorProps) {
+  const { theme: globalTheme } = useTheme();
+  const editorTheme = globalTheme === 'cream' ? 'light' : 'dark';
   const { page, loading, status, queueSave } = usePage(api, pageId);
 
   if (!pageId)
@@ -176,7 +179,7 @@ export function PageEditor({ api, pageId, theme, onTitleChange, onIconChange }: 
       title={page.title}
       icon={page.icon}
       statusLabel={STATUS_LABEL[status]}
-      theme={theme}
+      theme={editorTheme}
       onTitleChange={(t) => {
         queueSave({ title: t });
         onTitleChange?.(page.id, t);

@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom'
 import { useState, useRef } from 'react'
 import { createPost, uploadImage, type NewPost } from '@/lib/social'
 import type {
@@ -158,11 +159,11 @@ export function Composer({ onClose, onPosted }: { onClose: () => void; onPosted:
     diet: 'Nombre de la dieta', goal: 'Título del objetivo',
   }
 
-  return (
+  return createPortal(
     <div onClick={e => { if (e.target === e.currentTarget) onClose() }} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 9000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
-      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 480, padding: '20px 20px 40px', maxHeight: '92dvh', overflowY: 'auto' }}>
+      <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 480, padding: '20px 20px calc(28px + env(safe-area-inset-bottom, 0px))', maxHeight: '92dvh', overflowY: 'auto' }}>
         <div style={{ width: 36, height: 4, background: 'var(--color-border2)', borderRadius: 99, margin: '0 auto 16px' }} />
-        <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 20, marginBottom: 14 }}>Nueva publicación</div>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, marginBottom: 14 }}>Nueva publicación</div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 6, marginBottom: 14 }}>
           {TYPES.map(t => {
@@ -170,7 +171,7 @@ export function Composer({ onClose, onPosted }: { onClose: () => void; onPosted:
             const active = type === t
             return (
               <button key={t} onClick={() => setType(t)} style={{
-                padding: '8px 2px', borderRadius: 10, fontSize: 11, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid',
+                padding: '8px 2px', borderRadius: 10, fontSize: 11, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', border: '1px solid',
                 background: active ? `color-mix(in srgb, ${m.color} 14%, transparent)` : 'var(--color-s2)',
                 color: active ? m.color : 'var(--color-dim)',
                 borderColor: active ? `color-mix(in srgb, ${m.color} 30%, transparent)` : 'var(--color-border)',
@@ -275,16 +276,17 @@ export function Composer({ onClose, onPosted }: { onClose: () => void; onPosted:
               <button onClick={() => setImage(null)} style={{ position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: '50%', border: 'none', background: 'rgba(0,0,0,0.6)', color: '#fff', cursor: 'pointer', fontSize: 13 }}>✕</button>
             </div>
           ) : (
-            <button onClick={() => fileRef.current?.click()} disabled={uploading} style={{ width: '100%', padding: 14, borderRadius: 12, marginBottom: 12, border: '1px dashed var(--color-border2)', background: 'var(--color-s2)', color: 'var(--color-sub)', fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', opacity: uploading ? 0.6 : 1 }}>{uploading ? 'Subiendo foto…' : 'Añadir foto'}</button>
+            <button onClick={() => fileRef.current?.click()} disabled={uploading} style={{ width: '100%', padding: 14, borderRadius: 12, marginBottom: 12, border: '1px dashed var(--color-border2)', background: 'var(--color-s2)', color: 'var(--color-sub)', fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', opacity: uploading ? 0.6 : 1 }}>{uploading ? 'Subiendo foto…' : 'Añadir foto'}</button>
           )
         )}
         <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={e => { const f = e.target.files?.[0]; if (f) pickImage(f) }} />
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 4 }}>
           <button onClick={onClose} className="btn-ghost">Cancelar</button>
-          <button onClick={submit} disabled={busy || uploading} className="btn-primary" style={{ background: 'var(--color-acc-purple)', opacity: busy || uploading ? 0.6 : 1 }}>{busy ? 'Publicando…' : 'Publicar'}</button>
+          <button onClick={submit} disabled={busy || uploading} className="btn-primary" style={{ background: 'var(--color-primary)', opacity: busy || uploading ? 0.6 : 1 }}>{busy ? 'Publicando…' : 'Publicar'}</button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

@@ -172,7 +172,7 @@ export function ContaAddSheet({ open, onClose, activeProject, defaultDate }: Pro
           inputMode="decimal"
           placeholder="0,00"
           autoFocus
-          style={{ fontFamily: 'DM Serif Display, serif', fontSize: 28, padding: '12px 14px' }}
+          style={{ fontFamily: 'var(--font-display)', fontSize: 28, padding: '12px 14px' }}
         />
 
         <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', marginBottom: 4, marginTop: 10 }}>Concepto</div>
@@ -222,7 +222,7 @@ export function ContaAddSheet({ open, onClose, activeProject, defaultDate }: Pro
         )}
 
         <button onClick={() => setShowMore(v => !v)} type="button"
-          style={{ marginTop: 14, width: '100%', padding: '8px 10px', borderRadius: 10, background: 'transparent', border: '1px solid var(--color-border)', color: 'var(--color-dim)', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'DM Sans,sans-serif' }}>
+          style={{ marginTop: 14, width: '100%', padding: '8px 10px', borderRadius: 10, background: 'transparent', border: '1px solid var(--color-border)', color: 'var(--color-dim)', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
           {showMore ? '▾ Menos opciones' : '▸ Más opciones'}
         </button>
 
@@ -256,7 +256,7 @@ export function ContaAddSheet({ open, onClose, activeProject, defaultDate }: Pro
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, padding: '12px 20px 0' }}>
         <button onClick={onClose} className="btn-ghost" style={{ width: '100%' }}>Cancelar</button>
         <button onClick={() => save(true)} className="btn-ghost" style={{ width: '100%' }}>Guardar y añadir otro</button>
-        <button onClick={() => save(false)} className="btn-primary" style={{ background: 'var(--color-acc-gold)', color: '#111', width: 'auto' }}>Guardar</button>
+        <button onClick={() => save(false)} className="btn-primary" style={{ background: 'var(--color-primary)', color: 'var(--color-on-primary)', width: 'auto' }}>Guardar</button>
       </div>
     </Modal>
   )
