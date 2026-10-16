@@ -18,7 +18,7 @@ Referencia vinculante: Guia_Visual/CLAUDE-PROMPT.md y capturas 01–10. El showc
 - [x] Base visual (2026-10-16): tokens, tipografía, temas, shell, navegación y componentes comunes.
 - [x] Inicio y Agenda: nueva jerarquía y componentes usando datos y acciones reales.
 - [x] Físico y Nutrición: aplicación de las capturas a estados y flujos existentes.
-- [ ] Finanzas y cobertura: seis pestañas, Hábitos, Comunidad, Notas y Login.
+- [x] Finanzas y cobertura: seis pestañas, Hábitos, Comunidad, Notas y Login.
 - [ ] Revisión final: capturas móvil/escritorio, navegación, acciones representativas, build/lint/tests y documentación.
 
 ## Niebla
@@ -32,4 +32,5 @@ Ninguna decisión de producto bloquea la ejecución. Las diferencias entre mocku
 
 - Inicio y Agenda `8b061c8` + correcciones `b5aa214`: build/lint/306 tests verdes, revisión React sin P1/P2 pendientes en esta entrega. Verificación navegador con datos sintéticos: balance +80 € excluye traspaso y usa split, meta nutrición1000/consumo250 muestra25%, semana conserva texto/prioridad/estado y header sticky.
 - Físico y Nutrición `ec9f230` + correcciones `c727c6a`: build/lint/306 tests verdes. Revisión React sin P1/P2 pendientes. Prueba móvil aislada: sesión libre vacía, añadir ejercicio y serie, cancelar, registrar alimento, cierre de hoja, calendario y cabeceras sticky; cero errores de página. Hojas al portal y CSS compartido explícito para entrada directa.
-- Finanzas y cobertura en ejecución: `job_mvbao8skc9uf`, ejecutor Codex tras fallo de disponibilidad del modelo M3. Conserva motores y datos; revisión y capturas finales pendientes.
+- Finanzas y cobertura `264dac6`: contrato verde, revisión React y TypeScript completada. Corregido contraste de Cobrado en `6db0bef`. Prueba móvil360: seis pestañas sin overflow; pendiente sintético125€ cobrado desde Conta liquida el pendiente, crea un ingreso125€ y deja cuenta125€.
+- Revisión visual independiente: primer veredicto `fix`, tres hallazgos (ámbar en texto pequeño, iconos secundarios y posición de metadatos). Corregidos en `6db0bef`; segundo veredicto sobre recapturas pendiente. Build/lint/306tests verdes tras la tanda. DESIGN.md y .impeccable/design.json extraídos del código por documenter independiente.

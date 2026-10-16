@@ -12,6 +12,7 @@ PWA personal de Josema, local-first: Agenda (Kanban, Notas tipo Notion), Hábito
 - Instalar: `npm ci --include=dev` (la máquina tiene `NODE_ENV=production`; sin el flag faltan vite y tsc). Nunca borres `node_modules` ni `package-lock.json` para «arreglar».
 
 ## Convenciones
+- **Identidad visual**: `DESIGN.md` y `.impeccable/design.json` recogen IMPULSO (Guia_Visual), Inter/Space Grotesk locales y tokens. Tema GLOBAL Claro/Oscuro/Negro OLED desde Ajustes; ningún módulo, incluido Físico, fuerza tema por ruta. Nombre LifeApp y funciones existentes se conservan.
 - **Datos local-first**: la verdad es `localStorage`; Supabase es espejo (una tabla `store_data(user_id, key, value, updated_at)` con RLS). No hay tablas por dominio: no las reintroduzcas.
 - **Claves**: nunca escritas a mano; la lista canónica es `src/lib/storageKeys.ts` (`STORE_KEYS`/`ALL_STORAGE_KEYS`; `LOCAL_ONLY_KEYS` nunca sube). Dato nuevo = clave allí primero, y que Dashboard y backup la contemplen.
 - **Espejo vivo**: `updated_at` lo pone el servidor (nunca lo mandes); `saveToCloud` hace UPDATE condicionado a la versión vista; las filas entrantes pasan por `applyCloudRow` y emiten `lifeos:remote-change`. Clave o store nuevo = cablea su recargador (`onRemoteChange` en el store o `useRemoteChange` en el componente).
