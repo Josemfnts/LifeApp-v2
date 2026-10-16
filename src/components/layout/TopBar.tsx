@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { getGreeting, formatDateSpanish } from '@/lib/dates'
 import { getDisplayName, setDisplayName } from '@/lib/storage'
 import { useXP } from '@/contexts/XPContext'
@@ -9,6 +10,7 @@ import { supabase, signOut } from '@/lib/supabase'
 import { requestPermission } from '@/lib/notifications'
 import { ALL_STORAGE_KEYS, STORAGE_LABELS } from '@/lib/storageKeys'
 import { ConfirmDialog } from '@/components/ui'
+import { Settings as SettingsIcon } from 'lucide-react'
 
 export function TopBar() {
   const { xp } = useXP()
@@ -45,7 +47,6 @@ export function TopBar() {
   function handleSaveName() {
     setDisplayName(name)
     toast.show('✓ Nombre actualizado')
-    setSettingsOpen(false)
   }
 
   function exportBackup() {
@@ -83,48 +84,53 @@ export function TopBar() {
 
   return (
     <>
-      {/* Inicio compacto (mejora visual V4): saludo y ajustes en una fila; racha, nivel y fecha como chips. */}
+      {/* Identidad + fecha + ajustes (Space Grotesk, en una fila). */}
       <div className="page-header home-header">
         <div className="home-top">
-          <div style={{ minWidth: 0 }}>
-            <div className="greeting">{greeting.replace(/,\s*$/, '')} · {dateStr}</div>
+          <div className="home-id-meta">
+            <div className="greeting">{greeting.replace(/,\s*$/, '')} · <span className="home-date">{dateStr}</span></div>
             <div className="greeting-name"><em>{getDisplayName()}</em></div>
           </div>
-            <button className="gear-btn" aria-label="Ajustes" onClick={async () => {
-              setSettingsOpen(true)
-              const info = calcStorage()
-              setStorageInfo(info.lines)
-              setStorageTotalKb(info.totalKb)
-              const { data } = await supabase.auth.getSession()
-              setSession(data.session)
-            }}>
-              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            </button>
+          <button className="gear-btn" aria-label="Ajustes" onClick={async () => {
+            setSettingsOpen(true)
+            const info = calcStorage()
+            setStorageInfo(info.lines)
+            setStorageTotalKb(info.totalKb)
+            const { data } = await supabase.auth.getSession()
+            setSession(data.session)
+          }}>
+            <SettingsIcon size={18} aria-hidden="true" />
+          </button>
         </div>
 
         <div className="home-meta">
-          <span className="home-chip">🔥 <strong style={{ color: 'var(--color-acc-gold)' }}>{streak}</strong> {streak === 1 ? 'día' : 'días'} de racha</span>
-          <span className="home-chip"><span className="level-dot">{lv.level}</span>Nivel {lv.level} · {grandTotal} XP</span>        </div>
+          <span className="home-chip" aria-label={`Racha de ${streak} ${streak === 1 ? 'día' : 'días'}`}>
+            <span aria-hidden="true" style={{ color: 'var(--color-acc-orange)' }}>●</span>
+            <strong style={{ color: 'var(--color-text)' }}>{streak}</strong> {streak === 1 ? 'día' : 'días'} de racha
+          </span>
+          <span className="home-chip">
+            <span className="level-dot">{lv.level}</span>
+            <span style={{ color: 'var(--color-text)' }}>Nivel {lv.level}</span>
+            <span style={{ color: 'var(--color-dim)' }}>· {grandTotal} XP</span>
+          </span>
+        </div>
 
-        <div className="xp-strip">
+        <div className="xp-strip" aria-hidden="true">
           <div className="xp-strip-fill" style={{ width: `${lv.pct}%` }} />
         </div>
       </div>
 
-      {/* Settings Modal */}
-      {settingsOpen && (
+      {/* Hoja de Ajustes — portal a body para librar el fixed iOS. */}
+      {settingsOpen && createPortal(
         <div className="modal-overlay" onClick={e => { if (e.target === e.currentTarget) setSettingsOpen(false) }}>
-          <div className="modal-sheet">
+          <div className="modal-sheet animate-slideUp">
             <div className="modal-handle" />
             <div style={{ padding: '16px 20px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
                 <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-dim)', letterSpacing: '0.8px', textTransform: 'uppercase' }}>Configuración</div>
-                <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 22, marginTop: 2 }}>Ajustes</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, marginTop: 2, fontWeight: 600, color: 'var(--color-text)' }}>Ajustes</div>
               </div>
-              <button onClick={() => setSettingsOpen(false)} className="gear-btn">✕</button>
+              <button onClick={() => setSettingsOpen(false)} className="gear-btn" aria-label="Cerrar ajustes">✕</button>
             </div>
 
             <div style={{ margin: '16px 20px 0' }}>
@@ -132,8 +138,8 @@ export function TopBar() {
               <div style={{ background: 'var(--color-s2)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14 }}>
                 <div style={{ fontSize: 13, color: 'var(--color-sub)', marginBottom: 8 }}>Tu nombre en la app</div>
                 <div style={{ display: 'flex', gap: 8 }}>
-                  <input value={name} onChange={e => setName(e.target.value)} type="text" className="inp" style={{ flex: 1, marginBottom: 0, fontSize: 15, fontWeight: 600 }} placeholder="Tu nombre..." />
-                  <button onClick={handleSaveName} style={{ padding: '0 16px', borderRadius: 10, background: 'rgba(91,138,240,0.12)', color: 'var(--color-acc-blue)', border: '1px solid rgba(91,138,240,0.2)', fontSize: 13, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', whiteSpace: 'nowrap' }}>Guardar</button>
+                  <input value={name} onChange={e => setName(e.target.value)} type="text" className="inp" style={{ flex: 1, marginBottom: 0, fontSize: 16, fontWeight: 600 }} placeholder="Tu nombre..." />
+                  <button onClick={handleSaveName} style={{ padding: '0 16px', borderRadius: 14, background: 'color-mix(in srgb, var(--color-volt) 35%, transparent)', color: 'var(--color-on-accent)', border: '1px solid color-mix(in srgb, var(--color-volt) 50%, transparent)', fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', whiteSpace: 'nowrap' }}>Guardar</button>
                 </div>
               </div>
             </div>
@@ -147,17 +153,19 @@ export function TopBar() {
                     onClick={() => setTheme(key)}
                     style={{
                       background: theme === key ? 'var(--color-s2)' : 'var(--color-s1)',
-                      border: theme === key ? '1px solid var(--color-acc-blue)' : '1px solid var(--color-border)',
+                      border: theme === key ? '1px solid var(--color-volt)' : '1px solid var(--color-border)',
                       borderRadius: 14, padding: 14,
                       display: 'flex', alignItems: 'center', gap: 12,
                       cursor: 'pointer', transition: 'all 0.15s',
+                      textAlign: 'left',
+                      fontFamily: 'var(--font-sans)',
                     }}>
-                    <span style={{ fontSize: 28 }}>{t.icon}</span>
-                    <div style={{ textAlign: 'left' }}>
+                    <span style={{ fontSize: 28 }} aria-hidden="true">{t.icon}</span>
+                    <div>
                       <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>{t.name}</div>
                       <div style={{ fontSize: 12, color: 'var(--color-sub)' }}>{t.desc}</div>
                     </div>
-                    {theme === key && <div style={{ marginLeft: 'auto', width: 20, height: 20, borderRadius: '50%', background: 'var(--color-acc-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: '#fff' }}>✓</div>}
+                    {theme === key && <div style={{ marginLeft: 'auto', width: 20, height: 20, borderRadius: '50%', background: 'var(--color-volt)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: 'var(--color-on-accent)' }} aria-label="Seleccionado">✓</div>}
                   </button>
                 ))}
               </div>
@@ -171,13 +179,13 @@ export function TopBar() {
                     <div style={{ fontSize: 13, color: 'var(--color-sub)', marginBottom: 4 }}>Conectado como</div>
                     <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-text)', marginBottom: 12 }}>{session.user.email}</div>
                     <button onClick={async () => { await signOut(); window.location.reload() }}
-                      style={{ width: '100%', background: 'rgba(224,95,95,0.08)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.15)', fontFamily: 'DM Sans,sans-serif', fontSize: 14, fontWeight: 600, padding: 11, borderRadius: 10, cursor: 'pointer' }}>Cerrar sesión</button>
+                      style={{ width: '100%', background: 'color-mix(in srgb, var(--color-red) 10%, transparent)', color: 'var(--color-red)', border: '1px solid color-mix(in srgb, var(--color-red) 18%, transparent)', fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 600, padding: 11, borderRadius: 10, cursor: 'pointer' }}>Cerrar sesión</button>
                   </div>
                 ) : (
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ fontSize: 13, color: 'var(--color-sub)', marginBottom: 10 }}>Sincroniza tus datos en la nube</div>
                     <button onClick={() => { setSettingsOpen(false); window.dispatchEvent(new CustomEvent('show-login')) }}
-                      style={{ width: '100%', background: 'rgba(91,138,240,0.12)', color: 'var(--color-acc-blue)', border: '1px solid rgba(91,138,240,0.2)', fontFamily: 'DM Sans,sans-serif', fontSize: 14, fontWeight: 600, padding: 11, borderRadius: 10, cursor: 'pointer' }}>🔐 Iniciar sesión</button>
+                      style={{ width: '100%', background: 'color-mix(in srgb, var(--color-acc-blue) 14%, transparent)', color: 'var(--color-acc-blue)', border: '1px solid color-mix(in srgb, var(--color-acc-blue) 26%, transparent)', fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 600, padding: 11, borderRadius: 10, cursor: 'pointer' }}>Iniciar sesión</button>
                   </div>
                 )}
               </div>
@@ -207,10 +215,12 @@ export function TopBar() {
                         }}
                         style={{
                           width: 48, height: 26, borderRadius: 99, position: 'relative',
-                          background: enabled ? 'var(--color-acc-blue)' : 'var(--color-border2)',
+                          background: enabled ? 'var(--color-volt)' : 'var(--color-border2)',
                           border: 'none', cursor: 'pointer', transition: 'background 0.2s',
-                        }}>
-                        <div style={{ position: 'absolute', top: 2, width: 22, height: 22, borderRadius: '50%', background: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', transition: 'transform 0.2s', transform: enabled ? 'translateX(24px)' : 'translateX(2px)' }} />
+                          padding: 0,
+                        }}
+                        aria-label={enabled ? `Desactivar ${n.label}` : `Activar ${n.label}`}>
+                        <div style={{ position: 'absolute', top: 2, width: 22, height: 22, borderRadius: '50%', background: 'var(--color-on-primary)', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', transition: 'transform 0.2s', transform: enabled ? 'translateX(24px)' : 'translateX(2px)' }} />
                       </button>
                     </div>
                   )
@@ -223,13 +233,13 @@ export function TopBar() {
               <div style={{ background: 'var(--color-s2)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, marginBottom: 8 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)', marginBottom: 4 }}>Exportar copia de seguridad</div>
                 <div style={{ fontSize: 12, color: 'var(--color-sub)', marginBottom: 12 }}>Descarga un archivo .json con todos tus datos</div>
-                <button onClick={exportBackup} className="btn-ghost" style={{ background: 'rgba(91,138,240,0.1)', color: 'var(--color-acc-blue)', border: '1px solid rgba(91,138,240,0.2)', padding: 11, fontSize: 14, fontWeight: 600, borderRadius: 10, cursor: 'pointer', width: '100%' }}>📤 Exportar datos</button>
+                <button onClick={exportBackup} className="btn-ghost" style={{ padding: 11, fontSize: 14, fontWeight: 600 }}>Exportar datos</button>
               </div>
               <div style={{ background: 'var(--color-s2)', border: '1px solid var(--color-border)', borderRadius: 14, padding: 14, marginBottom: 8 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)', marginBottom: 4 }}>Restaurar copia de seguridad</div>
                 <div style={{ fontSize: 12, color: 'var(--color-sub)', marginBottom: 12 }}>Carga un backup .json para recuperar tus datos</div>
-                <label style={{ display: 'block', width: '100%', background: 'rgba(82,183,136,0.1)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.2)', fontFamily: 'DM Sans,sans-serif', fontSize: 14, fontWeight: 600, padding: 11, borderRadius: 10, cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box' }}>
-                  📥 Importar backup
+                <label style={{ display: 'block', width: '100%', background: 'color-mix(in srgb, var(--color-acc-green) 12%, transparent)', color: 'var(--color-acc-green)', border: '1px solid color-mix(in srgb, var(--color-acc-green) 24%, transparent)', fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 600, padding: 11, borderRadius: 10, cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box' }}>
+                  Importar backup
                   <input type="file" accept=".json" onChange={e => { const f = e.target.files?.[0]; if (f) importBackup(f) }} style={{ display: 'none' }} />
                 </label>
               </div>
@@ -244,16 +254,17 @@ export function TopBar() {
               </div>
             </div>
 
-            <div style={{ margin: '16px 20px 0' }}>
+            <div style={{ margin: '16px 20px 32px' }}>
               <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-red)', letterSpacing: '0.8px', textTransform: 'uppercase', marginBottom: 10 }}>Zona de peligro</div>
-              <div style={{ background: 'rgba(224,95,95,0.05)', border: '1px solid rgba(224,95,95,0.15)', borderRadius: 14, padding: 14 }}>
+              <div style={{ background: 'color-mix(in srgb, var(--color-red) 6%, transparent)', border: '1px solid color-mix(in srgb, var(--color-red) 18%, transparent)', borderRadius: 14, padding: 14 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)', marginBottom: 4 }}>Borrar todos los datos</div>
                 <div style={{ fontSize: 12, color: 'var(--color-sub)', marginBottom: 12 }}>Esta acción es irreversible.</div>
-                <button onClick={() => setConfirmClear(true)} style={{ width: '100%', background: 'rgba(224,95,95,0.1)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.2)', fontFamily: 'DM Sans,sans-serif', fontSize: 14, fontWeight: 600, padding: 11, borderRadius: 10, cursor: 'pointer' }}>🗑 Borrar todo</button>
+                <button onClick={() => setConfirmClear(true)} style={{ width: '100%', background: 'color-mix(in srgb, var(--color-red) 12%, transparent)', color: 'var(--color-red)', border: '1px solid color-mix(in srgb, var(--color-red) 22%, transparent)', fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 600, padding: 11, borderRadius: 10, cursor: 'pointer' }}>Borrar todo</button>
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
       <ConfirmDialog
         open={confirmClear}

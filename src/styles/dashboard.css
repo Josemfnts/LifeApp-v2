@@ -1,0 +1,228 @@
+/* =============================================================
+   Dashboard / Inicio — IMPULSO identidad
+   Sin tocar tokens ni globals: solo clases propias que viven con
+   esta página. Heredan color-scheme por data-theme del html.
+   ============================================================= */
+
+/* Greeting + nombre: ya definidos en globals (.greeting, .greeting-name, .home-header, .home-meta, .home-chip)
+   Aquí solo afinamos el bloque de identidad. */
+.home-id-row{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+.home-id-meta{ display:flex; flex-direction:column; gap:2px; min-width:0; }
+.home-date{ font-family:var(--font-display); font-size:13px; font-weight:500; color:var(--color-sub); letter-spacing:-0.01em; }
+
+/* Tarjeta "Tu día" — superficie blanca radio 24, sombra suave IMPULSO. */
+.day-card{
+  background:var(--color-s1);
+  border:1px solid var(--color-border);
+  border-radius:var(--radius-card);
+  padding:18px 18px 16px;
+  box-shadow:var(--shadow-impulso);
+}
+.day-card-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.day-card-title{ font-family:var(--font-display); font-size:22px; font-weight:600; color:var(--color-text); letter-spacing:-0.02em; }
+.day-progress-chip{
+  font-size:var(--fs-meta); font-weight:600; color:var(--color-on-accent);
+  background:color-mix(in srgb, var(--color-volt) 55%, transparent);
+  border:1px solid color-mix(in srgb, var(--color-volt) 80%, transparent);
+  border-radius:var(--radius-pill);
+  padding:4px 12px;
+  white-space:nowrap;
+}
+.day-progress-chip.muted{ background:var(--color-s2); border-color:var(--color-border); color:var(--color-sub); }
+
+/* Bloques de cifra: tres dentro de la tarjeta. */
+.day-metrics{ display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; }
+.day-metric{
+  background:var(--color-s2);
+  border:1px solid var(--color-border);
+  border-radius:18px;
+  padding:12px 10px 10px;
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  text-align:center;
+  min-width:0;
+}
+.day-metric-icon{
+  width:30px; height:30px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:color-mix(in srgb, var(--color-volt) 22%, transparent);
+  color:var(--color-on-accent);
+}
+.day-metric-icon.teal{ background:color-mix(in srgb, var(--color-teal) 22%, transparent); color:var(--color-teal); }
+.day-metric-icon.volt{ background:color-mix(in srgb, var(--color-volt) 28%, transparent); color:var(--color-on-accent); }
+.day-metric-icon.night{ background:color-mix(in srgb, var(--color-night) 22%, transparent); color:var(--color-night); }
+.day-metric-icon.orange{ background:color-mix(in srgb, var(--color-acc-orange) 22%, transparent); color:var(--color-acc-orange); }
+.day-metric-num{ font-family:var(--font-display); font-size:22px; font-weight:600; color:var(--color-text); line-height:1; letter-spacing:-0.02em; }
+.day-metric-lbl{ font-size:11px; font-weight:600; color:var(--color-dim); text-transform:uppercase; letter-spacing:0.5px; }
+.day-metric-bar{ width:100%; height:3px; border-radius:99px; background:color-mix(in srgb, var(--color-ink) 8%, transparent); overflow:hidden; }
+.day-metric-bar-fill{ height:100%; border-radius:99px; }
+.day-metric-bar-fill.teal{ background:var(--color-teal); }
+.day-metric-bar-fill.volt{ background:var(--color-volt); }
+.day-metric-bar-fill.night{ background:var(--color-night); }
+.day-metric-bar-fill.orange{ background:var(--color-acc-orange); }
+
+/* Grid 2×2 accesos a módulos. */
+.access-grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:12px; }
+.access-card{
+  background:var(--color-s1);
+  border:1px solid var(--color-border);
+  border-radius:var(--radius-card);
+  padding:16px;
+  box-shadow:var(--shadow-impulso);
+  display:flex; flex-direction:column; gap:10px;
+  text-decoration:none; color:inherit;
+  transition:transform 0.15s ease, box-shadow 0.2s ease;
+  min-width:0;
+}
+.access-card:active{ transform:scale(0.98); }
+.access-icon{
+  width:36px; height:36px; border-radius:12px;
+  display:flex; align-items:center; justify-content:center;
+  color:var(--color-text);
+}
+.access-icon.blue{ background:color-mix(in srgb, var(--color-acc-blue) 18%, transparent); color:var(--color-acc-blue); }
+.access-icon.green{ background:color-mix(in srgb, var(--color-acc-green) 18%, transparent); color:var(--color-acc-green); }
+.access-icon.volt{ background:color-mix(in srgb, var(--color-volt) 35%, transparent); color:var(--color-on-accent); }
+.access-icon.orange{ background:color-mix(in srgb, var(--color-acc-orange) 18%, transparent); color:var(--color-acc-orange); }
+.access-icon.purple{ background:color-mix(in srgb, var(--color-acc-purple) 18%, transparent); color:var(--color-acc-purple); }
+.access-icon.teal{ background:color-mix(in srgb, var(--color-teal) 18%, transparent); color:var(--color-teal); }
+.access-name{ font-size:11px; font-weight:600; color:var(--color-dim); text-transform:uppercase; letter-spacing:0.6px; }
+.access-headline{ font-family:var(--font-display); font-size:18px; font-weight:600; color:var(--color-text); line-height:1.2; letter-spacing:-0.01em; }
+.access-sub{ font-size:12px; color:var(--color-sub); }
+.access-arrow{ position:absolute; top:14px; right:14px; color:var(--color-dim); }
+.access-card{ position:relative; }
+
+/* Banda de racha — fondo tinta, texto claro. */
+.streak-band{
+  background:linear-gradient(135deg, #181B10 0%, #22271A 100%);
+  border-radius:var(--radius-card);
+  padding:18px 18px;
+  display:flex; align-items:center; gap:14px;
+  color:#FFFFFF;
+  box-shadow:var(--shadow-impulso);
+  position:relative;
+  overflow:hidden;
+}
+.streak-band::after{
+  content:''; position:absolute; inset:auto -40px -60px auto;
+  width:160px; height:160px;
+  background:radial-gradient(closest-side, rgba(201,244,60,0.18), transparent 70%);
+  pointer-events:none;
+}
+.streak-flame{
+  width:46px; height:46px; border-radius:14px;
+  background:color-mix(in srgb, var(--color-volt) 18%, transparent);
+  display:flex; align-items:center; justify-content:center;
+  color:var(--color-volt);
+  flex-shrink:0;
+}
+.streak-text{ min-width:0; }
+.streak-title{ font-family:var(--font-display); font-size:20px; font-weight:600; line-height:1.1; letter-spacing:-0.02em; }
+.streak-title strong{ color:var(--color-volt); }
+.streak-sub{ font-size:12px; color:color-mix(in srgb, #FFFFFF 70%, transparent); margin-top:2px; }
+.streak-bars{ display:flex; align-items:flex-end; gap:3px; margin-left:auto; height:36px; }
+.streak-bar{ width:5px; border-radius:3px; background:color-mix(in srgb, #FFFFFF 25%, transparent); }
+.streak-bar.on{ background:var(--color-volt); }
+
+/* CTA oscuro "Registro rápido" — ancho, principal de la página. */
+.quick-cta{
+  width:100%;
+  background:var(--color-primary);
+  color:var(--color-on-primary);
+  border:none;
+  border-radius:var(--radius-card);
+  padding:16px 20px;
+  font-family:var(--font-sans);
+  font-size:15px;
+  font-weight:600;
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  cursor:pointer;
+  box-shadow:0 6px 18px -8px color-mix(in srgb, var(--color-primary) 50%, transparent);
+  transition:filter 0.15s, transform 0.1s;
+}
+.quick-cta:hover{ filter:brightness(0.94); }
+.quick-cta:active{ transform:scale(0.98); filter:brightness(0.88); }
+.quick-cta-icon{
+  width:30px; height:30px; border-radius:50%;
+  background:color-mix(in srgb, var(--color-volt) 80%, transparent);
+  color:var(--color-on-accent);
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+
+/* Hoja "Registro rápido" — accesos en grid 2x2 dentro del modal. */
+.quick-grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; margin-top:6px; }
+.quick-grid-item{
+  background:var(--color-s2);
+  border:1px solid var(--color-border);
+  border-radius:18px;
+  padding:14px 14px;
+  display:flex; flex-direction:column; gap:8px;
+  text-align:left; cursor:pointer; min-width:0;
+  font-family:var(--font-sans);
+  color:var(--color-text);
+  transition:background 0.15s;
+}
+.quick-grid-item:hover{ background:var(--color-s3); }
+.quick-grid-icon{
+  width:32px; height:32px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  color:var(--color-on-accent);
+}
+.quick-grid-icon.tasks{ background:color-mix(in srgb, var(--color-acc-blue) 22%, transparent); color:var(--color-acc-blue); }
+.quick-grid-icon.food{ background:color-mix(in srgb, var(--color-teal) 22%, transparent); color:var(--color-teal); }
+.quick-grid-icon.fit{ background:color-mix(in srgb, var(--color-volt) 38%, transparent); color:var(--color-on-accent); }
+.quick-grid-icon.money{ background:color-mix(in srgb, var(--color-money) 22%, transparent); color:var(--color-money); }
+.quick-grid-title{ font-size:14px; font-weight:600; }
+.quick-grid-sub{ font-size:12px; color:var(--color-sub); }
+
+/* Secciones plegables (objetivos, actividad, etc.). */
+.fold{ background:transparent; border:none; width:100%; display:flex; align-items:center; justify-content:space-between; cursor:pointer; padding:0; color:var(--color-dim); margin-bottom:10px; }
+.fold-label{ font-size:var(--fs-meta); font-weight:600; color:var(--color-dim); letter-spacing:0.8px; text-transform:uppercase; }
+.fold-chev{ font-size:14px; color:var(--color-sub); transition:transform 0.2s ease; }
+.fold-chev.open{ transform:rotate(180deg); }
+
+/* Tarjeta de objetivo — estilo IMPULSO. */
+.goal-card-v2{
+  background:var(--color-s1);
+  border:1px solid var(--color-border);
+  border-radius:var(--radius-card);
+  padding:16px 18px;
+  margin-bottom:10px;
+  position:relative;
+  box-shadow:var(--shadow-impulso);
+}
+.goal-tag{ font-size:var(--fs-meta); font-weight:600; color:var(--color-sub); text-transform:uppercase; letter-spacing:0.3px; margin-bottom:6px; display:flex; align-items:center; gap:6px; }
+.goal-tag-dot{ width:6px; height:6px; border-radius:50%; display:inline-block; }
+.goal-name-v2{ font-family:var(--font-display); font-size:17px; font-weight:600; color:var(--color-text); margin-bottom:10px; line-height:1.3; letter-spacing:-0.01em; }
+.goal-track-v2{ height:4px; background:color-mix(in srgb, var(--color-ink) 8%, transparent); border-radius:99px; overflow:hidden; margin-bottom:10px; }
+.goal-fill-v2{ height:100%; border-radius:99px; transition:width 0.6s ease; }
+.goal-nums-v2{ display:flex; justify-content:space-between; font-size:12px; color:var(--color-sub); margin-bottom:10px; }
+
+/* Logros: grid 3 columnas con icono. */
+.achievements-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; }
+.achievement{
+  background:var(--color-s1);
+  border:1px solid var(--color-border);
+  border-radius:14px;
+  padding:10px 8px;
+  text-align:center;
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+}
+.achievement.locked{ opacity:0.45; }
+.achievement-icon{
+  width:36px; height:36px; border-radius:12px;
+  background:color-mix(in srgb, var(--color-acc-gold) 18%, transparent);
+  color:var(--color-acc-gold);
+  display:flex; align-items:center; justify-content:center;
+}
+.achievement.locked .achievement-icon{ background:var(--color-s2); color:var(--color-dim); }
+.achievement-title{ font-size:11px; font-weight:700; color:var(--color-acc-gold); }
+.achievement.locked .achievement-title{ color:var(--color-dim); }
+.achievement-desc{ font-size:9px; color:var(--color-dim); line-height:1.3; }
+
+/* Responsive — móvil 360-390 ya está bien por grid-template-columns:repeat(2,1fr).
+   Escritorio 1440: la página hereda max-width del shell. Sin columnas grotescas. */
+@media (min-width:720px){
+  .access-grid{ grid-template-columns:repeat(4, 1fr); }
+  .day-metrics{ gap:14px; }
+}
