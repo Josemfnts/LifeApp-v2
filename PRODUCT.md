@@ -20,7 +20,7 @@ Uso frecuente desde móvil, incluida PWA instalada en iOS. La navegación princi
 
 ## Capabilities and Constraints
 
-React 19, TypeScript, Vite, Tailwind 4, Zustand y Supabase. Arquitectura local-first con espejo vivo y control de versión; Notas, Comunidad y Salud requieren sesión. Este rediseño no modifica datos, formatos, sincronización, reglas de negocio ni esquemas. No migra a Next.js. Sin nuevas dependencias de runtime.
+React 19, TypeScript, Vite, Tailwind 4, Zustand y Supabase. Arquitectura local-first con espejo vivo y control de versión; Notas, Comunidad y Salud requieren sesión. Este rediseño no modifica datos, formatos, sincronización, reglas de negocio ni esquemas. No migra a Next.js. Sin nuevas dependencias de runtime. El tema es GLOBAL: el usuario elige Claro / Oscuro / Negro OLED para toda la app y se respeta en todos los módulos, incluido Físico. Ningún módulo fuerza un tema por ruta.
 
 ## Brand Commitments
 

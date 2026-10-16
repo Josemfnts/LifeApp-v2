@@ -11,7 +11,7 @@ Referencia vinculante: Guia_Visual/CLAUDE-PROMPT.md y capturas 01–10. El showc
 ## Decisiones tomadas
 
 - [Identidad y alcance](01-identidad.md): LifeApp mantiene nombre y todas las funciones (Josema, 16/10/2026).
-- [Aplicación de la referencia](02-aplicacion.md): crema/lima, fuentes y geometría de IMPULSO; Físico oscuro; las funciones adicionales heredan el sistema.
+- [Aplicación de la referencia](02-aplicacion.md): crema/lima, fuentes y geometría de IMPULSO; tema GLOBAL elegible (Claro / Oscuro / Negro OLED); las funciones adicionales heredan el sistema.
 
 ## Entregas
 

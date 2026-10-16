@@ -4,30 +4,9 @@ import { NavBar } from './NavBar'
 import { useToast } from '@/stores/toast'
 import { INITIAL_CHROME, nextChrome, type ChromeState } from '@/lib/ui/scrollChrome'
 
-// Sub-rutas de Físico que también piden el mundo noche (Salud, running, etc.).
-const FITNESS_PREFIXES = ['/fisico']
-
-function surfaceForPath(pathname: string): string {
-  return FITNESS_PREFIXES.some(p => pathname === p || pathname.startsWith(p + '/'))
-    ? 'fitness'
-    : ''
-}
-
 export function Shell() {
   const { message, visible } = useToast()
   const location = useLocation()
-
-  // Ámbitos por ruta EN LA RAÍZ (data-surface="fitness" en <html>): las portales a body
-  // (modales, toasts, la .nav-wrap fija) heredan así el mundo noche en Físico
-  // sin tocar la preferencia guardada del usuario. Se re-aplica en cada navegación
-  // y se limpia al desmontar (notas full-screen, login).
-  useEffect(() => {
-    const root = document.documentElement
-    const surface = surfaceForPath(location.pathname)
-    if (surface) root.setAttribute('data-surface', surface)
-    else root.removeAttribute('data-surface')
-    return () => { root.removeAttribute('data-surface') }
-  }, [location.pathname])
 
   // Chrome que reacciona al scroll de #sw: data-header-collapsed compacta la cabecera y
   // data-nav-hidden esconde la barra inferior (CSS en globals.css, sin re-render de React).

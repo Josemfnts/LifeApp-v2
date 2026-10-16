@@ -12,12 +12,13 @@ interface ButtonProps {
   size?: 'sm' | 'md' | 'lg'
 }
 
-// CTA por defecto: tinta con texto blanco (alto contraste en cream).
-// `accent` usa el color que llega por `color` (o lima como marca) — token separado para texto.
+// El CTA primario se pinta con los tokens --color-primary / --color-on-primary:
+// claro = tinta con texto blanco, oscuro = lima con texto tinta. El tema GLOBAL
+// decide el color, NUNCA la ruta (Fase 1 inicial forzaba lima en Físico y se anuló).
 const base = 'inline-flex items-center justify-center gap-2 font-semibold rounded-2xl transition-all duration-150 active:scale-[0.97] cursor-pointer border focus-visible:outline-2 focus-visible:outline-[var(--color-volt)] focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed'
 
 const variants: Record<string, string> = {
-  primary: 'bg-[var(--color-ink)] text-[var(--color-on-primary)] border-[var(--color-ink)] shadow-[0_6px_18px_-8px_rgba(24,27,16,0.5)] hover:bg-black',
+  primary: 'bg-[var(--color-primary)] text-[var(--color-on-primary)] border-[var(--color-primary)] shadow-[0_6px_18px_-8px_color-mix(in_srgb,var(--color-primary)_50%,transparent)] hover:brightness-95',
   ghost: 'bg-[var(--color-volt)]/[0.18] text-[var(--color-on-accent)] border-[var(--color-volt)]/40 hover:bg-[var(--color-volt)]/[0.28]',
   danger: 'bg-[var(--color-red)]/[0.08] text-[var(--color-red)] border-[var(--color-red)]/20 hover:bg-[var(--color-red)]/[0.14]',
   accent: '',

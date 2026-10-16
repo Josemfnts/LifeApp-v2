@@ -13,7 +13,7 @@ Estado: dirección aprobada el 16/10/2026; implementación por fases en `.mapa/r
 - Noche Físico: `#0D0F08`; superficies oscuras cálidas `#171B10` y `#22271A`.
 - Datos: teal `#2FB8A6`, amber `#F0A22E`, coral `#F26D5B`, night `#9B7BF0`, ingreso `#1FA45B`.
 - Los acentos de datos tienen variantes de texto con contraste AA sobre papel. La lima nunca se usa como texto pequeño sobre blanco. CTA claro: tinta con texto blanco/lima; CTA nocturno: lima con tinta. Aliases legacy deben mantener su semántica y legibilidad.
-- Cream adopta el papel; Onyx/Abyss siguen disponibles con la misma marca. Físico es oscuro en la experiencia cream. Aplicación de tema por ruta debe alcanzar también los portales a body sin reescribir la preferencia guardada.
+- Cream adopta el papel; Onyx/Abyss siguen disponibles con la misma marca. **Ningún módulo fuerza tema**: el usuario elige Claro / Oscuro / Negro OLED para TODA la app, incluido Físico. La captura de Físico en la guía es solo un ejemplo del tono oscuro, no una regla. Las portales a body (modales, toast, nav-bar fija) heredan el tema GLOBAL vía `color-scheme` + `data-theme` en `<html>`.
 
 ## Tipografía
 
