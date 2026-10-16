@@ -1,0 +1,26 @@
+# Rediseño visual basado en IMPULSO
+
+## Destino
+
+LifeApp aplica la identidad visual de Guia_Visual a su interfaz real, con todas sus funciones conservadas y validación móvil y escritorio. Build, lint y tests verdes, cambios revisados y publicados.
+
+## Notas
+
+Referencia vinculante: Guia_Visual/CLAUDE-PROMPT.md y capturas 01–10. El showcase es presentación y los marcos de teléfono no forman parte de la app. OpenCode implementa por entregas pequeñas; Codex define, revisa y verifica. No cambiar persistencia ni motores. No incorporar datos ficticios de la referencia como datos del usuario.
+
+## Decisiones tomadas
+
+- [Identidad y alcance](01-identidad.md): LifeApp mantiene nombre y todas las funciones (Josema, 16/10/2026).
+- [Aplicación de la referencia](02-aplicacion.md): crema/lima, fuentes y geometría de IMPULSO; Físico oscuro; las funciones adicionales heredan el sistema.
+
+## Entregas
+
+- [ ] Base visual: tokens, tipografía, temas, shell, navegación y componentes comunes.
+- [ ] Inicio y Agenda: nueva jerarquía y componentes usando datos y acciones reales.
+- [ ] Físico y Nutrición: aplicación de las capturas a estados y flujos existentes.
+- [ ] Finanzas y cobertura: seis pestañas, Hábitos, Comunidad, Notas y Login.
+- [ ] Revisión final: capturas móvil/escritorio, navegación, acciones representativas, build/lint/tests y documentación.
+
+## Niebla
+
+Ninguna decisión de producto bloquea la ejecución. Las diferencias entre mockup y datos reales se resuelven conservando los flujos actuales y sin inventar capacidades (clima, recomendaciones médicas o push simulados).
