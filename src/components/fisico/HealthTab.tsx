@@ -8,6 +8,8 @@ import {
 import { Input, Modal } from '@/components/ui'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { useToast } from '@/stores/toast'
+import { useTheme } from '@/contexts/ThemeContext'
+import { Watch, RefreshCw, Footprints, Moon, Heart } from 'lucide-react'
 
 // Guarda del botón "Actualizar": el conector pasa cada ~5 min y a las APIs no
 // oficiales no les gustan los logins en ráfaga — 1 actualización manual / 10 min.
@@ -34,7 +36,7 @@ const STATUS_UI = {
 // Pestaña Salud de Físico: datos diarios del reloj. El usuario registra su reloj
 // (credenciales Garmin/Zepp) en la hoja "Conectar reloj"; el conector del mini PC
 // valida y sincroniza a `health_metrics`; aquí solo se lee y se deja la señal de
-// "Actualizar" (sync_requested_at).
+// "Actualizar" (sync_requested_at). Tema GLOBAL: hereda color-scheme por data-theme.
 export function HealthTab() {
   const [checking, setChecking] = useState(true)
   const [hasSession, setHasSession] = useState(false)
@@ -46,6 +48,8 @@ export function HealthTab() {
   const [polling, setPolling] = useState(false)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const toast = useToast()
+  // Suscripción al tema para re-render al cambiar cream/onyx/abyss (portales a body).
+  useTheme()
 
   // Formulario de alta
   const [formProvider, setFormProvider] = useState<WearableProvider | null>(null)
@@ -95,13 +99,15 @@ export function HealthTab() {
   if (!hasSession) {
     return (
       <div className="animate-tab" style={{ textAlign: 'center', padding: '40px 20px' }}>
-        <div style={{ fontSize: 40, marginBottom: 12 }}>⌚</div>
-        <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 20, marginBottom: 8 }}>Salud del reloj</div>
-        <div style={{ color: 'var(--color-sub)', fontSize: 13, lineHeight: 1.5, maxWidth: 320, margin: '0 auto 18px' }}>
-          Sueño, pasos, frecuencia cardíaca y estrés de tu Garmin o Amazfit, sincronizados automáticamente.
-          Esta sección guarda los datos en tu cuenta, así que necesitas iniciar sesión.
+        <div className="health-empty" style={{ border: 'none', padding: '20px' }}>
+          <div className="icon"><Watch size={24} aria-hidden="true" /></div>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, marginBottom: 8, color: 'var(--color-text)' }}>Salud del reloj</div>
+          <div style={{ color: 'var(--color-sub)', fontSize: 13, lineHeight: 1.5, maxWidth: 320, margin: '0 auto 18px' }}>
+            Sueño, pasos, frecuencia cardíaca y estrés de tu Garmin o Amazfit, sincronizados automáticamente.
+            Esta sección guarda los datos en tu cuenta, así que necesitas iniciar sesión.
+          </div>
+          <button onClick={() => window.dispatchEvent(new CustomEvent('show-login'))} className="nut-cta" style={{ background: 'var(--color-red)' }}>Iniciar sesión</button>
         </div>
-        <button onClick={() => window.dispatchEvent(new CustomEvent('show-login'))} className="btn-primary" style={{ background: 'var(--color-red)' }}>Iniciar sesión</button>
       </div>
     )
   }
@@ -163,27 +169,26 @@ export function HealthTab() {
         <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
           {connected.length > 0 && (
             <button onClick={onManualSync} disabled={polling} aria-label="Actualizar ahora"
-              style={{
-                padding: '8px 12px', borderRadius: 10, fontSize: 12, fontWeight: 700, cursor: 'pointer',
-                fontFamily: 'DM Sans,sans-serif', border: '1px solid var(--color-border2)',
-                background: 'var(--color-s1)', color: polling ? 'var(--color-dim)' : 'var(--color-sub)',
-              }}
-            >{polling ? '⟳ Sincronizando…' : '⟳ Actualizar'}</button>
+              className="watch-btn-ghost">
+              <RefreshCw size={14} aria-hidden="true" style={{ verticalAlign: 'middle', marginRight: 4 }} />
+              {polling ? 'Sincronizando…' : 'Actualizar'}
+            </button>
           )}
-          <button onClick={() => setShowSheet(true)}
-            style={{
-              padding: '8px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700, cursor: 'pointer',
-              fontFamily: 'DM Sans,sans-serif', border: '1px solid var(--color-red)4d',
-              background: 'var(--color-red)26', color: 'var(--color-red)', whiteSpace: 'nowrap',
-            }}
-          >⌚ {accounts.length > 0 ? 'Mis relojes' : 'Conectar reloj'}</button>
+          <button onClick={() => setShowSheet(true)} className="watch-btn-red">
+            <Watch size={14} aria-hidden="true" style={{ verticalAlign: 'middle', marginRight: 4 }} />
+            {accounts.length > 0 ? 'Mis relojes' : 'Conectar reloj'}
+          </button>
         </div>
       </div>
 
       {rows.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '36px 20px', border: '1px dashed var(--color-border2)', borderRadius: 16 }}>
-          <div style={{ fontSize: 36, marginBottom: 10 }}>😴👣❤️</div>
-          <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 18, marginBottom: 6 }}>
+        <div className="health-empty">
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginBottom: 12, color: 'var(--color-dim)' }}>
+            <Moon size={28} aria-hidden="true" />
+            <Footprints size={28} aria-hidden="true" />
+            <Heart size={28} aria-hidden="true" />
+          </div>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, marginBottom: 6, color: 'var(--color-text)' }}>
             {accounts.length === 0 ? 'Aún no hay datos de salud' : 'Esperando la primera sincronización'}
           </div>
           <div style={{ color: 'var(--color-sub)', fontSize: 13, lineHeight: 1.5, maxWidth: 320, margin: '0 auto' }}>
@@ -195,13 +200,13 @@ export function HealthTab() {
       ) : (
         <>
           {/* Tarjetas del último día */}
-          <div className="grid grid-cols-2 gap-2 mb-4">
+          <div className="fis-stat" style={{ gridTemplateColumns: 'repeat(2, 1fr)', marginBottom: 12 }}>
             {sortMetrics(byDate.get(latest!)!).map(r => {
               const m = METRICS[r.metric]
               return (
-                <div key={r.metric} style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 14, padding: '12px 14px' }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-dim)', marginBottom: 4 }}>{m.icon} {m.label}</div>
-                  <div style={{ fontSize: 20, fontWeight: 700, color: m.color, fontFamily: 'DM Sans,sans-serif' }}>{m.format(r.value)}</div>
+                <div key={r.metric} className="health-metric-card">
+                  <div className="lbl">{m.icon} {m.label}</div>
+                  <div className="val" style={{ color: m.color }}>{m.format(r.value)}</div>
                 </div>
               )
             })}
@@ -215,10 +220,7 @@ export function HealthTab() {
                 {sortMetrics(byDate.get(d)!).map(r => {
                   const m = METRICS[r.metric]
                   return (
-                    <span key={r.metric} style={{
-                      fontSize: 12, padding: '4px 10px', borderRadius: 999, whiteSpace: 'nowrap',
-                      background: 'var(--color-s1)', border: '1px solid var(--color-border)', color: 'var(--color-sub)',
-                    }}>{m.icon} {m.format(r.value)}</span>
+                    <span key={r.metric} className="health-pill">{m.icon} {m.format(r.value)}</span>
                   )
                 })}
               </div>
@@ -261,13 +263,13 @@ export function HealthTab() {
               <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-dim)', margin: '14px 0 8px' }}>
                 {accounts.length > 0 ? 'Añadir otro reloj' : '¿Qué reloj tienes?'}
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 {(Object.keys(PROVIDERS) as WearableProvider[]).map(k => (
                   <button key={k} onClick={() => { setFormProvider(k); setFormEmail(''); setFormPass('') }}
                     disabled={accounts.some(a => a.provider === k)}
                     style={{
                       padding: '14px 8px', borderRadius: 14, fontSize: 13, fontWeight: 700, cursor: 'pointer',
-                      fontFamily: 'DM Sans,sans-serif', border: '1px solid var(--color-border2)',
+                      fontFamily: 'var(--font-sans)', border: '1px solid var(--color-border2)',
                       background: 'var(--color-s2)', color: 'var(--color-text)',
                       opacity: accounts.some(a => a.provider === k) ? 0.4 : 1,
                     }}
@@ -276,7 +278,7 @@ export function HealthTab() {
               </div>
               <div style={{ fontSize: 11.5, color: 'var(--color-dim)', lineHeight: 1.5, marginTop: 12 }}>
                 La sincronización usa tu cuenta del fabricante y puede tardar unos minutos por pasada.
-                Los datos entran solos cada mañana; con ⟳ Actualizar fuerzas una pasada extra.
+                Los datos entran solos cada mañana; con Actualizar fuerzas una pasada extra.
               </div>
             </>
           ) : (
@@ -289,8 +291,8 @@ export function HealthTab() {
                 <Input type="password" placeholder="Contraseña de la cuenta" value={formPass} onChange={setFormPass} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 12 }}>
-                <button onClick={() => setFormProvider(null)} className="btn-ghost" style={{ width: '100%', minWidth: 0 }}>Atrás</button>
-                <button onClick={onSaveAccount} disabled={saving} className="btn-primary" style={{ width: '100%', minWidth: 0, background: 'var(--color-red)' }}>
+                <button onClick={() => setFormProvider(null)} className="fis-secondary" style={{ width: '100%', minWidth: 0 }}>Atrás</button>
+                <button onClick={onSaveAccount} disabled={saving} className="fis-cta" style={{ width: '100%', minWidth: 0, background: 'var(--color-red)' }}>
                   {saving ? 'Guardando…' : 'Conectar'}
                 </button>
               </div>

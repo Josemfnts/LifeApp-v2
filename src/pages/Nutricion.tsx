@@ -15,27 +15,48 @@ import { RECIPES, RECIPE_CATEGORIES, RECIPE_TAGS, RECIPE_DIFFICULTIES, filterRec
 import { useToast } from '@/stores/toast'
 import { Input } from '@/components/ui'
 import Chart from 'chart.js/auto'
+import { useTheme } from '@/contexts/ThemeContext'
+import {
+  Plus, Star,
+  Trash2, UtensilsCrossed, Flame,
+  Copy, Sun, Coffee, Cookie,
+} from 'lucide-react'
+import '@/styles/nutricion.css'
 
 const MEAL_TYPES = ['Desayuno', 'Comida', 'Cena', 'Snack', 'Post-entreno']
 const DOW_S = ['D', 'L', 'M', 'X', 'J', 'V', 'S']
 
+/* Iconos por tipo de comida (lucide-react) — sin emojis. */
+const MEAL_ICONS = [Sun, Sun, UtensilsCrossed, Coffee, Cookie]
+
 function todayISO() { return new Date().toISOString().slice(0, 10) }
+
+// Lee una variable CSS del :root en vivo. Sirve para que los Charts se
+// repinten con los colores del tema actual cuando el usuario cambia entre
+// cream/onyx/abyss. Devuelve el valor computado (o el fallback).
+function cssVar(name: string, fallback: string): string {
+  if (typeof window === 'undefined') return fallback
+  const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+  return v || fallback
+}
 
 export default function Nutricion() {
   const [tab, setTab] = useState<'diary' | 'dishes' | 'search' | 'goals' | 'plan' | 'menu' | 'tools'>('diary')
   return (
     <div>
-      <div className="page-header">
+      <div className="nut-head">
         <div className="page-title">Nutrición</div>
-        <div className="tab-bar">
-          {(['diary','dishes','search','goals','plan','menu','tools'] as const).map(t => (
-            <button key={t} onClick={() => setTab(t)} className={`tab-btn tab-green${tab === t ? ' active' : ''}`}>
-              {{diary:'Diario',dishes:'Platos',search:'Buscar',goals:'Metas',plan:'Plan',menu:'Menú',tools:'Herram.'}[t]}
-            </button>
-          ))}
+        <div className="nut-tabs-row">
+          <div className="tab-bar">
+            {(['diary','dishes','search','goals','plan','menu','tools'] as const).map(t => (
+              <button key={t} onClick={() => setTab(t)} className={`tab-btn tab-green${tab === t ? ' active' : ''}`}>
+                {{diary:'Diario',dishes:'Platos',search:'Buscar',goals:'Metas',plan:'Plan',menu:'Menú',tools:'Herram.'}[t]}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
-      <div key={tab} className="animate-tab" style={{ padding: 16 }}>
+      <div key={tab} className="animate-tab" style={{ padding: '14px 14px 0' }}>
         {tab === 'diary' && <DiaryTab />}
         {tab === 'dishes' && <DishesTab />}
         {tab === 'search' && <SearchTab />}
@@ -52,6 +73,7 @@ export default function Nutricion() {
 function DiaryTab() {
   const { log, addFood, removeFood, goals, favorites, toggleFavorite } = useNutriStore()
   const toast = useToast()
+  const { theme } = useTheme()
   const today = todayISO()
   const todayFoods = log[today] || []
   const ringRef = useRef<HTMLCanvasElement>(null)
@@ -61,7 +83,8 @@ function DiaryTab() {
   const totalP = todayFoods.reduce((s, f) => s + f.p, 0)
   const totalC = todayFoods.reduce((s, f) => s + f.c, 0)
   const totalF = todayFoods.reduce((s, f) => s + f.f, 0)
-  const pctKcal = Math.min(100, Math.round(totalKcal / goals.kcal * 100))
+  const pctKcal = goals.kcal > 0 ? Math.min(100, Math.round(totalKcal / goals.kcal * 100)) : 0
+  const remainingKcal = Math.max(0, goals.kcal - totalKcal)
 
   const [meal, setMeal] = useState('Comida')
   const [name, setName] = useState('')
@@ -78,22 +101,28 @@ function DiaryTab() {
   const streakDays = (() => { let s = 0; const d = new Date(); for (let i = 0; i < 365; i++) { const ds = d.toISOString().slice(0, 10); if ((log[ds] || []).length > 0) s++; else if (i > 0) break; d.setDate(d.getDate() - 1) } return s })()
   const [portion, setPortion] = useState('g')
 
+  // Anillo de kcal: se suscribe a useTheme para repintarse al cambiar entre
+  // cream/onyx/abyss (Chart.js no lee vars CSS automáticamente).
   useEffect(() => {
     if (!ringRef.current) return
-    if (chartRef.current) chartRef.current.destroy()
+    chartRef.current?.destroy()
+    const ringColor = cssVar('--color-volt', '#C9F43C')
+    const trackColor = cssVar('--color-border2', 'rgba(0,0,0,0.14)')
+    const capped = Math.min(totalKcal, goals.kcal || 1)
+    const rest = Math.max(0, (goals.kcal || 1) - totalKcal)
     chartRef.current = new Chart(ringRef.current.getContext('2d')!, {
       type: 'doughnut',
       data: {
         datasets: [{
-          data: [Math.min(totalKcal, goals.kcal), Math.max(0, goals.kcal - totalKcal)],
-          backgroundColor: ['rgba(82,183,136,0.85)', 'rgba(255,255,255,0.06)'],
+          data: goals.kcal > 0 ? [capped, rest] : [1],
+          backgroundColor: goals.kcal > 0 ? [ringColor, trackColor] : [trackColor],
           borderWidth: 0,
         }]
       },
       options: { cutout: '75%', plugins: { legend: { display: false }, tooltip: { enabled: false } } }
     })
-    return () => { if (chartRef.current) chartRef.current.destroy() }
-  }, [totalKcal, goals.kcal])
+    return () => { chartRef.current?.destroy() }
+  }, [totalKcal, goals.kcal, theme])
 
   function handleCopyDay() {
     if (!copyDate) return
@@ -116,34 +145,218 @@ function DiaryTab() {
   const mealGroups = MEAL_TYPES.filter(m => todayFoods.some(f => f.meal === m))
     .map(m => ({ meal: m, foods: todayFoods.filter(f => f.meal === m) }))
 
+  const MACROS = [
+    { n: 'Proteína', v: totalP, g: goals.p, color: 'var(--color-teal)' },
+    { n: 'Carbos', v: totalC, g: goals.c, color: 'var(--color-amber)' },
+    { n: 'Grasa', v: totalF, g: goals.f, color: 'var(--color-coral)' },
+  ]
+
   return (
     <div>
+      {/* 1) HERO Calorías + macros protagonista (anillo real + barras) */}
+      <div className="kcal-hero">
+        {goals.kcal > 0 ? (
+          <>
+            <div className="kcal-hero-row">
+              <div className="kcal-hero-ring">
+                <svg viewBox="0 0 120 120" className="kcal-hero-ring-svg">
+                  <circle cx="60" cy="60" r="52" fill="none" stroke="var(--color-border2)" strokeWidth="10" />
+                  <circle cx="60" cy="60" r="52" fill="none"
+                    stroke="var(--color-volt)" strokeWidth="10"
+                    strokeLinecap="round"
+                    strokeDasharray={2 * Math.PI * 52}
+                    strokeDashoffset={(1 - pctKcal / 100) * 2 * Math.PI * 52}
+                    transform="rotate(-90 60 60)"
+                    style={{ transition: 'stroke-dashoffset 0.6s ease' }} />
+                </svg>
+                <div className="kcal-hero-ring-ctr">
+                  <div className="kcal-hero-kcal">{totalKcal.toLocaleString('es-ES')}</div>
+                  <div className="kcal-hero-kcal-sub">kcal</div>
+                </div>
+              </div>
+              <div className="kcal-hero-side">
+                <div className="kcal-hero-stats">
+                  <span>Objetivo</span>
+                  <span className="target">{goals.kcal.toLocaleString('es-ES')} kcal</span>
+                  <span className="pct">{pctKcal}%</span>
+                </div>
+                {MACROS.map(m => {
+                  const pct = m.g > 0 ? Math.min(100, Math.round(m.v / m.g * 100)) : 0
+                  return (
+                    <div key={m.n} className="macro-row" style={{ '--macro-color': m.color } as React.CSSProperties}>
+                      <div className="macro-row-head">
+                        <span className="macro-row-name">{m.n}</span>
+                        <span className="macro-row-vals">{Math.round(m.v)} / {m.g}g</span>
+                      </div>
+                      <div className="macro-track">
+                        <div className={`macro-fill${m.g <= 0 ? ' no-goal' : ''}`} style={{ width: `${pct}%` }} aria-hidden="true" />
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+            <div className="kcal-hero-foot">
+              <span>Quedan <strong>{remainingKcal.toLocaleString('es-ES')} kcal</strong> para tu meta</span>
+              <span className="right" style={{ color: pctKcal >= 100 ? 'var(--color-coral)' : 'var(--color-volt-deep)' }}>
+                {pctKcal >= 100 ? 'Meta alcanzada' : 'En camino'}
+              </span>
+            </div>
+          </>
+        ) : (
+          <div className="kcal-hero-empty">
+            <Flame size={32} aria-hidden="true" style={{ color: 'var(--color-dim)' }} />
+            <div>Define un objetivo de kcal en la pestaña <strong>Metas</strong> para ver el progreso del día.</div>
+          </div>
+        )}
+      </div>
+
+      {/* Racha (si la hay) — discreta */}
       {streakDays > 0 && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
-          <span style={{ fontSize: 16 }}>🔥</span>
-          <span style={{ fontFamily: 'DM Serif Display,serif', fontSize: 16, color: 'var(--color-acc-gold)' }}>{streakDays}</span>
-          <span style={{ fontSize: 11, color: 'var(--color-dim)', fontWeight: 600 }}>días de racha</span>
+        <div className="streak-row">
+          <div className="streak-flame"><Flame size={16} aria-hidden="true" /></div>
+          <span className="streak-num">{streakDays}</span>
+          <span className="streak-lbl">días registrando</span>
         </div>
       )}
 
-      {/* Weekly kcal */}
+      {/* 2) CTA + FORMULARIO de registrar */}
+      <div className="nut-card nut-card-pad" style={{ marginBottom: 12 }}>
+        <div className="nut-card-head" style={{ padding: 0, borderBottom: 'none', marginBottom: 12 }}>
+          <div className="nut-card-title">Registrar alimento</div>
+          <div className="nut-card-meta">
+            <button onClick={() => setShowCopy(v => !v)}
+              className="fis-chip"
+              aria-expanded={showCopy}
+              style={{ cursor: 'pointer' }}>
+              <Copy size={12} aria-hidden="true" /> Copiar día
+            </button>
+          </div>
+        </div>
+
+        <div className="register-row">
+          <input className="input-mini date" value={retroDate} onChange={e => setRetroDate(e.target.value)} type="date" aria-label="Fecha" />
+          <select className="input-mini meal" value={meal} onChange={e => setMeal(e.target.value)} aria-label="Comida">
+            {MEAL_TYPES.map(m => <option key={m} value={m}>{m}</option>)}
+          </select>
+        </div>
+        {showCopy && (
+          <div className="copy-row">
+            <input className="input-mini date" value={copyDate} onChange={e => setCopyDate(e.target.value)} type="date" placeholder="Copiar de..." aria-label="Copiar de fecha" />
+            <select className="input-mini meal" value={copyMeal} onChange={e => setCopyMeal(e.target.value)} aria-label="Comida a copiar">
+              <option value="">Todas</option>
+              {MEAL_TYPES.map(m => <option key={m} value={m}>{m}</option>)}
+            </select>
+            <button onClick={handleCopyDay} className="cta">Copiar</button>
+          </div>
+        )}
+
+        <div className="register-row">
+          <select className="input-mini" value={portion} onChange={e => setPortion(e.target.value)} style={{ width: 80 }} aria-label="Unidad de cantidad">
+            {['g','ml','taza','pieza','cdta','cda'].map(u => <option key={u} value={u}>{u}</option>)}
+          </select>
+          <input className="input-mini center" value={grams} onChange={e => setGrams(e.target.value)} type="number" placeholder="Cantidad" aria-label="Cantidad" />
+        </div>
+
+        <Input value={name} onChange={setName} placeholder="Nombre del alimento..." />
+
+        <div className="register-grid-4" style={{ marginBottom: 10 }}>
+          <input className="input-mini center" value={kcal} onChange={e => setKcal(e.target.value)} type="number" placeholder="kcal" aria-label="kcal" />
+          <input className="input-mini center" value={p} onChange={e => setP(e.target.value)} type="number" placeholder="Prot." aria-label="Proteínas" />
+          <input className="input-mini center" value={c} onChange={e => setC(e.target.value)} type="number" placeholder="Carb." aria-label="Carbohidratos" />
+          <input className="input-mini center" value={f} onChange={e => setF(e.target.value)} type="number" placeholder="Grasa" aria-label="Grasa" />
+        </div>
+        <button onClick={handleAdd} className="nut-cta">
+          <Plus size={16} aria-hidden="true" /> Añadir al diario
+        </button>
+      </div>
+
+      {/* Favoritos (si hay) — discreto, entre el form y los registros */}
+      {favorites.length > 0 && (
+        <div className="nut-card nut-card-pad" style={{ marginBottom: 12 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Star size={12} aria-hidden="true" style={{ color: 'var(--color-acc-gold)' }} /> Favoritos
+          </div>
+          <div className="fav-wrap">
+            {FOODS_DB.filter(f => favorites.includes(f.name)).map(f => (
+              <button key={f.name} onClick={() => {
+                addFood(today, { name: f.name, kcal: f.kcal, p: f.p, c: f.c, f: f.f, grams: 100, meal })
+                toast.show(`✓ ${f.name} (${f.kcal}kcal)`)
+              }}
+                className="fav-chip">{f.name} · {f.kcal}kcal</button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 3) REGISTROS agrupados por comida con iconos lucide */}
+      <div className="nut-card">
+        <div className="nut-card-head">
+          <div className="nut-card-title">Registros de hoy</div>
+          <div className="nut-card-meta">{todayFoods.length} alimentos</div>
+        </div>
+        {todayFoods.length === 0 ? (
+          <div className="meal-empty">Sin registros aún. Añade arriba el primer alimento.</div>
+        ) : mealGroups.map(({ meal: m, foods }, gi) => {
+          const Icon = MEAL_ICONS[gi % MEAL_ICONS.length]
+          return (
+            <div key={m}>
+              <div className="meal-group-lbl">{m}</div>
+              {foods.map((f, i) => {
+                const realIdx = todayFoods.indexOf(f)
+                return (
+                  <div key={i} className="meal-row">
+                    <div className={`meal-icon alt${(gi + i) % 4}`}>
+                      <Icon size={18} aria-hidden="true" />
+                    </div>
+                    <div className="meal-spacer">
+                      <div className="meal-name">{f.name}</div>
+                      <div className="meal-meta">{f.grams}g · P:{f.p}g C:{f.c}g G:{f.f}g</div>
+                    </div>
+                    <div className="meal-kcal">{f.kcal}</div>
+                    <button onClick={() => { toggleFavorite(f.name); toast.show(favorites.includes(f.name) ? 'Quitado de favoritos' : '★ Añadido a favoritos') }}
+                      aria-label={favorites.includes(f.name) ? 'Quitar de favoritos' : 'Añadir a favoritos'}
+                      className="meal-action">
+                      <Star size={16} aria-hidden="true" fill={favorites.includes(f.name) ? 'currentColor' : 'none'} style={{ color: favorites.includes(f.name) ? 'var(--color-acc-gold)' : undefined }} />
+                    </button>
+                    <button onClick={() => { removeFood(today, realIdx); toast.show('Alimento eliminado') }}
+                      aria-label="Eliminar alimento"
+                      className="meal-action danger">
+                      <Trash2 size={14} aria-hidden="true" />
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+          )
+        })}
+      </div>
+
+      {/* 4) HISTORIAL últimos 7 días — bloque al final */}
       {(() => {
         const days = Array.from({ length: 7 }, (_, i) => {
           const d = new Date(Date.now() - (6 - i) * 86400000)
           const ds = d.toISOString().slice(0, 10)
           return { label: DOW_S[d.getDay()], kcal: (log[ds] || []).reduce((s: number, f: { kcal: number }) => s + f.kcal, 0), isToday: i === 6 }
         })
-        const maxK = Math.max(1, ...days.map(d => d.kcal))
+        const maxK = Math.max(1, ...days.map(d => d.kcal), goals.kcal)
+        const media = Math.round(days.reduce((s, d) => s + d.kcal, 0) / 7)
         return (
-          <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
-            <div className="sec-label" style={{ marginBottom: 10 }}>📊 kcal últimos 7 días</div>
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 60 }}>
+          <div className="bar-chart-tile" style={{ marginTop: 12, marginBottom: 12 }}>
+            <div className="bar-chart-tile-meta">
+              <div className="lbl">kcal últimos 7 días</div>
+              <div className="val">{media.toLocaleString('es-ES')}</div>
+              <div style={{ fontSize: 11, color: 'var(--color-dim)' }}>media diaria</div>
+            </div>
+            <div className="bar-chart">
               {days.map(d => {
-                const h = Math.max(4, (d.kcal / maxK) * 56)
+                const goal = maxK > 0 ? d.kcal / maxK : 0
+                const h = Math.max(6, goal * 60)
+                const empty = d.kcal === 0
                 return (
-                  <div key={d.label} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-                    <div style={{ width: '100%', borderRadius: 4, minHeight: 4, height: h, background: d.isToday ? 'var(--color-acc-green)' : 'rgba(82,183,136,0.3)', transition: 'height 0.4s' }} />
-                    <span style={{ fontSize: 9, color: d.isToday ? 'var(--color-text)' : 'var(--color-dim)', textTransform: 'uppercase' }}>{d.label}</span>
+                  <div key={d.label} className="bar-col" title={`${d.kcal} kcal`}>
+                    <div className={`bar-rect${d.isToday ? ' today' : empty ? ' empty' : ' normal'}`} style={{ height: h }} />
+                    <span className={`bar-lbl${d.isToday ? ' today' : ''}`}>{d.label}</span>
                   </div>
                 )
               })}
@@ -151,160 +364,12 @@ function DiaryTab() {
           </div>
         )
       })()}
-
-      {/* Favorites */}
-      {favorites.length > 0 && (
-        <div style={{ marginBottom: 12 }}>
-          <div className="sec-label" style={{ marginBottom: 8 }}>⭐ Favoritos</div>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            {FOODS_DB.filter(f => favorites.includes(f.name)).map(f => (
-              <button key={f.name} onClick={() => {
-                addFood(today, { name: f.name, kcal: f.kcal, p: f.p, c: f.c, f: f.f, grams: 100, meal })
-                toast.show(`✓ ${f.name} (${f.kcal}kcal)`)
-              }}
-                style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer', border: '1px solid rgba(82,183,136,0.2)', background: 'rgba(82,183,136,0.08)', color: 'var(--color-acc-green)' }}>
-                {f.name} ({f.kcal}kcal)
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Kcal ring + macros */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 20, padding: 16, background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, marginBottom: 12 }}>
-        <div style={{ position: 'relative', width: 90, height: 90, flexShrink: 0 }}>
-          <canvas ref={ringRef} width={90} height={90} />
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 22, color: 'var(--color-text)', lineHeight: 1 }}>{totalKcal}</div>
-            <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-dim)', marginTop: 2 }}>kcal</div>
-          </div>
-        </div>
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--color-sub)', marginBottom: 10 }}>
-            <span>Objetivo</span>
-            <span style={{ fontWeight: 600, color: 'var(--color-text)' }}>{goals.kcal} kcal</span>
-            <span style={{ color: 'var(--color-acc-green)', fontWeight: 600 }}>{pctKcal}%</span>
-          </div>
-          {[{ n: 'Proteína', v: totalP, g: goals.p, c: 'var(--color-acc-blue)' },
-            { n: 'Carbos', v: totalC, g: goals.c, c: 'var(--color-acc-gold)' },
-            { n: 'Grasa', v: totalF, g: goals.f, c: 'var(--color-acc-orange)' }].map(m => {
-            const pct = Math.min(100, Math.round(m.v / m.g * 100))
-            return (
-              <div key={m.n} style={{ marginBottom: 9 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-sub)' }}>{m.n}</span>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: m.c }}>{m.v} / {m.g}g</span>
-                </div>
-                <div style={{ height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 99, overflow: 'hidden' }}>
-                  <div style={{ height: '100%', borderRadius: 99, transition: 'width 0.6s ease', width: `${pct}%`, background: m.c }} />
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* Quick add */}
-    <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
-      <div className="sec-label">Registrar alimento</div>
-      {/* Retro date + copy */}
-      <div style={{ display: 'flex', gap: 6, marginBottom: 8, alignItems: 'center' }}>
-        <input className="inp" value={retroDate} onChange={e => setRetroDate(e.target.value)} type="date" style={{ width: 130, marginBottom: 0, fontSize: 12 }} />
-        <select className="inp" value={meal} onChange={e => setMeal(e.target.value)} style={{ flex: 1, marginBottom: 0 }}>
-          {MEAL_TYPES.map(m => <option key={m} value={m}>{m}</option>)}
-        </select>
-        <button onClick={() => setShowCopy(!showCopy)} style={{ padding: '8px 10px', borderRadius: 10, background: 'var(--color-s2)', border: '1px solid var(--color-border)', color: 'var(--color-dim)', fontSize: 12, cursor: 'pointer', fontFamily: 'DM Sans,sans-serif' }}>📋</button>
-      </div>
-      {showCopy && (
-        <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
-          <input className="inp" value={copyDate} onChange={e => setCopyDate(e.target.value)} type="date" placeholder="Copiar de..." style={{ flex: 1, marginBottom: 0 }} />
-          <select className="inp" value={copyMeal} onChange={e => setCopyMeal(e.target.value)} style={{ width: 110, marginBottom: 0 }}>
-            <option value="">Todo</option>
-            {MEAL_TYPES.map(m => <option key={m} value={m}>{m}</option>)}
-          </select>
-          <button onClick={handleCopyDay} style={{ padding: '8px 12px', borderRadius: 10, background: 'rgba(82,183,136,0.12)', color: 'var(--color-acc-green)', border: '1px solid rgba(82,183,136,0.2)', fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', cursor: 'pointer' }}>Copiar</button>
-        </div>
-      )}
-
-      {/* Portion selector */}
-      <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
-        <select className="inp" value={portion} onChange={e => setPortion(e.target.value)} style={{ width: 80, marginBottom: 0 }}>
-          {['g','ml','taza','pieza','cdta','cda'].map(u => <option key={u} value={u}>{u === 'cdta' ? 'cdta' : u === 'cda' ? 'cda' : u === 'taza' ? 'taza' : u === 'pieza' ? 'pieza' : u}</option>)}
-        </select>
-        <input className="inp" value={grams} onChange={e => setGrams(e.target.value)} type="number" placeholder="Cantidad" style={{ flex: 1, marginBottom: 0 }} />
-      </div>
-        <Input value={name} onChange={setName} placeholder="Nombre del alimento..." className="mb-2" />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, marginBottom: 8 }}>
-          <input className="inp" value={kcal} onChange={e => setKcal(e.target.value)} type="number" placeholder="kcal" style={{ marginBottom: 0 }} />
-          <input className="inp" value={p} onChange={e => setP(e.target.value)} type="number" placeholder="Prot." style={{ marginBottom: 0 }} />
-          <input className="inp" value={c} onChange={e => setC(e.target.value)} type="number" placeholder="Carb." style={{ marginBottom: 0 }} />
-          <input className="inp" value={f} onChange={e => setF(e.target.value)} type="number" placeholder="Grasa" style={{ marginBottom: 0 }} />
-        </div>
-        <button onClick={handleAdd} className="btn-primary" style={{ background: 'var(--color-acc-green)', boxShadow: '0 2px 12px rgba(82,183,136,0.25)' }}>Añadir al diario</button>
-      </div>
-
-      {/* Nutritional calendar mini */}
-    {(() => {
-      const now = new Date()
-      const y = now.getFullYear(); const m = now.getMonth()
-      const dim = new Date(y, m + 1, 0).getDate()
-      const fdow = new Date(y, m, 1).getDay()
-      const start = fdow === 0 ? 6 : fdow - 1
-      const today = new Date().toISOString().slice(0, 10)
-      return (
-        <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-sub)', letterSpacing: '0.3px', marginBottom: 10 }}>📅 Calendario de registros</div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 2 }}>
-            {['L','M','X','J','V','S','D'].map(d => <div key={d} style={{ textAlign: 'center', fontSize: 8, fontWeight: 600, color: 'var(--color-dim)', padding: '2px 0' }}>{d}</div>)}
-            {Array.from({ length: start }, (_, i) => <div key={`e${i}`} style={{ aspectRatio: '1' }} />)}
-            {Array.from({ length: dim }, (_, i) => {
-              const d = i + 1
-              const ds = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`
-              const dayKcal = (log[ds] || []).reduce((s: number, f: { kcal: number }) => s + f.kcal, 0)
-              const pct = dayKcal > 0 ? Math.min(dayKcal / goals.kcal, 1) : 0
-              return (
-                <div key={d} style={{ aspectRatio: '1', borderRadius: 4, background: pct > 0 ? `rgba(82,183,136,${Math.min(1, pct * 1.2)})` : 'rgba(255,255,255,0.03)', border: ds === today ? '1px solid rgba(255,255,255,0.3)' : '1px solid transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: ds === today ? 700 : 400, color: pct > 0.6 ? '#fff' : 'var(--color-dim)' }}>
-                  {d}
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )
-    })()}
-
-    {/* Food log by meal */}
-      <div className="card">
-        {todayFoods.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: 32, fontSize: 13, color: 'var(--color-dim)' }}>Sin registros aún.</div>
-        ) : mealGroups.map(({ meal: m, foods }) => (
-          <div key={m}>
-            <div style={{ padding: '8px 16px 0', fontSize: 10, fontWeight: 700, color: 'var(--color-dim)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{m}</div>
-            {foods.map((f, i) => {
-              const realIdx = todayFoods.indexOf(f)
-              return (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 10, flexShrink: 0, background: 'rgba(82,183,136,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>🍽</div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.name}</div>
-                    <div style={{ fontSize: 11, color: 'var(--color-sub)', marginTop: 2 }}>{f.grams}g · P:{f.p}g C:{f.c}g G:{f.f}g</div>
-                  </div>
-                  <div style={{ fontFamily: 'DM Serif Display,serif', fontSize: 18, color: 'var(--color-acc-green)', fontStyle: 'italic' }}>{f.kcal} kcal</div>
-                  <button onClick={() => { toggleFavorite(f.name); toast.show(favorites.includes(f.name) ? 'Quitado de favoritos' : '★ Añadido a favoritos') }}
-                    style={{ width: 24, height: 24, borderRadius: 6, background: 'none', border: 'none', fontSize: 14, cursor: 'pointer', color: favorites.includes(f.name) ? 'var(--color-acc-gold)' : 'var(--color-dim)' }}>
-                    {favorites.includes(f.name) ? '★' : '☆'}
-                  </button>
-                  <button onClick={() => { removeFood(today, realIdx); toast.show('Alimento eliminado') }}
-                    style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(224,95,95,0.08)', color: 'var(--color-red)', border: '1px solid rgba(224,95,95,0.15)', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>✕</button>
-                </div>
-              )
-            })}
-          </div>
-        ))}
-      </div>
     </div>
   )
 }
+
+/* Iconos por tipo de comida — lucide-react para evitar emojis. */
+// (definidos arriba con los imports)
 
 /* ── DISHES TAB ── */
 function DishesTab() {
@@ -1287,21 +1352,25 @@ function PlanDayView({ day, onRegen, onSub }: {
 }) {
   const ringRef = useRef<HTMLCanvasElement>(null)
   const chartRef = useRef<Chart | null>(null)
+  const { theme } = useTheme()
   const pKcal = day.totalP * 4, cKcal = day.totalC * 4, fKcal = day.totalF * 9
 
   useEffect(() => {
     if (!ringRef.current) return
     chartRef.current?.destroy()
+    const teal = cssVar('--color-teal', '#2FB8A6')
+    const amber = cssVar('--color-amber', '#F0A22E')
+    const coral = cssVar('--color-coral', '#F26D5B')
     chartRef.current = new Chart(ringRef.current.getContext('2d')!, {
       type: 'doughnut',
       data: {
         labels: ['Proteína', 'Carbos', 'Grasa'],
-        datasets: [{ data: [pKcal, cKcal, fKcal], backgroundColor: ['#5b8af0', '#e0b84f', '#e08f5f'], borderWidth: 0 }],
+        datasets: [{ data: [pKcal, cKcal, fKcal], backgroundColor: [teal, amber, coral], borderWidth: 0 }],
       },
       options: { cutout: '68%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c: { label: string; raw: unknown }) => `${c.label}: ${Math.round((c.raw as number) / (pKcal + cKcal + fKcal || 1) * 100)}%` } } } },
     })
     return () => chartRef.current?.destroy()
-  }, [pKcal, cKcal, fKcal])
+  }, [pKcal, cKcal, fKcal, theme])
 
   const near = day.goalKcal > 0 && Math.abs(day.totalKcal - day.goalKcal) / day.goalKcal <= 0.08
 
@@ -1648,6 +1717,7 @@ function ToolsTab() {
   const { fasting, startFast, endFast, bodyMetrics, addBodyMetric, macroCalc } = useNutriStore()
   const [sharePost, setSharePost] = useState<NewPost | null>(null)
   const toast = useToast()
+  const { theme } = useTheme()
   const [w, setW] = useState('')
   const [fat, setFat] = useState('')
   const [muscle, setMuscle] = useState('')
@@ -1664,20 +1734,23 @@ function ToolsTab() {
     if (!barRef.current || bodyMetrics.length < 2) return
     bChart.current?.destroy()
     const bm = [...bodyMetrics].slice(-14)
-      bChart.current = new Chart(barRef.current.getContext('2d')!, {
-        type: 'line',
-        data: {
-          labels: bm.map(m => m.date.slice(5)),
-          datasets: [{ data: bm.map(m => m.weight), borderColor: 'var(--color-acc-green)', borderWidth: 2, tension: 0.3, pointRadius: 3, pointBackgroundColor: 'var(--color-acc-green)' }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c: { raw: unknown }) => (c.raw as number) + ' kg' } } },
-          scales: { x: { ticks: { color: '#4a4d56', font: { size: 9 } } }, y: { ticks: { color: '#4a4d56', font: { size: 9 } } } }
-        }
-      })
-      return () => { if (bChart.current) bChart.current.destroy() }
-  }, [bodyMetrics])
+    const lineColor = cssVar('--color-acc-green', '#1FA45B')
+    const pointColor = cssVar('--color-acc-green', '#1FA45B')
+    const tickColor = cssVar('--color-dim', '#6B6E5C')
+    bChart.current = new Chart(barRef.current.getContext('2d')!, {
+      type: 'line',
+      data: {
+        labels: bm.map(m => m.date.slice(5)),
+        datasets: [{ data: bm.map(m => m.weight), borderColor: lineColor, borderWidth: 2, tension: 0.3, pointRadius: 3, pointBackgroundColor: pointColor }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c: { raw: unknown }) => (c.raw as number) + ' kg' } } },
+        scales: { x: { ticks: { color: tickColor, font: { size: 9 } } }, y: { ticks: { color: tickColor, font: { size: 9 } } } }
+      }
+    })
+    return () => { if (bChart.current) bChart.current.destroy() }
+  }, [bodyMetrics, theme])
 
   function compare() {
     const a1 = FOODS_DB.find(f => f.name === c1)
