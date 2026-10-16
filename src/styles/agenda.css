@@ -17,6 +17,8 @@
 /* Tab-bar local de Agenda (Mes/Stats/Kanban/Planes/Notas) — usa .tab-bar/.tab-btn de globals. */
 .agenda-tabs-row{ padding:8px 16px 0; }
 .agenda-tabs-row .tab-btn{ font-size:13px; }
+.agenda-week-day summary{list-style:none;cursor:pointer}
+.agenda-week-task{display:flex;align-items:center;gap:12px;padding:10px 16px;font-size:13px;border-bottom:1px solid var(--color-border)}
 
 /* Tarjeta del calendario. */
 .cal-card{

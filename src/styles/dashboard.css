@@ -9,6 +9,8 @@
 .home-id-row{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
 .home-id-meta{ display:flex; flex-direction:column; gap:2px; min-width:0; }
 .home-date{ font-family:var(--font-display); font-size:13px; font-weight:500; color:var(--color-sub); letter-spacing:-0.01em; }
+.home-shortcuts{display:flex;gap:8px}
+.home-shortcuts a{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;border-radius:99px;background:var(--color-s1);color:var(--color-text);font-size:13px;font-weight:600;text-decoration:none}
 
 /* Tarjeta "Tu día" — superficie blanca radio 24, sombra suave IMPULSO. */
 .day-card{
@@ -21,8 +23,8 @@
 .day-card-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
 .day-card-title{ font-family:var(--font-display); font-size:22px; font-weight:600; color:var(--color-text); letter-spacing:-0.02em; }
 .day-progress-chip{
-  font-size:var(--fs-meta); font-weight:600; color:var(--color-on-accent);
-  background:color-mix(in srgb, var(--color-volt) 55%, transparent);
+  font-size:var(--fs-meta); font-weight:600; color:var(--color-text);
+  background:var(--color-volt-soft);
   border:1px solid color-mix(in srgb, var(--color-volt) 80%, transparent);
   border-radius:var(--radius-pill);
   padding:4px 12px;
@@ -45,10 +47,10 @@
   width:30px; height:30px; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
   background:color-mix(in srgb, var(--color-volt) 22%, transparent);
-  color:var(--color-on-accent);
+  color:var(--color-text);
 }
 .day-metric-icon.teal{ background:color-mix(in srgb, var(--color-teal) 22%, transparent); color:var(--color-teal); }
-.day-metric-icon.volt{ background:color-mix(in srgb, var(--color-volt) 28%, transparent); color:var(--color-on-accent); }
+.day-metric-icon.volt{ background:color-mix(in srgb, var(--color-volt) 28%, transparent); color:var(--color-text); }
 .day-metric-icon.night{ background:color-mix(in srgb, var(--color-night) 22%, transparent); color:var(--color-night); }
 .day-metric-icon.orange{ background:color-mix(in srgb, var(--color-acc-orange) 22%, transparent); color:var(--color-acc-orange); }
 .day-metric-num{ font-family:var(--font-display); font-size:22px; font-weight:600; color:var(--color-text); line-height:1; letter-spacing:-0.02em; }
@@ -81,7 +83,7 @@
 }
 .access-icon.blue{ background:color-mix(in srgb, var(--color-acc-blue) 18%, transparent); color:var(--color-acc-blue); }
 .access-icon.green{ background:color-mix(in srgb, var(--color-acc-green) 18%, transparent); color:var(--color-acc-green); }
-.access-icon.volt{ background:color-mix(in srgb, var(--color-volt) 35%, transparent); color:var(--color-on-accent); }
+.access-icon.volt{ background:color-mix(in srgb, var(--color-volt) 35%, transparent); color:var(--color-text); }
 .access-icon.orange{ background:color-mix(in srgb, var(--color-acc-orange) 18%, transparent); color:var(--color-acc-orange); }
 .access-icon.purple{ background:color-mix(in srgb, var(--color-acc-purple) 18%, transparent); color:var(--color-acc-purple); }
 .access-icon.teal{ background:color-mix(in srgb, var(--color-teal) 18%, transparent); color:var(--color-teal); }
@@ -166,11 +168,11 @@
 .quick-grid-icon{
   width:32px; height:32px; border-radius:10px;
   display:flex; align-items:center; justify-content:center;
-  color:var(--color-on-accent);
+  color:var(--color-text);
 }
 .quick-grid-icon.tasks{ background:color-mix(in srgb, var(--color-acc-blue) 22%, transparent); color:var(--color-acc-blue); }
 .quick-grid-icon.food{ background:color-mix(in srgb, var(--color-teal) 22%, transparent); color:var(--color-teal); }
-.quick-grid-icon.fit{ background:color-mix(in srgb, var(--color-volt) 38%, transparent); color:var(--color-on-accent); }
+.quick-grid-icon.fit{ background:color-mix(in srgb, var(--color-volt) 38%, transparent); color:var(--color-text); }
 .quick-grid-icon.money{ background:color-mix(in srgb, var(--color-money) 22%, transparent); color:var(--color-money); }
 .quick-grid-title{ font-size:14px; font-weight:600; }
 .quick-grid-sub{ font-size:12px; color:var(--color-sub); }

@@ -139,7 +139,7 @@ export function TopBar() {
                 <div style={{ fontSize: 13, color: 'var(--color-sub)', marginBottom: 8 }}>Tu nombre en la app</div>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <input value={name} onChange={e => setName(e.target.value)} type="text" className="inp" style={{ flex: 1, marginBottom: 0, fontSize: 16, fontWeight: 600 }} placeholder="Tu nombre..." />
-                  <button onClick={handleSaveName} style={{ padding: '0 16px', borderRadius: 14, background: 'color-mix(in srgb, var(--color-volt) 35%, transparent)', color: 'var(--color-on-accent)', border: '1px solid color-mix(in srgb, var(--color-volt) 50%, transparent)', fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', whiteSpace: 'nowrap' }}>Guardar</button>
+                  <button onClick={handleSaveName} style={{ padding: '0 16px', borderRadius: 14, background: 'color-mix(in srgb, var(--color-volt) 35%, transparent)', color: 'var(--color-text)', border: '1px solid color-mix(in srgb, var(--color-volt) 50%, transparent)', fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', whiteSpace: 'nowrap' }}>Guardar</button>
                 </div>
               </div>
             </div>

@@ -96,8 +96,10 @@ test('nextTxId: lista vacia usa Date.now()', () => {
 
 test('nextTxId: ids existentes menores que Date.now() -> Date.now()', () => {
   const txs = [{ id: 1 }, { id: 2 }, { id: 3 }] as unknown as Parameters<typeof nextTxId>[0]
+  const before = Date.now()
   const id = nextTxId(txs)
-  assert.ok(id >= Date.now())
+  assert.ok(id >= before)
+  assert.ok(id <= Date.now())
 })
 
 test('nextTxId: ids existentes mayores que Date.now() -> max+1 (caso applyImport + adjust)', () => {

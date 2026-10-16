@@ -24,10 +24,9 @@ export default function Agenda() {
   }, [])
   return (
     <div>
-      <div className="agenda-head">
-        <div className="agenda-title">Agenda</div>
+      <div className="page-header agenda-head">
+        <div className="page-title agenda-title">Agenda</div>
         <div className="agenda-sub">Organiza tu día</div>
-      </div>
       <div className="agenda-tabs-row">
         <div className="tab-bar">
           {/* 'day' se abre tocando un día del calendario (sin pestaña). Turnos y Semana viven
@@ -39,6 +38,7 @@ export default function Agenda() {
             </button>
           ))}
         </div>
+      </div>
       </div>
       <div key={tab} className="animate-tab" style={{ padding: '8px 16px 16px' }}>
         {tab === 'month' && (
@@ -279,13 +279,21 @@ function WeekView() {
             const dStr = d.toISOString().slice(0, 10)
             const dayTasks = tasks[dStr] || []
             return (
-              <div key={i} className="agenda-section-row">
+              <details key={i} className="agenda-week-day" open={dayTasks.length > 0}>
+              <summary className="agenda-section-row">
                 <div className="agenda-section-dot" style={{ background: 'var(--color-acc-blue)' }} aria-hidden="true" />
                 <span className="agenda-section-name">{DAYS[d.getDay()].slice(0, 3)} {d.getDate()}</span>
                 <span className="agenda-section-meta">
                   {dayTasks.length > 0 ? `${dayTasks.filter(t => t.done).length}/${dayTasks.length} hechas` : '—'}
                 </span>
-              </div>
+              </summary>
+              {dayTasks.map((task, taskIdx) => (
+                <div key={taskIdx} className="agenda-week-task">
+                  <span style={{ flex: 1, textDecoration: task.done ? 'line-through' : 'none', color: task.done ? 'var(--color-dim)' : 'var(--color-text)' }}>{task.text}</span>
+                  {task.priority && <span style={{ color: PRIORITY_COLORS[task.priority] }}>{task.priority === 'high' ? 'Alta' : task.priority === 'medium' ? 'Media' : 'Baja'}</span>}
+                </div>
+              ))}
+              </details>
             )
           })}
         </>
@@ -623,7 +631,7 @@ function ShiftsView() {
         <button onClick={() => { setEditMode(!editMode); toast.show(editMode ? 'Edición desactivada' : '✏️ Modo edición: toca un día para cambiar turno') }}
           style={{ padding: '8px 14px', borderRadius: 10, fontSize: 12, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', border: '1px solid',
             background: editMode ? 'color-mix(in srgb, var(--color-volt) 28%, transparent)' : 'var(--color-s2)',
-            color: editMode ? 'var(--color-on-accent)' : 'var(--color-dim)',
+            color: editMode ? 'var(--color-text)' : 'var(--color-dim)',
             borderColor: editMode ? 'color-mix(in srgb, var(--color-volt) 50%, transparent)' : 'var(--color-border)' }}>
           ✏️ {editMode ? 'Editando' : 'Editar'}
         </button>

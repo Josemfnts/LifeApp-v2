@@ -8,6 +8,11 @@ import { STORE_KEYS, ALL_STORAGE_KEYS } from '@/lib/storageKeys'
 import { useRemoteChange } from '@/lib/mirror'
 import { AREA_COLORS, AREA_ICONS, AREA_NAMES, type AreaStat, type Goal } from '@/types'
 import { Modal } from '@/components/ui'
+import { useNutriStore } from '@/stores/nutriStore'
+import { isFlow } from '@/lib/finance/flow'
+import { flowAmount } from '@/lib/finance/split'
+import { sumEuros } from '@/lib/finance/money'
+import type { Tx } from '@/lib/finance/types'
 import { UtensilsCrossed, Dumbbell, Footprints, Plus, Zap, CalendarDays, Receipt, ClipboardList, FileText, Users } from 'lucide-react'
 import '@/styles/dashboard.css'
 
@@ -18,6 +23,7 @@ export default function Dashboard() {
   const toast = useToast()
   const todayStr = new Date().toISOString().slice(0, 10)
   const areas: AreaStat[] = ['disc', 'fuerza', 'intel', 'riqueza']
+  const kcalGoal = useNutriStore(s => s.goals.kcal)
 
   const [goals, setGoals] = useState<Goal[]>(() => {
     try { return JSON.parse(localStorage.getItem(STORE_KEYS.josema_rpg_missions_v1) || '[]') } catch { return [] }
@@ -100,33 +106,20 @@ export default function Dashboard() {
       return h.type === 'bool' ? !!val : val >= h.goal
     }).length
     const habitsPct = activeHabits.length ? Math.round(doneHabits / activeHabits.length * 100) : 0
-    const dbTx = JSON.parse(localStorage.getItem(STORE_KEYS.finances_tx) || '[]')
-    const todaysTx = dbTx.filter((t: { date: string }) => t.date === todayStr)
-    const dayIncome = todaysTx.filter((t: { kind?: string; amount: number }) => !t.kind && t.amount > 0).reduce((s: number, t: { amount: number }) => s + t.amount, 0)
-    const dayExpense = todaysTx.filter((t: { kind?: string; amount: number }) => !t.kind && t.amount < 0).reduce((s: number, t: { amount: number }) => s + Math.abs(t.amount), 0)
-    const balance = dayIncome - dayExpense
+    const dbTasks = JSON.parse(localStorage.getItem(STORE_KEYS.agenda_tasks) || '{}')
+    const tasks: { done: boolean }[] = dbTasks[todayStr] || []
     return {
       kcal,
       train: sToday ? `${sToday.duration ?? 0} min` : '—',
       habits: doneHabits,
       habitsTotal: activeHabits.length,
       habitsPct,
-      balance,
-      txCount: todaysTx.length,
+      tasksDone: tasks.filter(t => t.done).length,
+      tasksTotal: tasks.length,
     }
   })()
 
-  // Progreso Tu día: promedio simple de los tres bloques con datos (kcal 67% si registrado,
-  // hábitos %, entreno sí/no). Si no hay datos en ninguno, 0%.
-  const dayProgress = (() => {
-    const blocks: number[] = []
-    if (dayMetrics.kcal > 0) blocks.push(67) // cifra orientativa kcal: 67% cobertura media
-    if (dayMetrics.habitsTotal > 0) blocks.push(dayMetrics.habitsPct)
-    if (dayMetrics.train !== '—') blocks.push(100)
-    if (dayMetrics.txCount > 0) blocks.push(100)
-    if (!blocks.length) return 0
-    return Math.round(blocks.reduce((s, n) => s + n, 0) / blocks.length)
-  })()
+  const kcalPct = kcalGoal > 0 ? Math.min(100, Math.round(dayMetrics.kcal / kcalGoal * 100)) : 0
 
   const streak = calcCombinedStreak(xp)
   const streakBars = Math.min(8, Math.max(streak, 0))
@@ -137,28 +130,11 @@ export default function Dashboard() {
 
       {/* Hábitos/Notas/Comunidad: accesos claros desde Inicio */}
       <div className="section s0" style={{ paddingTop: 4, paddingBottom: 0 }}>
-        <div className="quick-grid">
-          <button className="quick-grid-item" onClick={() => navigate('/habitos')} aria-label="Ir a Hábitos">
-            <span className="quick-grid-icon fit"><Zap size={18} aria-hidden="true" /></span>
-            <span className="quick-grid-title">Hábitos</span>
-            <span className="quick-grid-sub">{dayMetrics.habits}/{dayMetrics.habitsTotal || 0} hoy</span>
-          </button>
-          <button className="quick-grid-item" onClick={() => navigate('/notas')} aria-label="Ir a Notas">
-            <span className="quick-grid-icon tasks"><FileText size={18} aria-hidden="true" /></span>
-            <span className="quick-grid-title">Notas</span>
-            <span className="quick-grid-sub">Cuaderno tipo Notion</span>
-          </button>
-          <button className="quick-grid-item" onClick={() => navigate('/comunidad')} aria-label="Ir a Comunidad">
-            <span className="quick-grid-icon money"><Users size={18} aria-hidden="true" /></span>
-            <span className="quick-grid-title">Comunidad</span>
-            <span className="quick-grid-sub">Feed social</span>
-          </button>
-          <button className="quick-grid-item" onClick={() => navigate('/agenda')} aria-label="Ir a Agenda">
-            <span className="quick-grid-icon food"><CalendarDays size={18} aria-hidden="true" /></span>
-            <span className="quick-grid-title">Agenda</span>
-            <span className="quick-grid-sub">Tareas y turnos</span>
-          </button>
-        </div>
+        <nav className="home-shortcuts" aria-label="Más módulos">
+          <Link to="/habitos"><Zap size={16} aria-hidden="true" />Hábitos</Link>
+          <Link to="/notas"><FileText size={16} aria-hidden="true" />Notas</Link>
+          <Link to="/comunidad"><Users size={16} aria-hidden="true" />Comunidad</Link>
+        </nav>
       </div>
 
       {/* Tarjeta "Tu día" */}
@@ -166,8 +142,8 @@ export default function Dashboard() {
         <div className="day-card">
           <div className="day-card-head">
             <div className="day-card-title">Tu día</div>
-            <span className={dayProgress > 0 ? 'day-progress-chip' : 'day-progress-chip muted'}>
-              {dayProgress > 0 ? `Progreso ${dayProgress}%` : 'Sin datos aún'}
+            <span className={dayMetrics.tasksTotal > 0 ? 'day-progress-chip' : 'day-progress-chip muted'}>
+              {dayMetrics.tasksTotal > 0 ? `Agenda ${dayMetrics.tasksDone}/${dayMetrics.tasksTotal}` : 'Sin tareas hoy'}
             </span>
           </div>
           <div className="day-metrics">
@@ -175,7 +151,7 @@ export default function Dashboard() {
               <span className="day-metric-icon teal"><UtensilsCrossed size={16} aria-hidden="true" /></span>
               <span className="day-metric-num">{dayMetrics.kcal.toLocaleString('es-ES')}</span>
               <span className="day-metric-lbl">kcal</span>
-              <div className="day-metric-bar"><div className="day-metric-bar-fill teal" style={{ width: `${dayMetrics.kcal ? Math.min(100, Math.round(dayMetrics.kcal / 2000 * 100)) : 0}%` }} /></div>
+              <div className="day-metric-bar"><div className="day-metric-bar-fill teal" style={{ width: `${kcalPct}%` }} /></div>
             </Link>
             <Link to="/fisico" className="day-metric" aria-label="Ir a Físico">
               <span className="day-metric-icon volt"><Dumbbell size={16} aria-hidden="true" /></span>
@@ -342,7 +318,7 @@ export default function Dashboard() {
                 setGoals(next); localStorage.setItem(STORE_KEYS.josema_rpg_missions_v1, JSON.stringify(next))
                 setGoalName(''); setGoalCur(''); setGoalTarget(''); toast.show('✓ Objetivo añadido')
               }}
-                style={{ width: '100%', background: 'color-mix(in srgb, var(--color-volt) 28%, transparent)', border: '1px solid color-mix(in srgb, var(--color-volt) 40%, transparent)', color: 'var(--color-on-accent)', fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 600, padding: 12, borderRadius: 14, cursor: 'pointer' }}>Añadir objetivo</button>
+                style={{ width: '100%', background: 'color-mix(in srgb, var(--color-volt) 28%, transparent)', border: '1px solid color-mix(in srgb, var(--color-volt) 40%, transparent)', color: 'var(--color-text)', fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 600, padding: 12, borderRadius: 14, cursor: 'pointer' }}>Añadir objetivo</button>
             </div>
           </div>
         )}
@@ -496,15 +472,11 @@ function nutritionSub(): string {
 }
 
 function financeSummary(): string {
-  // Solo flujo del día (sin kind) y respetando splits: usa flowAmount si existiera;
-  // aquí evitamos duplicar motor y usamos lo mismo que la cuenta atrás.
-  const db = JSON.parse(localStorage.getItem(STORE_KEYS.finances_tx) || '[]')
+  const db: Tx[] = JSON.parse(localStorage.getItem(STORE_KEYS.finances_tx) || '[]')
   const today = new Date().toISOString().slice(0, 10)
-  const txs = db.filter((t: { date: string; kind?: string; amount: number; split?: { myShare?: number } }) => t.date === today && !t.kind)
+  const txs = db.filter(t => t.date === today && isFlow(t))
   if (!txs.length) return 'Sin movimientos'
-  const inc = txs.filter((t: { amount: number }) => t.amount > 0).reduce((s: number, t: { amount: number }) => s + t.amount, 0)
-  const exp = txs.filter((t: { amount: number }) => t.amount < 0).reduce((s: number, t: { amount: number }) => s + Math.abs(t.amount), 0)
-  const balance = inc - exp
+  const balance = sumEuros(txs.map(t => (t.type === 'income' ? 1 : -1) * flowAmount(t)))
   return `${balance >= 0 ? '+' : '−'}${Math.abs(balance).toLocaleString('es-ES', { maximumFractionDigits: 2 })} €`
 }
 function financeSub(): string {
