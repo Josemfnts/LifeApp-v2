@@ -16,7 +16,7 @@ Referencia vinculante: Guia_Visual/CLAUDE-PROMPT.md y capturas 01–10. El showc
 ## Entregas
 
 - [x] Base visual (2026-10-16): tokens, tipografía, temas, shell, navegación y componentes comunes.
-- [ ] Inicio y Agenda: nueva jerarquía y componentes usando datos y acciones reales.
+- [x] Inicio y Agenda: nueva jerarquía y componentes usando datos y acciones reales.
 - [ ] Físico y Nutrición: aplicación de las capturas a estados y flujos existentes.
 - [ ] Finanzas y cobertura: seis pestañas, Hábitos, Comunidad, Notas y Login.
 - [ ] Revisión final: capturas móvil/escritorio, navegación, acciones representativas, build/lint/tests y documentación.
@@ -29,3 +29,6 @@ Ninguna decisión de producto bloquea la ejecución. Las diferencias entre mocku
 
 - Base `a92b597` y corrección `c6430bd`: contratos build/lint/306 tests verdes. La corrección elimina el tema por ruta y adapta los tres temas a IMPULSO. Revisión de código y comprobación visual pendientes de cierre.
 - Inicio y Agenda en ejecución: `job_mvb9e50tal8d`. El ejecutor no modifica memoria ni planes; los actualiza Codex arquitecto.
+
+- Inicio y Agenda `8b061c8` + correcciones `b5aa214`: build/lint/306 tests verdes, revisión React sin P1/P2 pendientes en esta entrega. Verificación navegador con datos sintéticos: balance +80 € excluye traspaso y usa split, meta nutrición1000/consumo250 muestra25%, semana conserva texto/prioridad/estado y header sticky.
+- Físico y Nutrición en ejecución: `job_mvb9pcfsvtx7`.

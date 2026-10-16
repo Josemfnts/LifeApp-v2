@@ -129,3 +129,5 @@ Stack real: React 19 + Vite 8 + Zustand + Supabase (store_data key-value). Ver A
 En curso por petición de Josema. Referencia: `Guia_Visual/`; dirección y alcance en `DESIGN.md` y `PRODUCT.md`, mapa en `.mapa/rediseno-impulso/mapa.md`. Josema confirmó mantener el nombre LifeApp y todas las funciones. La implementación se delega a OpenCode por entregas, con revisión de Codex. Esta sección no da por cerradas fases aún no verificadas.
 
 Base visual IMPULSO integrada: `a92b597` + `c6430bd` (306 tests, build y lint verdes por contrato). Corrección: temas Claro/Oscuro/Negro OLED globales, sin tema por ruta. Inicio y Agenda en ejecución (`job_mvb9e50tal8d`); resto pendiente. Revisión final móvil/escritorio aún no realizada.
+
+Inicio y Agenda rediseñados (`8b061c8`, `b5aa214`) y revisados. Se corrigieron métricas de demostración, cálculo de balance de Inicio (motor existente), detalle semanal, header sticky y contraste oscuro. Comprobación navegador sintética y 306 tests/build/lint verdes. Físico y Nutrición en ejecución `job_mvb9pcfsvtx7`. Skills de diseño aplicadas: Impeccable y frontend-design de Anthropic, a petición de Josema.
