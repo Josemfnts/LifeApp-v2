@@ -88,8 +88,8 @@ export function TopBar() {
       <div className="page-header home-header">
         <div className="home-top">
           <div className="home-id-meta">
-            <div className="greeting">{greeting.replace(/,\s*$/, '')} · <span className="home-date">{dateStr}</span></div>
             <div className="greeting-name"><em>{getDisplayName()}</em></div>
+            <div className="greeting">{greeting.replace(/,\s*$/, '')} · <span className="home-date">{dateStr}</span></div>
           </div>
           <button className="gear-btn" aria-label="Ajustes" onClick={async () => {
             setSettingsOpen(true)

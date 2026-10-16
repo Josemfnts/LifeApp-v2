@@ -19,7 +19,7 @@ import { useTheme } from '@/contexts/ThemeContext'
 import {
   Plus, Star,
   Trash2, UtensilsCrossed, Flame,
-  Copy, Sun, Coffee, Cookie,
+  Copy, Sun, Coffee, Cookie, BookOpen,
 } from 'lucide-react'
 import '@/styles/nutricion.css'
 import '@/styles/module-ui.css'
@@ -160,7 +160,7 @@ function DiaryTab() {
                 {MACROS.map(m => {
                   const pct = m.g > 0 ? Math.min(100, Math.round(m.v / m.g * 100)) : 0
                   return (
-                    <div key={m.n} className="macro-row" style={{ '--macro-color': m.color } as React.CSSProperties}>
+                    <div key={m.n} className="macro-row" style={{ '--macro-color': m.color, '--macro-text': m.n === 'Carbos' ? 'var(--color-amber-text)' : m.color } as React.CSSProperties}>
                       <div className="macro-row-head">
                         <span className="macro-row-name">{m.n}</span>
                         <span className="macro-row-vals">{Math.round(m.v)} / {m.g}g</span>
@@ -468,7 +468,7 @@ function DishesTab() {
 
       {/* Recipe database with filters */}
       <div style={{ background: 'var(--color-s1)', border: '1px solid var(--color-border)', borderRadius: 16, padding: 16, marginBottom: 12 }}>
-        <div className="sec-label">📚 Biblioteca ({RECIPES.length} recetas)</div>
+        <div className="sec-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}><BookOpen size={16} aria-hidden="true" />Biblioteca ({RECIPES.length} recetas)</div>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
           <select className="inp" value={catFilter} onChange={e => setCatFilter(e.target.value)} style={{ flex: 1, minWidth: 100, marginBottom: 0, fontSize: 12 }}>
             <option value="">Todas las categorías</option>

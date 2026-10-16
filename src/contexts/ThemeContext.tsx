@@ -39,7 +39,7 @@ const THEMES: Record<Theme, Record<string, string>> = {
     // Acentos legados — variantes aptas para papel.
     '--color-acc-blue': '#2F7A4D',     // legacy: verde profundo legible (era azul de marca)
     '--color-acc-green': '#0E7B6E',
-    '--color-acc-orange': '#C45A2A',
+    '--color-acc-orange': '#B34F24',
     '--color-acc-gold': '#A07420',
     '--color-acc-purple': '#6A4FC8',
     '--color-red': '#C24338',
@@ -48,6 +48,7 @@ const THEMES: Record<Theme, Record<string, string>> = {
     // Datos semánticos — legibles sobre papel.
     '--color-teal': '#0E7B6E',
     '--color-amber': '#C77800',
+    '--color-amber-text': '#9B5C00',
     '--color-coral': '#C24338',
     '--color-night': '#6A4FC8',
     '--color-money': '#1F7A4D',
@@ -84,6 +85,7 @@ const THEMES: Record<Theme, Record<string, string>> = {
     '--color-blue': '#C9F43C',
     '--color-teal': '#2FB8A6',
     '--color-amber': '#F0A22E',
+    '--color-amber-text': '#F0A22E',
     '--color-coral': '#F26D5B',
     '--color-night': '#9B7BF0',
     '--color-money': '#3FCC85',
@@ -118,6 +120,7 @@ const THEMES: Record<Theme, Record<string, string>> = {
     '--color-blue': '#C9F43C',
     '--color-teal': '#2FB8A6',
     '--color-amber': '#F0A22E',
+    '--color-amber-text': '#F0A22E',
     '--color-coral': '#F26D5B',
     '--color-night': '#9B7BF0',
     '--color-money': '#3FCC85',

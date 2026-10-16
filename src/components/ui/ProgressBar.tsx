@@ -10,12 +10,12 @@ interface ProgressBarProps {
 
 export function ProgressBar({ value, color = 'var(--color-acc-blue)', className, height = 4, animated }: ProgressBarProps) {
   const pct = Math.min(100, Math.max(0, value))
-  const gradient = `linear-gradient(90deg, #5b8af0, #52b788, #c9a84c)`
+  const gradient = 'linear-gradient(90deg, var(--color-volt), var(--color-teal), var(--color-amber))'
 
   return (
     <div
-      className={clsx('bg-white/[0.05] rounded-full overflow-hidden', className)}
-      style={{ height }}
+      className={clsx('rounded-full overflow-hidden', className)}
+      style={{ height, background: 'var(--color-s3)' }}
     >
       <div
         className={clsx('h-full rounded-full relative overflow-hidden', animated && 'transition-all duration-700 ease-out')}

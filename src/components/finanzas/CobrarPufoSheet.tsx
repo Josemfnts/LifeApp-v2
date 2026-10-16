@@ -94,7 +94,7 @@ export function CobrarPufoSheet({ open, onClose, pufo, onCobrar }: Props) {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, padding: '12px 20px 0' }}>
         <button onClick={onClose} className="btn-ghost" style={{ width: '100%' }}>Cancelar</button>
-        <button onClick={handleConfirm} className="btn-primary" style={{ width: '100%', background: 'var(--color-primary)', color: '#111' }}>Cobrado</button>
+        <button onClick={handleConfirm} className="btn-primary" style={{ width: '100%' }}>Cobrado</button>
       </div>
     </Modal>
   )

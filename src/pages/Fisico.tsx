@@ -170,8 +170,8 @@ function StrengthTab() {
                     <div className="program-card">
                       <div className="program-card-head">
                         <div>
-                          <div className="program-card-tag">Programa semanal · Hoy</div>
                           <div className="program-card-name">{r.name}</div>
+                          <div className="program-card-tag">Programa semanal · Hoy</div>
                         </div>
                         <button onClick={() => { useFisicoStore.getState().setWeeklyProgram(null); toast.show('Programa desactivado') }} className="program-card-close" aria-label="Desactivar programa">✕</button>
                       </div>
@@ -195,8 +195,8 @@ function StrengthTab() {
                 <div className="program-card">
                   <div className="program-card-head">
                     <div>
-                      <div className="program-card-tag">Programa activo · Hoy</div>
                       <div className="program-card-name">{lib.nombre} — {session.nombre}</div>
+                      <div className="program-card-tag">Programa activo · Hoy</div>
                     </div>
                     <button onClick={() => {
                       useFisicoStore.getState().setWeeklyProgram(null)

@@ -17,6 +17,7 @@ import { UtensilsCrossed, Dumbbell, Footprints, Plus, Zap, CalendarDays, Receipt
 import '@/styles/dashboard.css'
 
 const acCls: Record<AreaStat, string> = { disc: 'ac-a', fuerza: 'ac-b', intel: 'ac-c', riqueza: 'ac-d' }
+const AreaIcon: Record<AreaStat, typeof ClipboardList> = { disc: ClipboardList, fuerza: UtensilsCrossed, intel: Dumbbell, riqueza: Receipt }
 
 export default function Dashboard() {
   const { xp, awardXP: award } = useXP()
@@ -238,6 +239,7 @@ export default function Dashboard() {
           {areas.map(stat => {
             const area = xp[stat]
             const lv = calcLevel(area?.total || 0)
+            const Icon = AreaIcon[stat]
             return (
               <Link
                 key={stat}
@@ -245,7 +247,7 @@ export default function Dashboard() {
                 className={`area-card ${acCls[stat]}`}
                 style={{ textDecoration: 'none' }}
               >
-                <span className="area-icon">{AREA_ICONS[stat]}</span>
+                <span className="area-icon"><Icon size={22} aria-hidden="true" /></span>
                 <div className="area-name">{AREA_NAMES[stat]}</div>
                 <div className="area-level">{lv.level}</div>
                 <div className="area-bar-track">
