@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
+import { createContext, useContext, useState, useLayoutEffect, type ReactNode } from 'react'
 
 type Theme = 'onyx' | 'cream' | 'abyss'
 
@@ -98,7 +98,7 @@ const THEMES: Record<Theme, Record<string, string>> = {
     '--color-border2': 'rgba(255,255,255,0.09)',
     '--color-text': '#F4F3EB',
     '--color-sub': '#B8BBA8',
-    '--color-dim': '#6B6E5C',
+    '--color-dim': '#9A9D8A',
     '--color-glass': 'rgba(0,0,0,0.85)',
     '--color-primary': '#C9F43C',
     '--color-on-primary': '#181B10',
@@ -151,7 +151,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     return (saved === 'onyx' || saved === 'cream' || saved === 'abyss' ? saved : 'cream') as Theme
   })
 
-  useEffect(() => {
+  // Publicar los tokens antes de los efectos de gráficos que leen estilos computados.
+  useLayoutEffect(() => {
     localStorage.setItem('lifeos_theme_v2', theme)
     const t = THEMES[theme]
     const root = document.documentElement
@@ -159,6 +160,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     // Marca el tema en <html> para selectores CSS por-tema y para UA.
     root.setAttribute('data-theme', theme)
     root.style.colorScheme = COLOR_SCHEME[theme]
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', t['--color-bg'])
   }, [theme])
 
   return (
