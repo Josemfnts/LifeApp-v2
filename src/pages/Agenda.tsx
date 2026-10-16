@@ -569,10 +569,11 @@ function DayView({ date }: { date: Date }) {
         <div
           onClick={handleToggle}
           style={{
-            borderRadius: 8, padding: '6px 10px', borderLeft: `3px solid ${col}`,
+            borderRadius: 8, padding: '6px 10px',
             display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer',
-            background: col + '11', opacity: t.done ? 0.45 : 1, transition: 'opacity 0.15s',
+            background: `color-mix(in srgb, ${col} 7%, transparent)`, opacity: t.done ? 0.45 : 1, transition: 'opacity 0.15s',
           }}>
+          <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: '50%', background: col, flexShrink: 0 }} />
           <div style={{ flex: 1, fontSize: 13, fontWeight: 500, color: t.done ? 'var(--color-dim)' : 'var(--color-text)', textDecoration: t.done ? 'line-through' : 'none' }}>{t.text}</div>
           {isRec && <span title="Tarea fija" style={{ fontSize: 10, color: 'var(--color-dim)' }}>🔄</span>}
           {t.priority && <span style={{ fontSize: 10, color: PRIORITY_COLORS[t.priority] }}>{t.priority === 'high' ? '🔴' : t.priority === 'medium' ? '🟡' : '🟢'}</span>}

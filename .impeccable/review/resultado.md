@@ -20,3 +20,16 @@ Producción `https://life-app-v2-ten.vercel.app/`: HTTP 200, CSS final presente,
 No se repitieron flujos autenticados de edición de Notas, publicaciones de Comunidad ni conexión de Salud contra Supabase. Revisión de su código y adaptación al tema completada. Este cambio no altera esquema, formatos, sincronización ni motores.
 
 `Replicar_nudgio/` es trabajo ajeno que apareció durante la sesión y se conserva sin incorporar. Los avisos de oxlint sobre sus JS descargados no corresponden al rediseño.
+
+## Triage del hook de cierre
+
+El pase profundo del hook emitió 18 avisos de atribución desconocida. Se revisaron los puntos concretos, sin extender la auditoría:
+
+- Cuatro avisos sobre fuentes: excepciones por valor para Inter y Space Grotesk. Las exige la guía elegida por Josema (CLAUDE-PROMPT.md, líneas 29 y 54).
+- Diez avisos sobre rellenos de progreso y gráficos: excepciones de `layout-transition` limitadas a los cinco archivos señalados. La guía pide animar los datos (línea 184); se conservaron las transiciones de barras, sin excepción global de la regla.
+- Dos avisos de cabecera: eliminadas las transiciones de padding, tamaño de letra y margen; se conserva la compactación al scroll.
+- Dos franjas laterales heredadas: sustituidas por puntos de color en tareas de Agenda y programas de Físico, conservando identificación y acciones. El fondo de tarea usa `color-mix()` válido también para tokens.
+
+Excepciones registradas exclusivamente con `impeccable hooks ignore-value` y su justificación en `.impeccable/config.json`. Revisión React sin P1/P2.
+
+Adenda visual independiente: `ship`, dos capturas válidas (`hook-agenda-390.png` y `hook-programa-390.png`, 390×844 con datos sintéticos). Franjas sustituidas, compactación conservada y excepciones justificadas; sin regresiones observadas del lote. Build/lint/306 tests verdes; el toggle de la tarea sigue marcándola como hecha.

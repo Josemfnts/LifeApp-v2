@@ -1,0 +1,65 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-10-16T18:38:49.877Z",
+        "reason": "Josema eligio Guia_Visual; CLAUDE-PROMPT.md lineas 29 y 54 exige Inter y Space Grotesk. DESIGN.md conserva esta identidad."
+      },
+      {
+        "rule": "overused-font",
+        "value": "space grotesk",
+        "createdAt": "2026-10-16T18:38:49.963Z",
+        "reason": "Josema eligio Guia_Visual; CLAUDE-PROMPT.md lineas 29 y 54 exige Inter y Space Grotesk. DESIGN.md conserva esta identidad."
+      },
+      {
+        "rule": "layout-transition",
+        "value": "*",
+        "files": [
+          "src/styles/globals.css"
+        ],
+        "createdAt": "2026-10-16T18:38:50.056Z",
+        "reason": "Guia_Visual/CLAUDE-PROMPT.md linea184 exige animar graficos y progreso mediante width/stroke-dashoffset. En este archivo las transiciones de layout restantes son rellenos de datos acotados; se revisaron todas. Las transiciones de padding/font-size/margin de la cabecera se eliminaron."
+      },
+      {
+        "rule": "layout-transition",
+        "value": "*",
+        "files": [
+          "src/pages/Agenda.tsx"
+        ],
+        "createdAt": "2026-10-16T18:38:50.141Z",
+        "reason": "Guia_Visual/CLAUDE-PROMPT.md linea184 exige animar graficos y progreso mediante width/stroke-dashoffset. En este archivo las transiciones de layout restantes son rellenos de datos acotados; se revisaron todas. Las transiciones de padding/font-size/margin de la cabecera se eliminaron."
+      },
+      {
+        "rule": "layout-transition",
+        "value": "*",
+        "files": [
+          "src/styles/dashboard.css"
+        ],
+        "createdAt": "2026-10-16T18:38:50.226Z",
+        "reason": "Guia_Visual/CLAUDE-PROMPT.md linea184 exige animar graficos y progreso mediante width/stroke-dashoffset. En este archivo las transiciones de layout restantes son rellenos de datos acotados; se revisaron todas. Las transiciones de padding/font-size/margin de la cabecera se eliminaron."
+      },
+      {
+        "rule": "layout-transition",
+        "value": "*",
+        "files": [
+          "src/styles/nutricion.css"
+        ],
+        "createdAt": "2026-10-16T18:38:50.319Z",
+        "reason": "Guia_Visual/CLAUDE-PROMPT.md linea184 exige animar graficos y progreso mediante width/stroke-dashoffset. En este archivo las transiciones de layout restantes son rellenos de datos acotados; se revisaron todas. Las transiciones de padding/font-size/margin de la cabecera se eliminaron."
+      },
+      {
+        "rule": "layout-transition",
+        "value": "*",
+        "files": [
+          "src/styles/fisico.css"
+        ],
+        "createdAt": "2026-10-16T18:38:50.399Z",
+        "reason": "Guia_Visual/CLAUDE-PROMPT.md linea184 exige animar graficos y progreso mediante width/stroke-dashoffset. En este archivo las transiciones de layout restantes son rellenos de datos acotados; se revisaron todas. Las transiciones de padding/font-size/margin de la cabecera se eliminaron."
+      }
+    ]
+  }
+}

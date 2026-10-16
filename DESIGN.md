@@ -176,6 +176,8 @@ La profundidad mezcla niveles de superficie, bordes sutiles y sombras ambientale
 
 Los cambios de pestaña duran (0.22 s), las entradas de hoja usan desplazamiento breve y las entradas escalonadas usan la curva `cubic-bezier(0.22,1,0.36,1)`. La preferencia de movimiento reducido desactiva entradas y transiciones del chrome. Los detalles de progreso deben acompañar datos reales; no esconder contenido detrás de una animación.
 
+La compactación de cabecera cambia sus medidas sin interpolar padding, margen o tamaño de letra. Las barras de datos conservan el movimiento pedido por la guía. El detector registra excepciones justificadas para estas barras y para las dos fuentes exigidas por la referencia; no son permiso para animar medidas estructurales en superficies nuevas.
+
 ## Shapes
 
 Las tarjetas usan el radio amplio Card y las pestañas compactas la silueta Pill. Los controles React compartidos tienen radio Button y los campos compartidos radio Field; variantes CSS existentes usan radios intermedios (14–18 px) según densidad. No homogeneizar todos los objetos a una sola silueta. Los círculos quedan para controles de icono y anillos, las hojas redondean solo las esquinas superiores y los divisores siguen la geometría de su contenedor.

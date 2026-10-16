@@ -162,8 +162,7 @@ body{
 /* Chrome que reacciona al scroll (Shell + src/lib/ui/scrollChrome.ts): la cabecera se queda
    pegada arriba y al bajar se compacta (las pestañas siguen a mano); la barra inferior se
    esconde al bajar y vuelve al subir. Inicio (.home-header) no se pega: es un bloque grande. */
-.page-header{position:sticky;top:0;z-index:50;transition:padding-top 0.22s ease}
-.page-title{transition:font-size 0.22s ease,margin-bottom 0.22s ease}
+.page-header{position:sticky;top:0;z-index:50}
 [data-header-collapsed] .page-header{padding-top:10px}
 [data-header-collapsed] .page-title{font-size:18px;margin-bottom:6px}
 [data-header-collapsed] .page-module{display:none}
