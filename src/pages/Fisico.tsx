@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { useFisicoStore, STATIC_EXERCISES, EXERCISE_GROUPS, EQUIPMENT_TYPES, EQUIPMENT_LABELS, EXERCISE_COLORS } from '@/stores/fisicoStore'
 import { ChipTabs, Input, Modal } from '@/components/ui'
 import { useToast } from '@/stores/toast'
@@ -17,6 +18,7 @@ import {
   Plus,
 } from 'lucide-react'
 import '@/styles/fisico.css'
+import '@/styles/module-ui.css'
 
 /* ── Timer Hook ── */
 function useTimer() {
@@ -463,9 +465,9 @@ function StrengthTab() {
               )
             })}
 
-            <button onClick={() => addSetToExercise(activeSession.exercises.length - 1, 0, 0)} aria-label="Añadir serie vacía" className="set-add-row" style={{ width: 'auto', marginLeft: 12, marginRight: 12 }}>
+            {activeSession.exercises.length > 0 && <button onClick={() => addSetToExercise(activeSession.exercises.length - 1, 0, 0)} aria-label="Añadir serie vacía" className="set-add-row" style={{ width: 'auto', marginLeft: 12, marginRight: 12 }}>
               <div className="set-add-dots">+ Añadir serie</div>
-            </button>
+            </button>}
 
             <div style={{ padding: '0 14px' }}>
               <button onClick={() => setShowExPicker(true)} className="add-ex">
@@ -1032,7 +1034,7 @@ function ExercisePicker({ open, onClose, allExercises, equipFilter, setEquipFilt
   onPick: (ex: { name: string; group: string }) => void
 }) {
   if (!open) return null
-  return (
+  return createPortal(
     <div className="ex-picker" onClick={e => { if (e.target === e.currentTarget) onClose() }}>
       <div className="ex-picker-sheet">
         <div className="ex-picker-handle" aria-hidden="true" />
@@ -1078,7 +1080,7 @@ function ExercisePicker({ open, onClose, allExercises, equipFilter, setEquipFilt
           </div>
         </div>
       </div>
-    </div>
+    </div>, document.body
   )
 }
 
@@ -1089,10 +1091,10 @@ function WeeklyModal({ routineId, onClose }: { routineId: string; onClose: () =>
   const [wMap, setWMap] = useState<Record<number, number>>({})
   if (!r) return null
   const DOW = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo']
-  return (
+  return createPortal(
     <div onClick={e => { if (e.target === e.currentTarget) onClose() }}
       className="ex-picker">
-      <div className="ex-picker-sheet" style={{ maxWidth: 520, padding: '20px 20px 40px' }}>
+      <div className="ex-picker-sheet" style={{ maxWidth: 520, overflowY: 'auto', padding: '20px 20px calc(24px + env(safe-area-inset-bottom, 0px))' }}>
         <div className="ex-picker-handle" aria-hidden="true" />
         <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, marginBottom: 4, color: 'var(--color-text)' }}>Programar semanal</div>
         <div style={{ fontSize: 13, color: 'var(--color-sub)', marginBottom: 16 }}>{r.nombre} · {r.sesiones.length} sesiones</div>
@@ -1116,10 +1118,10 @@ function WeeklyModal({ routineId, onClose }: { routineId: string; onClose: () =>
               toast.show('✓ Programa semanal activado')
             }
             onClose()
-          }} className="fis-cta" style={{ background: 'var(--color-acc-orange)' }}>Activar programa</button>
+          }} className="fis-cta">Activar programa</button>
         </div>
       </div>
-    </div>
+    </div>, document.body
   )
 }
 
@@ -1523,7 +1525,7 @@ export default function Fisico() {
 
   return (
     <div>
-      <div className="fis-head">
+      <div className="page-header fis-head">
         <div className="page-title">Físico</div>
         <div className="fis-tabs-row">
           <ChipTabs value={section} onChange={setSection} items={SECTIONS} />

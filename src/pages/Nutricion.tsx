@@ -13,7 +13,7 @@ import { dishToPost, menuToPost, bodyProgressToPost } from '@/lib/socialShare'
 import { FOODS_DB } from '@/data/foods'
 import { RECIPES, RECIPE_CATEGORIES, RECIPE_TAGS, RECIPE_DIFFICULTIES, filterRecipes, difficultyLabel } from '@/data/recipesDB'
 import { useToast } from '@/stores/toast'
-import { Input } from '@/components/ui'
+import { Input, Modal } from '@/components/ui'
 import Chart from 'chart.js/auto'
 import { useTheme } from '@/contexts/ThemeContext'
 import {
@@ -22,6 +22,7 @@ import {
   Copy, Sun, Coffee, Cookie,
 } from 'lucide-react'
 import '@/styles/nutricion.css'
+import '@/styles/module-ui.css'
 
 const MEAL_TYPES = ['Desayuno', 'Comida', 'Cena', 'Snack', 'Post-entreno']
 const DOW_S = ['D', 'L', 'M', 'X', 'J', 'V', 'S']
@@ -44,7 +45,7 @@ export default function Nutricion() {
   const [tab, setTab] = useState<'diary' | 'dishes' | 'search' | 'goals' | 'plan' | 'menu' | 'tools'>('diary')
   return (
     <div>
-      <div className="nut-head">
+      <div className="page-header nut-head">
         <div className="page-title">Nutrición</div>
         <div className="nut-tabs-row">
           <div className="tab-bar">
@@ -73,11 +74,8 @@ export default function Nutricion() {
 function DiaryTab() {
   const { log, addFood, removeFood, goals, favorites, toggleFavorite } = useNutriStore()
   const toast = useToast()
-  const { theme } = useTheme()
   const today = todayISO()
   const todayFoods = log[today] || []
-  const ringRef = useRef<HTMLCanvasElement>(null)
-  const chartRef = useRef<Chart | null>(null)
 
   const totalKcal = todayFoods.reduce((s, f) => s + f.kcal, 0)
   const totalP = todayFoods.reduce((s, f) => s + f.p, 0)
@@ -95,34 +93,12 @@ function DiaryTab() {
   const [grams, setGrams] = useState('100')
   const [retroDate, setRetroDate] = useState(today)
   const [showCopy, setShowCopy] = useState(false)
+  const [registerOpen, setRegisterOpen] = useState(false)
   const [copyDate, setCopyDate] = useState('')
   const [copyMeal, setCopyMeal] = useState('Comida')
 
   const streakDays = (() => { let s = 0; const d = new Date(); for (let i = 0; i < 365; i++) { const ds = d.toISOString().slice(0, 10); if ((log[ds] || []).length > 0) s++; else if (i > 0) break; d.setDate(d.getDate() - 1) } return s })()
   const [portion, setPortion] = useState('g')
-
-  // Anillo de kcal: se suscribe a useTheme para repintarse al cambiar entre
-  // cream/onyx/abyss (Chart.js no lee vars CSS automáticamente).
-  useEffect(() => {
-    if (!ringRef.current) return
-    chartRef.current?.destroy()
-    const ringColor = cssVar('--color-volt', '#C9F43C')
-    const trackColor = cssVar('--color-border2', 'rgba(0,0,0,0.14)')
-    const capped = Math.min(totalKcal, goals.kcal || 1)
-    const rest = Math.max(0, (goals.kcal || 1) - totalKcal)
-    chartRef.current = new Chart(ringRef.current.getContext('2d')!, {
-      type: 'doughnut',
-      data: {
-        datasets: [{
-          data: goals.kcal > 0 ? [capped, rest] : [1],
-          backgroundColor: goals.kcal > 0 ? [ringColor, trackColor] : [trackColor],
-          borderWidth: 0,
-        }]
-      },
-      options: { cutout: '75%', plugins: { legend: { display: false }, tooltip: { enabled: false } } }
-    })
-    return () => { chartRef.current?.destroy() }
-  }, [totalKcal, goals.kcal, theme])
 
   function handleCopyDay() {
     if (!copyDate) return
@@ -140,6 +116,7 @@ function DiaryTab() {
     addFood(retroDate, { name: name.trim(), kcal: k, p: parseFloat(p) || 0, c: parseFloat(c) || 0, f: parseFloat(f) || 0, grams: parseFloat(grams) || 100, meal })
     toast.show(`✓ ${name.trim()} (${k}kcal)`)
     setName(''); setKcal(''); setP(''); setC(''); setF(''); setGrams('100')
+    setRegisterOpen(false)
   }
 
   const mealGroups = MEAL_TYPES.filter(m => todayFoods.some(f => f.meal === m))
@@ -198,7 +175,7 @@ function DiaryTab() {
             </div>
             <div className="kcal-hero-foot">
               <span>Quedan <strong>{remainingKcal.toLocaleString('es-ES')} kcal</strong> para tu meta</span>
-              <span className="right" style={{ color: pctKcal >= 100 ? 'var(--color-coral)' : 'var(--color-volt-deep)' }}>
+              <span className="right" style={{ color: pctKcal >= 100 ? 'var(--color-coral)' : 'var(--color-acc-blue)' }}>
                 {pctKcal >= 100 ? 'Meta alcanzada' : 'En camino'}
               </span>
             </div>
@@ -206,6 +183,8 @@ function DiaryTab() {
         ) : (
           <div className="kcal-hero-empty">
             <Flame size={32} aria-hidden="true" style={{ color: 'var(--color-dim)' }} />
+            <div className="kcal-hero-kcal">{totalKcal.toLocaleString('es-ES')} kcal</div>
+            <div>Proteína {Math.round(totalP)} g · Carbos {Math.round(totalC)} g · Grasa {Math.round(totalF)} g</div>
             <div>Define un objetivo de kcal en la pestaña <strong>Metas</strong> para ver el progreso del día.</div>
           </div>
         )}
@@ -221,12 +200,15 @@ function DiaryTab() {
       )}
 
       {/* 2) CTA + FORMULARIO de registrar */}
-      <div className="nut-card nut-card-pad" style={{ marginBottom: 12 }}>
+      <button className="nut-cta" style={{ marginBottom: 12 }} onClick={() => setRegisterOpen(true)}>
+        <Plus size={16} aria-hidden="true" /> Registrar alimento
+      </button>
+      <Modal open={registerOpen} onClose={() => setRegisterOpen(false)} title="Registrar alimento">
+      <div style={{ padding: 20 }}>
         <div className="nut-card-head" style={{ padding: 0, borderBottom: 'none', marginBottom: 12 }}>
-          <div className="nut-card-title">Registrar alimento</div>
           <div className="nut-card-meta">
             <button onClick={() => setShowCopy(v => !v)}
-              className="fis-chip"
+              className="nut-copy-toggle"
               aria-expanded={showCopy}
               style={{ cursor: 'pointer' }}>
               <Copy size={12} aria-hidden="true" /> Copiar día
@@ -270,6 +252,7 @@ function DiaryTab() {
           <Plus size={16} aria-hidden="true" /> Añadir al diario
         </button>
       </div>
+      </Modal>
 
       {/* Favoritos (si hay) — discreto, entre el form y los registros */}
       {favorites.length > 0 && (
@@ -313,7 +296,7 @@ function DiaryTab() {
                       <div className="meal-name">{f.name}</div>
                       <div className="meal-meta">{f.grams}g · P:{f.p}g C:{f.c}g G:{f.f}g</div>
                     </div>
-                    <div className="meal-kcal">{f.kcal}</div>
+                    <div className="meal-kcal">{f.kcal} kcal</div>
                     <button onClick={() => { toggleFavorite(f.name); toast.show(favorites.includes(f.name) ? 'Quitado de favoritos' : '★ Añadido a favoritos') }}
                       aria-label={favorites.includes(f.name) ? 'Quitar de favoritos' : 'Añadir a favoritos'}
                       className="meal-action">
@@ -364,6 +347,27 @@ function DiaryTab() {
           </div>
         )
       })()}
+      <details className="nut-card" style={{ marginTop: 12 }}>
+        <summary style={{ padding: 18, cursor: 'pointer', fontWeight: 600 }}>Calendario de registros</summary>
+        <div className="nut-calendar">
+          {['L','M','X','J','V','S','D'].map(day => <span key={day}>{day}</span>)}
+          {(() => {
+            const now = new Date()
+            const year = now.getFullYear()
+            const month = now.getMonth()
+            const first = (new Date(year, month, 1).getDay() + 6) % 7
+            const days = new Date(year, month + 1, 0).getDate()
+            return <>
+              {Array.from({ length: first }, (_, i) => <span key={`empty-${i}`} />)}
+              {Array.from({ length: days }, (_, i) => {
+                const date = `${year}-${String(month + 1).padStart(2, '0')}-${String(i + 1).padStart(2, '0')}`
+                const kcal = (log[date] || []).reduce((sum, food) => sum + food.kcal, 0)
+                return <time key={date} dateTime={date} data-logged={kcal > 0} aria-current={date === today ? 'date' : undefined} title={`${date}: ${kcal} kcal`}>{i + 1}</time>
+              })}
+            </>
+          })()}
+        </div>
+      </details>
     </div>
   )
 }
@@ -1877,5 +1881,3 @@ function ToolsTab() {
     </div>
   )
 }
-
-

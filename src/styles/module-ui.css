@@ -1,0 +1,55 @@
+/* Primitivas usadas explícitamente por Físico y Nutrición.
+   Ambas rutas importan este fichero; ninguna depende de visitar la otra. */
+.nut-card{
+  background:var(--color-s1);
+  border:1px solid var(--color-border);
+  border-radius:var(--radius-card);
+  box-shadow:var(--shadow-impulso);
+  overflow:hidden;
+}
+.nut-card + .nut-card{ margin-top:12px; }
+.nut-card-pad{ padding:16px 18px; }
+.nut-card-head{ display:flex; align-items:center; gap:10px; padding:14px 16px; border-bottom:1px solid var(--color-border); }
+.nut-card-title{ flex:1; min-width:0; font-family:var(--font-display); font-size:17px; font-weight:600; color:var(--color-text); }
+.nut-card-meta{ font-size:12px; font-weight:700; color:var(--color-sub); flex-shrink:0; }
+.nut-card-section-label{
+  font-size:var(--fs-meta); font-weight:600; color:var(--color-dim);
+  letter-spacing:0.6px; text-transform:uppercase; margin-bottom:10px;
+  display:flex; align-items:center; gap:8px;
+}
+.register-grid-2{ display:grid; grid-template-columns:repeat(2, 1fr); gap:8px; }
+.input-mini{
+  background:var(--color-s2); border:1px solid var(--color-border);
+  color:var(--color-text);
+  border-radius:12px; padding:10px 12px;
+  font-family:var(--font-sans); font-size:16px;
+  outline:none;
+  margin-bottom:0; width:100%;
+  transition:border-color 0.15s, box-shadow 0.15s;
+}
+.input-mini:focus{
+  border-color:var(--color-ink);
+  box-shadow:0 0 0 3px color-mix(in srgb, var(--color-volt) 35%, transparent);
+}
+.input-mini.center{ text-align:center; }
+.meal-action{
+  width:32px; height:32px; border-radius:8px;
+  background:transparent; border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  color:var(--color-dim);
+}
+.meal-action:hover{ background:var(--color-s2); color:var(--color-text); }
+.meal-action.danger{ color:var(--color-red); }
+.meal-action.danger:hover{ background:color-mix(in srgb, var(--color-red) 10%, transparent); }
+.meal-empty{
+  text-align:center; padding:32px 16px;
+  color:var(--color-dim); font-size:13px;
+}
+.dish-pill{
+  padding:2px 7px; border-radius:6px; font-size:9px; font-weight:600;
+  background:var(--color-s2); color:var(--color-dim);
+}
+.dish-pill.green{
+  background:color-mix(in srgb, var(--color-acc-green) 12%, transparent);
+  color:var(--color-acc-green);
+}

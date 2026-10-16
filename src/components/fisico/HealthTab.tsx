@@ -106,7 +106,7 @@ export function HealthTab() {
             Sueño, pasos, frecuencia cardíaca y estrés de tu Garmin o Amazfit, sincronizados automáticamente.
             Esta sección guarda los datos en tu cuenta, así que necesitas iniciar sesión.
           </div>
-          <button onClick={() => window.dispatchEvent(new CustomEvent('show-login'))} className="nut-cta" style={{ background: 'var(--color-red)' }}>Iniciar sesión</button>
+          <button onClick={() => window.dispatchEvent(new CustomEvent('show-login'))} className="btn-primary">Iniciar sesión</button>
         </div>
       </div>
     )

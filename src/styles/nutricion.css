@@ -9,26 +9,17 @@
 /* Cabecera local — sigue el patrón de Agenda (módulo con tab-bar local). */
 .nut-head{ padding:24px 20px 4px; background:var(--color-bg); }
 .nut-tabs-row{ padding:0 14px; }
+.nut-copy-toggle{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:8px 12px;border:1px solid var(--color-border);border-radius:99px;background:var(--color-s2);color:var(--color-text);font:inherit;font-size:13px;cursor:pointer}
 
 /* ── BLOQUES COMUNES ───────────────────────────────── */
 
-.nut-card{
-  background:var(--color-s1);
-  border:1px solid var(--color-border);
-  border-radius:var(--radius-card);
-  box-shadow:var(--shadow-impulso);
-  overflow:hidden;
-}
-.nut-card + .nut-card{ margin-top:12px; }
-.nut-card-pad{ padding:16px 18px; }
-.nut-card-head{ display:flex; align-items:center; gap:10px; padding:14px 16px; border-bottom:1px solid var(--color-border); }
-.nut-card-title{ flex:1; min-width:0; font-family:var(--font-display); font-size:17px; font-weight:600; color:var(--color-text); }
-.nut-card-meta{ font-size:12px; font-weight:700; color:var(--color-sub); flex-shrink:0; }
-.nut-card-section-label{
-  font-size:var(--fs-meta); font-weight:600; color:var(--color-dim);
-  letter-spacing:0.6px; text-transform:uppercase; margin-bottom:10px;
-  display:flex; align-items:center; gap:8px;
-}
+
+
+
+
+
+
+
 
 .nut-round{
   width:40px; height:40px; border-radius:50%;
@@ -103,7 +94,7 @@
 .nut-pill.volt{
   background:color-mix(in srgb, var(--color-volt) 28%, transparent);
   border-color:color-mix(in srgb, var(--color-volt) 60%, transparent);
-  color:var(--color-on-accent);
+  color:var(--color-text);
 }
 .nut-pill.dot::before{
   content:''; display:inline-block;
@@ -225,7 +216,7 @@
 
 /* ── DIARIO / REGISTRO ─────────────────────────── */
 
-.register-grid-2{ display:grid; grid-template-columns:repeat(2, 1fr); gap:8px; }
+
 .register-grid-4{ display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; }
 .register-row{ display:flex; gap:6px; margin-bottom:8px; align-items:center; }
 .register-row .date{ width:130px; }
@@ -250,20 +241,9 @@
   cursor:pointer;
 }
 
-.input-mini{
-  background:var(--color-s2); border:1px solid var(--color-border);
-  color:var(--color-text);
-  border-radius:12px; padding:10px 12px;
-  font-family:var(--font-sans); font-size:14px;
-  outline:none;
-  margin-bottom:0; width:100%;
-  transition:border-color 0.15s, box-shadow 0.15s;
-}
-.input-mini:focus{
-  border-color:var(--color-ink);
-  box-shadow:0 0 0 3px color-mix(in srgb, var(--color-volt) 35%, transparent);
-}
-.input-mini.center{ text-align:center; }
+
+
+
 
 /* ── FEED DEL DÍA (lista plana con divisores) ───────── */
 .meal-row{
@@ -276,7 +256,7 @@
   width:40px; height:40px; border-radius:12px;
   background:color-mix(in srgb, var(--color-volt) 16%, transparent);
   border:1px solid color-mix(in srgb, var(--color-volt) 30%, transparent);
-  color:var(--color-on-accent);
+  color:var(--color-text);
   display:flex; align-items:center; justify-content:center;
   flex-shrink:0;
 }
@@ -288,25 +268,17 @@
 .meal-name{ font-size:14px; font-weight:600; color:var(--color-text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .meal-meta{ font-size:11px; color:var(--color-sub); margin-top:2px; }
 .meal-kcal{ font-family:var(--font-display); font-size:18px; color:var(--color-acc-green); font-style:italic; font-weight:600; }
-.meal-action{
-  width:32px; height:32px; border-radius:8px;
-  background:transparent; border:none; cursor:pointer;
-  display:flex; align-items:center; justify-content:center;
-  color:var(--color-dim);
-}
-.meal-action:hover{ background:var(--color-s2); color:var(--color-text); }
-.meal-action.danger{ color:var(--color-red); }
-.meal-action.danger:hover{ background:color-mix(in srgb, var(--color-red) 10%, transparent); }
+
+
+
+
 
 .meal-group-lbl{
   padding:10px 16px 4px;
   font-size:10px; font-weight:700; color:var(--color-dim);
   text-transform:uppercase; letter-spacing:0.5px;
 }
-.meal-empty{
-  text-align:center; padding:32px 16px;
-  color:var(--color-dim); font-size:13px;
-}
+
 
 /* ── RACHAS ─────────────────────────────────── */
 .streak-row{ display:flex; align-items:center; gap:8px; margin-bottom:12px; }
@@ -516,13 +488,13 @@
   position:relative;
   display:flex; align-items:center; justify-content:center;
 }
-.day-pill.active{ background:color-mix(in srgb, var(--color-volt) 14%, transparent); border-color:color-mix(in srgb, var(--color-volt) 30%, transparent); color:var(--color-on-accent); }
+.day-pill.active{ background:color-mix(in srgb, var(--color-volt) 14%, transparent); border-color:color-mix(in srgb, var(--color-volt) 30%, transparent); color:var(--color-text); }
 .day-pill.training::before{ content:''; position:absolute; top:2px; right:4px; width:5px; height:5px; border-radius:50%; background:var(--color-acc-blue); }
 
 .plan-cta-ghost{
   width:100%; padding:13px 0; border-radius:14px; margin-bottom:12px;
   background:var(--color-s2); border:1px solid color-mix(in srgb, var(--color-volt) 30%, transparent);
-  color:var(--color-on-accent); font-family:var(--font-sans); font-size:13px; font-weight:700;
+  color:var(--color-text); font-family:var(--font-sans); font-size:13px; font-weight:700;
   cursor:pointer;
 }
 .plan-cta-row{ display:flex; gap:8px; margin-top:4px; margin-bottom:12px; }
@@ -534,7 +506,7 @@
 .plan-cta-row .to-menu{
   background:color-mix(in srgb, var(--color-volt) 14%, transparent);
   border:1px solid color-mix(in srgb, var(--color-volt) 30%, transparent);
-  color:var(--color-on-accent);
+  color:var(--color-text);
 }
 .plan-cta-row .to-diary{
   background:color-mix(in srgb, var(--color-acc-blue) 10%, transparent);
@@ -621,7 +593,7 @@
 .fast-tile .goal{ font-size:13px; color:var(--color-sub); margin-bottom:14px; text-align:center; }
 .fast-tile-cta{
   width:100%; padding:12px; border-radius:14px;
-  background:var(--color-acc-blue); color:#fff; border:none;
+  background:var(--color-primary); color:var(--color-on-primary); border:none;
   font-family:var(--font-sans); font-size:14px; font-weight:700;
   cursor:pointer;
 }
@@ -640,14 +612,8 @@
 }
 
 /* ── PLATOS / RECETAS ─────────────────────────── */
-.dish-pill{
-  padding:2px 7px; border-radius:6px; font-size:9px; font-weight:600;
-  background:var(--color-s2); color:var(--color-dim);
-}
-.dish-pill.green{
-  background:color-mix(in srgb, var(--color-acc-green) 12%, transparent);
-  color:var(--color-acc-green);
-}
+
+
 .dish-meta{ font-size:12px; color:var(--color-sub); margin-bottom:8px; }
 .dish-ingredients{ font-size:11px; color:var(--color-dim); margin-bottom:10px; }
 .dish-actions{ display:flex; gap:8px; }
@@ -686,3 +652,8 @@
   .search-row{ flex-direction:column; }
   .search-row .meal-select{ width:100%; }
 }
+
+.nut-calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;padding:0 18px 18px;text-align:center;font-size:13px}
+.nut-calendar time{padding:8px 0;border-radius:8px;color:var(--color-dim);background:var(--color-s2)}
+.nut-calendar time[data-logged="true"]{background:color-mix(in srgb,var(--color-teal) 22%,var(--color-s1));color:var(--color-text)}
+.nut-calendar time[aria-current="date"]{outline:2px solid var(--color-acc-blue);outline-offset:-2px}
